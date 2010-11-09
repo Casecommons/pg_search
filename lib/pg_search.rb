@@ -11,7 +11,7 @@ module PgSearch
         "#{quoted_table_name}.#{connection.quote_column_name(column_name)}"
       end.join(" || ")
 
-      conditions = "to_tsvector('simple', #{column_names}) @@ to_tsquery('simple', :query)"
+      conditions = "to_tsvector('simple', #{column_names}) @@ plainto_tsquery('simple', :query)"
 
       scope_method = if self.respond_to?(:scope) && !protected_methods.include?('scope')
                        :scope

@@ -55,6 +55,31 @@ describe "an ActiveRecord model which includes PgSearch" do
     end
   end
 
+  describe "a given pg_search_scope" do
+    before do
+      model_with_pg_search.class_eval do
+        pg_search_scope "search_content", :matches => [:content]
+      end
+   end
+
+    it "allows for multiple space-separated search terms" do
+      included = [
+        model_with_pg_search.create(:content => 'foo bar'),
+        model_with_pg_search.create(:content => 'bar foo'),
+        model_with_pg_search.create(:content => 'bar foo baz'),
+      ]
+      excluded = [
+        model_with_pg_search.create(:content => 'foo'),
+        model_with_pg_search.create(:content => 'foo baz')
+      ]
+
+      results = model_with_pg_search.search_content('foo bar')
+      results.should =~ included
+      results.should_not include(excluded)
+    end
+
+  end
+
 end
 
 # Creates a class method
