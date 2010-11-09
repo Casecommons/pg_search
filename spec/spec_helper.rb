@@ -2,7 +2,8 @@ require "bundler/setup"
 require "pg_search"
 
 ActiveRecord::Base.establish_connection(:adapter  => 'postgresql',
-                                        :database => 'pg_search_test')
+                                        :database => 'pg_search_test',
+                                        :min_messages => 'warning')
 
 connection = ActiveRecord::Base.connection
 
@@ -67,3 +68,7 @@ module WithModel
 end
 
 RSpec::Core::ExampleGroup.extend WithModel
+
+if defined?(ActiveRecord::Relation)
+  RSpec::Matchers::OperatorMatcher.register(ActiveRecord::Relation, '=~', RSpec::Matchers::MatchArray)
+end
