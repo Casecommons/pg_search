@@ -1,0 +1,3 @@
+module PgSearch
+  # Your code goes here...
+end
