@@ -29,7 +29,7 @@ module PgSearch
         options = options_proc.call(*args)
 
         matches_concatenated = Array.wrap(options[:matches]).map do |match|
-          "#{quoted_table_name}.#{connection.quote_column_name(match)}"
+          "coalesce(#{quoted_table_name}.#{connection.quote_column_name(match)}, '')"
         end.join(" || ' ' || ")
 
         conditions = "to_tsvector('simple', #{matches_concatenated}) @@ plainto_tsquery('simple', :query)"

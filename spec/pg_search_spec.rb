@@ -59,6 +59,18 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
 
+    it "builds a scope for searching on multiple columns where one is NULL" do
+      model_with_pg_search.class_eval do
+        pg_search_scope :search_text_and_content, [:title, :content]
+      end
+
+      included = model_with_pg_search.create!(:title => 'foo', :content => nil)
+
+      results = model_with_pg_search.search_text_and_content('foo')
+
+      results.should == [included]
+    end
+
     it "builds a dynamic scope when passed a lambda" do
       model_with_pg_search.class_eval do
         pg_search_scope :search_title_or_content, lambda { |query, pick_content|
