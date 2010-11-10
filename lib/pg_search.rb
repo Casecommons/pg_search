@@ -7,11 +7,11 @@ module PgSearch
 
   module ClassMethods
     def pg_search_scope(name, matches)
-      column_names = Array.wrap(matches).map do |column_name|
-        "#{quoted_table_name}.#{connection.quote_column_name(column_name)}"
-      end.join(" || ")
+      matches_concatenated = Array.wrap(matches).map do |match|
+        "#{quoted_table_name}.#{connection.quote_column_name(match)}"
+      end.join(" || ' ' || ")
 
-      conditions = "to_tsvector('simple', #{column_names}) @@ plainto_tsquery('simple', :query)"
+      conditions = "to_tsvector('simple', #{matches_concatenated}) @@ plainto_tsquery('simple', :query)"
 
       scope_method = if self.respond_to?(:scope) && !protected_methods.include?('scope')
                        :scope
