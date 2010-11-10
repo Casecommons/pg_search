@@ -6,8 +6,8 @@ module PgSearch
   end
 
   module ClassMethods
-    def pg_search_scope(name, options)
-      column_names = Array.wrap(options[:matches]).map do |column_name|
+    def pg_search_scope(name, matches)
+      column_names = Array.wrap(matches).map do |column_name|
         "#{quoted_table_name}.#{connection.quote_column_name(column_name)}"
       end.join(" || ")
 

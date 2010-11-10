@@ -16,7 +16,7 @@ describe "an ActiveRecord model which includes PgSearch" do
   describe ".pg_search_scope" do
     it "builds a scope" do
       model_with_pg_search.class_eval do
-        pg_search_scope "matching_query", :matches => []
+        pg_search_scope "matching_query", []
       end
 
       lambda {
@@ -26,7 +26,7 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     it "builds a scope for searching on a particular column" do
       model_with_pg_search.class_eval do
-        pg_search_scope "search_content", :matches => [:content]
+        pg_search_scope :search_content, :content
       end
 
       included = model_with_pg_search.create(:content => 'foo')
@@ -39,7 +39,7 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     it "builds a scope for searching on multiple columns" do
       model_with_pg_search.class_eval do
-        pg_search_scope "search_text_and_content", :matches => [:text, :content]
+        pg_search_scope :search_text_and_content, [:text, :content]
       end
 
       included = [
@@ -58,7 +58,7 @@ describe "an ActiveRecord model which includes PgSearch" do
   describe "a given pg_search_scope" do
     before do
       model_with_pg_search.class_eval do
-        pg_search_scope "search_content", :matches => [:content]
+        pg_search_scope :search_content, [:content]
       end
    end
 
@@ -81,7 +81,3 @@ describe "an ActiveRecord model which includes PgSearch" do
   end
 
 end
-
-# Creates a class method
-# The class method is actually a chainable scope
-# The scope matches the right things
