@@ -72,3 +72,45 @@ RSpec::Core::ExampleGroup.extend WithModel
 if defined?(ActiveRecord::Relation)
   RSpec::Matchers::OperatorMatcher.register(ActiveRecord::Relation, '=~', RSpec::Matchers::MatchArray)
 end
+
+require 'irb'
+
+class IRB::Irb
+  alias initialize_orig initialize
+  def initialize(workspace = nil, *args)
+    default = IRB.conf[:DEFAULT_OBJECT]
+    workspace ||= IRB::WorkSpace.new default if default
+    initialize_orig(workspace, *args)
+  end
+end
+
+# Drop into an IRB session for whatever object you pass in:
+#
+#     class Dude
+#       def abides
+#         true
+#       end
+#     end
+#
+#     console_for(Dude.new)
+#
+# Then type "quit" or "exit" to get out. In a step definition, it should look like:
+#
+#     When /^I console/ do
+#       console_for(self)
+#     end
+#
+# Also, I definitely stole this hack from some mailing list post somewhere. I wish I
+# could remember who did it, but I can't. Sorry!
+def console_for(target)
+  puts "== ENTERING CONSOLE MODE. ==\nType 'exit' to move on.\nContext: #{target.inspect}"
+
+  begin
+    oldargs = ARGV.dup
+    ARGV.clear
+    IRB.conf[:DEFAULT_OBJECT] = target
+    IRB.start
+  ensure
+    ARGV.replace(oldargs)
+  end
+end
