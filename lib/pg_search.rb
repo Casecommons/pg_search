@@ -29,36 +29,40 @@ module PgSearch
       send(scope_method, name, lambda { |*args|
         options = options_proc.call(*args).reverse_merge(:using => :tsearch, :normalizing => [])
         query = options[:query]
+        normalizing = Array.wrap(options[:normalizing])
 
         raise ArgumentError, "the search scope #{name} must have :against in its options" unless options[:against]
 
-        document = Array.wrap(options[:against]).map do |column_name|
-          column = "coalesce(#{quoted_table_name}.#{connection.quote_column_name(column_name)}, '')"
-          column
-        end.join(" || ' ' || ")
+        columns = Array.wrap(options[:against]).map do |column_name|
+          "coalesce(#{quoted_table_name}.#{connection.quote_column_name(column_name)}, '')"
+        end
 
+        document = columns.join(" || ' ' || ")
 
         normalized = lambda do |string|
-          string = "unaccent(#{string})" if Array.wrap(options[:normalizing]).include?(:diacritics)
+          string = "unaccent(#{string})" if normalizing.include?(:diacritics)
           string
         end
 
-        tsquery = query.split(" ").join(" & ")
+        tsquery = query.split(" ").compact.map do |term|
+          term = "#{term}:*" if normalizing.include?(:prefixes)
+          "#{normalized[connection.quote(term)]}::tsquery"
+        end.join(" && ")
 
-        normalized_document = normalized[document]
-        normalized_query = normalized[":query"]
-        normalized_tsquery = normalized[":tsquery"]
+        tsdocument = columns.map do |column|
+          "to_tsvector(#{normalized[column]})"
+        end.join(" || ")
 
         conditions_hash = {
-          :tsearch => "to_tsvector('simple', #{normalized_document}) @@ to_tsquery('simple', #{normalized_tsquery})",
-          :trigram => "(#{normalized_document}) % #{normalized_query}"
+          :tsearch => "(#{tsdocument}) @@ (#{tsquery})",
+          :trigram => "(#{normalized[document]}) % #{normalized[":query"]}"
         }
 
         conditions = Array.wrap(options[:using]).map do |feature|
-          "(#{conditions_hash[feature]})"
-        end.join(" OR ")
+          "\n\n(#{conditions_hash[feature]})\n\n"
+        end.join("OR")
 
-        {:conditions => [conditions, {:query => query, :tsquery => tsquery}]}
+        {:conditions => [conditions, {:query => query}]}
       })
     end
   end

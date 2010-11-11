@@ -147,6 +147,34 @@ describe "an ActiveRecord model which includes PgSearch" do
         model_with_pg_search.search_title_or_content('b-remove-ar', true).should == [included]
       end
     end
+
+    it "builds a scope that doesn't match prefixes" do
+      model_with_pg_search.class_eval do
+        pg_search_scope :search_title_without_prefixes, :against => :title
+      end
+
+      included = model_with_pg_search.create!(:title => 'pre')
+      excluded = model_with_pg_search.create!(:title => 'prefix')
+
+      results = model_with_pg_search.search_title_without_prefixes("pre")
+      results.should == [included]
+      results.should_not include(excluded)
+    end
+
+    context "when normalizing prefixes" do
+      it "builds a scope that matches prefixes" do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_title_with_prefixes, :against => :title, :normalizing => :prefixes
+        end
+
+        included = model_with_pg_search.create!(:title => 'prefix')
+        excluded = model_with_pg_search.create!(:title => 'postfix')
+
+        results = model_with_pg_search.search_title_with_prefixes("pre")
+        results.should == [included]
+        results.should_not include(excluded)
+      end
+    end
   end
 
   describe "a given pg_search_scope" do
