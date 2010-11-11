@@ -190,6 +190,37 @@ describe "an ActiveRecord model which includes PgSearch" do
         results.should_not include(excluded)
       end
     end
+
+    it "builds a scope that stems with the english dictionary by default" do
+      model_with_pg_search.class_eval do
+        pg_search_scope :search_title, :against => :title
+      end
+
+      included = [model_with_pg_search.create!(:title => "jump"),
+                  model_with_pg_search.create!(:title => "jumped"),
+                  model_with_pg_search.create!(:title => "jumping")]
+
+      results = model_with_pg_search.search_title("jump")
+      results.should =~ included
+    end
+
+    context "when using the simple dictionary" do
+      it "builds a scope that matches terms that would have been stemmed by the english dictionary" do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_title, :against => :title, :with_dictionary => :simple
+        end
+
+        included = model_with_pg_search.create!(:title => "jump")
+        excluded = [model_with_pg_search.create!(:title => "jumped"),
+                    model_with_pg_search.create!(:title => "jumping")]
+
+        results = model_with_pg_search.search_title("jump")
+        results.should == [included]
+        excluded.each do |result|
+          results.should_not include(result)
+        end
+      end
+    end
   end
 
   describe "a given pg_search_scope" do
