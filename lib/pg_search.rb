@@ -13,7 +13,7 @@ module PgSearch
         when Hash
           lambda { |query|
             options.reverse_merge(
-              :match => query
+              :query => query
             )
           }
         else
@@ -27,24 +27,34 @@ module PgSearch
                      end
 
       send(scope_method, name, lambda { |*args|
-        options = options_proc.call(*args).reverse_merge(:using => :tsearch)
+        options = options_proc.call(*args).reverse_merge(:using => :tsearch, :normalizing => [])
 
         raise ArgumentError, "the search scope #{name} must have :against in its options" unless options[:against]
 
-        matches_concatenated = Array.wrap(options[:against]).map do |match|
-          "coalesce(#{quoted_table_name}.#{connection.quote_column_name(match)}, '')"
+        document = Array.wrap(options[:against]).map do |column_name|
+          column = "coalesce(#{quoted_table_name}.#{connection.quote_column_name(column_name)}, '')"
+          column
         end.join(" || ' ' || ")
 
+
+        normalized = lambda do |string|
+          string = "unaccent(#{string})" if Array.wrap(options[:normalizing]).include?(:diacritics)
+          string
+        end
+
+        normalized_document = normalized[document]
+        normalized_query = normalized[":query"]
+
         conditions_hash = {
-          :tsearch => "to_tsvector('simple', #{matches_concatenated}) @@ plainto_tsquery('simple', :match)",
-          :trigram => "(#{matches_concatenated}) % :match"
+          :tsearch => "to_tsvector('simple', #{normalized_document}) @@ plainto_tsquery('simple', #{normalized_query})",
+          :trigram => "(#{normalized_document}) % #{normalized_query}"
         }
 
         conditions = Array.wrap(options[:using]).map do |feature|
           "(#{conditions_hash[feature]})"
         end.join(" OR ")
 
-        {:conditions => [conditions, {:match => options[:match]}]}
+        {:conditions => [conditions, {:query => options[:query]}]}
       })
     end
   end

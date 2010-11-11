@@ -97,12 +97,44 @@ describe "an ActiveRecord model which includes PgSearch" do
       results.should == [included]
     end
 
+    it "builds a scope which is diacritic-sensitive" do
+      model_with_pg_search.class_eval do
+        pg_search_scope :search_title_with_diacritics, :against => :title
+      end
+
+      # \303\241 is a with acute accent
+      # \303\251 is e with acute accent
+
+      included = model_with_pg_search.create!(:title => "abcd\303\251f")
+      excluded = model_with_pg_search.create!(:title => "\303\241bcdef")
+
+      results = model_with_pg_search.search_title_with_diacritics("abcd\303\251f")
+      results.should == [included]
+      results.should_not include(excluded)
+    end
+
+    context "when normalizing diacritics" do
+      it "ignores diacritics" do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_title_without_diacritics, :against => :title, :normalizing => :diacritics
+        end
+
+        # \303\241 is a with acute accent
+        # \303\251 is e with acute accent
+
+        included = model_with_pg_search.create!(:title => "\303\241bcdef")
+
+        results = model_with_pg_search.search_title_without_diacritics("abcd\303\251f")
+        results.should == [included]
+      end
+    end
+
     context "when passed a lambda" do
       it "builds a dynamic scope" do
         model_with_pg_search.class_eval do
           pg_search_scope :search_title_or_content, lambda { |query, pick_content|
             {
-              :match => query.gsub("-remove-", ""),
+              :query => query.gsub("-remove-", ""),
               :against => pick_content ? :content : :title
             }
           }

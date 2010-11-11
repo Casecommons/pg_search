@@ -16,22 +16,25 @@ rescue PGError => e
   raise e
 end
 
-begin
-  query = "SELECT 'abcdef' % 'cdef'"
+def install_contrib_module_if_missing(name, query, expected_result)
+  connection = ActiveRecord::Base.connection
   result = connection.select_value(query)
-  raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == "t"
-rescue ActiveRecord::StatementInvalid => e
+  raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result
+rescue => e
   begin
     share_path = `pg_config --sharedir`.strip
-    ActiveRecord::Base.connection.execute File.read(File.join(share_path, 'contrib', 'pg_trgm.sql'))
+    ActiveRecord::Base.connection.execute File.read(File.join(share_path, 'contrib', "#{name}.sql"))
+    puts $!.message
   rescue
     puts "-" * 80
-    puts "% operator is not present, please install the pg_trgm contrib module"
+    puts "Please install the #{name} contrib module"
     puts "-" * 80
     raise e
   end
 end
 
+install_contrib_module_if_missing("pg_trgm", "SELECT 'abcdef' % 'cdef'", "t")
+install_contrib_module_if_missing("unaccent", "SELECT unaccent('foo')", "foo")
 
 module WithModel
   class Dsl
