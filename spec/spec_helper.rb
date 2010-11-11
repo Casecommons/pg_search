@@ -1,13 +1,11 @@
 require "bundler/setup"
 require "pg_search"
 
-ActiveRecord::Base.establish_connection(:adapter  => 'postgresql',
-                                        :database => 'pg_search_test',
-                                        :min_messages => 'warning')
-
-connection = ActiveRecord::Base.connection
-
 begin
+  ActiveRecord::Base.establish_connection(:adapter  => 'postgresql',
+                                          :database => 'pg_search_test',
+                                          :min_messages => 'warning')
+  connection = ActiveRecord::Base.connection
   connection.execute("SELECT 1")
 rescue PGError => e
   puts "-" * 80
@@ -17,6 +15,23 @@ rescue PGError => e
   puts "-" * 80
   raise e
 end
+
+begin
+  query = "SELECT 'abcdef' % 'cdef'"
+  result = connection.select_value(query)
+  raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == "t"
+rescue ActiveRecord::StatementInvalid => e
+  begin
+    share_path = `pg_config --sharedir`.strip
+    ActiveRecord::Base.connection.execute File.read(File.join(share_path, 'contrib', 'pg_trgm.sql'))
+  rescue
+    puts "-" * 80
+    puts "% operator is not present, please install the pg_trgm contrib module"
+    puts "-" * 80
+    raise e
+  end
+end
+
 
 module WithModel
   class Dsl

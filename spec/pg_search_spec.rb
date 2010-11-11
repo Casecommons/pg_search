@@ -71,6 +71,18 @@ describe "an ActiveRecord model which includes PgSearch" do
       results.should == [included]
     end
 
+    it "builds a scope for searching trigrams" do
+      model_with_pg_search.class_eval do
+        pg_search_scope :with_trigrams, :against => [:title, :content], :using => [:trigram]
+      end
+
+      included = model_with_pg_search.create!(:title => 'abcdef', :content => 'ghijkl')
+
+      results = model_with_pg_search.with_trigrams('cdef ijkl')
+
+      results.should == [included]
+    end
+
     context "when passed a lambda" do
       it "builds a dynamic scope" do
         model_with_pg_search.class_eval do
@@ -96,7 +108,7 @@ describe "an ActiveRecord model which includes PgSearch" do
       model_with_pg_search.class_eval do
         pg_search_scope :search_content, :against => [:content]
       end
-   end
+    end
 
     it "allows for multiple space-separated search terms" do
       included = [

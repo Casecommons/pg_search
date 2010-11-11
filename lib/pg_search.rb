@@ -13,8 +13,7 @@ module PgSearch
         when Hash
           lambda { |query|
             options.reverse_merge(
-              :match => query,
-              :using => [:tsearch]
+              :match => query
             )
           }
         else
@@ -28,7 +27,7 @@ module PgSearch
                      end
 
       send(scope_method, name, lambda { |*args|
-        options = options_proc.call(*args)
+        options = options_proc.call(*args).reverse_merge(:using => [:tsearch])
 
         raise ArgumentError, "the search scope #{name} must have :against in its options" unless options[:against]
 
@@ -36,7 +35,12 @@ module PgSearch
           "coalesce(#{quoted_table_name}.#{connection.quote_column_name(match)}, '')"
         end.join(" || ' ' || ")
 
-        conditions = "to_tsvector('simple', #{matches_concatenated}) @@ plainto_tsquery('simple', :match)"
+        conditions_hash = {
+          :tsearch => "to_tsvector('simple', #{matches_concatenated}) @@ plainto_tsquery('simple', :match)",
+          :trigram => "(#{matches_concatenated}) % :match"
+        }
+
+        conditions = options[:using].map { |feature| "(#{conditions_hash[feature]})" }.join(" OR ")
 
         {
           :conditions => [conditions, {:match => options[:match]}]
