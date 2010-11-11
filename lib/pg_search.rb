@@ -46,7 +46,7 @@ module PgSearch
 
         tsquery = query.split(" ").compact.map do |term|
           term = "#{term}:*" if normalizing.include?(:prefixes)
-          "#{normalized[connection.quote(term)]}::tsquery"
+          "LOWER(#{normalized[connection.quote(term)]})::tsquery"
         end.join(" && ")
 
         tsdocument = columns.map do |column|

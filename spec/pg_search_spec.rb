@@ -97,6 +97,21 @@ describe "an ActiveRecord model which includes PgSearch" do
       results.should == [included]
     end
 
+    it "builds a scope which is case-insensitive" do
+      model_with_pg_search.class_eval do
+        pg_search_scope :search_title, :against => :title
+      end
+
+      # \303\241 is a with acute accent
+      # \303\251 is e with acute accent
+
+      included = [model_with_pg_search.create!(:title => "foo"),
+                  model_with_pg_search.create!(:title => "FOO")]
+
+      results = model_with_pg_search.search_title("Foo")
+      results.should =~ included
+    end
+
     it "builds a scope which is diacritic-sensitive" do
       model_with_pg_search.class_eval do
         pg_search_scope :search_title_with_diacritics, :against => :title
