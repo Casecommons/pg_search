@@ -27,7 +27,7 @@ module PgSearch
                      end
 
       send(scope_method, name, lambda { |*args|
-        options = options_proc.call(*args).reverse_merge(:using => [:tsearch])
+        options = options_proc.call(*args).reverse_merge(:using => :tsearch)
 
         raise ArgumentError, "the search scope #{name} must have :against in its options" unless options[:against]
 
@@ -40,11 +40,11 @@ module PgSearch
           :trigram => "(#{matches_concatenated}) % :match"
         }
 
-        conditions = options[:using].map { |feature| "(#{conditions_hash[feature]})" }.join(" OR ")
+        conditions = Array.wrap(options[:using]).map do |feature|
+          "(#{conditions_hash[feature]})"
+        end.join(" OR ")
 
-        {
-          :conditions => [conditions, {:match => options[:match]}]
-        }
+        {:conditions => [conditions, {:match => options[:match]}]}
       })
     end
   end

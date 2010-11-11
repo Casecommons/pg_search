@@ -73,13 +73,27 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     it "builds a scope for searching trigrams" do
       model_with_pg_search.class_eval do
-        pg_search_scope :with_trigrams, :against => [:title, :content], :using => [:trigram]
+        pg_search_scope :with_trigrams, :against => [:title, :content], :using => :trigram
       end
 
       included = model_with_pg_search.create!(:title => 'abcdef', :content => 'ghijkl')
 
       results = model_with_pg_search.with_trigrams('cdef ijkl')
 
+      results.should == [included]
+    end
+
+    it "builds a scope using multiple features" do
+      model_with_pg_search.class_eval do
+        pg_search_scope :with_tsearch_and_trigrams, :against =>  [:title, :content], :using => [:tsearch, :trigram]
+      end
+
+      included = model_with_pg_search.create!(:title => 'abcdef', :content => 'ghijkl')
+
+      results = model_with_pg_search.with_tsearch_and_trigrams('cdef ijkl') # matches trigram only
+      results.should == [included]
+
+      results = model_with_pg_search.with_tsearch_and_trigrams('ghijkl abcdef') # matches tsearch only
       results.should == [included]
     end
 
