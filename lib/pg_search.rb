@@ -28,6 +28,7 @@ module PgSearch
 
       send(scope_method, name, lambda { |*args|
         options = options_proc.call(*args).reverse_merge(:using => :tsearch, :normalizing => [])
+        query = options[:query]
 
         raise ArgumentError, "the search scope #{name} must have :against in its options" unless options[:against]
 
@@ -42,11 +43,14 @@ module PgSearch
           string
         end
 
+        tsquery = query.split(" ").join(" & ")
+
         normalized_document = normalized[document]
         normalized_query = normalized[":query"]
+        normalized_tsquery = normalized[":tsquery"]
 
         conditions_hash = {
-          :tsearch => "to_tsvector('simple', #{normalized_document}) @@ plainto_tsquery('simple', #{normalized_query})",
+          :tsearch => "to_tsvector('simple', #{normalized_document}) @@ to_tsquery('simple', #{normalized_tsquery})",
           :trigram => "(#{normalized_document}) % #{normalized_query}"
         }
 
@@ -54,7 +58,7 @@ module PgSearch
           "(#{conditions_hash[feature]})"
         end.join(" OR ")
 
-        {:conditions => [conditions, {:query => options[:query]}]}
+        {:conditions => [conditions, {:query => query, :tsquery => tsquery}]}
       })
     end
   end
