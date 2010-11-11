@@ -6,17 +6,19 @@ module PgSearch
   end
 
   module ClassMethods
-    def pg_search_scope(name, matches)
-      options_proc = case matches
+    def pg_search_scope(name, options)
+      options_proc = case options
         when Proc
-          matches
-        else
+          options
+        when Hash
           lambda { |query|
-            {
-              :query => query,
-              :matches => matches
-            }
+            options.reverse_merge(
+              :match => query,
+              :using => [:tsearch]
+            )
           }
+        else
+          raise ArgumentError, "#{__method__} expects a Proc or Hash for its options"
       end
 
       scope_method = if self.respond_to?(:scope) && !protected_methods.include?('scope')
@@ -28,14 +30,16 @@ module PgSearch
       send(scope_method, name, lambda { |*args|
         options = options_proc.call(*args)
 
-        matches_concatenated = Array.wrap(options[:matches]).map do |match|
+        raise ArgumentError, "the search scope #{name} must have :against in its options" unless options[:against]
+
+        matches_concatenated = Array.wrap(options[:against]).map do |match|
           "coalesce(#{quoted_table_name}.#{connection.quote_column_name(match)}, '')"
         end.join(" || ' ' || ")
 
-        conditions = "to_tsvector('simple', #{matches_concatenated}) @@ plainto_tsquery('simple', :query)"
+        conditions = "to_tsvector('simple', #{matches_concatenated}) @@ plainto_tsquery('simple', :match)"
 
         {
-          :conditions => [conditions, {:query => options[:query]}]
+          :conditions => [conditions, {:match => options[:match]}]
         }
       })
     end

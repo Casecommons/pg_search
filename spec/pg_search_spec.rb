@@ -16,7 +16,7 @@ describe "an ActiveRecord model which includes PgSearch" do
   describe ".pg_search_scope" do
     it "builds a scope" do
       model_with_pg_search.class_eval do
-        pg_search_scope "matching_query", []
+        pg_search_scope "matching_query", :against => []
       end
 
       lambda {
@@ -26,7 +26,7 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     it "builds a scope for searching on a particular column" do
       model_with_pg_search.class_eval do
-        pg_search_scope :search_content, :content
+        pg_search_scope :search_content, :against => :content
       end
 
       included = model_with_pg_search.create!(:content => 'foo')
@@ -39,7 +39,7 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     it "builds a scope for searching on multiple columns" do
       model_with_pg_search.class_eval do
-        pg_search_scope :search_text_and_content, [:title, :content]
+        pg_search_scope :search_text_and_content, :against => [:title, :content]
       end
 
       included = [
@@ -61,7 +61,7 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     it "builds a scope for searching on multiple columns where one is NULL" do
       model_with_pg_search.class_eval do
-        pg_search_scope :search_text_and_content, [:title, :content]
+        pg_search_scope :search_text_and_content, :against => [:title, :content]
       end
 
       included = model_with_pg_search.create!(:title => 'foo', :content => nil)
@@ -71,28 +71,30 @@ describe "an ActiveRecord model which includes PgSearch" do
       results.should == [included]
     end
 
-    it "builds a dynamic scope when passed a lambda" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :search_title_or_content, lambda { |query, pick_content|
-          {
-            :query => query.gsub("-remove-", ""),
-            :matches => pick_content ? :content : :title
+    context "when passed a lambda" do
+      it "builds a dynamic scope" do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_title_or_content, lambda { |query, pick_content|
+            {
+              :match => query.gsub("-remove-", ""),
+              :against => pick_content ? :content : :title
+            }
           }
-        }
+        end
+
+        included = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+        excluded = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+
+        model_with_pg_search.search_title_or_content('fo-remove-o', false).should == [included]
+        model_with_pg_search.search_title_or_content('b-remove-ar', true).should == [included]
       end
-
-      included = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
-      excluded = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
-
-      model_with_pg_search.search_title_or_content('fo-remove-o', false).should == [included]
-      model_with_pg_search.search_title_or_content('b-remove-ar', true).should == [included]
     end
   end
 
   describe "a given pg_search_scope" do
     before do
       model_with_pg_search.class_eval do
-        pg_search_scope :search_content, [:content]
+        pg_search_scope :search_content, :against => [:content]
       end
    end
 
