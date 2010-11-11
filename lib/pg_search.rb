@@ -27,7 +27,7 @@ module PgSearch
                      end
 
       send(scope_method, name, lambda { |*args|
-        options = options_proc.call(*args).reverse_merge(:using => :tsearch, :normalizing => [])
+        options = options_proc.call(*args).reverse_merge(:using => :tsearch)
         query = options[:query]
         normalizing = Array.wrap(options[:normalizing])
         dictionary = options[:with_dictionary]
@@ -67,7 +67,18 @@ module PgSearch
           "(#{conditions_hash[feature]})"
         end.join(" OR ")
 
-        {:conditions => [conditions, {:query => query, :dictionary => dictionary.to_s}]}
+        interpolations = {
+          :query => query,
+          :dictionary => dictionary.to_s
+        }
+
+        rank_select = sanitize_sql_array(["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations])
+
+        {
+          :select => "#{quoted_table_name}.*, (#{rank_select}) AS rank",
+          :conditions => [conditions, interpolations],
+          :order => "rank DESC, #{quoted_table_name}.#{connection.quote_column_name(primary_key)} ASC"
+        }
       })
     end
   end

@@ -39,7 +39,7 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     it "builds a scope for searching on multiple columns" do
       model_with_pg_search.class_eval do
-        pg_search_scope :search_text_and_content, :against => [:title, :content]
+        pg_search_scope :search_title_and_content, :against => [:title, :content]
       end
 
       included = [
@@ -51,7 +51,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         model_with_pg_search.create!(:title => 'bar', :content => 'bar')
       ]
 
-      results = model_with_pg_search.search_text_and_content('foo bar')
+      results = model_with_pg_search.search_title_and_content('foo bar')
 
       results.should =~ included
       excluded.each do |result|
@@ -61,12 +61,12 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     it "builds a scope for searching on multiple columns where one is NULL" do
       model_with_pg_search.class_eval do
-        pg_search_scope :search_text_and_content, :against => [:title, :content]
+        pg_search_scope :search_title_and_content, :against => [:title, :content]
       end
 
       included = model_with_pg_search.create!(:title => 'foo', :content => nil)
 
-      results = model_with_pg_search.search_text_and_content('foo')
+      results = model_with_pg_search.search_title_and_content('foo')
 
       results.should == [included]
     end
@@ -221,31 +221,51 @@ describe "an ActiveRecord model which includes PgSearch" do
         end
       end
     end
+
+    it "builds a scope that sorts by rank" do
+      model_with_pg_search.class_eval do
+        pg_search_scope :search_title_and_content, :against => [:title, :content]
+      end
+
+      loser = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+      winner = model_with_pg_search.create!(:title => 'foo', :content => 'foo')
+
+      results = model_with_pg_search.search_title_and_content("foo")
+      results[0].rank.should > results[1].rank
+      results.should == [winner, loser]
+    end
   end
 
-  describe "a given pg_search_scope" do
-    before do
-      model_with_pg_search.class_eval do
-        pg_search_scope :search_content, :against => [:content]
-      end
+  it "builds a scope that sorts by primary key for records that rank the same" do
+    model_with_pg_search.class_eval do
+      pg_search_scope :search_title, :against => :title
     end
 
-    it "allows for multiple space-separated search terms" do
-      included = [
-        model_with_pg_search.create!(:content => 'foo bar'),
-        model_with_pg_search.create!(:content => 'bar foo'),
-        model_with_pg_search.create!(:content => 'bar foo baz'),
-      ]
-      excluded = [
-        model_with_pg_search.create!(:content => 'foo'),
-        model_with_pg_search.create!(:content => 'foo baz')
-      ]
+    sorted_results = [model_with_pg_search.create!(:title => 'foo'),
+                      model_with_pg_search.create!(:title => 'foo')].sort_by(&:id)
 
-      results = model_with_pg_search.search_content('foo bar')
-      results.should =~ included
-      results.should_not include(excluded)
+    results = model_with_pg_search.search_title("foo")
+    results.should == sorted_results
+  end
+
+  it "builds a scope that allows for multiple space-separated search terms" do
+    model_with_pg_search.class_eval do
+      pg_search_scope :search_content, :against => [:content]
     end
 
+    included = [
+      model_with_pg_search.create!(:content => 'foo bar'),
+      model_with_pg_search.create!(:content => 'bar foo'),
+      model_with_pg_search.create!(:content => 'bar foo baz'),
+    ]
+    excluded = [
+      model_with_pg_search.create!(:content => 'foo'),
+      model_with_pg_search.create!(:content => 'foo baz')
+    ]
+
+    results = model_with_pg_search.search_content('foo bar')
+    results.should =~ included
+    results.should_not include(excluded)
   end
 
 end
