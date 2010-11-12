@@ -50,6 +50,7 @@ module PgSearch
         end
 
         tsquery = query.split(" ").compact.map do |term|
+          term.gsub!("'", " ")
           term = "'#{term}'"
           term = "#{term}:*" if normalizing.include?(:prefixes)
           "to_tsquery(#{":dictionary," if dictionary} #{normalized[connection.quote(term)]})"

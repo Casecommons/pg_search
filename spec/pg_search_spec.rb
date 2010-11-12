@@ -148,7 +148,7 @@ describe "an ActiveRecord model which includes PgSearch" do
       it "returns rows that match a query with characters that are invalid in a tsquery expression" do
         included = model_with_pg_search.create!(:content => 'foo')
 
-        results = model_with_pg_search.search_content('foo & ,')
+        results = model_with_pg_search.search_content(" foo &,' ")
         results.should == [included]
       end
     end
