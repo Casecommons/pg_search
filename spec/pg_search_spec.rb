@@ -268,4 +268,35 @@ describe "an ActiveRecord model which includes PgSearch" do
     results.should_not include(excluded)
   end
 
+  it "builds a scope that sorts by weighted rank using an array of arrays" do
+    model_with_pg_search.class_eval do
+      pg_search_scope :search_weighted_by_array_of_arrays, :against => [[:content, 'B'], [:title, 'A']]
+    end
+
+    loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+    winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+
+    results = model_with_pg_search.search_weighted_by_array_of_arrays('foo')
+    results[0].rank.to_f.should > results[1].rank.to_f
+    results.should == [winner, loser]
+  end
+
+  it "builds a scope that sorts by weighted rank using a hash" do
+    model_with_pg_search.class_eval do
+      pg_search_scope :search_weighted_by_hash, :against => {:content => 'B', :title => 'A'}
+    end
+
+    loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+    winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+
+    results = model_with_pg_search.search_weighted_by_hash('foo')
+    results[0].rank.to_f.should > results[1].rank.to_f
+    results.should == [winner, loser]
+  end
+
+  it "builds a scope that sorts by weighted rank only for some columns" do
+    pending
+
+  end
+
 end

@@ -34,11 +34,15 @@ module PgSearch
 
         raise ArgumentError, "the search scope #{name} must have :against in its options" unless options[:against]
 
-        columns = Array.wrap(options[:against]).map do |column_name|
-          "coalesce(#{quoted_table_name}.#{connection.quote_column_name(column_name)}, '')"
+        against = options[:against]
+        against = Array.wrap(against) unless against.is_a?(Hash)
+
+        columns_with_weights = against.map do |column_name, weight|
+          ["coalesce(#{quoted_table_name}.#{connection.quote_column_name(column_name)}, '')",
+           weight]
         end
 
-        document = columns.join(" || ' ' || ")
+        document = columns_with_weights.map { |column, *| column }.join(" || ' ' || ")
 
         normalized = lambda do |string|
           string = "unaccent(#{string})" if normalizing.include?(:diacritics)
@@ -50,11 +54,17 @@ module PgSearch
           "LOWER(#{normalized[connection.quote(term)]})::tsquery"
         end.join(" && ")
 
-        tsdocument = columns.map do |column|
-          if dictionary
+        tsdocument = columns_with_weights.map do |column, weight|
+          tsvector = if dictionary
             "to_tsvector(:dictionary, #{normalized[column]})"
           else
             "to_tsvector(#{normalized[column]})"
+          end
+
+          if weight
+            "setweight(#{tsvector}, #{connection.quote(weight)})"
+          else
+            tsvector
           end
         end.join(" || ")
 
@@ -75,7 +85,7 @@ module PgSearch
         rank_select = sanitize_sql_array(["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations])
 
         {
-          :select => "#{quoted_table_name}.*, (#{rank_select}) AS rank",
+          :select => "#{quoted_table_name}.*, (#{rank_select})::float AS rank",
           :conditions => [conditions, interpolations],
           :order => "rank DESC, #{quoted_table_name}.#{connection.quote_column_name(primary_key)} ASC"
         }
