@@ -6,16 +6,16 @@ module PgSearch
   end
 
   module ClassMethods
-    def pg_search_scope(name, options)
-      options_proc = case options
+    def pg_search_scope(name, scope_options_or_proc)
+      options_proc = case scope_options_or_proc
         when Proc
-          options
+          scope_options_or_proc
         when Hash
-          lambda { |query|
-            options.reverse_merge(
+          lambda do |query|
+            scope_options_or_proc.reverse_merge(
               :query => query
             )
-          }
+          end
         else
           raise ArgumentError, "#{__method__} expects a Proc or Hash for its options"
       end

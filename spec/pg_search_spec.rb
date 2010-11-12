@@ -24,126 +24,6 @@ describe "an ActiveRecord model which includes PgSearch" do
       }.should_not raise_error
     end
 
-    it "builds a scope for searching on a particular column" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :search_content, :against => :content
-      end
-
-      included = model_with_pg_search.create!(:content => 'foo')
-      excluded = model_with_pg_search.create!(:content => 'bar')
-
-      results = model_with_pg_search.search_content('foo')
-      results.should include(included)
-      results.should_not include(excluded)
-    end
-
-    it "builds a scope for searching on multiple columns" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :search_title_and_content, :against => [:title, :content]
-      end
-
-      included = [
-        model_with_pg_search.create!(:title => 'foo', :content => 'bar'),
-        model_with_pg_search.create!(:title => 'bar', :content => 'foo')
-      ]
-      excluded = [
-        model_with_pg_search.create!(:title => 'foo', :content => 'foo'),
-        model_with_pg_search.create!(:title => 'bar', :content => 'bar')
-      ]
-
-      results = model_with_pg_search.search_title_and_content('foo bar')
-
-      results.should =~ included
-      excluded.each do |result|
-        results.should_not include(result)
-      end
-    end
-
-    it "builds a scope for searching on multiple columns where one is NULL" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :search_title_and_content, :against => [:title, :content]
-      end
-
-      included = model_with_pg_search.create!(:title => 'foo', :content => nil)
-
-      results = model_with_pg_search.search_title_and_content('foo')
-
-      results.should == [included]
-    end
-
-    it "builds a scope for searching trigrams" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :with_trigrams, :against => [:title, :content], :using => :trigram
-      end
-
-      included = model_with_pg_search.create!(:title => 'abcdef', :content => 'ghijkl')
-
-      results = model_with_pg_search.with_trigrams('cdef ijkl')
-
-      results.should == [included]
-    end
-
-    it "builds a scope using multiple features" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :with_tsearch_and_trigrams, :against =>  [:title, :content], :using => [:tsearch, :trigram]
-      end
-
-      included = model_with_pg_search.create!(:title => 'abcdef', :content => 'ghijkl')
-
-      results = model_with_pg_search.with_tsearch_and_trigrams('cdef ijkl') # matches trigram only
-      results.should == [included]
-
-      results = model_with_pg_search.with_tsearch_and_trigrams('ghijkl abcdef') # matches tsearch only
-      results.should == [included]
-    end
-
-    it "builds a scope which is case-insensitive" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :search_title, :against => :title
-      end
-
-      # \303\241 is a with acute accent
-      # \303\251 is e with acute accent
-
-      included = [model_with_pg_search.create!(:title => "foo"),
-                  model_with_pg_search.create!(:title => "FOO")]
-
-      results = model_with_pg_search.search_title("Foo")
-      results.should =~ included
-    end
-
-    it "builds a scope which is diacritic-sensitive" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :search_title_with_diacritics, :against => :title
-      end
-
-      # \303\241 is a with acute accent
-      # \303\251 is e with acute accent
-
-      included = model_with_pg_search.create!(:title => "abcd\303\251f")
-      excluded = model_with_pg_search.create!(:title => "\303\241bcdef")
-
-      results = model_with_pg_search.search_title_with_diacritics("abcd\303\251f")
-      results.should == [included]
-      results.should_not include(excluded)
-    end
-
-    context "when normalizing diacritics" do
-      it "ignores diacritics" do
-        model_with_pg_search.class_eval do
-          pg_search_scope :search_title_without_diacritics, :against => :title, :normalizing => :diacritics
-        end
-
-        # \303\241 is a with acute accent
-        # \303\251 is e with acute accent
-
-        included = model_with_pg_search.create!(:title => "\303\241bcdef")
-
-        results = model_with_pg_search.search_title_without_diacritics("abcd\303\251f")
-        results.should == [included]
-      end
-    end
-
     context "when passed a lambda" do
       it "builds a dynamic scope" do
         model_with_pg_search.class_eval do
@@ -162,26 +42,228 @@ describe "an ActiveRecord model which includes PgSearch" do
         model_with_pg_search.search_title_or_content('b-remove-ar', true).should == [included]
       end
     end
+  end
 
-    it "builds a scope that doesn't match prefixes" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :search_title_without_prefixes, :against => :title
+  describe "a search scope" do
+    context "against a single column" do
+      before do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_content, :against => :content
+        end
       end
 
-      included = model_with_pg_search.create!(:title => 'pre')
-      excluded = model_with_pg_search.create!(:title => 'prefix')
+      it "returns rows where the column contains the term in the query" do
+        included = model_with_pg_search.create!(:content => 'foo')
+        excluded = model_with_pg_search.create!(:content => 'bar')
 
-      results = model_with_pg_search.search_title_without_prefixes("pre")
-      results.should == [included]
-      results.should_not include(excluded)
+        results = model_with_pg_search.search_content('foo')
+        results.should include(included)
+        results.should_not include(excluded)
+      end
+
+      it "returns rows where the column contains all the terms in the query in any order" do
+        included = [model_with_pg_search.create!(:content => 'foo bar'),
+                    model_with_pg_search.create!(:content => 'bar foo')]
+        excluded = model_with_pg_search.create!(:content => 'foo')
+
+        results = model_with_pg_search.search_content('foo bar')
+        results.should =~ included
+        results.should_not include(excluded)
+      end
+
+      it "returns rows that match the query but not its case" do
+        # \303\241 is a with acute accent
+        # \303\251 is e with acute accent
+
+        included = [model_with_pg_search.create!(:content => "foo"),
+                    model_with_pg_search.create!(:content => "FOO")]
+
+        results = model_with_pg_search.search_content("Foo")
+        results.should =~ included
+      end
+
+      it "returns rows that match the query only if their diacritics match" do
+        # \303\241 is a with acute accent
+        # \303\251 is e with acute accent
+
+        included = model_with_pg_search.create!(:content => "abcd\303\251f")
+        excluded = model_with_pg_search.create!(:content => "\303\241bcdef")
+
+        results = model_with_pg_search.search_content("abcd\303\251f")
+        results.should == [included]
+        results.should_not include(excluded)
+      end
+
+      it "returns rows that match the query but not rows that are prefixed by the query" do
+        included = model_with_pg_search.create!(:content => 'pre')
+        excluded = model_with_pg_search.create!(:content => 'prefix')
+
+        results = model_with_pg_search.search_content("pre")
+        results.should == [included]
+        results.should_not include(excluded)
+      end
+
+      it "returns rows that match the query when stemmed by the default dictionary (english)" do
+        included = [model_with_pg_search.create!(:content => "jump"),
+                    model_with_pg_search.create!(:content => "jumped"),
+                    model_with_pg_search.create!(:content => "jumping")]
+
+        results = model_with_pg_search.search_content("jump")
+        results.should =~ included
+      end
+
+      it "returns rows that match sorted by rank" do
+        loser = model_with_pg_search.create!(:content => 'foo')
+        winner = model_with_pg_search.create!(:content => 'foo foo')
+
+        results = model_with_pg_search.search_content("foo")
+        results[0].rank.should > results[1].rank
+        results.should == [winner, loser]
+      end
+
+      it "returns results that match sorted by primary key for records that rank the same" do
+        sorted_results = [model_with_pg_search.create!(:content => 'foo'),
+                          model_with_pg_search.create!(:content => 'foo')].sort_by(&:id)
+
+        results = model_with_pg_search.search_content("foo")
+        results.should == sorted_results
+      end
+
+      it "returns results that match a query with multiple space-separated search terms" do
+        included = [
+          model_with_pg_search.create!(:content => 'foo bar'),
+          model_with_pg_search.create!(:content => 'bar foo'),
+          model_with_pg_search.create!(:content => 'bar foo baz'),
+        ]
+        excluded = [
+          model_with_pg_search.create!(:content => 'foo'),
+          model_with_pg_search.create!(:content => 'foo baz')
+        ]
+
+        results = model_with_pg_search.search_content('foo bar')
+        results.should =~ included
+        results.should_not include(excluded)
+      end
+
+      it "returns rows that match a query with characters that are invalid in a tsquery expression" do
+        included = model_with_pg_search.create!(:content => 'foo')
+
+        results = model_with_pg_search.search_content('foo & ,')
+        results.should == [included]
+      end
     end
 
-    context "when normalizing prefixes" do
-      it "builds a scope that matches prefixes" do
+    context "against multiple columns" do
+      before do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_title_and_content, :against => [:title, :content]
+        end
+      end
+
+      it "returns rows whose columns contain all of the terms in the query across columns" do
+        included = [
+          model_with_pg_search.create!(:title => 'foo', :content => 'bar'),
+          model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+        ]
+        excluded = [
+          model_with_pg_search.create!(:title => 'foo', :content => 'foo'),
+          model_with_pg_search.create!(:title => 'bar', :content => 'bar')
+        ]
+
+        results = model_with_pg_search.search_title_and_content('foo bar')
+
+        results.should =~ included
+        excluded.each do |result|
+          results.should_not include(result)
+        end
+      end
+
+      it "returns rows where at one column contains all of the terms in the query and another does not" do
+        included = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+        results  = model_with_pg_search.search_title_and_content('foo')
+        results.should == [included]
+      end
+
+      # Searching with a NULL column will prevent any matches unless we coalesce it.
+      it "returns rows where at one column contains all of the terms in the query and another is NULL" do
+        included = model_with_pg_search.create!(:title => 'foo', :content => nil)
+        results  = model_with_pg_search.search_title_and_content('foo')
+        results.should == [included]
+      end
+    end
+
+    context "using trigram" do
+      before do
+        model_with_pg_search.class_eval do
+          pg_search_scope :with_trigrams, :against => [:title, :content], :using => :trigram
+        end
+      end
+
+      it "returns rows where one searchable column and the query share enough trigrams" do
+        included = model_with_pg_search.create!(:title => 'abcdefghijkl', :content => nil)
+        results = model_with_pg_search.with_trigrams('cdefhijkl')
+        results.should == [included]
+      end
+
+      it "returns rows where multiple searchable columns and the query share enough trigrams" do
+        included = model_with_pg_search.create!(:title => 'abcdef', :content => 'ghijkl')
+        results = model_with_pg_search.with_trigrams('cdefhijkl')
+        results.should == [included]
+      end
+    end
+
+    context "using multiple features" do
+      before do
+        model_with_pg_search.class_eval do
+          pg_search_scope :with_tsearch, :against => :title, :using => :tsearch
+          pg_search_scope :with_trigram, :against => :title, :using => :trigram
+          pg_search_scope :with_tsearch_and_trigram, :against => :title, :using => [:tsearch, :trigram]
+        end
+      end
+
+      it "returns rows that match using any of the features" do
+        record = model_with_pg_search.create!(:title => "tiling is grouty")
+
+        # matches trigram only
+        trigram_query = "ling is grouty"
+        model_with_pg_search.with_trigram(trigram_query).should include(record)
+        model_with_pg_search.with_tsearch(trigram_query).should_not include(record)
+        model_with_pg_search.with_tsearch_and_trigram(trigram_query).should == [record]
+
+        # matches tsearch only
+        tsearch_query = "tile"
+        model_with_pg_search.with_tsearch(tsearch_query).should include(record)
+        model_with_pg_search.with_trigram(tsearch_query).should_not include(record)
+        model_with_pg_search.with_tsearch_and_trigram(tsearch_query).should == [record]
+      end
+    end
+
+    context "normalizing diacritics" do
+      before do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_title_without_diacritics, :against => :title, :normalizing => :diacritics
+        end
+      end
+
+      it "returns rows that match the query but not its diacritics" do
+        # \303\241 is a with acute accent
+        # \303\251 is e with acute accent
+
+        included = model_with_pg_search.create!(:title => "\303\241bcdef")
+
+        results = model_with_pg_search.search_title_without_diacritics("abcd\303\251f")
+        results.should == [included]
+      end
+    end
+
+    context "normalizing prefixes" do
+      before do
         model_with_pg_search.class_eval do
           pg_search_scope :search_title_with_prefixes, :against => :title, :normalizing => :prefixes
         end
+      end
 
+      it "returns rows that match the query and that are prefixed by the query" do
         included = model_with_pg_search.create!(:title => 'prefix')
         excluded = model_with_pg_search.create!(:title => 'postfix')
 
@@ -191,131 +273,79 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
 
-    it "builds a scope that stems with the english dictionary by default" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :search_title, :against => :title
+    context "with the simple dictionary" do
+      before do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_title, :against => :title
+          pg_search_scope :search_title_with_simple, :against => :title, :with_dictionary => :simple
+        end
       end
 
-      included = [model_with_pg_search.create!(:title => "jump"),
-                  model_with_pg_search.create!(:title => "jumped"),
-                  model_with_pg_search.create!(:title => "jumping")]
-
-      results = model_with_pg_search.search_title("jump")
-      results.should =~ included
-    end
-
-    context "when using the simple dictionary" do
-      it "builds a scope that matches terms that would have been stemmed by the english dictionary" do
-        model_with_pg_search.class_eval do
-          pg_search_scope :search_title, :against => :title, :with_dictionary => :simple
-        end
-
+      it "returns rows that match the query exactly but not that match the query when stemmed by the default dictionary" do
         included = model_with_pg_search.create!(:title => "jumped")
         excluded = [model_with_pg_search.create!(:title => "jump"),
                     model_with_pg_search.create!(:title => "jumping")]
 
-        results = model_with_pg_search.search_title("jumped")
-        results.should == [included]
+        default_results = model_with_pg_search.search_title("jumped")
+        default_results.should =~ [included] + excluded
+
+        simple_results = model_with_pg_search.search_title_with_simple("jumped")
+        simple_results.should == [included]
         excluded.each do |result|
-          results.should_not include(result)
+          simple_results.should_not include(result)
         end
       end
     end
 
-    it "builds a scope that sorts by rank" do
-      model_with_pg_search.class_eval do
-        pg_search_scope :search_title_and_content, :against => [:title, :content]
+    context "against columns ranked with arrays" do
+      before do
+        model_with_pg_search.class_eval do
+           pg_search_scope :search_weighted_by_array_of_arrays, :against => [[:content, 'B'], [:title, 'A']]
+         end
       end
 
-      loser = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
-      winner = model_with_pg_search.create!(:title => 'foo', :content => 'foo')
+      it "returns results sorted by weighted rank" do
+        loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+        winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
 
-      results = model_with_pg_search.search_title_and_content("foo")
-      results[0].rank.should > results[1].rank
-      results.should == [winner, loser]
-    end
-  end
-
-  it "builds a scope that sorts by primary key for records that rank the same" do
-    model_with_pg_search.class_eval do
-      pg_search_scope :search_title, :against => :title
+        results = model_with_pg_search.search_weighted_by_array_of_arrays('foo')
+        results[0].rank.to_f.should > results[1].rank.to_f
+        results.should == [winner, loser]
+      end
     end
 
-    sorted_results = [model_with_pg_search.create!(:title => 'foo'),
-                      model_with_pg_search.create!(:title => 'foo')].sort_by(&:id)
+    context "against columns ranked with a hash" do
+      before do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_weighted_by_hash, :against => {:content => 'B', :title => 'A'}
+        end
+      end
 
-    results = model_with_pg_search.search_title("foo")
-    results.should == sorted_results
-  end
+      it "returns results sorted by weighted rank" do
+        loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+        winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
 
-  it "builds a scope that allows for multiple space-separated search terms" do
-    model_with_pg_search.class_eval do
-      pg_search_scope :search_content, :against => [:content]
+        results = model_with_pg_search.search_weighted_by_hash('foo')
+        results[0].rank.to_f.should > results[1].rank.to_f
+        results.should == [winner, loser]
+      end
     end
 
-    included = [
-      model_with_pg_search.create!(:content => 'foo bar'),
-      model_with_pg_search.create!(:content => 'bar foo'),
-      model_with_pg_search.create!(:content => 'bar foo baz'),
-    ]
-    excluded = [
-      model_with_pg_search.create!(:content => 'foo'),
-      model_with_pg_search.create!(:content => 'foo baz')
-    ]
+    context "against columns of which only some are ranked" do
+      before do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_weighted, :against => [:content, [:title, 'A']]
+        end
+      end
 
-    results = model_with_pg_search.search_content('foo bar')
-    results.should =~ included
-    results.should_not include(excluded)
-  end
+      it "returns results sorted by weighted rank using an implied low rank for unranked columns" do
+        loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+        winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
 
-  it "builds a scope that sorts by weighted rank using an array of arrays" do
-    model_with_pg_search.class_eval do
-      pg_search_scope :search_weighted_by_array_of_arrays, :against => [[:content, 'B'], [:title, 'A']]
+        results = model_with_pg_search.search_weighted('foo')
+        results[0].rank.to_f.should > results[1].rank.to_f
+        results.should == [winner, loser]
+      end
     end
-
-    loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
-    winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
-
-    results = model_with_pg_search.search_weighted_by_array_of_arrays('foo')
-    results[0].rank.to_f.should > results[1].rank.to_f
-    results.should == [winner, loser]
   end
-
-  it "builds a scope that sorts by weighted rank using a hash" do
-    model_with_pg_search.class_eval do
-      pg_search_scope :search_weighted_by_hash, :against => {:content => 'B', :title => 'A'}
-    end
-
-    loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
-    winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
-
-    results = model_with_pg_search.search_weighted_by_hash('foo')
-    results[0].rank.to_f.should > results[1].rank.to_f
-    results.should == [winner, loser]
-  end
-
-  it "builds a scope that sorts by weighted rank only for some columns" do
-    model_with_pg_search.class_eval do
-      pg_search_scope :search_weighted, :against => [:content, [:title, 'A']]
-    end
-
-    loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
-    winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
-
-    results = model_with_pg_search.search_weighted('foo')
-    results[0].rank.to_f.should > results[1].rank.to_f
-    results.should == [winner, loser]
-  end
-
-  it "builds a scope that allows searching with characters that are invalid in a tsquery" do
-    model_with_pg_search.class_eval do
-      pg_search_scope :search_title, :against => :title
-    end
-
-    included = model_with_pg_search.create!(:title => 'foo')
-
-    results = model_with_pg_search.search_title('foo & ,')
-    results.should == [included]
-  end
-
 end
