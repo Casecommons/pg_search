@@ -210,11 +210,11 @@ describe "an ActiveRecord model which includes PgSearch" do
           pg_search_scope :search_title, :against => :title, :with_dictionary => :simple
         end
 
-        included = model_with_pg_search.create!(:title => "jump")
-        excluded = [model_with_pg_search.create!(:title => "jumped"),
+        included = model_with_pg_search.create!(:title => "jumped")
+        excluded = [model_with_pg_search.create!(:title => "jump"),
                     model_with_pg_search.create!(:title => "jumping")]
 
-        results = model_with_pg_search.search_title("jump")
+        results = model_with_pg_search.search_title("jumped")
         results.should == [included]
         excluded.each do |result|
           results.should_not include(result)
