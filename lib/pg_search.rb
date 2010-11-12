@@ -50,8 +50,9 @@ module PgSearch
         end
 
         tsquery = query.split(" ").compact.map do |term|
+          term = "'#{term}'"
           term = "#{term}:*" if normalizing.include?(:prefixes)
-          "LOWER(#{normalized[connection.quote(term)]})::tsquery"
+          "to_tsquery(#{normalized[connection.quote(term)]})"
         end.join(" && ")
 
         tsdocument = columns_with_weights.map do |column, weight|
