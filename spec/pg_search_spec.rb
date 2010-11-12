@@ -295,7 +295,16 @@ describe "an ActiveRecord model which includes PgSearch" do
   end
 
   it "builds a scope that sorts by weighted rank only for some columns" do
-    pending
+    model_with_pg_search.class_eval do
+      pg_search_scope :search_weighted, :against => [:content, [:title, 'A']]
+    end
+
+    loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+    winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+
+    results = model_with_pg_search.search_weighted('foo')
+    results[0].rank.to_f.should > results[1].rank.to_f
+    results.should == [winner, loser]
   end
 
   it "builds a scope that allows searching with characters that are invalid in a tsquery" do

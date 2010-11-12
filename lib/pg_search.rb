@@ -56,17 +56,8 @@ module PgSearch
         end.join(" && ")
 
         tsdocument = columns_with_weights.map do |column, weight|
-          tsvector = if dictionary
-            "to_tsvector(:dictionary, #{normalized[column]})"
-          else
-            "to_tsvector(#{normalized[column]})"
-          end
-
-          if weight
-            "setweight(#{tsvector}, #{connection.quote(weight)})"
-          else
-            tsvector
-          end
+          tsvector = "to_tsvector(#{":dictionary," if dictionary} #{normalized[column]})"
+          weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(weight)})"
         end.join(" || ")
 
         conditions_hash = {
