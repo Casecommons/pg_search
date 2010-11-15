@@ -347,5 +347,49 @@ describe "an ActiveRecord model which includes PgSearch" do
         results.should == [winner, loser]
       end
     end
+
+
+    unless ActiveRecord::VERSION::MAJOR < 3 # There is a bug in ActiveRecord 2.3
+      context "when chained before another scope that defines :order" do
+        before do
+          model_with_pg_search.class_eval do
+            pg_search_scope :search_content, :against => :content
+          end
+        end
+
+        it "should have its :order overridden" do
+          records = [
+            model_with_pg_search.create!(:content => 'foo'),
+            model_with_pg_search.create!(:content => 'foo'),
+            model_with_pg_search.create!(:content => 'foo')
+          ].sort_by(&:id)
+
+          results = model_with_pg_search.search_content("foo")
+          results.should == records
+
+          results = model_with_pg_search.search_content("foo").scoped(:order => 'id DESC')
+          results.should == records.reverse
+        end
+      end
+    end
+
+    context "when passed an order" do
+      before do
+        model_with_pg_search.class_eval do
+          pg_search_scope :search_content, :against => :content, :order => 'id DESC'
+        end
+      end
+
+      it "should override the default :order" do
+        records = [
+          model_with_pg_search.create!(:content => 'foo'),
+          model_with_pg_search.create!(:content => 'foo'),
+          model_with_pg_search.create!(:content => 'foo')
+        ].sort_by(&:id)
+
+        results = model_with_pg_search.search_content("foo")
+        results.should == records.reverse
+      end
+    end
   end
 end

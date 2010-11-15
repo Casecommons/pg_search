@@ -80,7 +80,7 @@ module PgSearch
         {
           :select => "#{quoted_table_name}.*, (#{rank_select})::float AS rank",
           :conditions => [conditions, interpolations],
-          :order => "rank DESC, #{quoted_table_name}.#{connection.quote_column_name(primary_key)} ASC"
+          :order => options[:order] || "rank DESC, #{quoted_table_name}.#{connection.quote_column_name(primary_key)} ASC"
         }
       })
     end
