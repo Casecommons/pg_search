@@ -28,6 +28,19 @@ module PgSearch
 
       send(scope_method, name, lambda { |*args|
         options = options_proc.call(*args).reverse_merge(:using => :tsearch)
+
+        options.assert_valid_keys(:against, :ranked_by, :normalizing, :with_dictionary, :using, :query)
+        Array.wrap(options[:using]).each do |using_value|
+          unless [:trigram, :tsearch].include?(using_value)
+            raise ArgumentError, ":using cannot accept foo"
+          end
+        end
+        Array.wrap(options[:normalizing]).each do |using_value|
+          unless [:prefixes, :diacritics].include?(using_value)
+            raise ArgumentError, ":normalizing cannot accept foo"
+          end
+        end
+
         query = options[:query].to_s
         normalizing = Array.wrap(options[:normalizing])
         dictionary = options[:with_dictionary]

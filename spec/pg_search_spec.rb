@@ -43,6 +43,72 @@ describe "an ActiveRecord model which includes PgSearch" do
         model_with_pg_search.search_title_or_content('b-remove-ar', true).should == [included]
       end
     end
+
+    context "when an unknown option is passed in" do
+      it "raises an exception when invoked" do
+        lambda {
+          model_with_pg_search.class_eval do
+            pg_search_scope :with_unknown_option, :against => :content, :foo => :bar
+          end
+          model_with_pg_search.with_unknown_option("foo")
+        }.should raise_error(ArgumentError, /foo/)
+      end
+
+      context "dynamically" do
+        it "raises an exception when invoked" do
+          lambda {
+            model_with_pg_search.class_eval do
+              pg_search_scope :with_unknown_option, lambda { |*| {:against => :content, :foo => :bar} }
+            end
+            model_with_pg_search.with_unknown_option("foo")
+          }.should raise_error(ArgumentError, /foo/)
+        end
+      end
+    end
+
+    context "when an unknown :using is passed" do
+      it "raises an exception when invoked" do
+        lambda {
+          model_with_pg_search.class_eval do
+            pg_search_scope :with_unknown_using, :against => :content, :using => :foo
+          end
+          model_with_pg_search.with_unknown_using("foo")
+        }.should raise_error(ArgumentError, /using.*foo/)
+      end
+
+      context "dynamically" do
+        it "raises an exception when invoked" do
+          lambda {
+            model_with_pg_search.class_eval do
+              pg_search_scope :with_unknown_using, lambda { |*| {:against => :content, :using => :foo} }
+            end
+            model_with_pg_search.with_unknown_using("foo")
+          }.should raise_error(ArgumentError, /using.*foo/)
+        end
+      end
+    end
+
+    context "when an unknown :normalizing is passed" do
+      it "raises an exception when invoked" do
+        lambda {
+          model_with_pg_search.class_eval do
+            pg_search_scope :with_unknown_normalizing, :against => :content, :normalizing => :foo
+          end
+          model_with_pg_search.with_unknown_normalizing("foo")
+        }.should raise_error(ArgumentError, /normalizing.*foo/)
+      end
+
+      context "dynamically" do
+        it "raises an exception when invoked" do
+          lambda {
+            model_with_pg_search.class_eval do
+              pg_search_scope :with_unknown_normalizing, lambda { |*| {:against => :content, :normalizing => :foo} }
+            end
+            model_with_pg_search.with_unknown_normalizing("foo")
+          }.should raise_error(ArgumentError, /normalizing.*foo/)
+        end
+      end
+    end
   end
 
   describe "a search scope" do
