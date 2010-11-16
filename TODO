@@ -1,3 +1,4 @@
+ * Exceptions for missing trigram, dmetaphone, etc. support
  * trigram rank
  * dmetaphone() search and rank
  * LIKE search
