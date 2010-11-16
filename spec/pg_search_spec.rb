@@ -108,6 +108,27 @@ describe "an ActiveRecord model which includes PgSearch" do
           }.should raise_error(ArgumentError, /normalizing.*foo/)
         end
       end
+
+      context "when :against is not passed in" do
+        it "raises an exception when invoked" do
+          lambda {
+            model_with_pg_search.class_eval do
+              pg_search_scope :with_unknown_normalizing, {}
+            end
+            model_with_pg_search.with_unknown_normalizing("foo")
+          }.should raise_error(ArgumentError, /against/)
+        end
+        context "dynamically" do
+          it "raises an exception when invoked" do
+            lambda {
+              model_with_pg_search.class_eval do
+                pg_search_scope :with_unknown_normalizing, lambda { |*| {} }
+              end
+              model_with_pg_search.with_unknown_normalizing("foo")
+            }.should raise_error(ArgumentError, /against/)
+          end
+        end
+      end
     end
   end
 
