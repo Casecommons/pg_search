@@ -6,6 +6,7 @@ describe "an ActiveRecord model which includes PgSearch" do
     table do |t|
       t.string 'title'
       t.text 'content'
+      t.integer 'importance'
     end
 
     model do
@@ -309,7 +310,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
 
         results = model_with_pg_search.search_weighted_by_array_of_arrays('foo')
-        results[0].rank.to_f.should > results[1].rank.to_f
+        results[0].rank.should > results[1].rank
         results.should == [winner, loser]
       end
     end
@@ -326,7 +327,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
 
         results = model_with_pg_search.search_weighted_by_hash('foo')
-        results[0].rank.to_f.should > results[1].rank.to_f
+        results[0].rank.should > results[1].rank
         results.should == [winner, loser]
       end
     end
@@ -343,52 +344,49 @@ describe "an ActiveRecord model which includes PgSearch" do
         winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
 
         results = model_with_pg_search.search_weighted('foo')
-        results[0].rank.to_f.should > results[1].rank.to_f
+        results[0].rank.should > results[1].rank
         results.should == [winner, loser]
       end
     end
 
-
-    unless ActiveRecord::VERSION::MAJOR < 3 # There is a bug in ActiveRecord 2.3
-      context "when chained before another scope that defines :order" do
-        before do
-          model_with_pg_search.class_eval do
-            pg_search_scope :search_content, :against => :content
-          end
-        end
-
-        it "should have its :order overridden" do
-          records = [
-            model_with_pg_search.create!(:content => 'foo'),
-            model_with_pg_search.create!(:content => 'foo'),
-            model_with_pg_search.create!(:content => 'foo')
-          ].sort_by(&:id)
-
-          results = model_with_pg_search.search_content("foo")
-          results.should == records
-
-          results = model_with_pg_search.search_content("foo").scoped(:order => 'id DESC')
-          results.should == records.reverse
-        end
-      end
-    end
-
-    context "when passed an order" do
+    context "when passed a :ranked_by expression" do
       before do
         model_with_pg_search.class_eval do
-          pg_search_scope :search_content, :against => :content, :order => 'id DESC'
+          pg_search_scope :search_content_with_default_rank,
+                          :against => :content
+          pg_search_scope :search_content_with_importance_as_rank,
+                          :against => :content,
+                          :ranked_by => "importance"
+          pg_search_scope :search_content_with_importance_as_rank_multiplier,
+                          :against => :content,
+                          :ranked_by => ":tsearch_rank * importance"
         end
       end
 
-      it "should override the default :order" do
-        records = [
-          model_with_pg_search.create!(:content => 'foo'),
-          model_with_pg_search.create!(:content => 'foo'),
-          model_with_pg_search.create!(:content => 'foo')
-        ].sort_by(&:id)
+      it "should return records with a rank attribute equal to the :ranked_by expression" do
+        model_with_pg_search.create!(:content => 'foo', :importance => 10)
+        results = model_with_pg_search.search_content_with_importance_as_rank("foo")
+        results.first.rank.should == 10
+      end
 
-        results = model_with_pg_search.search_content("foo")
-        results.should == records.reverse
+      it "should substitute :tsearch_rank with the tsearch rank expression in the :ranked_by expression" do
+        model_with_pg_search.create!(:content => 'foo', :importance => 10)
+
+        tsearch_rank = model_with_pg_search.search_content_with_default_rank("foo").first.rank
+        multiplied_rank = model_with_pg_search.search_content_with_importance_as_rank_multiplier("foo").first.rank
+
+        multiplied_rank.should be_within(0.001).of(tsearch_rank * 10)
+      end
+
+      it "should return results in descending order of the value of the rank expression" do
+        records = [
+          model_with_pg_search.create!(:content => 'foo', :importance => 1),
+          model_with_pg_search.create!(:content => 'foo', :importance => 3),
+          model_with_pg_search.create!(:content => 'foo', :importance => 2)
+        ]
+
+        results = model_with_pg_search.search_content_with_importance_as_rank("foo")
+        results.should == records.sort_by(&:importance).reverse
       end
     end
   end

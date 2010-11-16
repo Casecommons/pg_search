@@ -75,14 +75,22 @@ module PgSearch
           :dictionary => dictionary.to_s
         }
 
-        rank_select = sanitize_sql_array(["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations])
+        tsearch_rank = sanitize_sql_array(["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations])
+
+        rank = options[:ranked_by] || ":tsearch_rank"
+
+        rank.gsub!(':tsearch_rank', tsearch_rank)
 
         {
-          :select => "#{quoted_table_name}.*, (#{rank_select})::float AS rank",
+          :select => "#{quoted_table_name}.*, (#{rank}) AS rank",
           :conditions => [conditions, interpolations],
-          :order => options[:order] || "rank DESC, #{quoted_table_name}.#{connection.quote_column_name(primary_key)} ASC"
+          :order => "rank DESC, #{quoted_table_name}.#{connection.quote_column_name(primary_key)} ASC"
         }
       })
     end
+  end
+
+  def rank
+    attributes['rank'].to_f
   end
 end
