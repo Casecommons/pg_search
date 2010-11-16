@@ -1,3 +1,4 @@
+ * Blow up if we get a bad key
  * trigram rank
  * dmetaphone() search and rank
  * LIKE search
