@@ -50,7 +50,7 @@ module PgSearch
         end
 
         tsquery = query.split(" ").compact.map do |term|
-          term.gsub!("'", " ")
+          term = term.gsub("'", " ")
           term = "'#{term}'"
           term = "#{term}:*" if normalizing.include?(:prefixes)
           "to_tsquery(#{":dictionary," if dictionary} #{normalized[connection.quote(term)]})"
@@ -78,8 +78,7 @@ module PgSearch
         tsearch_rank = sanitize_sql_array(["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations])
 
         rank = options[:ranked_by] || ":tsearch_rank"
-
-        rank.gsub!(':tsearch_rank', tsearch_rank)
+        rank = rank.gsub(':tsearch_rank', tsearch_rank)
 
         {
           :select => "#{quoted_table_name}.*, (#{rank}) AS rank",
