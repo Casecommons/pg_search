@@ -28,7 +28,7 @@ module PgSearch
 
       send(scope_method, name, lambda { |*args|
         options = options_proc.call(*args).reverse_merge(:using => :tsearch)
-        query = options[:query]
+        query = options[:query].to_s
         normalizing = Array.wrap(options[:normalizing])
         dictionary = options[:with_dictionary]
 

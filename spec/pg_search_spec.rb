@@ -152,6 +152,11 @@ describe "an ActiveRecord model which includes PgSearch" do
         results = model_with_pg_search.search_content(" foo &,' ")
         results.should == [included]
       end
+      it "accepts non-string queries and calls #to_s on them" do
+        foo = model_with_pg_search.create!(:content => "foo")
+        not_a_string = stub(:to_s => "foo")
+        model_with_pg_search.search_content(not_a_string).should == [foo]
+      end
     end
 
     context "against multiple columns" do
