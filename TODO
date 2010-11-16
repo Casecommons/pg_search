@@ -4,3 +4,4 @@
  * LIKE search
  * ability to specify multiple ranks: :ranked_by => [:tsearch, :trigram]
  * ability to mix ranks together with weights: :ranked_by => {:tsearch => 1.0, :trigram => 0.5}
+ * accept a block and pass it to the underlying scope
