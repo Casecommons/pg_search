@@ -39,7 +39,7 @@ module PgSearch
 
     def tsquery
       @config.query.split(" ").compact.map do |term|
-        term = term.gsub("'", " ")
+        term = term.gsub(/['?]/, " ")
         term = "'#{term}'"
         term = "#{term}:*" if @config.normalizations.include?(:prefixes)
         "to_tsquery(#{":dictionary," if @config.dictionary} #{add_normalization(connection.quote(term))})"
