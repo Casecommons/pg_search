@@ -12,11 +12,6 @@ module PgSearch
       @args = args
     end
 
-    def pg_search_options
-      @options_proc.call(*@args).reverse_merge(default_options()).tap { |options| assert_valid_options(options) }
-    end
-    memoize :pg_search_options
-
     def to_hash
       query = pg_search_options[:query].to_s
       normalizing = Array.wrap(pg_search_options[:normalizing])
@@ -79,19 +74,29 @@ module PgSearch
 
     private
 
+    def pg_search_options
+      @options_proc.call(*@args).reverse_merge(default_options).tap do |options|
+        assert_valid_options(options)
+      end
+    end
+    memoize :pg_search_options
+
     def default_options
       {:using => :tsearch}
     end
 
     def assert_valid_options(options)
-      options.assert_valid_keys(:against, :ranked_by, :normalizing, :with_dictionary, :using, :query)
-
-      {
+      valid_keys = [:against, :ranked_by, :normalizing, :with_dictionary, :using, :query]
+      valid_values = {
         :using => [:trigram, :tsearch],
         :normalizing => [:prefixes, :diacritics]
-      }.each do |key, valid_values|
+      }
+
+      options.assert_valid_keys(valid_keys)
+
+      valid_values.each do |key, values_for_key|
         Array.wrap(options[key]).each do |value|
-          unless valid_values.include?(value)
+          unless values_for_key.include?(value)
             raise ArgumentError, ":#{key} cannot accept #{value}"
           end
         end
