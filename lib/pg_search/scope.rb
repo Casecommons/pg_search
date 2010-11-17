@@ -1,6 +1,6 @@
 module PgSearch
   class Scope
-    def initialize(name, scope_options_or_proc, model)
+    def initialize(name, model, scope_options_or_proc)
       @name = name
       @model = model
       @options_proc = build_options_proc(scope_options_or_proc)
@@ -8,7 +8,8 @@ module PgSearch
 
     def to_proc
       lambda { |*args|
-        ScopeOptions.new(@name, @options_proc, @model, args).to_hash
+        config = Configuration.new(@options_proc.call(*args))
+        ScopeOptions.new(@name, @model, config).to_hash
       }
     end
 

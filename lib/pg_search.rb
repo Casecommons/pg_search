@@ -1,6 +1,8 @@
 require "active_record"
+require "pg_search/configuration"
 require "pg_search/scope"
 require "pg_search/scope_options"
+require "pg_search/version"
 
 module PgSearch
   def self.included(base)
@@ -9,7 +11,7 @@ module PgSearch
 
   module ClassMethods
     def pg_search_scope(name, options)
-      scope = PgSearch::Scope.new(name, options, self)
+      scope = PgSearch::Scope.new(name, self, options)
       scope_method =
         if respond_to?(:scope) && !protected_methods.include?('scope')
           :scope # ActiveRecord 3.x
