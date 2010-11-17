@@ -1,3 +1,5 @@
+require "active_support/core_ext/module/delegation"
+
 module PgSearch
   class ScopeOptions
     attr_reader :model
