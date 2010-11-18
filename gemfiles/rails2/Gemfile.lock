@@ -1,10 +1,17 @@
+GIT
+  remote: git@github.com:casebook/with_model.git
+  revision: 9f09ad4797d97e1b0602b14cdff749c4c7cd1d6e
+  specs:
+    with_model (0.0.1)
+      activerecord (>= 2.3.5, < 4.0.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
     activerecord (2.3.10)
       activesupport (= 2.3.10)
     activesupport (2.3.10)
-    autotest (4.4.2)
+    autotest (4.4.4)
     diff-lcs (1.1.2)
     pg (0.9.0)
     rspec (2.1.0)
@@ -24,3 +31,4 @@ DEPENDENCIES
   autotest
   pg
   rspec
+  with_model!
