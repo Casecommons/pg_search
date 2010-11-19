@@ -1,6 +1,6 @@
 GIT
   remote: git@github.com:casebook/with_model.git
-  revision: 9f09ad4797d97e1b0602b14cdff749c4c7cd1d6e
+  revision: ac8860680a9ac75b2770913f586a70117a169c74
   specs:
     with_model (0.0.1)
       activerecord (>= 2.3.5, < 4.0.0)
