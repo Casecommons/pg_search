@@ -27,7 +27,7 @@ module PgSearch
     end
 
     def features
-      Array.wrap(@options[:using])
+      Array(@options[:using])
     end
 
     private
@@ -39,10 +39,8 @@ module PgSearch
     def assert_valid_options(options)
       valid_keys = [:against, :ranked_by, :normalizing, :with_dictionary, :using, :query]
       valid_values = {
-        :using => [:trigram, :tsearch],
         :normalizing => [:prefixes, :diacritics]
       }
-
       raise ArgumentError, "the search scope #{@name} must have :against in its options" unless options[:against]
 
       options.assert_valid_keys(valid_keys)

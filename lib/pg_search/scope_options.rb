@@ -10,6 +10,13 @@ module PgSearch
       @name = name
       @model = model
       @config = config
+
+      @feature_options = @config.features.inject({}) do |features_hash, (feature_name, feature_options)|
+        features_hash.merge(
+          feature_name => feature_options
+        )
+      end
+      @feature_names = @config.features.map { |feature_name, feature_options| feature_name }
     end
 
     def to_hash
@@ -22,48 +29,8 @@ module PgSearch
 
     private
 
-    def columns_with_weights
-      @config.search_columns.map do |column_name, weight|
-        ["coalesce(#{quoted_table_name}.#{connection.quote_column_name(column_name)}, '')",
-         weight]
-      end
-    end
-
-    def document
-      columns_with_weights.map { |column, *| column }.join(" || ' ' || ")
-    end
-
-    def add_normalization(original_sql)
-      normalized_sql = original_sql
-      normalized_sql = "unaccent(#{normalized_sql})" if @config.normalizations.include?(:diacritics)
-      normalized_sql
-    end
-
-    def tsquery
-      @config.query.split(" ").compact.map do |term|
-        term = term.gsub(/['?]/, " ")
-        term = "'#{term}'"
-        term = "#{term}:*" if @config.normalizations.include?(:prefixes)
-        "to_tsquery(#{":dictionary," if @config.dictionary} #{add_normalization(connection.quote(term))})"
-      end.join(" && ")
-    end
-
-    def tsdocument
-      columns_with_weights.map do |column, weight|
-        tsvector = "to_tsvector(#{":dictionary," if @config.dictionary} #{add_normalization(column)})"
-        weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(weight)})"
-      end.join(" || ")
-    end
-
     def conditions
-      conditions_hash = {
-        :tsearch => "(#{tsdocument}) @@ (#{tsquery})",
-        :trigram => "(#{add_normalization(document)}) % #{add_normalization(":query")}"
-      }
-
-      @config.features.map do |feature|
-        "(#{conditions_hash[feature]})"
-      end.join(" OR ")
+      @feature_names.map { |feature_name| "(#{feature_for(feature_name).conditions})" }.join(" OR ")
     end
 
     def interpolations
@@ -73,12 +40,27 @@ module PgSearch
       }
     end
 
+    def feature_for(feature_name)
+      feature_name = feature_name.to_sym
+
+      feature_class = {
+        :tsearch => Features::TSearch,
+        :trigram => Features::Trigram
+      }[feature_name]
+
+      raise ArgumentError.new("Unknown feature: #{feature_name}") unless feature_class
+
+      feature_class.new(@config.query, @feature_options[feature_name], @config, @model, interpolations)
+    end
+
     def tsearch_rank
-      sanitize_sql_array(["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations])
+      @feature_names[Features::TSearch].rank
     end
 
     def rank
-      (@config.ranking_sql || ":tsearch_rank").gsub(':tsearch_rank', tsearch_rank)
+      (@config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
+        feature_for($1).rank
+      end
     end
   end
 end

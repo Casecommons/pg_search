@@ -1,5 +1,6 @@
 require "active_record"
 require "pg_search/configuration"
+require "pg_search/features"
 require "pg_search/scope"
 require "pg_search/scope_options"
 require "pg_search/version"

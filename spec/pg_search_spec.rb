@@ -73,7 +73,7 @@ describe "an ActiveRecord model which includes PgSearch" do
             pg_search_scope :with_unknown_using, :against => :content, :using => :foo
           end
           model_with_pg_search.with_unknown_using("foo")
-        }.should raise_error(ArgumentError, /using.*foo/)
+        }.should raise_error(ArgumentError, /foo/)
       end
 
       context "dynamically" do
@@ -83,7 +83,7 @@ describe "an ActiveRecord model which includes PgSearch" do
               pg_search_scope :with_unknown_using, lambda { |*| {:against => :content, :using => :foo} }
             end
             model_with_pg_search.with_unknown_using("foo")
-          }.should raise_error(ArgumentError, /using.*foo/)
+          }.should raise_error(ArgumentError, /foo/)
         end
       end
     end
@@ -309,8 +309,13 @@ describe "an ActiveRecord model which includes PgSearch" do
       before do
         model_with_pg_search.class_eval do
           pg_search_scope :with_tsearch, :against => :title, :using => :tsearch
+
           pg_search_scope :with_trigram, :against => :title, :using => :trigram
-          pg_search_scope :with_tsearch_and_trigram, :against => :title, :using => [:tsearch, :trigram]
+
+          pg_search_scope :with_tsearch_and_trigram_using_array,
+                          :against => :title,
+                          :using => [:tsearch, :trigram]
+
         end
       end
 
@@ -321,13 +326,37 @@ describe "an ActiveRecord model which includes PgSearch" do
         trigram_query = "ling is grouty"
         model_with_pg_search.with_trigram(trigram_query).should include(record)
         model_with_pg_search.with_tsearch(trigram_query).should_not include(record)
-        model_with_pg_search.with_tsearch_and_trigram(trigram_query).should == [record]
+        model_with_pg_search.with_tsearch_and_trigram_using_array(trigram_query).should == [record]
 
         # matches tsearch only
         tsearch_query = "tile"
         model_with_pg_search.with_tsearch(tsearch_query).should include(record)
         model_with_pg_search.with_trigram(tsearch_query).should_not include(record)
-        model_with_pg_search.with_tsearch_and_trigram(tsearch_query).should == [record]
+        model_with_pg_search.with_tsearch_and_trigram_using_array(tsearch_query).should == [record]
+      end
+
+      context "with feature-specific configuration" do
+        before do
+          @tsearch_config = tsearch_config = {:with_dictionary => 'english'}
+          @trigram_config = trigram_config = {:foo => 'bar'}
+
+          model_with_pg_search.class_eval do
+            pg_search_scope :with_tsearch_and_trigram_using_hash,
+                            :against => :title,
+                            :using => {
+                              :tsearch => tsearch_config,
+                              :trigram => trigram_config
+                            }
+          end
+        end
+
+        it "should pass the custom configuration down to the specified feature" do
+          stub_feature = stub(:conditions => "1 = 1", :rank => "1.0")
+          PgSearch::Features::TSearch.should_receive(:new).with(anything, @tsearch_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
+          PgSearch::Features::Trigram.should_receive(:new).with(anything, @trigram_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
+
+          model_with_pg_search.with_tsearch_and_trigram_using_hash("foo")
+        end
       end
     end
 
@@ -451,7 +480,7 @@ describe "an ActiveRecord model which includes PgSearch" do
                           :ranked_by => "importance"
           pg_search_scope :search_content_with_importance_as_rank_multiplier,
                           :against => :content,
-                          :ranked_by => ":tsearch_rank * importance"
+                          :ranked_by => ":tsearch * importance"
         end
       end
 
@@ -461,7 +490,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         results.first.rank.should == 10
       end
 
-      it "should substitute :tsearch_rank with the tsearch rank expression in the :ranked_by expression" do
+      it "should substitute :tsearch with the tsearch rank expression in the :ranked_by expression" do
         model_with_pg_search.create!(:content => 'foo', :importance => 10)
 
         tsearch_rank = model_with_pg_search.search_content_with_default_rank("foo").first.rank
