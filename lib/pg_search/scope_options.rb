@@ -50,7 +50,9 @@ module PgSearch
 
       raise ArgumentError.new("Unknown feature: #{feature_name}") unless feature_class
 
-      feature_class.new(@config.query, @feature_options[feature_name], @config, @model, interpolations)
+      normalizer = Normalizer.new(@config)
+
+      feature_class.new(@config.query, @feature_options[feature_name], @config, @model, interpolations, normalizer)
     end
 
     def tsearch_rank
