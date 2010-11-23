@@ -8,7 +8,7 @@ module PgSearch
       # config is temporary as we refactor
       def initialize(query, options, config, model, interpolations)
         @query = query
-        @options = options
+        @options = options || {}
         @config = config
         @model = model
         @interpolations = interpolations
@@ -46,7 +46,7 @@ module PgSearch
         @query.split(" ").compact.map do |term|
           term = term.gsub(/['?]/, " ")
           term = "'#{term}'"
-          term = "#{term}:*" if @config.normalizations.include?(:prefixes)
+          term = "#{term}:*" if @options[:prefix]
           "to_tsquery(#{":dictionary," if @config.dictionary} #{add_normalization(connection.quote(term))})"
         end.join(" && ")
       end

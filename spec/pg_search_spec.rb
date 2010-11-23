@@ -305,6 +305,29 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
 
+    context "using tsearch" do
+      context "with :prefix => true" do
+        before do
+          model_with_pg_search.class_eval do
+            pg_search_scope :search_title_with_prefixes,
+                            :against => :title,
+                            :using => {
+                              :tsearch => {:prefix => true}
+                            }
+          end
+        end
+
+        it "returns rows that match the query and that are prefixed by the query" do
+          included = model_with_pg_search.create!(:title => 'prefix')
+          excluded = model_with_pg_search.create!(:title => 'postfix')
+
+          results = model_with_pg_search.search_title_with_prefixes("pre")
+          results.should == [included]
+          results.should_not include(excluded)
+        end
+      end
+    end
+
     context "using multiple features" do
       before do
         model_with_pg_search.class_eval do
@@ -375,23 +398,6 @@ describe "an ActiveRecord model which includes PgSearch" do
 
         results = model_with_pg_search.search_title_without_diacritics("abcd\303\251f")
         results.should == [included]
-      end
-    end
-
-    context "normalizing prefixes" do
-      before do
-        model_with_pg_search.class_eval do
-          pg_search_scope :search_title_with_prefixes, :against => :title, :normalizing => :prefixes
-        end
-      end
-
-      it "returns rows that match the query and that are prefixed by the query" do
-        included = model_with_pg_search.create!(:title => 'prefix')
-        excluded = model_with_pg_search.create!(:title => 'postfix')
-
-        results = model_with_pg_search.search_title_with_prefixes("pre")
-        results.should == [included]
-        results.should_not include(excluded)
       end
     end
 
