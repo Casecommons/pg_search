@@ -44,6 +44,7 @@ module PgSearch
       feature_name = feature_name.to_sym
 
       feature_class = {
+        :dmetaphone => Features::DMetaphone,
         :tsearch => Features::TSearch,
         :trigram => Features::Trigram
       }[feature_name]

@@ -328,6 +328,28 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
 
+    context "using dmetaphone" do
+      before do
+        model_with_pg_search.class_eval do
+          pg_search_scope :with_dmetaphones, :against => [:title, :content], :using => :dmetaphone
+        end
+      end
+
+      it "returns rows where one searchable column and the query share enough dmetaphones" do
+        included = model_with_pg_search.create!(:title => 'Geoff', :content => nil)
+        excluded = model_with_pg_search.create!(:title => 'Bob', :content => nil)
+        results = model_with_pg_search.with_dmetaphones('Jeff')
+        results.should == [included]
+      end
+
+      it "returns rows where multiple searchable columns and the query share enough dmetaphones" do
+        included = model_with_pg_search.create!(:title => 'Geoff', :content => 'George')
+        excluded = model_with_pg_search.create!(:title => 'Bob', :content => 'Jones')
+        results = model_with_pg_search.with_dmetaphones('Jeff Jorge')
+        results.should == [included]
+      end
+    end
+
     context "using multiple features" do
       before do
         model_with_pg_search.class_eval do

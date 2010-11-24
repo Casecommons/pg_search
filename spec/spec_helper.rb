@@ -19,7 +19,7 @@ end
 def install_contrib_module_if_missing(name, query, expected_result)
   connection = ActiveRecord::Base.connection
   result = connection.select_value(query)
-  raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result
+  raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result.downcase
 rescue => e
   begin
     share_path = `pg_config --sharedir`.strip
@@ -35,6 +35,7 @@ end
 
 install_contrib_module_if_missing("pg_trgm", "SELECT 'abcdef' % 'cdef'", "t")
 install_contrib_module_if_missing("unaccent", "SELECT unaccent('foo')", "foo")
+install_contrib_module_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "f")
 
 require "with_model"
 
