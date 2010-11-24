@@ -9,6 +9,7 @@ module PgSearch
       # config is temporary as we refactor
       def initialize(query, options, config, model, normalizer)
         dmetaphone_normalizer = Normalizer.new(normalizer)
+        options = (options || {}).merge(:dictionary => 'simple')
         @tsearch = TSearch.new(query, options, config, model, dmetaphone_normalizer)
       end
 
@@ -20,7 +21,7 @@ module PgSearch
 
         def add_normalization(original_sql)
           otherwise_normalized_sql = @decorated_normalizer.add_normalization(original_sql)
-          "array_to_string(ARRAY(SELECT dmetaphone(unnest(regexp_split_to_array(#{otherwise_normalized_sql}, E'\\s+')))), ' ')"
+          "array_to_string(ARRAY(SELECT dmetaphone(unnest(regexp_split_to_array(#{otherwise_normalized_sql}, E'\\\\s+')))), ' ')"
         end
       end
     end

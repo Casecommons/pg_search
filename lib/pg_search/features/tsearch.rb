@@ -41,10 +41,17 @@ module PgSearch
 
       def tsquery
         @query.split(" ").compact.map do |term|
-          term = term.gsub(/['?]/, " ")
-          term = "'#{term}'"
-          term = "#{term}:*" if @options[:prefix]
-          "to_tsquery(#{":dictionary," if @options[:dictionary]} #{@normalizer.add_normalization(connection.quote(term))})"
+          sanitized_term = term.gsub(/['?]/, " ")
+
+          term_sql = @normalizer.add_normalization(connection.quote(sanitized_term ))
+
+          # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
+          tsquery_sql = "#{connection.quote("'")} || #{term_sql} || #{connection.quote("'")}"
+
+          # Add tsearch prefix operator if we're using a prefix search.
+          tsquery_sql = "#{tsquery_sql} || #{connection.quote(':*')}" if @options[:prefix]
+
+          "to_tsquery(#{":dictionary," if @options[:dictionary]} #{tsquery_sql})"
         end.join(" && ")
       end
 

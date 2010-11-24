@@ -348,6 +348,13 @@ describe "an ActiveRecord model which includes PgSearch" do
         results = model_with_pg_search.with_dmetaphones('Jeff Jorge')
         results.should == [included]
       end
+
+      it "returns rows that match dmetaphones that are English stopwords" do
+        included = model_with_pg_search.create!(:title => 'White', :content => nil)
+        excluded = model_with_pg_search.create!(:title => 'Black', :content => nil)
+        results = model_with_pg_search.with_dmetaphones('Wight')
+        results.should == [included]
+      end
     end
 
     context "using multiple features" do
