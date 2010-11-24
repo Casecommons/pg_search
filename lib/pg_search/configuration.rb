@@ -14,10 +14,6 @@ module PgSearch
       @options[:query].to_s
     end
 
-    def dictionary
-      @options[:with_dictionary]
-    end
-
     def normalizations
       Array.wrap(@options[:normalizing])
     end
@@ -37,7 +33,7 @@ module PgSearch
     end
 
     def assert_valid_options(options)
-      valid_keys = [:against, :ranked_by, :normalizing, :with_dictionary, :using, :query]
+      valid_keys = [:against, :ranked_by, :normalizing, :using, :query]
       valid_values = {
         :normalizing => [:diacritics]
       }

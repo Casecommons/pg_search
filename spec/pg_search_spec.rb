@@ -382,7 +382,7 @@ describe "an ActiveRecord model which includes PgSearch" do
 
       context "with feature-specific configuration" do
         before do
-          @tsearch_config = tsearch_config = {:with_dictionary => 'english'}
+          @tsearch_config = tsearch_config = {:dictionary => 'english'}
           @trigram_config = trigram_config = {:foo => 'bar'}
 
           model_with_pg_search.class_eval do
@@ -397,8 +397,8 @@ describe "an ActiveRecord model which includes PgSearch" do
 
         it "should pass the custom configuration down to the specified feature" do
           stub_feature = stub(:conditions => "1 = 1", :rank => "1.0")
-          PgSearch::Features::TSearch.should_receive(:new).with(anything, @tsearch_config, anything, anything, anything, anything).at_least(:once).and_return(stub_feature)
-          PgSearch::Features::Trigram.should_receive(:new).with(anything, @trigram_config, anything, anything, anything, anything).at_least(:once).and_return(stub_feature)
+          PgSearch::Features::TSearch.should_receive(:new).with(anything, @tsearch_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
+          PgSearch::Features::Trigram.should_receive(:new).with(anything, @trigram_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
 
           model_with_pg_search.with_tsearch_and_trigram_using_hash("foo")
         end
@@ -427,7 +427,12 @@ describe "an ActiveRecord model which includes PgSearch" do
       before do
         model_with_pg_search.class_eval do
           pg_search_scope :search_title, :against => :title
-          pg_search_scope :search_title_with_simple, :against => :title, :with_dictionary => :simple
+
+          pg_search_scope :search_title_with_simple,
+                          :against => :title,
+                          :using => {
+                            :tsearch => {:dictionary => :simple}
+                          }
         end
       end
 

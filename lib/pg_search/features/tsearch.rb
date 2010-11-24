@@ -6,17 +6,16 @@ module PgSearch
       delegate :connection, :quoted_table_name, :sanitize_sql_array, :primary_key, :to => :'@model'
 
       # config is temporary as we refactor
-      def initialize(query, options, config, model, interpolations, normalizer)
+      def initialize(query, options, config, model, normalizer)
         @query = query
         @options = options || {}
         @config = config
         @model = model
-        @interpolations = interpolations
         @normalizer = normalizer
       end
 
       def conditions
-        "(#{tsdocument}) @@ (#{tsquery})"
+        sanitize_sql_array ["(#{tsdocument}) @@ (#{tsquery})", interpolations]
       end
 
       def rank
@@ -24,6 +23,10 @@ module PgSearch
       end
 
       private
+
+      def interpolations
+        {:query => @query, :dictionary => @options[:dictionary].to_s}
+      end
 
       def columns_with_weights
         @config.search_columns.map do |column_name, weight|
@@ -41,19 +44,19 @@ module PgSearch
           term = term.gsub(/['?]/, " ")
           term = "'#{term}'"
           term = "#{term}:*" if @options[:prefix]
-          "to_tsquery(#{":dictionary," if @config.dictionary} #{@normalizer.add_normalization(connection.quote(term))})"
+          "to_tsquery(#{":dictionary," if @options[:dictionary]} #{@normalizer.add_normalization(connection.quote(term))})"
         end.join(" && ")
       end
 
       def tsdocument
         columns_with_weights.map do |column, weight|
-          tsvector = "to_tsvector(#{":dictionary," if @config.dictionary} #{@normalizer.add_normalization(column)})"
+          tsvector = "to_tsvector(#{":dictionary," if @options[:dictionary]} #{@normalizer.add_normalization(column)})"
           weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(weight)})"
         end.join(" || ")
       end
 
       def tsearch_rank
-        sanitize_sql_array(["ts_rank((#{tsdocument}), (#{tsquery}))", @interpolations])
+        sanitize_sql_array(["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations])
       end
     end
   end

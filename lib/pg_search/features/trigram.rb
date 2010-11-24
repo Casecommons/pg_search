@@ -6,12 +6,11 @@ module PgSearch
       delegate :connection, :quoted_table_name, :sanitize_sql_array, :primary_key, :to => :'@model'
 
       # config is temporary as we refactor
-      def initialize(query, options, config, model, interpolations, normalizer)
+      def initialize(query, options, config, model, normalizer)
         @query = query
         @options = options
         @config = config
         @model = model
-        @interpolations = interpolations
         @normalizer = normalizer
       end
 
@@ -26,7 +25,7 @@ module PgSearch
       end
 
       def conditions
-        "(#{@normalizer.add_normalization(document)}) % #{@normalizer.add_normalization(":query")}"
+        sanitize_sql_array ["(#{@normalizer.add_normalization(document)}) % #{@normalizer.add_normalization(":query")}", {:query => @query}]
       end
     end
   end

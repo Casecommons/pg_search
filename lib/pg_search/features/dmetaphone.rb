@@ -7,9 +7,9 @@ module PgSearch
       delegate :conditions, :rank, :to => :'@tsearch'
 
       # config is temporary as we refactor
-      def initialize(query, options, config, model, interpolations, normalizer)
+      def initialize(query, options, config, model, normalizer)
         dmetaphone_normalizer = Normalizer.new(normalizer)
-        @tsearch = TSearch.new(query, options, config, model, interpolations, dmetaphone_normalizer)
+        @tsearch = TSearch.new(query, options, config, model, dmetaphone_normalizer)
       end
 
       # Decorates a normalizer with dmetaphone processing.

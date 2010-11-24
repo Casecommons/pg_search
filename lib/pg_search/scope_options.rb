@@ -22,7 +22,7 @@ module PgSearch
     def to_hash
       {
         :select => "#{quoted_table_name}.*, (#{rank}) AS pg_search_rank",
-        :conditions => [conditions, interpolations],
+        :conditions => conditions,
         :order => "pg_search_rank DESC, #{quoted_table_name}.#{connection.quote_column_name(primary_key)} ASC"
       }
     end
@@ -31,13 +31,6 @@ module PgSearch
 
     def conditions
       @feature_names.map { |feature_name| "(#{feature_for(feature_name).conditions})" }.join(" OR ")
-    end
-
-    def interpolations
-      {
-        :query => @config.query,
-        :dictionary => @config.dictionary.to_s
-      }
     end
 
     def feature_for(feature_name)
@@ -53,7 +46,7 @@ module PgSearch
 
       normalizer = Normalizer.new(@config)
 
-      feature_class.new(@config.query, @feature_options[feature_name], @config, @model, interpolations, normalizer)
+      feature_class.new(@config.query, @feature_options[feature_name], @config, @model, normalizer)
     end
 
     def tsearch_rank
