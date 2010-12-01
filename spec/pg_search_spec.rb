@@ -234,9 +234,9 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
 
       it "returns rows that match a query with characters that are invalid in a tsquery expression" do
-        included = model_with_pg_search.create!(:content => "(Foo.) Bar?, ")
+        included = model_with_pg_search.create!(:content => "(Foo.) Bar?, \\")
 
-        results = model_with_pg_search.search_content("foo bar .,?()")
+        results = model_with_pg_search.search_content("foo bar .,?() \\")
         results.should == [included]
       end
       it "accepts non-string queries and calls #to_s on them" do
