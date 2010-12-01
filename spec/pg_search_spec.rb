@@ -549,6 +549,27 @@ describe "an ActiveRecord model which includes PgSearch" do
         results = model_with_pg_search.search_content_with_importance_as_rank("foo")
         results.should == records.sort_by(&:importance).reverse
       end
+
+      %w[tsearch trigram dmetaphone].each do |feature|
+
+        context "using the #{feature} ranking algorithm" do
+          before do
+            @scope_name = scope_name = :"search_content_ranked_by_#{feature}"
+            model_with_pg_search.class_eval do
+              pg_search_scope scope_name,
+                              :against => :content,
+                              :ranked_by => ":#{feature}"
+            end
+          end
+
+          it "should return results with a rank" do
+            model_with_pg_search.create!(:content => 'foo')
+
+            results = model_with_pg_search.send(@scope_name, 'foo')
+            results.first.rank.should_not be_nil
+          end
+        end
+      end
     end
   end
 end

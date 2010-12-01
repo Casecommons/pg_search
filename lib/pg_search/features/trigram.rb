@@ -14,6 +14,16 @@ module PgSearch
         @normalizer = normalizer
       end
 
+      def conditions
+        sanitize_sql_array ["(#{@normalizer.add_normalization(document)}) % #{@normalizer.add_normalization(":query")}", {:query => @query}]
+      end
+
+      def rank
+        sanitize_sql_array ["similarity((#{@normalizer.add_normalization(document)}), #{@normalizer.add_normalization(":query")})", {:query => @query}]
+      end
+
+      private
+
       def columns
         @config.search_columns.map do |column_name, *|
           "coalesce(#{quoted_table_name}.#{connection.quote_column_name(column_name)}, '')"
@@ -22,10 +32,6 @@ module PgSearch
 
       def document
         columns.map { |column, *| column }.join(" || ' ' || ")
-      end
-
-      def conditions
-        sanitize_sql_array ["(#{@normalizer.add_normalization(document)}) % #{@normalizer.add_normalization(":query")}", {:query => @query}]
       end
     end
   end
