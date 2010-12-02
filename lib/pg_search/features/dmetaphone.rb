@@ -21,7 +21,7 @@ module PgSearch
 
         def add_normalization(original_sql)
           otherwise_normalized_sql = @decorated_normalizer.add_normalization(original_sql)
-          "array_to_string(dmetaphone(regexp_split_to_array(#{otherwise_normalized_sql}, E'\\\\s+')), ' ')"
+          "pg_search_dmetaphone(#{otherwise_normalized_sql})"
         end
       end
     end
