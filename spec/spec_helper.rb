@@ -37,6 +37,8 @@ install_contrib_module_if_missing("pg_trgm", "SELECT 'abcdef' % 'cdef'", "t")
 install_contrib_module_if_missing("unaccent", "SELECT unaccent('foo')", "foo")
 install_contrib_module_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "f")
 
+ActiveRecord::Base.connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'dmetaphone.sql')))
+
 require "with_model"
 
 RSpec.configure do |config|
