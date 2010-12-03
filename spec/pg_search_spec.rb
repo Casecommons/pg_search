@@ -272,9 +272,11 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
 
       it "returns rows where at one column contains all of the terms in the query and another does not" do
-        included = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+        in_title = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+        in_content = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+
         results  = model_with_pg_search.search_title_and_content('foo')
-        results.should == [included]
+        results.should =~ [in_title, in_content]
       end
 
       # Searching with a NULL column will prevent any matches unless we coalesce it.
