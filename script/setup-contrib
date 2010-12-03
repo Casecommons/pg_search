@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cd /tmp
+test -e /tmp/postgresql-9.0.1.tar.bz2 || wget http://ftp9.us.postgresql.org/pub/mirrors/postgresql/source/v9.0.1/postgresql-9.0.1.tar.bz2
+test -d /tmp/postgresql-9.0.1 || bunzip2 -dc postgresql-9.0.1.tar.bz2 | tar xvf -
+cd postgresql-9.0.1 && ./configure --prefix=/usr/local/Cellar/postgresql/9.0.1 && make
+cd contrib/unaccent && make && make install
+cd ..
+cd contrib/pg_trgm && make && make install
+cd ..
+cd contrib/fuzzystrmatch && make && make install
