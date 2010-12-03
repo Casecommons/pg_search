@@ -1,3 +1,9 @@
+ * Railtie for rake tasks
+ * README
+ * Tracker project
+ * Mailing list
+ * License
+ * Publish gem
  * Exceptions for missing trigram, dmetaphone, etc. support
  * LIKE search
  * ability to specify multiple ranks: :ranked_by => [:tsearch, :trigram]
