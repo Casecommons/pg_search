@@ -140,6 +140,13 @@ describe "an ActiveRecord model which includes PgSearch" do
         end
       end
 
+      it "returns an empty array when a blank query is passed in" do
+        model_with_pg_search.create!(:content => 'foo')
+
+	results = model_with_pg_search.search_content('')
+	results.should == []
+      end
+
       it "returns rows where the column contains the term in the query" do
         included = model_with_pg_search.create!(:content => 'foo')
         excluded = model_with_pg_search.create!(:content => 'bar')
@@ -318,6 +325,8 @@ describe "an ActiveRecord model which includes PgSearch" do
                             }
           end
         end
+
+
 
         it "returns rows that match the query and that are prefixed by the query" do
           included = model_with_pg_search.create!(:title => 'prefix')

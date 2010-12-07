@@ -25,7 +25,7 @@ module PgSearch
       private
 
       def interpolations
-        {:query => @query, :dictionary => @options[:dictionary].to_s}
+        {:query => @query.to_s, :dictionary => @options[:dictionary].to_s}
       end
 
       def columns_with_weights
@@ -40,10 +40,12 @@ module PgSearch
       end
 
       def tsquery
+      	return "''" if @query.blank?
+
         @query.split(" ").compact.map do |term|
           sanitized_term = term.gsub(/['?\-\\]/, " ")
 
-          term_sql = @normalizer.add_normalization(connection.quote(sanitized_term ))
+          term_sql = @normalizer.add_normalization(connection.quote(sanitized_term))
 
           # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
           tsquery_sql = "#{connection.quote("'")} || #{term_sql} || #{connection.quote("'")}"
