@@ -30,7 +30,7 @@ module PgSearch
     private
 
     def conditions
-      @feature_names.map { |feature_name| "(#{feature_for(feature_name).conditions})" }.join(" OR ")
+      @feature_names.map { |feature_name| "(#{sanitize_sql_array(feature_for(feature_name).conditions)})" }.join(" OR ")
     end
 
     def feature_for(feature_name)
@@ -50,12 +50,12 @@ module PgSearch
     end
 
     def tsearch_rank
-      @feature_names[Features::TSearch].rank
+      sanitize_sql_array(@feature_names[Features::TSearch].rank)
     end
 
     def rank
       (@config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
-        feature_for($1).rank
+        sanitize_sql_array(feature_for($1).rank)
       end
     end
   end

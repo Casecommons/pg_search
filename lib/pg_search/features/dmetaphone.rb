@@ -3,7 +3,6 @@ require "active_support/core_ext/module/delegation"
 module PgSearch
   module Features
     class DMetaphone
-      delegate :connection, :quoted_table_name, :sanitize_sql_array, :primary_key, :to => :'@model'
       delegate :conditions, :rank, :to => :'@tsearch'
 
       # config is temporary as we refactor

@@ -3,7 +3,7 @@ require "active_support/core_ext/module/delegation"
 module PgSearch
   module Features
     class TSearch
-      delegate :connection, :quoted_table_name, :sanitize_sql_array, :primary_key, :to => :'@model'
+      delegate :connection, :quoted_table_name, :to => :'@model'
 
       # config is temporary as we refactor
       def initialize(query, options, config, model, normalizer)
@@ -15,7 +15,7 @@ module PgSearch
       end
 
       def conditions
-        sanitize_sql_array ["(#{tsdocument}) @@ (#{tsquery})", interpolations]
+        ["(#{tsdocument}) @@ (#{tsquery})", interpolations]
       end
 
       def rank
@@ -65,7 +65,7 @@ module PgSearch
       end
 
       def tsearch_rank
-        sanitize_sql_array(["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations])
+        ["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations]
       end
     end
   end
