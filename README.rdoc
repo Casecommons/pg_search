@@ -1,0 +1,38 @@
+= pg_search
+
+* http://github.com/casecommons/pg_search/
+
+== DESCRIPTION:
+
+PgSearch builds named scopes that take advantage of PostgreSQL's full text search
+
+== INSTALL:
+
+ gem install pg_search
+
+=== Rails 3
+
+In Gemfile
+
+ gem 'pg_search'
+
+=== Rails 2
+
+In environment.rb
+
+ config.gem 'pg_search'
+
+In Rakefile
+
+ require 'rubygems'
+ require 'pg_search/tasks'
+
+== REQUIREMENTS
+
+* ActiveRecord 2 or 3
+* Postgresql
+* Postgresql contrib modules for certain features
+
+== LICENSE:
+
+MIT
