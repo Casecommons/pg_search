@@ -1,13 +1,17 @@
 module PgSearch
   class Configuration
-    def initialize(options)
+    def initialize(options, model)
       options = options.reverse_merge(default_options)
       assert_valid_options(options)
       @options = options
+      @model = model
     end
 
     def search_columns
-      Array(@options[:against])
+      Array(@options[:against]).map do |column_name, weight|
+        ["coalesce(#{@model.quoted_table_name}.#{@model.connection.quote_column_name(column_name)}, '')",
+          weight]
+      end
     end
 
     def query

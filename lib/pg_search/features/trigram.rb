@@ -25,9 +25,7 @@ module PgSearch
       private
 
       def columns
-        @config.search_columns.map do |column_name, *|
-          "coalesce(#{quoted_table_name}.#{connection.quote_column_name(column_name)}, '')"
-        end
+        @config.search_columns
       end
 
       def document

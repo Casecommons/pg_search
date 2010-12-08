@@ -29,10 +29,7 @@ module PgSearch
       end
 
       def columns_with_weights
-        @config.search_columns.map do |column_name, weight|
-          ["coalesce(#{quoted_table_name}.#{connection.quote_column_name(column_name)}, '')",
-           weight]
-        end
+        @config.search_columns
       end
 
       def document
