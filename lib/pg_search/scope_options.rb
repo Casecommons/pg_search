@@ -46,7 +46,7 @@ module PgSearch
 
       normalizer = Normalizer.new(@config)
 
-      feature_class.new(@config.query, @feature_options[feature_name], @config, @model, normalizer)
+      feature_class.new(@config.query, @feature_options[feature_name], @config.columns, @model, normalizer)
     end
 
     def tsearch_rank

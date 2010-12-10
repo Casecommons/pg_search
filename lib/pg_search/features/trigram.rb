@@ -3,13 +3,10 @@ require "active_support/core_ext/module/delegation"
 module PgSearch
   module Features
     class Trigram
-      delegate :connection, :quoted_table_name, :to => :'@model'
-
-      # config is temporary as we refactor
-      def initialize(query, options, config, model, normalizer)
+      def initialize(query, options, columns, model, normalizer)
         @query = query
         @options = options
-        @config = config
+        @columns = columns
         @model = model
         @normalizer = normalizer
       end
@@ -24,12 +21,8 @@ module PgSearch
 
       private
 
-      def columns
-        @config.search_columns
-      end
-
       def document
-        columns.map { |column, *| column }.join(" || ' ' || ")
+        @columns.map { |column| column.to_sql }.join(" || ' ' || ")
       end
     end
   end

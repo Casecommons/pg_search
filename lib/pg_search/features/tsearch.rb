@@ -5,12 +5,11 @@ module PgSearch
     class TSearch
       delegate :connection, :quoted_table_name, :to => :'@model'
 
-      # config is temporary as we refactor
-      def initialize(query, options, config, model, normalizer)
+      def initialize(query, options, columns, model, normalizer)
         @query = query
         @options = options || {}
-        @config = config
         @model = model
+        @columns = columns
         @normalizer = normalizer
       end
 
@@ -28,16 +27,12 @@ module PgSearch
         {:query => @query.to_s, :dictionary => @options[:dictionary].to_s}
       end
 
-      def columns_with_weights
-        @config.search_columns
-      end
-
       def document
-        columns_with_weights.map { |column, *| column }.join(" || ' ' || ")
+        @columns.map { |column| column.to_sql }.join(" || ' ' || ")
       end
 
       def tsquery
-      	return "''" if @query.blank?
+        return "''" if @query.blank?
 
         @query.split(" ").compact.map do |term|
           sanitized_term = term.gsub(/['?\-\\]/, " ")
@@ -55,9 +50,9 @@ module PgSearch
       end
 
       def tsdocument
-        columns_with_weights.map do |column, weight|
-          tsvector = "to_tsvector(#{":dictionary," if @options[:dictionary]} #{@normalizer.add_normalization(column)})"
-          weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(weight)})"
+        @columns.map do |search_column|
+          tsvector = "to_tsvector(#{":dictionary," if @options[:dictionary]} #{@normalizer.add_normalization(search_column.to_sql)})"
+          search_column.weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
         end.join(" || ")
       end
 

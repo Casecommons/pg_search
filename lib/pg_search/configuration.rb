@@ -7,10 +7,9 @@ module PgSearch
       @model = model
     end
 
-    def search_columns
+    def columns
       Array(@options[:against]).map do |column_name, weight|
-        ["coalesce(#{@model.quoted_table_name}.#{@model.connection.quote_column_name(column_name)}, '')",
-          weight]
+        Column.new(column_name, weight, @model)
       end
     end
 
@@ -53,5 +52,20 @@ module PgSearch
         end
       end
     end
+
+    class Column
+      attr_reader :weight
+
+      def initialize(column_name, weight, model)
+        @column_name = column_name
+        @weight = weight
+        @model = model
+      end
+
+      def to_sql
+        "coalesce(#{@model.quoted_table_name}.#{@model.connection.quote_column_name(@column_name)}, '')"
+      end
+    end
+
   end
 end
