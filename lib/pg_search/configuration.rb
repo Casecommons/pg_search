@@ -46,7 +46,9 @@ module PgSearch
       valid_values = {
         :normalizing => [:diacritics]
       }
+
       raise ArgumentError, "the search scope #{@name} must have :against in its options" unless options[:against]
+      raise ArgumentError, ":joins requires ActiveRecord 3 or later" if options[:joins] && !defined?(ActiveRecord::Relation)
 
       options.assert_valid_keys(valid_keys)
 
