@@ -1,3 +1,5 @@
+require "pg_search/configuration/column"
+
 module PgSearch
   class Configuration
     def initialize(options, model)
@@ -29,6 +31,10 @@ module PgSearch
       Array(@options[:using])
     end
 
+    def joins
+      @options[:joins]
+    end
+
     private
 
     def default_options
@@ -36,7 +42,7 @@ module PgSearch
     end
 
     def assert_valid_options(options)
-      valid_keys = [:against, :ranked_by, :normalizing, :using, :query]
+      valid_keys = [:against, :ranked_by, :normalizing, :using, :query, :joins]
       valid_values = {
         :normalizing => [:diacritics]
       }
@@ -52,20 +58,5 @@ module PgSearch
         end
       end
     end
-
-    class Column
-      attr_reader :weight
-
-      def initialize(column_name, weight, model)
-        @column_name = column_name
-        @weight = weight
-        @model = model
-      end
-
-      def to_sql
-        "coalesce(#{@model.quoted_table_name}.#{@model.connection.quote_column_name(@column_name)}, '')"
-      end
-    end
-
   end
 end

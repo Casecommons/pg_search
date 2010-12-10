@@ -4,7 +4,7 @@ module PgSearch
   class ScopeOptions
     attr_reader :model
 
-    delegate :connection, :quoted_table_name, :sanitize_sql_array, :primary_key, :to => :model
+    delegate :connection, :quoted_table_name, :sanitize_sql_array, :to => :model
 
     def initialize(name, model, config)
       @name = name
@@ -23,7 +23,8 @@ module PgSearch
       {
         :select => "#{quoted_table_name}.*, (#{rank}) AS pg_search_rank",
         :conditions => conditions,
-        :order => "pg_search_rank DESC, #{quoted_table_name}.#{connection.quote_column_name(primary_key)} ASC"
+        :order => "pg_search_rank DESC, #{primary_key} ASC",
+        :joins => joins
       }
     end
 
@@ -31,6 +32,19 @@ module PgSearch
 
     def conditions
       @feature_names.map { |feature_name| "(#{sanitize_sql_array(feature_for(feature_name).conditions)})" }.join(" OR ")
+    end
+
+    def primary_key
+      "#{quoted_table_name}.#{connection.quote_column_name(model.primary_key)}"
+    end
+
+    def joins
+      if @config.joins
+        foreign_againsts = @config.columns.select(&:foreign?)
+        selects = foreign_againsts.map{|column| "string_agg(#{column.full_name}, ' ') AS #{column.alias}" }.join(', ')
+        arel = model.joins(@config.joins).select("#{primary_key}, #{selects}").group(primary_key)
+        "LEFT OUTER JOIN (#{arel.to_sql}) pg_search_agg ON pg_search_agg.id = #{primary_key}"
+      end
     end
 
     def feature_for(feature_name)

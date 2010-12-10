@@ -294,6 +294,40 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
 
+    context "against a column in an associated table" do
+      context "through a belongs_to association" do
+        with_model :associated_model do
+          table do |t|
+            t.string 'title'
+          end
+        end
+
+        with_model :model_with_belongs_to do
+          table do |t|
+            t.string 'title'
+            t.belongs_to 'another_model'
+          end
+
+          model do
+            include PgSearch
+            belongs_to :another_model, :class_name => 'AssociatedModel'
+
+            pg_search_scope :with_associated, :against => [:title, :"#{AssociatedModel.table_name}.title"], :joins => :another_model
+          end
+        end
+
+        it "returns rows that match the query in either its own columns or the columns of the associated model" do
+          associated = associated_model.create!(:title => 'abcdef')
+          included = [
+            model_with_belongs_to.create!(:title => 'abcdef', :another_model => associated),
+            model_with_belongs_to.create!(:title => 'abcdef')
+          ]
+          results = model_with_belongs_to.with_associated('abcdef')
+          results.should =~ included
+        end
+      end
+    end
+
     context "using trigram" do
       before do
         model_with_pg_search.class_eval do
