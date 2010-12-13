@@ -42,8 +42,8 @@ module PgSearch
       if @config.joins
         foreign_againsts = @config.columns.select(&:foreign?)
         selects = foreign_againsts.map{|column| "string_agg(#{column.full_name}, ' ') AS #{column.alias}" }.join(', ')
-        arel = model.joins(@config.joins).select("#{primary_key}, #{selects}").group(primary_key)
-        "LEFT OUTER JOIN (#{arel.to_sql}) pg_search_agg ON pg_search_agg.id = #{primary_key}"
+        relation = model.joins(@config.joins).select("#{primary_key}, #{selects}").group(primary_key)
+        "LEFT OUTER JOIN (#{relation.to_sql}) pg_search_agg ON pg_search_agg.id = #{primary_key}"
       end
     end
 

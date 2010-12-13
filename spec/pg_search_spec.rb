@@ -321,11 +321,58 @@ describe "an ActiveRecord model which includes PgSearch" do
             it "returns rows that match the query in either its own columns or the columns of the associated model" do
               associated = associated_model.create!(:title => 'abcdef')
               included = [
-                model_with_belongs_to.create!(:title => 'abcdef', :another_model => associated),
+                model_with_belongs_to.create!(:title => 'ghijkl', :another_model => associated),
                 model_with_belongs_to.create!(:title => 'abcdef')
               ]
+              excluded = model_with_belongs_to.create!(:title => 'mnopqr',
+                                                       :another_model => associated_model.create!(:title => 'stuvwx'))
+
               results = model_with_belongs_to.with_associated('abcdef')
               results.should =~ included
+              results.should_not include(excluded)
+            end
+          end
+
+          context "through a has_many association" do
+            with_model :associated_model_with_has_many do
+              table do |t|
+                t.string 'title'
+                t.belongs_to 'model_with_has_many'
+              end
+            end
+
+            with_model :model_with_has_many do
+              table do |t|
+                t.string 'title'
+              end
+
+              model do
+                include PgSearch
+                has_many :other_models, :class_name => 'AssociatedModelWithHasMany', :foreign_key => 'model_with_has_many_id'
+
+                pg_search_scope :with_associated, :against => [:title, :"#{AssociatedModelWithHasMany.table_name}.title"], :joins => :other_models
+              end
+            end
+
+            it "returns rows that match the query in either its own columns or the columns of the associated model" do
+              included = [
+                model_with_has_many.create!(:title => 'abcdef', :other_models => [
+                  associated_model_with_has_many.create!(:title => 'foo'),
+                  associated_model_with_has_many.create!(:title => 'bar')
+                ]),
+                model_with_has_many.create!(:title => 'ghijkl', :other_models => [
+                  associated_model_with_has_many.create!(:title => 'foo bar'),
+                  associated_model_with_has_many.create!(:title => 'mnopqr')
+                ]),
+                model_with_has_many.create!(:title => 'foo bar')
+              ]
+              excluded = model_with_has_many.create!(:title => 'stuvwx', :other_models => [
+                associated_model_with_has_many.create!(:title => 'abcdef')
+              ])
+
+              results = model_with_has_many.with_associated('foo bar')
+              results.should =~ included
+              results.should_not include(excluded)
             end
           end
         end
@@ -382,8 +429,6 @@ describe "an ActiveRecord model which includes PgSearch" do
                             }
           end
         end
-
-
 
         it "returns rows that match the query and that are prefixed by the query" do
           included = model_with_pg_search.create!(:title => 'prefix')
