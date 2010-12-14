@@ -10,9 +10,22 @@ module PgSearch
     end
 
     def columns
+      regular_columns + associated_columns
+    end
+
+    def regular_columns
       Array(@options[:against]).map do |column_name, weight|
         Column.new(column_name, weight, @model)
       end
+    end
+
+    def associated_columns
+      return [] unless @options[:associated_against]
+      @options[:associated_against].map do |association, against|
+        Array(against).map do |column_name, weight|
+          Column.new(column_name, weight, @model, association)
+        end
+      end.flatten
     end
 
     def query
@@ -42,7 +55,7 @@ module PgSearch
     end
 
     def assert_valid_options(options)
-      valid_keys = [:against, :ranked_by, :normalizing, :using, :query, :joins]
+      valid_keys = [:against, :ranked_by, :normalizing, :using, :query, :joins, :associated_against]
       valid_values = {
         :normalizing => [:diacritics]
       }

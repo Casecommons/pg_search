@@ -1,23 +1,26 @@
 module PgSearch
   class Configuration
     class Column
-      attr_reader :weight
+      attr_reader :weight, :association
 
-      def initialize(column_name, weight, model)
-        @column_name = column_name
+      def initialize(column_name, weight, model, association = nil)
+        @column_name = column_name.to_s
         @weight = weight
         @model = model
+        @association = association
+      end
+
+      def table
+        foreign? ? @model.reflect_on_association(association).table_name : @model.table_name
       end
 
       def full_name
-        table, column = @column_name.to_s.split(".")
-        table, column = @model.table_name, table if column.nil?
-        "#{@model.connection.quote_table_name(table)}.#{@model.connection.quote_column_name(column)}"
+        "#{@model.connection.quote_table_name(table)}.#{@model.connection.quote_column_name(@column_name)}"
       end
 
       def to_sql
         name = if foreign?
-                 self.alias
+                 "#{self.subselect_alias}.#{self.alias}"
                else
                  full_name
                end
@@ -25,11 +28,15 @@ module PgSearch
       end
 
       def foreign?
-        @column_name.to_s.include?('.')
+        @association.present?
       end
 
       def alias
-        'pg_search_text'
+        "pg_search_#{table}_#{@column_name}"
+      end
+
+      def subselect_alias
+        "#{self.alias}_subselect"
       end
     end
   end
