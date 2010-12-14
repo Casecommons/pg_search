@@ -84,6 +84,68 @@ describe PgSearch do
             results.should_not include(excluded)
           end
         end
+
+        context "across multiple associations" do
+          with_model :first_associated_model do
+            table do |t|
+              t.string 'title'
+              t.belongs_to 'model_with_many_associations'
+            end
+            model {}
+          end
+
+          with_model :second_associated_model do
+            table do |t|
+              t.string 'title'
+            end
+            model {}
+          end
+
+          with_model :model_with_many_associations do
+            table do |t|
+              t.string 'title'
+              t.belongs_to 'model_of_second_type'
+            end
+
+            model do
+              include PgSearch
+              has_many :models_of_first_type, :class_name => 'FirstAssociatedModel', :foreign_key => 'model_with_many_associations_id'
+              belongs_to :model_of_second_type, :class_name => 'SecondAssociatedModel'
+
+              pg_search_scope :with_associated, :against => :title,
+                :associated_against => {:models_of_first_type => :title, :model_of_second_type => :title}
+            end
+          end
+
+          it "returns rows that match the query in either its own columns or the columns of the associated model" do
+            matching_second = second_associated_model.create!(:title => "foo bar")
+            unmatching_second = second_associated_model.create!(:title => "uiop")
+
+            included = [
+              ModelWithManyAssociations.create!(:title => 'abcdef', :models_of_first_type => [
+                                                first_associated_model.create!(:title => 'foo'),
+                                                first_associated_model.create!(:title => 'bar')
+            ]),
+              ModelWithManyAssociations.create!(:title => 'ghijkl', :models_of_first_type => [
+                                                first_associated_model.create!(:title => 'foo bar'),
+                                                first_associated_model.create!(:title => 'mnopqr')
+            ]),
+              ModelWithManyAssociations.create!(:title => 'foo bar'),
+              ModelWithManyAssociations.create!(:title => 'qwerty', :model_of_second_type => matching_second)
+            ]
+            excluded = [
+              ModelWithManyAssociations.create!(:title => 'stuvwx', :models_of_first_type => [
+                                                first_associated_model.create!(:title => 'abcdef')
+            ]),
+              ModelWithManyAssociations.create!(:title => 'qwerty', :model_of_second_type => unmatching_second)
+            ]
+
+            results = ModelWithManyAssociations.with_associated('foo bar')
+            results.map(&:title).should =~ included.map(&:title)
+            console_for(binding)
+            excluded.each { |object| results.should_not include(object) }
+          end
+        end
       end
     else
       context "without Arel support" do
