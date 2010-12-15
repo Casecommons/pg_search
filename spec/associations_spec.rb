@@ -21,8 +21,6 @@ describe PgSearch do
               include PgSearch
               belongs_to :another_model, :class_name => 'AssociatedModel'
 
-              #pg_search_scope :with_associated, :against => :title, :associated_against => {:another_model => [[:title, 'A'], :name]}
-              #pg_search_scope :with_associated, :against => :title, :associated_against => {:another_model => [:title, :name]}
               pg_search_scope :with_associated, :against => :title, :associated_against => {:another_model => :title}
             end
           end
@@ -86,63 +84,120 @@ describe PgSearch do
         end
 
         context "across multiple associations" do
-          with_model :first_associated_model do
-            table do |t|
-              t.string 'title'
-              t.belongs_to 'model_with_many_associations'
+          context "on different tables" do
+            with_model :first_associated_model do
+              table do |t|
+                t.string 'title'
+                t.belongs_to 'model_with_many_associations'
+              end
+              model {}
             end
-            model {}
+
+            with_model :second_associated_model do
+              table do |t|
+                t.string 'title'
+              end
+              model {}
+            end
+
+            with_model :model_with_many_associations do
+              table do |t|
+                t.string 'title'
+                t.belongs_to 'model_of_second_type'
+              end
+
+              model do
+                include PgSearch
+                has_many :models_of_first_type, :class_name => 'FirstAssociatedModel', :foreign_key => 'model_with_many_associations_id'
+                belongs_to :model_of_second_type, :class_name => 'SecondAssociatedModel'
+
+                pg_search_scope :with_associated, :against => :title,
+                  :associated_against => {:models_of_first_type => :title, :model_of_second_type => :title}
+              end
+            end
+
+            it "returns rows that match the query in either its own columns or the columns of the associated model" do
+              matching_second = second_associated_model.create!(:title => "foo bar")
+              unmatching_second = second_associated_model.create!(:title => "uiop")
+
+              included = [
+                ModelWithManyAssociations.create!(:title => 'abcdef', :models_of_first_type => [
+                                                  first_associated_model.create!(:title => 'foo'),
+                                                  first_associated_model.create!(:title => 'bar')
+              ]),
+                ModelWithManyAssociations.create!(:title => 'ghijkl', :models_of_first_type => [
+                                                  first_associated_model.create!(:title => 'foo bar'),
+                                                  first_associated_model.create!(:title => 'mnopqr')
+              ]),
+                ModelWithManyAssociations.create!(:title => 'foo bar'),
+                ModelWithManyAssociations.create!(:title => 'qwerty', :model_of_second_type => matching_second)
+              ]
+              excluded = [
+                ModelWithManyAssociations.create!(:title => 'stuvwx', :models_of_first_type => [
+                                                  first_associated_model.create!(:title => 'abcdef')
+              ]),
+                ModelWithManyAssociations.create!(:title => 'qwerty', :model_of_second_type => unmatching_second)
+              ]
+
+              results = ModelWithManyAssociations.with_associated('foo bar')
+              results.map(&:title).should =~ included.map(&:title)
+              excluded.each { |object| results.should_not include(object) }
+            end
           end
 
-          with_model :second_associated_model do
-            table do |t|
-              t.string 'title'
-            end
-            model {}
-          end
-
-          with_model :model_with_many_associations do
-            table do |t|
-              t.string 'title'
-              t.belongs_to 'model_of_second_type'
+          context "on the same table" do
+            with_model :doubly_associated_model do
+              table do |t|
+                t.string 'title'
+                t.belongs_to 'model_with_double_association'
+                t.belongs_to 'model_with_double_association_again'
+              end
+              model {}
             end
 
-            model do
-              include PgSearch
-              has_many :models_of_first_type, :class_name => 'FirstAssociatedModel', :foreign_key => 'model_with_many_associations_id'
-              belongs_to :model_of_second_type, :class_name => 'SecondAssociatedModel'
+            with_model :model_with_double_association do
+              table do |t|
+                t.string 'title'
+              end
 
-              pg_search_scope :with_associated, :against => :title,
-                :associated_against => {:models_of_first_type => :title, :model_of_second_type => :title}
+              model do
+                include PgSearch
+                has_many :things, :class_name => 'DoublyAssociatedModel', :foreign_key => 'model_with_double_association_id'
+                has_many :thingamabobs, :class_name => 'DoublyAssociatedModel', :foreign_key => 'model_with_double_association_again_id'
+
+                pg_search_scope :with_associated, :against => :title,
+                  :associated_against => {:things => :title, :thingamabobs => :title}
+              end
             end
-          end
 
-          it "returns rows that match the query in either its own columns or the columns of the associated model" do
-            matching_second = second_associated_model.create!(:title => "foo bar")
-            unmatching_second = second_associated_model.create!(:title => "uiop")
+            it "returns rows that match the query in either its own columns or the columns of the associated model" do
+              included = [
+                ModelWithDoubleAssociation.create!(:title => 'abcdef', :things => [
+                                                      DoublyAssociatedModel.create!(:title => 'foo'),
+                                                      DoublyAssociatedModel.create!(:title => 'bar')
+              ]),
+                ModelWithDoubleAssociation.create!(:title => 'ghijkl', :things => [
+                                                      DoublyAssociatedModel.create!(:title => 'foo bar'),
+                                                      DoublyAssociatedModel.create!(:title => 'mnopqr')
+              ]),
+                ModelWithDoubleAssociation.create!(:title => 'foo bar'),
+                ModelWithDoubleAssociation.create!(:title => 'qwerty', :thingamabobs => [
+                                                      DoublyAssociatedModel.create!(:title => "foo bar")
+              ])
+              ]
+              excluded = [
+                ModelWithDoubleAssociation.create!(:title => 'stuvwx', :things => [
+                                                      DoublyAssociatedModel.create!(:title => 'abcdef')
+              ]),
+                ModelWithDoubleAssociation.create!(:title => 'qwerty', :thingamabobs => [
+                                                      DoublyAssociatedModel.create!(:title => "uiop")
+              ])
+              ]
 
-            included = [
-              ModelWithManyAssociations.create!(:title => 'abcdef', :models_of_first_type => [
-                                                first_associated_model.create!(:title => 'foo'),
-                                                first_associated_model.create!(:title => 'bar')
-            ]),
-              ModelWithManyAssociations.create!(:title => 'ghijkl', :models_of_first_type => [
-                                                first_associated_model.create!(:title => 'foo bar'),
-                                                first_associated_model.create!(:title => 'mnopqr')
-            ]),
-              ModelWithManyAssociations.create!(:title => 'foo bar'),
-              ModelWithManyAssociations.create!(:title => 'qwerty', :model_of_second_type => matching_second)
-            ]
-            excluded = [
-              ModelWithManyAssociations.create!(:title => 'stuvwx', :models_of_first_type => [
-                                                first_associated_model.create!(:title => 'abcdef')
-            ]),
-              ModelWithManyAssociations.create!(:title => 'qwerty', :model_of_second_type => unmatching_second)
-            ]
-
-            results = ModelWithManyAssociations.with_associated('foo bar')
-            results.map(&:title).should =~ included.map(&:title)
-            excluded.each { |object| results.should_not include(object) }
+              results = ModelWithDoubleAssociation.with_associated('foo bar')
+              results.map(&:title).should =~ included.map(&:title)
+              excluded.each { |object| results.should_not include(object) }
+            end
           end
         end
       end

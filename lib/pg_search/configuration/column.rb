@@ -32,7 +32,7 @@ module PgSearch
       end
 
       def alias
-        "pg_search_#{table}_#{@column_name}"
+        ["pg_search", table, association, @column_name].compact.join('_')
       end
 
       def subselect_alias
