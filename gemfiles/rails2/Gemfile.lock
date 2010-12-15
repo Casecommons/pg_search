@@ -1,10 +1,3 @@
-GIT
-  remote: git@github.com:casebook/with_model.git
-  revision: 8e585d974b0b31d344b95fc81029739816dec2df
-  specs:
-    with_model (0.0.1)
-      activerecord (>= 2.3.5, < 4.0.0)
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -22,6 +15,8 @@ GEM
     rspec-expectations (2.1.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.1.0)
+    with_model (0.1)
+      activerecord (>= 2.3.5, < 4.0.0)
 
 PLATFORMS
   ruby
@@ -31,4 +26,4 @@ DEPENDENCIES
   autotest
   pg
   rspec
-  with_model!
+  with_model (= 0.1)

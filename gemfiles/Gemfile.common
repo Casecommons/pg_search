@@ -5,5 +5,5 @@ gem "pg"
 group :test do
   gem "rspec"
   gem "autotest"
-  gem "with_model", :git => 'git@github.com:casebook/with_model.git'
+  gem "with_model", '0.1'
 end
