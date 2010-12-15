@@ -1,0 +1,11 @@
+### 0.0.2
+
+Changed the DSL for searching associated models to allow for searching
+multiple associations. 
+
+    has_many :things
+    pg_search_scope :search, :against => :name, :against_associated => {:things => :title}
+
+against_associated accepts a hash where the key is the name of an association
+and the value is structured like against. For example, the value can be a
+symbol, an array with weights, etc...
