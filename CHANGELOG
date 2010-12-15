@@ -1,3 +1,7 @@
+### 0.0.3
+
+Do not accept :joins as an option to pg_search_scope
+
 ### 0.0.2
 
 Changed the DSL for searching associated models to allow for searching
