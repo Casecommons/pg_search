@@ -44,10 +44,6 @@ module PgSearch
       Array(@options[:using])
     end
 
-    def joins
-      @options[:joins]
-    end
-
     private
 
     def default_options
@@ -55,13 +51,13 @@ module PgSearch
     end
 
     def assert_valid_options(options)
-      valid_keys = [:against, :ranked_by, :normalizing, :using, :query, :joins, :associated_against]
+      valid_keys = [:against, :ranked_by, :normalizing, :using, :query, :associated_against]
       valid_values = {
         :normalizing => [:diacritics]
       }
 
       raise ArgumentError, "the search scope #{@name} must have :against in its options" unless options[:against]
-      raise ArgumentError, ":joins requires ActiveRecord 3 or later" if options[:joins] && !defined?(ActiveRecord::Relation)
+      raise ArgumentError, ":associated_against requires ActiveRecord 3 or later" if options[:associated_against] && !defined?(ActiveRecord::Relation)
 
       options.assert_valid_keys(valid_keys)
 
