@@ -142,7 +142,6 @@ describe PgSearch do
 
             results = ModelWithManyAssociations.with_associated('foo bar')
             results.map(&:title).should =~ included.map(&:title)
-            console_for(binding)
             excluded.each { |object| results.should_not include(object) }
           end
         end
