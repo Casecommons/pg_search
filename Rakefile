@@ -19,6 +19,10 @@ task "spec" do
   in_all_environments.call('rspec spec')
 end
 
+task "doc" do
+  in_environment.call("rails3", "rspec --format d spec")
+end
+
 namespace "autotest" do
   environments.each do |environment|
     desc "Run autotest in #{environment}"

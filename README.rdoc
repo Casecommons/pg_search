@@ -27,6 +27,139 @@ In Rakefile
  require 'rubygems'
  require 'pg_search/tasks'
 
+== USAGE
+
+To add PgSearch to an ActiveRecord model, simply include the PgSearch module.
+
+ class Shape < ActiveRecord::Base
+   include PgSearch
+ end
+
+=== pg_search_scope
+
+You can use pg_search_scope to build a search scope. The first parameter is a scope name, and the second parameter is an options hash. The only required option is :against, which tells pg_search_scope which column or columns to search against.
+
+==== Searching against one column
+
+To search against a column, pass a symbol as the :against option.
+
+ class BlogPost < ActiveRecord::Base
+   include PgSearch
+   pg_search_scope :search_by_title, :against => :title
+ end
+
+We now have an ActiveRecord scope named search_by_title on our BlogPost model. It takes one parameter, a search query string.
+
+ BlogPost.create!(:title => "Recent Developments in the World of Pastrami")
+ BlogPost.create!(:title => "Prosciutto and You: A Retrospective")
+ BlogPost.search_by_title("pastrami") # => [#<BlogPost id: 2, title: "Recent Developments in the World of Pastrami">]
+
+==== Searching against multiple columns
+
+Just pass an Array if you'd like to search more than one column.
+
+ class Person < ActiveRecord::Base
+   include PgSearch
+   pg_search_scope :search_by_full_name, :against => [:first_name, :last_name]
+ end
+
+Now our search query can match either or both of the columns.
+
+ person_1 = Person.create!(:first_name => "Grant", :last_name => "Hill")
+ person_2 = Person.create!(:first_name => "Hugh", :last_name => "Grant")
+
+ Person.search_by_full_name("Grant") # => [person_1, person_2]
+ Person.search_by_full_name("Grant Hill") # => [person_1]
+
+==== Searching through associations
+
+You can pass a Hash into the :associated_against option to search columns on other models. The keys are the names of the associations and the value works just like an :against option for the other model.
+
+  class Cracker < ActiveRecord::Base
+  end
+
+  class Cheese < ActiveRecord::Base
+    has_many :cheeses
+  end
+
+  class Salami < ActiveRecord::Base
+    include PgSearch
+  
+    belongs_to :cracker
+    has_many :cheeses, :through => :cracker
+  
+    pg_search_scope :tasty_search, :associated_against => {
+      :cheeses => [:kind, :brand],
+      :cracker => :kind
+    }
+  end
+
+  salami_1 = Salami.create!
+  salami_2 = Salami.create!
+  salami_3 = Salami.create!
+
+  limburger = Cheese.create!(:kind => "Limburger")
+  brie = Cheese.create!(:kind => "Brie")
+  pepper_jack = Cheese.create!(:kind => "Pepper Jack")
+
+  Cracker.create!(:kind => "Black Pepper", :cheeses => [brie], :salami => salami_1)
+  Cracker.create!(:kind => "Ritz", :cheeses => [limburger, pepper_jack], :salami => salami_2)
+  Cracker.create!(:kind => "Graham", :cheeses => [limburger], :salami => salami_3)
+  
+  Salami.tasty_search("pepper") # => [salami_1, salami_2]
+
+=== Searching using different search features
+
+By default, pg_search_scope uses the built-in {PostgreSQL text search}[link:http://www.postgresql.org/docs/current/static/textsearch-intro.html]. If you pass the :features option to pg_search_scope, you can choose alternative search techniques.
+
+  class Beer < ActiveRecord::Base
+    include PgSearch
+    pg_search_scope :against => :name, :features => [:tsearch, :trigram, :dmetaphone]
+  end
+
+The currently implemented features are
+
+* :tsearch - {Full text search}[link:http://www.postgresql.org/docs/current/static/textsearch-intro.html] (built-in with 8.3 and later, available as a contrib package for some earlier versions)
+* :trigram - {Trigram search}[link:http://www.postgresql.org/docs/current/static/pgtrgm.html], which requires the trigram contrib package
+* :dmetaphone - {Double Metaphone search}[link:http://www.postgresql.org/docs/9.0/static/fuzzystrmatch.html#AEN120188], which requires the fuzzystrmatch contrib package
+
+==== :tsearch (Full Text Search)
+
+PostgreSQL's built-in full text search supports weighting, prefix searches, and stemming in multiple languages.
+
+===== Weighting
+Each searchable column can be given a weight of "A", "B", "C", or "D". Columns with earlier letters are weighted higher than those with later letters. So, in the following example, the title is the most important, followed by the subtitle, and finally the content.
+
+ class NewsArticle < ActiveRecord::Base
+   include PgSearch
+   pg_search_scope :against => {
+     :title => 'A', 
+     :subtitle => 'B', 
+     :content => 'C'
+   }
+ end
+ 
+You can also pass the weights in as an array of arrays, or any other structure that responds to #each and yields either a single symbol or a symbol and a weight. If you omit the weight, a default will be used.
+
+ class NewsArticle < ActiveRecord::Base
+   include PgSearch
+   pg_search_scope :against => [
+     [:title, 'A'], 
+     [:subtitle, 'B'], 
+     [:content, 'C']
+   ]
+ end
+
+ class NewsArticle < ActiveRecord::Base
+   include PgSearch
+   pg_search_scope :against => [
+     [:title, 'A'], 
+     {:subtitle => 'B'}, 
+     :content
+   ]
+ end
+
+
 == REQUIREMENTS
 
 * ActiveRecord 2 or 3
