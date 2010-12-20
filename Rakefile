@@ -1,6 +1,8 @@
 require 'bundler'
 Bundler::GemHelper.install_tasks
 
+task :default => :spec
+
 environments = %w[rails2 rails3]
 
 in_environment = lambda do |environment, command|
