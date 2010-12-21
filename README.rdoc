@@ -201,6 +201,31 @@ PostgreSQL's full text search matches on whole words by default. If you want to 
 
   Superhero.whose_name_starts_with("Bat") # => [batman, batgirl]
 
+===== :dictionary
+
+PostgreSQL full text search also support multiple dictionaries for stemming. The default dictionary depends on your PostgreSQL setup. You can learn more about how dictionaries work by reading the {PostgreSQL documention}[http://www.postgresql.org/docs/current/static/textsearch-dictionaries.html]. If you use one of the language dictionaries, such as "english", then variants of words (e.g. "jumping" and "jumped") will match each other. If you don't want stemming, you should pick the "simple" dictionary which does not do any stemming.
+
+  class BoringTweet < ActiveRecord::Base
+    include PgSearch
+    pg_search_scope :kinda_matching,
+                    :against => :text,
+                    :using => {
+                      :tsearch => {:dictionary => "english"}
+                    }
+    pg_search_scope :literally_matching,
+                    :against => :text,
+                    :using => {
+                      :tsearch => {:dictionary => "simple"}
+                    }
+  end
+
+  sleepy = BoringTweet.create! :text => "I snoozed my alarm for fourteen hours today. I bet I can beat that tomorrow! #sleepy"
+  sleeping = BoringTweet.create! :text => "You know what I like? Sleeping. That's what. #enjoyment"
+  sleeper = BoringTweet.create! :text => "Have you seen Woody Allen's movie entitled Sleeper? Me neither. #boycott"
+
+  BoringTweet.kinda_matching("sleeping") # => [sleepy, sleeping, sleeper]
+  BoringTweet.literally_matching("sleeping") # => [sleeping]
+
 == REQUIREMENTS
 
 * ActiveRecord 2 or 3
