@@ -143,8 +143,8 @@ describe "an ActiveRecord model which includes PgSearch" do
       it "returns an empty array when a blank query is passed in" do
         model_with_pg_search.create!(:content => 'foo')
 
-	results = model_with_pg_search.search_content('')
-	results.should == []
+        results = model_with_pg_search.search_content('')
+        results.should == []
       end
 
       it "returns rows where the column contains the term in the query" do
@@ -347,6 +347,86 @@ describe "an ActiveRecord model which includes PgSearch" do
           results.should_not include(excluded)
         end
       end
+
+      context "with the simple dictionary" do
+        before do
+          model_with_pg_search.class_eval do
+            pg_search_scope :search_title, :against => :title
+
+            pg_search_scope :search_title_with_simple,
+                            :against => :title,
+                            :using => {
+                              :tsearch => {:dictionary => :simple}
+                            }
+          end
+        end
+
+        it "returns rows that match the query exactly but not that match the query when stemmed by the default dictionary" do
+          included = model_with_pg_search.create!(:title => "jumped")
+          excluded = [model_with_pg_search.create!(:title => "jump"),
+                      model_with_pg_search.create!(:title => "jumping")]
+
+          default_results = model_with_pg_search.search_title("jumped")
+          default_results.should =~ [included] + excluded
+
+          simple_results = model_with_pg_search.search_title_with_simple("jumped")
+          simple_results.should == [included]
+          excluded.each do |result|
+            simple_results.should_not include(result)
+          end
+        end
+      end
+
+      context "against columns ranked with arrays" do
+        before do
+          model_with_pg_search.class_eval do
+             pg_search_scope :search_weighted_by_array_of_arrays, :against => [[:content, 'B'], [:title, 'A']]
+           end
+        end
+
+        it "returns results sorted by weighted rank" do
+          loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+          winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+
+          results = model_with_pg_search.search_weighted_by_array_of_arrays('foo')
+          results[0].rank.should > results[1].rank
+          results.should == [winner, loser]
+        end
+      end
+
+      context "against columns ranked with a hash" do
+        before do
+          model_with_pg_search.class_eval do
+            pg_search_scope :search_weighted_by_hash, :against => {:content => 'B', :title => 'A'}
+          end
+        end
+
+        it "returns results sorted by weighted rank" do
+          loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+          winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+
+          results = model_with_pg_search.search_weighted_by_hash('foo')
+          results[0].rank.should > results[1].rank
+          results.should == [winner, loser]
+        end
+      end
+
+      context "against columns of which only some are ranked" do
+        before do
+          model_with_pg_search.class_eval do
+            pg_search_scope :search_weighted, :against => [:content, [:title, 'A']]
+          end
+        end
+
+        it "returns results sorted by weighted rank using an implied low rank for unranked columns" do
+          loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
+          winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
+
+          results = model_with_pg_search.search_weighted('foo')
+          results[0].rank.should > results[1].rank
+          results.should == [winner, loser]
+        end
+      end
     end
 
     context "using dmetaphone" do
@@ -448,86 +528,6 @@ describe "an ActiveRecord model which includes PgSearch" do
 
         results = model_with_pg_search.search_title_without_diacritics("abcd\303\251f")
         results.should == [included]
-      end
-    end
-
-    context "with the simple dictionary" do
-      before do
-        model_with_pg_search.class_eval do
-          pg_search_scope :search_title, :against => :title
-
-          pg_search_scope :search_title_with_simple,
-                          :against => :title,
-                          :using => {
-                            :tsearch => {:dictionary => :simple}
-                          }
-        end
-      end
-
-      it "returns rows that match the query exactly but not that match the query when stemmed by the default dictionary" do
-        included = model_with_pg_search.create!(:title => "jumped")
-        excluded = [model_with_pg_search.create!(:title => "jump"),
-                    model_with_pg_search.create!(:title => "jumping")]
-
-        default_results = model_with_pg_search.search_title("jumped")
-        default_results.should =~ [included] + excluded
-
-        simple_results = model_with_pg_search.search_title_with_simple("jumped")
-        simple_results.should == [included]
-        excluded.each do |result|
-          simple_results.should_not include(result)
-        end
-      end
-    end
-
-    context "against columns ranked with arrays" do
-      before do
-        model_with_pg_search.class_eval do
-           pg_search_scope :search_weighted_by_array_of_arrays, :against => [[:content, 'B'], [:title, 'A']]
-         end
-      end
-
-      it "returns results sorted by weighted rank" do
-        loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
-        winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
-
-        results = model_with_pg_search.search_weighted_by_array_of_arrays('foo')
-        results[0].rank.should > results[1].rank
-        results.should == [winner, loser]
-      end
-    end
-
-    context "against columns ranked with a hash" do
-      before do
-        model_with_pg_search.class_eval do
-          pg_search_scope :search_weighted_by_hash, :against => {:content => 'B', :title => 'A'}
-        end
-      end
-
-      it "returns results sorted by weighted rank" do
-        loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
-        winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
-
-        results = model_with_pg_search.search_weighted_by_hash('foo')
-        results[0].rank.should > results[1].rank
-        results.should == [winner, loser]
-      end
-    end
-
-    context "against columns of which only some are ranked" do
-      before do
-        model_with_pg_search.class_eval do
-          pg_search_scope :search_weighted, :against => [:content, [:title, 'A']]
-        end
-      end
-
-      it "returns results sorted by weighted rank using an implied low rank for unranked columns" do
-        loser = model_with_pg_search.create!(:title => 'bar', :content => 'foo')
-        winner = model_with_pg_search.create!(:title => 'foo', :content => 'bar')
-
-        results = model_with_pg_search.search_weighted('foo')
-        results[0].rank.should > results[1].rank
-        results.should == [winner, loser]
       end
     end
 
