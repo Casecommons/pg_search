@@ -133,7 +133,7 @@ You can pass a Hash into the :associated_against option to search columns on oth
 
 === Searching using different search features
 
-By default, pg_search_scope uses the built-in {PostgreSQL text search}[link:http://www.postgresql.org/docs/current/static/textsearch-intro.html]. If you pass the :features option to pg_search_scope, you can choose alternative search techniques.
+By default, pg_search_scope uses the built-in {PostgreSQL text search}[http://www.postgresql.org/docs/current/static/textsearch-intro.html]. If you pass the :features option to pg_search_scope, you can choose alternative search techniques.
 
   class Beer < ActiveRecord::Base
     include PgSearch
@@ -142,9 +142,9 @@ By default, pg_search_scope uses the built-in {PostgreSQL text search}[link:http
 
 The currently implemented features are
 
-* :tsearch - {Full text search}[link:http://www.postgresql.org/docs/current/static/textsearch-intro.html] (built-in with 8.3 and later, available as a contrib package for some earlier versions)
-* :trigram - {Trigram search}[link:http://www.postgresql.org/docs/current/static/pgtrgm.html], which requires the trigram contrib package
-* :dmetaphone - {Double Metaphone search}[link:http://www.postgresql.org/docs/9.0/static/fuzzystrmatch.html#AEN120188], which requires the fuzzystrmatch contrib package
+* :tsearch - {Full text search}[http://www.postgresql.org/docs/current/static/textsearch-intro.html] (built-in with 8.3 and later, available as a contrib package for some earlier versions)
+* :trigram - {Trigram search}[http://www.postgresql.org/docs/current/static/pgtrgm.html], which requires the trigram contrib package
+* :dmetaphone - {Double Metaphone search}[http://www.postgresql.org/docs/9.0/static/fuzzystrmatch.html#AEN120188], which requires the fuzzystrmatch contrib package
 
 ==== :tsearch (Full Text Search)
 
@@ -262,7 +262,7 @@ Trigram search works by counting how many three-letter substrings (or "trigrams"
 
 Trigram search has some ability to work even with typos and misspellings in the query or text.
 
-Trigram support is currently available as part of the {pg_trgm contrib package}[http://www.postgresql.org/docs/current/static/pg_trgm.html] that must be installed before this feature can be used.
+Trigram support is currently available as part of the {pg_trgm contrib package}[http://www.postgresql.org/docs/current/static/pgtrgm.html] that must be installed before this feature can be used.
 
 
   class Website < ActiveRecord::Base
