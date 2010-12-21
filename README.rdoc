@@ -71,6 +71,29 @@ Now our search query can match either or both of the columns.
  Person.search_by_full_name("Grant") # => [person_1, person_2]
  Person.search_by_full_name("Grant Hill") # => [person_1]
 
+==== Dynamic search scopes
+
+Just like with Active Record named scopes, you can pass in a Proc object that returns a hash of options. For instance, the following scope takes a parameter that dynamically chooses which column to search against.
+
+Important: The returned hash must include a :query key. Its value does not necessary have to be dynamic. You could choose to hard-code it to a specific value if you wanted.
+
+ class Person < ActiveRecord::Base
+   include PgSearch
+   pg_search_scope :search_by_name, lambda do |name_part, query|
+     raise ArgumentError unless [:first, :last].include?(name_part)
+     {
+       :against => name_part,
+       :query => query
+     }
+   end
+ end
+
+ person_1 = Person.create!(:first_name => "Grant", :last_name => "Hill")
+ person_2 = Person.create!(:first_name => "Hugh", :last_name => "Grant")
+
+ Person.search_by_name :first, "Grant" # => [person_1]
+ Person.search_by_name :last, "Grant" # => [person_2]
+
 ==== Searching through associations
 
 You can pass a Hash into the :associated_against option to search columns on other models. The keys are the names of the associations and the value works just like an :against option for the other model.
@@ -84,10 +107,10 @@ You can pass a Hash into the :associated_against option to search columns on oth
 
   class Salami < ActiveRecord::Base
     include PgSearch
-  
+
     belongs_to :cracker
     has_many :cheeses, :through => :cracker
-  
+
     pg_search_scope :tasty_search, :associated_against => {
       :cheeses => [:kind, :brand],
       :cracker => :kind
@@ -105,7 +128,7 @@ You can pass a Hash into the :associated_against option to search columns on oth
   Cracker.create!(:kind => "Black Pepper", :cheeses => [brie], :salami => salami_1)
   Cracker.create!(:kind => "Ritz", :cheeses => [limburger, pepper_jack], :salami => salami_2)
   Cracker.create!(:kind => "Graham", :cheeses => [limburger], :salami => salami_3)
-  
+
   Salami.tasty_search("pepper") # => [salami_1, salami_2]
 
 === Searching using different search features
@@ -133,19 +156,19 @@ Each searchable column can be given a weight of "A", "B", "C", or "D". Columns w
  class NewsArticle < ActiveRecord::Base
    include PgSearch
    pg_search_scope :against => {
-     :title => 'A', 
-     :subtitle => 'B', 
+     :title => 'A',
+     :subtitle => 'B',
      :content => 'C'
    }
  end
- 
+
 You can also pass the weights in as an array of arrays, or any other structure that responds to #each and yields either a single symbol or a symbol and a weight. If you omit the weight, a default will be used.
 
  class NewsArticle < ActiveRecord::Base
    include PgSearch
    pg_search_scope :against => [
-     [:title, 'A'], 
-     [:subtitle, 'B'], 
+     [:title, 'A'],
+     [:subtitle, 'B'],
      [:content, 'C']
    ]
  end
@@ -153,8 +176,8 @@ You can also pass the weights in as an array of arrays, or any other structure t
  class NewsArticle < ActiveRecord::Base
    include PgSearch
    pg_search_scope :against => [
-     [:title, 'A'], 
-     {:subtitle => 'B'}, 
+     [:title, 'A'],
+     {:subtitle => 'B'},
      :content
    ]
  end
