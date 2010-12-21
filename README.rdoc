@@ -226,6 +226,34 @@ PostgreSQL full text search also support multiple dictionaries for stemming. The
   BoringTweet.kinda_matching("sleeping") # => [sleepy, sleeping, sleeper]
   BoringTweet.literally_matching("sleeping") # => [sleeping]
 
+==== :dmetaphone (Double Metaphone soundalike search)
+
+{Double Metaphone}[http://en.wikipedia.org/wiki/Double_Metaphone] is an algorithm for matching words that sound alike even if they are spelled very differently. For example, "Geoff" and "Jeff" sound identical and thus match. Currently, this is not a true double-metaphone, as only the first metaphone is used for searching.
+
+Double Metaphone support is currently available as part of the {fuzzystrmatch contrib package}[http://www.postgresql.org/docs/current/static/fuzzystrmatch.html] that must be installed before this feature can be used. In addition to the contrib package, you must install a utility function into your database. To generate a migration for this, add the following line to your Rakefile:
+
+  include "pg_search/tasks"
+
+and then run:
+
+  $ rake pg_search:migration:dmetaphone
+
+The following example shows how to use :dmetaphone.
+
+  class Word < ActiveRecord::Base
+    include PgSearch
+    pg_search_scope :that_sounds_like,
+                    :against => :spelling,
+                    :using => :dmetaphone
+  end
+
+  four = Word.create! :spelling => 'four'
+  far = Word.create! :spelling => 'far'
+  fur = Word.create! :spelling => 'fur'
+  five = Word.create! :spelling => 'five'
+
+  Word.that_sounds_like("fir") # => [four, far, fur]
+
 == REQUIREMENTS
 
 * ActiveRecord 2 or 3
