@@ -182,6 +182,24 @@ You can also pass the weights in as an array of arrays, or any other structure t
    ]
  end
 
+===== :prefix
+
+PostgreSQL's full text search matches on whole words by default. If you want to search for partial words, however, you can set :prefix to true. Since this is a :tsearch-specific option, you should pass it to :tsearch directly, as shown in the following example.
+
+  class Superhero < ActiveRecord::Base
+    include PgSearch
+    pg_search_scope :whose_name_starts_with,
+                    :against => :name,
+                    :using => {
+                      :tsearch => {:prefix => true}
+                    }
+  end
+
+  batman = Superhero.create :name => 'Batman'
+  batgirl = Superhero.create :name => 'Batgirl'
+  robin = Superhero.create :name => 'Robin'
+
+  Superhero.whose_name_starts_with("Bat") # => [batman, batgirl]
 
 == REQUIREMENTS
 
