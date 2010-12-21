@@ -254,6 +254,31 @@ The following example shows how to use :dmetaphone.
 
   Word.that_sounds_like("fir") # => [four, far, fur]
 
+==== :trigram (Trigram search)
+
+Trigram search works by counting how many three-letter substrings (or "trigrams") match between the query and the text. For example, the string "Lorem ipsum" can be split into the following trigrams:
+
+  [" Lo", "Lor", "ore", "rem", "em ", "m i", " ip", "ips", "psu", "sum", "um ", "m  "]
+
+Trigram search has some ability to work even with typos and misspellings in the query or text.
+
+Trigram support is currently available as part of the {pg_trgm contrib package}[http://www.postgresql.org/docs/current/static/pg_trgm.html] that must be installed before this feature can be used.
+
+
+  class Website < ActiveRecord::Base
+    include PgSearch
+    pg_search_scope :kinda_spelled_like,
+                    :against => :name,
+                    :using => :trigram
+  end
+
+  yahooo = Website.create! :name => "Yahooo!"
+  yohoo = Website.create! :name => "Yohoo!"
+  gogle = Website.create! :name => "Gogle"
+  facebook = Website.create! :name => "Facebook"
+
+  Website.kinda_spelled_like("Yahoo!") # => [yahooo, yohoo]
+
 == REQUIREMENTS
 
 * ActiveRecord 2 or 3
