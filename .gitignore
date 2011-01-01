@@ -4,3 +4,4 @@ pkg/*
 .idea
 tags
 *~
+gemfiles/**/Gemfile.lock
