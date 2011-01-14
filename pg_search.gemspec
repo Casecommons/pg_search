@@ -6,11 +6,11 @@ Gem::Specification.new do |s|
   s.name        = "pg_search"
   s.version     = PgSearch::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Grant Hutchins", "Peter Jaros"]
-  s.email       = ["grant@pivotallabs.com", "pjaros@pivotallabs.com"]
-  s.homepage    = "https://github.com/casebook/pg_search"
-  s.summary     = %q{PgSearch builds named scopes that take advantage of PostgreSQL's full text search}
-  s.description = %q{PgSearch builds named scopes that take advantage of PostgreSQL's full text search}
+  s.authors     = ["Case Commons, LLC"]
+  s.email       = ["casecommons-dev@googlegroups.com"]
+  s.homepage    = "https://github.com/Casecommons/pg_search"
+  s.summary     = %q{PgSearch builds ActiveRecord named scopes that take advantage of PostgreSQL's full text search}
+  s.description = %q{PgSearch builds ActiveRecord named scopes that take advantage of PostgreSQL's full text search}
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
