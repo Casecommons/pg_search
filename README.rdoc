@@ -2,11 +2,11 @@
 
 * http://github.com/casecommons/pg_search/
 
-== DESCRIPTION:
+== DESCRIPTION
 
 PgSearch builds named scopes that take advantage of PostgreSQL's full text search
 
-== INSTALL:
+== INSTALL
 
  gem install pg_search
 
@@ -285,6 +285,6 @@ Trigram support is currently available as part of the {pg_trgm contrib package}[
 * Postgresql
 * Postgresql contrib modules for certain features
 
-== LICENSE:
+== LICENSE
 
 MIT
