@@ -32,8 +32,8 @@ module PgSearch
       @options[:query].to_s
     end
 
-    def normalizations
-      Array.wrap(@options[:normalizing])
+    def ignore
+      Array.wrap(@options[:ignoring])
     end
 
     def ranking_sql
@@ -51,9 +51,9 @@ module PgSearch
     end
 
     def assert_valid_options(options)
-      valid_keys = [:against, :ranked_by, :normalizing, :using, :query, :associated_against]
+      valid_keys = [:against, :ranked_by, :ignoring, :using, :query, :associated_against]
       valid_values = {
-        :normalizing => [:diacritics]
+        :ignoring => [:accents]
       }
 
       raise ArgumentError, "the search scope #{@name} must have :against in its options" unless options[:against]

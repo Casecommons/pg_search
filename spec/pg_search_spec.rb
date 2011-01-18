@@ -88,24 +88,24 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
 
-    context "when an unknown :normalizing is passed" do
+    context "when an unknown :ignoring is passed" do
       it "raises an exception when invoked" do
         lambda {
           model_with_pg_search.class_eval do
-            pg_search_scope :with_unknown_normalizing, :against => :content, :normalizing => :foo
+            pg_search_scope :with_unknown_ignoring, :against => :content, :ignoring => :foo
           end
-          model_with_pg_search.with_unknown_normalizing("foo")
-        }.should raise_error(ArgumentError, /normalizing.*foo/)
+          model_with_pg_search.with_unknown_ignoring("foo")
+        }.should raise_error(ArgumentError, /ignoring.*foo/)
       end
 
       context "dynamically" do
         it "raises an exception when invoked" do
           lambda {
             model_with_pg_search.class_eval do
-              pg_search_scope :with_unknown_normalizing, lambda { |*| {:against => :content, :normalizing => :foo} }
+              pg_search_scope :with_unknown_ignoring, lambda { |*| {:against => :content, :ignoring => :foo} }
             end
-            model_with_pg_search.with_unknown_normalizing("foo")
-          }.should raise_error(ArgumentError, /normalizing.*foo/)
+            model_with_pg_search.with_unknown_ignoring("foo")
+          }.should raise_error(ArgumentError, /ignoring.*foo/)
         end
       end
 
@@ -113,18 +113,18 @@ describe "an ActiveRecord model which includes PgSearch" do
         it "raises an exception when invoked" do
           lambda {
             model_with_pg_search.class_eval do
-              pg_search_scope :with_unknown_normalizing, {}
+              pg_search_scope :with_unknown_ignoring, {}
             end
-            model_with_pg_search.with_unknown_normalizing("foo")
+            model_with_pg_search.with_unknown_ignoring("foo")
           }.should raise_error(ArgumentError, /against/)
         end
         context "dynamically" do
           it "raises an exception when invoked" do
             lambda {
               model_with_pg_search.class_eval do
-                pg_search_scope :with_unknown_normalizing, lambda { |*| {} }
+                pg_search_scope :with_unknown_ignoring, lambda { |*| {} }
               end
-              model_with_pg_search.with_unknown_normalizing("foo")
+              model_with_pg_search.with_unknown_ignoring("foo")
             }.should raise_error(ArgumentError, /against/)
           end
         end
@@ -177,7 +177,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         results.should =~ included
       end
 
-      it "returns rows that match the query only if their diacritics match" do
+      it "returns rows that match the query only if their accents match" do
         # \303\241 is a with acute accent
         # \303\251 is e with acute accent
 
@@ -513,20 +513,20 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
 
-    context "normalizing diacritics" do
+    context "ignoring accents" do
       before do
         model_with_pg_search.class_eval do
-          pg_search_scope :search_title_without_diacritics, :against => :title, :normalizing => :diacritics
+          pg_search_scope :search_title_without_accents, :against => :title, :ignoring => :accents
         end
       end
 
-      it "returns rows that match the query but not its diacritics" do
+      it "returns rows that match the query but not its accents" do
         # \303\241 is a with acute accent
         # \303\251 is e with acute accent
 
         included = model_with_pg_search.create!(:title => "\303\241bcdef")
 
-        results = model_with_pg_search.search_title_without_diacritics("abcd\303\251f")
+        results = model_with_pg_search.search_title_without_accents("abcd\303\251f")
         results.should == [included]
       end
     end
