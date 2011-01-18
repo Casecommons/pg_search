@@ -1,3 +1,9 @@
+### 0.1
+
+Change API to {:ignoring => :accents} from {:normalizing => :diacritics}
+Improve documentation
+Fix bug where :associated_against would not work without an :against present
+
 ### 0.0.2
 
 Fix gem ownership.
