@@ -99,10 +99,10 @@ Important: The returned hash must include a :query key. Its value does not neces
 You can pass a Hash into the :associated_against option to search columns on other models. The keys are the names of the associations and the value works just like an :against option for the other model.
 
   class Cracker < ActiveRecord::Base
+    has_many :cheeses
   end
 
   class Cheese < ActiveRecord::Base
-    has_many :cheeses
   end
 
   class Salami < ActiveRecord::Base
