@@ -279,6 +279,27 @@ Trigram support is currently available as part of the {pg_trgm contrib package}[
 
   Website.kinda_spelled_like("Yahoo!") # => [yahooo, yohoo]
 
+=== Ignoring accent marks
+
+Most of the time you will want to ignore accent marks when searching. This makes it possible to find words like "piñata" when searching with the query "pinata". If you set a pg_search_scope to ignore accents, it will ignore accents in both the searchable text and the query terms.
+
+Ignoring accents uses the {unaccent contrib package}[http://www.postgresql.org/docs/current/static/unaccent.html] that must be installed before this feature can be used.
+
+
+  class SpanishQuestion < ActiveRecord::Base
+    include PgSearch
+    pg_search_scope :gringo_search,
+                    :against => :word,
+                    :ignoring => :accents
+  end
+
+  what = SpanishQuestion.create(:word => "Qué")
+  how_many = SpanishQuestion.create(:word => "Cuánto")
+  how = SpanishQuestion.create(:word => "Cómo")
+
+  SpanishQuestion.gringo_search("Que") # => [what]
+  SpanishQuestion.gringo_search("Cüåñtô") # => [how_many]
+
 == REQUIREMENTS
 
 * ActiveRecord 2 or 3
