@@ -33,3 +33,10 @@ namespace "autotest" do
     end
   end
 end
+
+namespace "doc" do
+  desc "Generate README and preview in browser"
+  task "readme" do
+    sh "rdoc README.rdoc && open doc/files/README_rdoc.html"
+  end
+end
