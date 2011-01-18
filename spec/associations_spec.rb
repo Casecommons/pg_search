@@ -4,6 +4,43 @@ describe PgSearch do
   context "joining to another table" do
     if defined?(ActiveRecord::Relation)
       context "with Arel support" do
+        context "without an :against" do
+          with_model :associated_model do
+            table do |t|
+              t.string "title"
+            end
+          end
+
+          with_model :model_without_against do
+            table do |t|
+              t.string "title"
+              t.belongs_to :another_model
+            end
+
+            model do
+              include PgSearch
+              belongs_to :another_model, :class_name => 'AssociatedModel'
+
+              pg_search_scope :with_another, :associated_against => {:another_model => :title}
+            end
+          end
+
+          it "returns rows that match the query in the columns of the associated model only" do
+            associated = associated_model.create!(:title => 'abcdef')
+            included = [
+              model_without_against.create!(:title => 'abcdef', :another_model => associated),
+              model_without_against.create!(:title => 'ghijkl', :another_model => associated)
+            ]
+            excluded = [
+              model_without_against.create!(:title => 'abcdef')
+            ]
+
+            results = model_without_against.with_another('abcdef')
+            results.map(&:title).should =~ included.map(&:title)
+            results.should_not include(excluded)
+          end
+        end
+
         context "through a belongs_to association" do
           with_model :associated_model do
             table do |t|

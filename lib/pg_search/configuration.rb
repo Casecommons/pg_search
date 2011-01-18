@@ -14,6 +14,7 @@ module PgSearch
     end
 
     def regular_columns
+      return [] unless @options[:against]
       Array(@options[:against]).map do |column_name, weight|
         Column.new(column_name, weight, @model)
       end
@@ -56,7 +57,9 @@ module PgSearch
         :ignoring => [:accents]
       }
 
-      raise ArgumentError, "the search scope #{@name} must have :against in its options" unless options[:against]
+      unless options[:against] || options[:associated_against]
+        raise ArgumentError, "the search scope #{@name} must have :against#{" or :associated_against" if defined?(ActiveRecord::Relation)} in its options"
+      end
       raise ArgumentError, ":associated_against requires ActiveRecord 3 or later" if options[:associated_against] && !defined?(ActiveRecord::Relation)
 
       options.assert_valid_keys(valid_keys)
