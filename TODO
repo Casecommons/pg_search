@@ -1,12 +1,10 @@
  * Railtie for rake tasks
- * README
  * Tracker project
- * Mailing list
- * License
- * Publish gem
  * Exceptions for missing trigram, dmetaphone, etc. support
  * LIKE search
- * ability to specify multiple ranks: :ranked_by => [:tsearch, :trigram]
- * ability to mix ranks together with weights: :ranked_by => {:tsearch => 1.0, :trigram => 0.5}
  * accept a block and pass it to the underlying scope
  * ability to search again a tsvector column
+ * Generate indexes
+ * Allow for chaining multiple pg_search scopes
+
+Also see https://github.com/Casecommons/pg_search/issues
