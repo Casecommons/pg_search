@@ -1,20 +1,22 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    ZenTest (4.4.2)
     activerecord (2.3.10)
       activesupport (= 2.3.10)
     activesupport (2.3.10)
-    autotest (4.4.4)
+    autotest (4.4.6)
+      ZenTest (>= 4.4.1)
     diff-lcs (1.1.2)
-    pg (0.9.0)
-    rspec (2.1.0)
-      rspec-core (~> 2.1.0)
-      rspec-expectations (~> 2.1.0)
-      rspec-mocks (~> 2.1.0)
-    rspec-core (2.1.0)
-    rspec-expectations (2.1.0)
+    pg (0.10.1)
+    rspec (2.4.0)
+      rspec-core (~> 2.4.0)
+      rspec-expectations (~> 2.4.0)
+      rspec-mocks (~> 2.4.0)
+    rspec-core (2.4.0)
+    rspec-expectations (2.4.0)
       diff-lcs (~> 1.1.2)
-    rspec-mocks (2.1.0)
+    rspec-mocks (2.4.0)
     with_model (0.1)
       activerecord (>= 2.3.5, < 4.0.0)
 
@@ -25,5 +27,5 @@ DEPENDENCIES
   activerecord (~> 2.3.5)
   autotest
   pg
-  rspec
+  rspec (>= 2.4)
   with_model (= 0.1)

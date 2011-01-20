@@ -3,7 +3,7 @@ source "http://rubygems.org"
 gem "pg"
 
 group :test do
-  gem "rspec"
+  gem "rspec", ">=2.4"
   gem "autotest"
   gem "with_model", '0.1'
 end
