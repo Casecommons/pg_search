@@ -5,4 +5,5 @@ doc
 .idea
 tags
 *~
-gemfiles/**/Gemfile.lock
+gemfiles/rails2/Gemfile.lock
+gemfiles/rails3/Gemfile.lock
