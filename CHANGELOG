@@ -1,3 +1,8 @@
+### 0.1.1
+
+Fix a bug with dmetaphone searches containing " w " (which dmetaphone maps to
+an empty string)
+
 ### 0.1
 
 Change API to {:ignoring => :accents} from {:normalizing => :diacritics}
