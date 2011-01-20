@@ -40,7 +40,7 @@ module PgSearch
           term_sql = @normalizer.add_normalization(connection.quote(sanitized_term))
 
           # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
-          tsquery_sql = "#{connection.quote("'")} || #{term_sql} || #{connection.quote("'")}"
+          tsquery_sql = "#{connection.quote("' ")} || #{term_sql} || #{connection.quote(" '")}"
 
           # Add tsearch prefix operator if we're using a prefix search.
           tsquery_sql = "#{tsquery_sql} || #{connection.quote(':*')}" if @options[:prefix]

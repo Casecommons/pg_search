@@ -246,6 +246,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         results = model_with_pg_search.search_content("foo bar .,?() \\")
         results.should == [included]
       end
+
       it "accepts non-string queries and calls #to_s on them" do
         foo = model_with_pg_search.create!(:content => "foo")
         not_a_string = stub(:to_s => "foo")
@@ -454,6 +455,16 @@ describe "an ActiveRecord model which includes PgSearch" do
         included = model_with_pg_search.create!(:title => 'White', :content => nil)
         excluded = model_with_pg_search.create!(:title => 'Black', :content => nil)
         results = model_with_pg_search.with_dmetaphones('Wight')
+        results.should == [included]
+      end
+
+      it "can handle terms that do not have a dmetaphone equivalent" do
+        term_with_blank_metaphone = "w"
+
+        included = model_with_pg_search.create!(:title => 'White', :content => nil)
+        excluded = model_with_pg_search.create!(:title => 'Black', :content => nil)
+
+        results = model_with_pg_search.with_dmetaphones('Wight W')
         results.should == [included]
       end
     end
