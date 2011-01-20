@@ -6,7 +6,7 @@ task :default => :spec
 environments = %w[rails2 rails3]
 
 in_environment = lambda do |environment, command|
-  sh %Q{export BUNDLE_GEMFILE="gemfiles/#{environment}/Gemfile"; bundle --quiet update && bundle exec #{command}}
+  sh %Q{export BUNDLE_GEMFILE="gemfiles/#{environment}/Gemfile"; bundle update && bundle exec #{command}}
 end
 
 in_all_environments = lambda do |command|
