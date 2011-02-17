@@ -308,6 +308,12 @@ Ignoring accents uses the {unaccent contrib package}[http://www.postgresql.org/d
 * Postgresql
 * Postgresql contrib modules for certain features
 
+== ATTRIBUTIONS
+
+PgSearch would not have been possible without inspiration from
+{texticle}[https://github.com/tenderlove/texticle]. Thanks to 
+{Aaron Patterson}[http://tenderlovemaking.com/]!
+
 == CONTRIBUTIONS AND FEEDBACK
 
 Welcomed! Feel free to join and contribute to our {public Pivotal Tracker project}[https://www.pivotaltracker.com/projects/228645] where we manage new feature ideas and bugs.
