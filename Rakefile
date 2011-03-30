@@ -4,6 +4,7 @@ Bundler::GemHelper.install_tasks
 task :default => :spec
 
 environments = %w[rails2 rails3]
+major, minor, revision = RUBY_VERSION.split(".").map{|str| str.to_i }
 
 in_environment = lambda do |environment, command|
   sh %Q{export BUNDLE_GEMFILE="gemfiles/#{environment}/Gemfile"; bundle update && bundle exec #{command}}
@@ -11,6 +12,7 @@ end
 
 in_all_environments = lambda do |command|
   environments.each do |environment|
+    next if environment == "rails2" && major == 1 && minor > 8
     puts "\n---#{environment}---\n"
     in_environment.call(environment, command)
   end
