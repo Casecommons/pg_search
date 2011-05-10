@@ -1,3 +1,4 @@
+require "pg_search/configuration/association"
 require "pg_search/configuration/column"
 
 module PgSearch
@@ -20,13 +21,20 @@ module PgSearch
       end
     end
 
-    def associated_columns
+    def associations
       return [] unless @options[:associated_against]
       @options[:associated_against].map do |association, against|
-        Array(against).map do |column_name, weight|
-          Column.new(column_name, weight, @model, association)
+        columns = Array(against).map do |column_name, weight|
+          Column.new(column_name, weight, @model)
         end
+        association = Association.new(@model, association, columns)
+        columns.each { |column| column.association = association }
+        association
       end.flatten
+    end
+
+    def associated_columns
+      associations.map(&:columns).flatten
     end
 
     def query

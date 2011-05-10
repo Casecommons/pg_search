@@ -237,6 +237,60 @@ describe PgSearch do
             end
           end
         end
+        
+        context "against multiple attributes on one association" do
+          with_model :associated_model do
+            table do |t|
+              t.string 'title'
+              t.text 'author'
+            end
+          end
+
+          with_model :model_with_association do
+            table do |t|
+              t.belongs_to 'another_model'
+            end
+
+            model do
+              include PgSearch
+              belongs_to :another_model, :class_name => 'AssociatedModel'
+
+              pg_search_scope :with_associated, :associated_against => {:another_model => [:title, :author]}
+            end
+          end
+          
+          it "should only do one join" do
+            included = [
+              ModelWithAssociation.create!(
+                :another_model => AssociatedModel.create!(
+                  :title => "foo",
+                  :author => "bar"
+                )
+              ),
+              ModelWithAssociation.create!(
+                :another_model => AssociatedModel.create!(
+                  :title => "foo bar",
+                  :author => "baz"
+                )
+              )
+            ]
+            excluded = [
+              ModelWithAssociation.create!(
+                :another_model => AssociatedModel.create!(
+                  :title => "foo",
+                  :author => "baz"
+                )
+              )
+            ]
+
+            results = ModelWithAssociation.with_associated('foo bar')
+
+            results.to_sql.scan("INNER JOIN").length.should == 1
+            included.each { |object| results.should include(object) }
+            excluded.each { |object| results.should_not include(object) }
+          end
+          
+        end
       end
     else
       context "without Arel support" do

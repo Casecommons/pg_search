@@ -1,17 +1,19 @@
+require 'md5'
+
 module PgSearch
   class Configuration
     class Column
-      attr_reader :weight, :association
+      attr_reader :weight
+      attr_accessor :association
 
-      def initialize(column_name, weight, model, association = nil)
+      def initialize(column_name, weight, model)
         @column_name = column_name.to_s
         @weight = weight
         @model = model
-        @association = association
       end
 
       def table
-        foreign? ? @model.reflect_on_association(association).table_name : @model.table_name
+        foreign? ? @association.table_name : @model.table_name
       end
 
       def full_name
@@ -20,7 +22,7 @@ module PgSearch
 
       def to_sql
         name = if foreign?
-                 "#{self.subselect_alias}.#{self.alias}"
+                 "#{@association.subselect_alias}.#{self.alias}"
                else
                  full_name
                end
@@ -32,11 +34,8 @@ module PgSearch
       end
 
       def alias
-        ["pg_search", table, association, @column_name].compact.join('_')
-      end
-
-      def subselect_alias
-        "#{self.alias}_subselect"
+        name = [association.subselect_alias, @column_name].compact.join('_')
+        "pg_search_#{MD5.hexdigest(name)}"
       end
     end
   end
