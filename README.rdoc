@@ -205,7 +205,7 @@ PostgreSQL's full text search matches on whole words by default. If you want to 
 
 ===== :dictionary
 
-PostgreSQL full text search also support multiple dictionaries for stemming. The default dictionary depends on your PostgreSQL setup. You can learn more about how dictionaries work by reading the {PostgreSQL documention}[http://www.postgresql.org/docs/current/static/textsearch-dictionaries.html]. If you use one of the language dictionaries, such as "english", then variants of words (e.g. "jumping" and "jumped") will match each other. If you don't want stemming, you should pick the "simple" dictionary which does not do any stemming.
+PostgreSQL full text search also support multiple dictionaries for stemming. You can learn more about how dictionaries work by reading the {PostgreSQL documention}[http://www.postgresql.org/docs/current/static/textsearch-dictionaries.html]. If you use one of the language dictionaries, such as "english", then variants of words (e.g. "jumping" and "jumped") will match each other. If you don't want stemming, you should pick the "simple" dictionary which does not do any stemming. If you don't specify a dictionary, the "simple" dictionary will be used.
 
   class BoringTweet < ActiveRecord::Base
     include PgSearch
