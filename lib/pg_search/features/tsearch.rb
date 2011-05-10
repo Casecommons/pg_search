@@ -24,7 +24,7 @@ module PgSearch
       private
 
       def interpolations
-        {:query => @query.to_s, :dictionary => @options[:dictionary].to_s}
+        {:query => @query.to_s, :dictionary => dictionary.to_s}
       end
 
       def document
@@ -45,19 +45,23 @@ module PgSearch
           # Add tsearch prefix operator if we're using a prefix search.
           tsquery_sql = "#{tsquery_sql} || #{connection.quote(':*')}" if @options[:prefix]
 
-          "to_tsquery(#{":dictionary," if @options[:dictionary]} #{tsquery_sql})"
+          "to_tsquery(:dictionary, #{tsquery_sql})"
         end.join(" && ")
       end
 
       def tsdocument
         @columns.map do |search_column|
-          tsvector = "to_tsvector(#{":dictionary," if @options[:dictionary]} #{@normalizer.add_normalization(search_column.to_sql)})"
+          tsvector = "to_tsvector(:dictionary, #{@normalizer.add_normalization(search_column.to_sql)})"
           search_column.weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
         end.join(" || ")
       end
 
       def tsearch_rank
         ["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations]
+      end
+
+      def dictionary
+        @options[:dictionary] || :simple
       end
     end
   end

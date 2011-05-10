@@ -198,13 +198,13 @@ describe "an ActiveRecord model which includes PgSearch" do
         results.should_not include(excluded)
       end
 
-      it "returns rows that match the query when stemmed by the default dictionary (english)" do
-        included = [model_with_pg_search.create!(:content => "jump"),
-                    model_with_pg_search.create!(:content => "jumped"),
+      it "returns rows that match the query exactly and not those that match the query when stemmed by the default english dictionary" do
+        included = model_with_pg_search.create!(:content => "jumped")
+        excluded = [model_with_pg_search.create!(:content => "jump"),
                     model_with_pg_search.create!(:content => "jumping")]
 
-        results = model_with_pg_search.search_content("jump")
-        results.should =~ included
+        results = model_with_pg_search.search_content("jumped")
+        results.should == [included]
       end
 
       it "returns rows that match sorted by rank" do
@@ -349,32 +349,24 @@ describe "an ActiveRecord model which includes PgSearch" do
         end
       end
 
-      context "with the simple dictionary" do
+      context "with the english dictionary" do
         before do
           model_with_pg_search.class_eval do
-            pg_search_scope :search_title, :against => :title
-
-            pg_search_scope :search_title_with_simple,
-                            :against => :title,
+            pg_search_scope :search_content_with_english,
+                            :against => :content,
                             :using => {
-                              :tsearch => {:dictionary => :simple}
+                              :tsearch => {:dictionary => :english}
                             }
           end
         end
 
-        it "returns rows that match the query exactly but not that match the query when stemmed by the default dictionary" do
-          included = model_with_pg_search.create!(:title => "jumped")
-          excluded = [model_with_pg_search.create!(:title => "jump"),
-                      model_with_pg_search.create!(:title => "jumping")]
+        it "returns rows that match the query when stemmed by the english dictionary" do
+          included = [model_with_pg_search.create!(:content => "jump"),
+                      model_with_pg_search.create!(:content => "jumped"),
+                      model_with_pg_search.create!(:content => "jumping")]
 
-          default_results = model_with_pg_search.search_title("jumped")
-          default_results.should =~ [included] + excluded
-
-          simple_results = model_with_pg_search.search_title_with_simple("jumped")
-          simple_results.should == [included]
-          excluded.each do |result|
-            simple_results.should_not include(result)
-          end
+          results = model_with_pg_search.search_content_with_english("jump")
+          results.should =~ included
         end
       end
 
@@ -472,13 +464,20 @@ describe "an ActiveRecord model which includes PgSearch" do
     context "using multiple features" do
       before do
         model_with_pg_search.class_eval do
-          pg_search_scope :with_tsearch, :against => :title, :using => :tsearch
+          pg_search_scope :with_tsearch,
+                          :against => :title,
+                          :using => [
+                            [:tsearch, {:prefix => true}]
+                          ]
 
           pg_search_scope :with_trigram, :against => :title, :using => :trigram
 
           pg_search_scope :with_tsearch_and_trigram_using_array,
                           :against => :title,
-                          :using => [:tsearch, :trigram]
+                          :using => [
+                            [:tsearch, {:prefix => true}],
+                            :trigram
+                          ]
 
         end
       end
@@ -493,7 +492,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         model_with_pg_search.with_tsearch_and_trigram_using_array(trigram_query).should == [record]
 
         # matches tsearch only
-        tsearch_query = "tile"
+        tsearch_query = "til"
         model_with_pg_search.with_tsearch(tsearch_query).should include(record)
         model_with_pg_search.with_trigram(tsearch_query).should_not include(record)
         model_with_pg_search.with_tsearch_and_trigram_using_array(tsearch_query).should == [record]
