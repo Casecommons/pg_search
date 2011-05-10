@@ -40,11 +40,7 @@ module PgSearch
 
     def joins
       @config.associations.map do |association|
-        selects = association.columns.map do |column|
-          "string_agg(#{column.full_name}, ' ') AS #{column.alias}"
-        end.join(", ")
-        relation = association.join.select("#{primary_key} AS id, #{selects}").group(primary_key)
-        "LEFT OUTER JOIN (#{relation.to_sql}) #{association.subselect_alias} ON #{association.subselect_alias}.id = #{primary_key}"
+        association.join(primary_key)
       end.join(' ')
     end
 

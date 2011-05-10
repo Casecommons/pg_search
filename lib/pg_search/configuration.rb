@@ -23,12 +23,8 @@ module PgSearch
 
     def associations
       return [] unless @options[:associated_against]
-      @options[:associated_against].map do |association, against|
-        columns = Array(against).map do |column_name, weight|
-          Column.new(column_name, weight, @model)
-        end
-        association = Association.new(@model, association, columns)
-        columns.each { |column| column.association = association }
+      @options[:associated_against].map do |association, column_names|
+        association = Association.new(@model, association, column_names)
         association
       end.flatten
     end

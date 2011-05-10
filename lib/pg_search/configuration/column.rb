@@ -3,13 +3,13 @@ require 'md5'
 module PgSearch
   class Configuration
     class Column
-      attr_reader :weight
-      attr_accessor :association
+      attr_reader :weight, :association
 
-      def initialize(column_name, weight, model)
+      def initialize(column_name, weight, model, association = nil)
         @column_name = column_name.to_s
         @weight = weight
         @model = model
+        @association = association
       end
 
       def table
