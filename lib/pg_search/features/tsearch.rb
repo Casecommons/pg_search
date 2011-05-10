@@ -35,7 +35,7 @@ module PgSearch
         return "''" if @query.blank?
 
         @query.split(" ").compact.map do |term|
-          sanitized_term = term.gsub(/['?\-\\]/, " ")
+          sanitized_term = term.gsub(/['?\-\\:]/, " ")
 
           term_sql = @normalizer.add_normalization(connection.quote(sanitized_term))
 
