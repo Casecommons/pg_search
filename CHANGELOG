@@ -1,18 +1,32 @@
+### 0.2
+
+ * Set dictionary to :simple by default for :tsearch. Before it was unset,
+   which would fall back to PostgreSQL's default dictionary, usually
+   "english".
+
+ * Fix a bug with search strings containing a colon ":"
+
+ * Improve performance of :associated_against by only doing one INNER JOIN per
+   association
+
 ### 0.1.1
 
-Fix a bug with dmetaphone searches containing " w " (which dmetaphone maps to
-an empty string)
+ * Fix a bug with dmetaphone searches containing " w " (which dmetaphone maps
+   to an empty string)
 
 ### 0.1
 
-Change API to {:ignoring => :accents} from {:normalizing => :diacritics}
-Improve documentation
-Fix bug where :associated_against would not work without an :against present
+ * Change API to {:ignoring => :accents} from {:normalizing => :diacritics}
+
+ * Improve documentation
+
+ * Fix bug where :associated_against would not work without an :against
+   present
 
 ### 0.0.2
 
-Fix gem ownership.
+ * Fix gem ownership.
 
 ### 0.0.1
 
-Initial release.
+ * Initial release.
