@@ -59,10 +59,6 @@ module PgSearch
       feature_class.new(@config.query, @feature_options[feature_name], @config.columns, @model, normalizer)
     end
 
-    def tsearch_rank
-      sanitize_sql_array(@feature_names[Features::TSearch].rank)
-    end
-
     def rank
       (@config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
         sanitize_sql_array(feature_for($1).rank)
