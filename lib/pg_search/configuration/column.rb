@@ -1,4 +1,4 @@
-require 'md5'
+require 'digest'
 
 module PgSearch
   class Configuration
@@ -35,7 +35,7 @@ module PgSearch
 
       def alias
         name = [association.subselect_alias, @column_name].compact.join('_')
-        "pg_search_#{MD5.hexdigest(name)}"
+        "pg_search_#{Digest::SHA2.hexdigest(name)}"
       end
     end
   end

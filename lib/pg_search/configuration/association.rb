@@ -1,3 +1,5 @@
+require "digest"
+
 module PgSearch
   class Configuration
     class Association
@@ -25,7 +27,7 @@ module PgSearch
       
       def subselect_alias
         subselect_name = ["pg_search", table_name, @name, "subselect"].compact.join('_')
-        "pg_search_#{MD5.hexdigest(subselect_name)}"
+        "pg_search_#{Digest::SHA2.hexdigest(subselect_name)}"
       end
     end
   end
