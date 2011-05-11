@@ -43,14 +43,15 @@ module PgSearch
       end.join(' ')
     end
 
+    FEATURE_CLASSES = {
+      :dmetaphone => Features::DMetaphone,
+      :tsearch => Features::TSearch,
+      :trigram => Features::Trigram
+    }
+
     def feature_for(feature_name)
       feature_name = feature_name.to_sym
-
-      feature_class = {
-        :dmetaphone => Features::DMetaphone,
-        :tsearch => Features::TSearch,
-        :trigram => Features::Trigram
-      }[feature_name]
+      feature_class = FEATURE_CLASSES[feature_name]
 
       raise ArgumentError.new("Unknown feature: #{feature_name}") unless feature_class
 
