@@ -45,9 +45,7 @@ RSpec.configure do |config|
   config.extend WithModel
 end
 
-if defined?(ActiveRecord::Relation)
-  RSpec::Matchers::OperatorMatcher.register(ActiveRecord::Relation, '=~', RSpec::Matchers::MatchArray)
-end
+RSpec::Matchers::OperatorMatcher.register(ActiveRecord::Relation, '=~', RSpec::Matchers::MatchArray)
 
 require 'irb'
 
