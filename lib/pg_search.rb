@@ -12,15 +12,10 @@ module PgSearch
 
   module ClassMethods
     def pg_search_scope(name, options)
-      scope = PgSearch::Scope.new(name, self, options)
-      scope_method =
-        if respond_to?(:scope) && !protected_methods.include?('scope')
-          :scope # ActiveRecord 3.x
-        else
-          :named_scope # ActiveRecord 2.x
-        end
-
-      send(scope_method, name, scope.to_proc)
+      self.scope(
+        name,
+        PgSearch::Scope.new(name, self, options).to_proc
+      )
     end
   end
 
