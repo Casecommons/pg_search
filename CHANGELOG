@@ -1,3 +1,7 @@
+### 1.0
+
+ * Drop Active Record 2.0 support.
+
 ### 0.2
 
  * Set dictionary to :simple by default for :tsearch. Before it was unset,

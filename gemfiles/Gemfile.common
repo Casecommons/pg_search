@@ -1,9 +1,0 @@
-source "http://rubygems.org"
-
-gem "pg"
-
-group :test do
-  gem "rspec", ">=2.4"
-  gem "autotest"
-  gem "with_model"
-end

@@ -3,37 +3,21 @@ Bundler::GemHelper.install_tasks
 
 task :default => :spec
 
-environments = %w[rails2 rails3]
-major, minor, revision = RUBY_VERSION.split(".").map{|str| str.to_i }
-
-in_environment = lambda do |environment, command|
-  sh %Q{export BUNDLE_GEMFILE="gemfiles/#{environment}/Gemfile"; bundle update && bundle exec #{command}}
+def bundle_exec(command)
+  sh %Q{bundle update && bundle exec #{command}}
 end
 
-in_all_environments = lambda do |command|
-  environments.each do |environment|
-    next if environment == "rails2" && major == 1 && minor > 8
-    puts "\n---#{environment}---\n"
-    in_environment.call(environment, command)
-  end
-end
-
-desc "Run all specs against ActiveRecord 2 and 3"
+desc "Run all specs"
 task "spec" do
-  in_all_environments.call('rspec spec')
+  bundle_exec("rspec spec")
 end
 
 task "doc" do
-  in_environment.call("rails3", "rspec --format d spec")
+  bundle_exec("rspec --format d spec")
 end
 
-namespace "autotest" do
-  environments.each do |environment|
-    desc "Run autotest in #{environment}"
-    task environment do
-      in_environment.call(environment, 'autotest -s rspec2')
-    end
-  end
+task "autotest" do
+  bundle_exec("autotest -s rspec2")
 end
 
 namespace "doc" do

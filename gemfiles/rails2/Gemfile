@@ -1,4 +1,0 @@
-filename = File.join(File.dirname(__FILE__), '..', 'Gemfile.common')
-eval(File.read(filename), binding, filename, 1)
-
-gem "activerecord", "~>2.3.5"
