@@ -8,9 +8,7 @@ require "pg_search/version"
 #require "pg_search/railtie" if defined?(Rails) && defined?(Rails::Railtie)
 
 module PgSearch
-  def self.included(base)
-    base.send(:extend, ClassMethods)
-  end
+  extend ActiveSupport::Concern
 
   module ClassMethods
     def pg_search_scope(name, options)
@@ -26,7 +24,9 @@ module PgSearch
     end
   end
 
-  def rank
-    attributes['pg_search_rank'].to_f
+  module InstanceMethods
+    def rank
+      attributes['pg_search_rank'].to_f
+    end
   end
 end
