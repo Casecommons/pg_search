@@ -603,4 +603,35 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
   end
+
+  describe ".multisearchable" do
+    with_model :model_that_is_multisearchable do
+      table do |t|
+      end
+      model do
+        include PgSearch
+        multisearchable
+      end
+    end
+
+    with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
+
+    describe "a model that is multisearchable" do
+      subject { ModelThatIsMultisearchable }
+
+      describe "callbacks" do
+        describe "after_create" do
+          it "should add a search index row" do
+            record = ModelThatIsMultisearchable.new
+            lambda {
+              record.save!
+            }.should change(PgSearch::Document, :count).by(1)
+
+            index_entry = PgSearch::Document.last
+            index_entry.searchable.should == record
+          end
+        end
+      end
+    end
+  end
 end
