@@ -15,7 +15,7 @@ module PgSearch
     end
 
     module InstanceMethods
-      def search_text
+      def pg_search_text
       end
     end
   end

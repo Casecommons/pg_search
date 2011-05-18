@@ -4,7 +4,7 @@ module PgSearch
     belongs_to :searchable, :polymorphic => true
 
     before_validation do
-      self.content = searchable.search_text
+      self.content = searchable.pg_search_text
     end
   end
 end

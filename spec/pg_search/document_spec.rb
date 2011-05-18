@@ -20,7 +20,7 @@ describe PgSearch::Document do
       let(:searchable) { Searchable.new }
       let(:text) { double(:text) }
       before do
-        searchable.stub!(:search_text => text)
+        searchable.stub!(:pg_search_text => text)
         document.valid?
       end
 
