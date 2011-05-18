@@ -21,13 +21,20 @@ module PgSearch
     end
 
     def multisearchable
-      self.after_create :create_pg_search_document
+      has_one :pg_search_document,
+        :as => :searchable,
+        :class_name => "PgSearch::Document",
+        :dependent => :delete
+      after_create :create_pg_search_document
     end
   end
 
   module InstanceMethods
     def rank
       attributes['pg_search_rank'].to_f
+    end
+
+    def search_text
     end
 
     private

@@ -49,6 +49,7 @@ RSpec::Matchers::OperatorMatcher.register(ActiveRecord::Relation, '=~', RSpec::M
 
 DOCUMENTS_SCHEMA = lambda do |t|
   t.belongs_to :searchable, :polymorphic => true
+  t.text :content
 end
 
 require 'irb'

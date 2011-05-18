@@ -621,14 +621,34 @@ describe "an ActiveRecord model which includes PgSearch" do
 
       describe "callbacks" do
         describe "after_create" do
-          it "should add a search index row" do
-            record = ModelThatIsMultisearchable.new
-            lambda {
-              record.save!
-            }.should change(PgSearch::Document, :count).by(1)
+          let(:record) { ModelThatIsMultisearchable.new }
 
-            index_entry = PgSearch::Document.last
-            index_entry.searchable.should == record
+          describe "saving the record" do
+            subject do
+              lambda { record.save! }
+            end
+
+            it { should change(PgSearch::Document, :count).by(1) }
+          end
+
+          describe "the document" do
+            subject { document }
+            before { record.save! }
+            let(:document) { PgSearch::Document.last }
+
+            its(:searchable) { should == record }
+          end
+        end
+
+        describe "after_destroy" do
+          it "should remove a search index row" do
+            record = ModelThatIsMultisearchable.create!
+            document = PgSearch::Document.last
+            document.searchable.should == record
+
+            lambda { record.destroy }.should change(PgSearch::Document, :count).by(-1)
+
+            lambda { document.reload }.should raise_error(ActiveRecord::RecordNotFound)
           end
         end
       end
