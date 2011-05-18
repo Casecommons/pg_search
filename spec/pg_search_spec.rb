@@ -640,15 +640,24 @@ describe "an ActiveRecord model which includes PgSearch" do
           end
         end
 
-        describe "after_destroy" do
-          it "should remove a search index row" do
+        describe "after_update" do
+          it "should touch its document" do
             record = ModelThatIsMultisearchable.create!
-            document = PgSearch::Document.last
-            document.searchable.should == record
+
+            record.pg_search_document.should_receive(:save)
+            lambda { record.save! }.should_not change(PgSearch::Document, :count)
+          end
+        end
+
+        describe "after_destroy" do
+          it "should remove its document" do
+            record = ModelThatIsMultisearchable.create!
+            document = record.pg_search_document
 
             lambda { record.destroy }.should change(PgSearch::Document, :count).by(-1)
-
-            lambda { document.reload }.should raise_error(ActiveRecord::RecordNotFound)
+            lambda {
+              PgSearch::Document.find(document.id)
+            }.should raise_error(ActiveRecord::RecordNotFound)
           end
         end
       end

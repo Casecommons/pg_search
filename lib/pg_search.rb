@@ -2,6 +2,7 @@ require "active_record"
 require "pg_search/configuration"
 require "pg_search/document"
 require "pg_search/features"
+require "pg_search/multisearchable"
 require "pg_search/normalizer"
 require "pg_search/scope"
 require "pg_search/scope_options"
@@ -21,26 +22,13 @@ module PgSearch
     end
 
     def multisearchable
-      has_one :pg_search_document,
-        :as => :searchable,
-        :class_name => "PgSearch::Document",
-        :dependent => :delete
-      after_create :create_pg_search_document
+      include PgSearch::Multisearchable
     end
   end
 
   module InstanceMethods
     def rank
       attributes['pg_search_rank'].to_f
-    end
-
-    def search_text
-    end
-
-    private
-
-    def create_pg_search_document
-      PgSearch::Document.create!(:searchable => self)
     end
   end
 end
