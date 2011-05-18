@@ -49,6 +49,10 @@ module PgSearch
       Array(@options[:using])
     end
 
+    def order_within_rank
+      @options[:order_within_rank]
+    end
+
     private
 
     def default_options
@@ -56,7 +60,7 @@ module PgSearch
     end
 
     def assert_valid_options(options)
-      valid_keys = [:against, :ranked_by, :ignoring, :using, :query, :associated_against]
+      valid_keys = [:against, :ranked_by, :ignoring, :using, :query, :associated_against, :order_within_rank]
       valid_values = {
         :ignoring => [:accents]
       }
