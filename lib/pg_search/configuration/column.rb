@@ -34,8 +34,7 @@ module PgSearch
       end
 
       def alias
-        name = [association.subselect_alias, @column_name].compact.join('_')
-        "pg_search_#{Digest::SHA2.hexdigest(name)}"
+        Configuration.alias(association.subselect_alias, @column_name)
       end
     end
   end

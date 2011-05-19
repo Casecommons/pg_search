@@ -10,6 +10,14 @@ module PgSearch
       @model = model
     end
 
+    class << self
+      def alias(*strings)
+        name = Array.wrap(strings).compact.join("_")
+        # By default, PostgreSQL limits names to 32 characters, so we hash and limit to 32 characters.
+        "pg_search_#{Digest::SHA2.hexdigest(name)}"[0,32]
+      end
+    end
+
     def columns
       regular_columns + associated_columns
     end
