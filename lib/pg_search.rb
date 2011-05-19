@@ -1,6 +1,5 @@
 require "active_record"
 require "pg_search/configuration"
-require "pg_search/document"
 require "pg_search/features"
 require "pg_search/multisearchable"
 require "pg_search/normalizer"
@@ -21,8 +20,10 @@ module PgSearch
       )
     end
 
-    def multisearchable
+    def multisearchable(options = {})
       include PgSearch::Multisearchable
+      class_attribute :pg_search_multisearchable_options
+      self.pg_search_multisearchable_options = options
     end
   end
 
@@ -31,4 +32,12 @@ module PgSearch
       attributes['pg_search_rank'].to_f
     end
   end
+
+  class << self
+    def multisearch(query)
+      PgSearch::Document.search(query)
+    end
+  end
 end
+
+require "pg_search/document"

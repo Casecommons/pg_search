@@ -7,7 +7,7 @@ describe PgSearch::Document do
     table
     model do
       include PgSearch
-      multisearchable
+      multisearchable({})
     end
   end
 
@@ -18,13 +18,32 @@ describe PgSearch::Document do
       subject { document }
       let(:document) { PgSearch::Document.new(:searchable => searchable) }
       let(:searchable) { Searchable.new }
-      let(:text) { double(:text) }
+
       before do
-        searchable.stub!(:pg_search_text => text)
-        document.valid?
+        # Redefine the options for multisearchable
+        Searchable.multisearchable(multisearchable_options)
       end
 
-      its(:content) { should == text }
+      context "when searching against a single column" do
+        let(:multisearchable_options) { {:against => :some_content} }
+        let(:text) { "foo bar" }
+        before do
+          searchable.stub!(:some_content => text)
+          document.valid?
+        end
+
+        its(:content) { should == text }
+      end
+
+      context "when searching against multiple columns" do
+        let(:multisearchable_options) { {:against => [:attr1, :attr2]} }
+        before do
+          searchable.stub!(:attr1 => "1", :attr2 => "2")
+          document.valid?
+        end
+
+        its(:content) { should == "1 2" }
+      end
     end
   end
 end

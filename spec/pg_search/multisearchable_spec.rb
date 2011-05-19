@@ -37,11 +37,22 @@ describe PgSearch::Multisearchable do
       end
 
       describe "after_update" do
-        it "should touch its document" do
-          record = ModelThatIsMultisearchable.create!
+        let(:record) { ModelThatIsMultisearchable.create! }
 
-          record.pg_search_document.should_receive(:save)
-          lambda { record.save! }.should_not change(PgSearch::Document, :count)
+        context "when the document is present" do
+          it "should touch its document" do
+            record.pg_search_document.should_receive(:save)
+            lambda { record.save! }.should_not change(PgSearch::Document, :count)
+          end
+        end
+
+        context "when the document is missing" do
+          before { record.pg_search_document = nil }
+          subject do
+            lambda { record.save! }
+          end
+
+          it { should change(PgSearch::Document, :count).by(1) }
         end
       end
 
