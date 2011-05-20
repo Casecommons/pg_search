@@ -41,3 +41,4 @@ module PgSearch
 end
 
 require "pg_search/document"
+require "pg_search/multisearch"
