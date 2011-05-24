@@ -124,11 +124,11 @@ You can pass a Hash into the :associated_against option to search columns on oth
 
 === Searching using different search features
 
-By default, pg_search_scope uses the built-in {PostgreSQL text search}[http://www.postgresql.org/docs/current/static/textsearch-intro.html]. If you pass the :features option to pg_search_scope, you can choose alternative search techniques.
+By default, pg_search_scope uses the built-in {PostgreSQL text search}[http://www.postgresql.org/docs/current/static/textsearch-intro.html]. If you pass the :using option to pg_search_scope, you can choose alternative search techniques.
 
   class Beer < ActiveRecord::Base
     include PgSearch
-    pg_search_scope :search_name, :against => :name, :features => [:tsearch, :trigram, :dmetaphone]
+    pg_search_scope :search_name, :against => :name, :using => [:tsearch, :trigram, :dmetaphone]
   end
 
 The currently implemented features are
