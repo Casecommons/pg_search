@@ -603,4 +603,28 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
   end
+
+  describe ".multisearchable" do
+    it "should include the Multisearchable module" do
+      ModelWithPgSearch.should_receive(:include).with(PgSearch::Multisearchable)
+      ModelWithPgSearch.multisearchable
+    end
+
+    it "should set pg_search_multisearchable_options on the class" do
+      options = double(:options)
+      ModelWithPgSearch.multisearchable(options)
+      ModelWithPgSearch.pg_search_multisearchable_options.should == options
+    end
+  end
+
+  describe ".multisearch" do
+    subject { PgSearch.multisearch(query) }
+    let(:query) { double(:query) }
+    let(:relation) { double(:relation) }
+    before do
+      PgSearch::Document.should_receive(:search).with(query).and_return(relation)
+    end
+
+    it { should == relation }
+  end
 end
