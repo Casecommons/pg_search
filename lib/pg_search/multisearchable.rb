@@ -11,8 +11,8 @@ module PgSearch
         :class_name => "PgSearch::Document",
         :dependent => :delete
 
-      after_create :create_pg_search_document
-      after_update :update_pg_search_document
+      after_create :create_pg_search_document, :unless => lambda { !PgSearch.multisearch_enabled? }
+      after_update :update_pg_search_document, :unless => lambda { !PgSearch.multisearch_enabled? }
     end
 
     module InstanceMethods

@@ -37,6 +37,16 @@ module PgSearch
     def multisearch(query)
       PgSearch::Document.search(query)
     end
+
+    def disable_multisearch
+      Thread.current["PgSearch.enable_multisearch"] = false
+      yield
+      Thread.current["PgSearch.enable_multisearch"] = true
+    end
+
+    def multisearch_enabled?
+      Thread.current.key?("PgSearch.enable_multisearch") ? Thread.current["PgSearch.enable_multisearch"] : true
+    end
   end
 end
 

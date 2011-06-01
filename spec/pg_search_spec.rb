@@ -627,4 +627,42 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     it { should == relation }
   end
+
+  describe ".disable_multisearch" do
+    it "should temporarily disable multisearch" do
+      @multisearch_enabled_before = PgSearch.multisearch_enabled?
+      PgSearch.disable_multisearch do
+        @multisearch_enabled_inside = PgSearch.multisearch_enabled?
+      end
+      @multisearch_enabled_after = PgSearch.multisearch_enabled?
+
+      @multisearch_enabled_before.should be(true)
+      @multisearch_enabled_inside.should be(false)
+      @multisearch_enabled_after.should be(true)
+    end
+
+    it "should not disable multisearch on other threads" do
+      values = Queue.new
+      sync = Queue.new
+      Thread.new do
+        values.push PgSearch.multisearch_enabled?
+        sync.pop # wait
+        values.push PgSearch.multisearch_enabled?
+        sync.pop # wait
+        values.push PgSearch.multisearch_enabled?
+      end
+
+      @multisearch_enabled_before = values.pop
+      PgSearch.disable_multisearch do
+        sync.push :go
+        @multisearch_enabled_inside = values.pop
+      end
+      sync.push :go
+      @multisearch_enabled_after = values.pop
+
+      @multisearch_enabled_before.should be(true)
+      @multisearch_enabled_inside.should be(true)
+      @multisearch_enabled_after.should be(true)
+    end
+  end
 end

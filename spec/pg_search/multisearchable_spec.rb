@@ -3,6 +3,8 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe PgSearch::Multisearchable do
   with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
+  before { PgSearch.stub(:multisearch_enabled?) { true } }
+
   describe "a model that is multisearchable" do
     subject { ModelThatIsMultisearchable }
 
@@ -24,7 +26,15 @@ describe PgSearch::Multisearchable do
             lambda { record.save! }
           end
 
-          it { should change(PgSearch::Document, :count).by(1) }
+          context "with multisearch enabled" do
+            before { PgSearch.stub(:multisearch_enabled?) { true } }
+            it { should change(PgSearch::Document, :count).by(1) }
+          end
+
+          context "with multisearch disabled" do
+            before { PgSearch.stub(:multisearch_enabled?) { false } }
+            it { should_not change(PgSearch::Document, :count) }
+          end
         end
 
         describe "the document" do
@@ -37,22 +47,48 @@ describe PgSearch::Multisearchable do
       end
 
       describe "after_update" do
-        let(:record) { ModelThatIsMultisearchable.create! }
+        let!(:record) { ModelThatIsMultisearchable.create! }
 
         context "when the document is present" do
-          it "should touch its document" do
-            record.pg_search_document.should_receive(:save)
-            lambda { record.save! }.should_not change(PgSearch::Document, :count)
+          describe "saving the record" do
+            subject do
+              lambda { record.save! }
+            end
+
+            context "with multisearch enabled" do
+              before { PgSearch.stub(:multisearch_enabled?) { true } }
+
+              before { record.pg_search_document.should_receive(:save) }
+              it { should_not change(PgSearch::Document, :count) }
+            end
+
+            context "with multisearch disabled" do
+              before { PgSearch.stub(:multisearch_enabled?) { false } }
+
+              before { record.pg_search_document.should_not_receive(:save) }
+              it { should_not change(PgSearch::Document, :count) }
+            end
           end
         end
 
         context "when the document is missing" do
           before { record.pg_search_document = nil }
-          subject do
-            lambda { record.save! }
-          end
 
-          it { should change(PgSearch::Document, :count).by(1) }
+          describe "saving the record" do
+            subject do
+              lambda { record.save! }
+            end
+
+            context "with multisearch enabled" do
+              before { PgSearch.stub(:multisearch_enabled?) { true } }
+              it { should change(PgSearch::Document, :count).by(1) }
+            end
+
+            context "with multisearch disabled" do
+              before { PgSearch.stub(:multisearch_enabled?) { false } }
+              it { should_not change(PgSearch::Document, :count) }
+            end
+          end
         end
       end
 
