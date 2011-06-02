@@ -641,6 +641,23 @@ describe "an ActiveRecord model which includes PgSearch" do
       @multisearch_enabled_after.should be(true)
     end
 
+    it "should reenable multisearch after an error" do
+      @multisearch_enabled_before = PgSearch.multisearch_enabled?
+      begin
+        PgSearch.disable_multisearch do
+          @multisearch_enabled_inside = PgSearch.multisearch_enabled?
+          raise
+        end
+      rescue
+      end
+
+      @multisearch_enabled_after = PgSearch.multisearch_enabled?
+
+      @multisearch_enabled_before.should be(true)
+      @multisearch_enabled_inside.should be(false)
+      @multisearch_enabled_after.should be(true)
+    end
+
     it "should not disable multisearch on other threads" do
       values = Queue.new
       sync = Queue.new

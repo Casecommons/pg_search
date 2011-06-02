@@ -41,6 +41,7 @@ module PgSearch
     def disable_multisearch
       Thread.current["PgSearch.enable_multisearch"] = false
       yield
+    ensure
       Thread.current["PgSearch.enable_multisearch"] = true
     end
 
