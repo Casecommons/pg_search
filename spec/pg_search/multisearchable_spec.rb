@@ -8,7 +8,7 @@ describe PgSearch::Multisearchable do
   describe "a model that is multisearchable" do
     subject { ModelThatIsMultisearchable }
 
-    with_model :model_that_is_multisearchable do
+    with_model :ModelThatIsMultisearchable do
       table do |t|
       end
       model do

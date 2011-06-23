@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe PgSearch::Document do
   with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
-  with_model :searchable do
+  with_model :Searchable do
     table
     model do
       include PgSearch

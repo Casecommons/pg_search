@@ -4,13 +4,13 @@ describe PgSearch do
   context "joining to another table" do
     context "with Arel support" do
       context "without an :against" do
-        with_model :associated_model do
+        with_model :AssociatedModel do
           table do |t|
             t.string "title"
           end
         end
 
-        with_model :model_without_against do
+        with_model :ModelWithoutAgainst do
           table do |t|
             t.string "title"
             t.belongs_to :another_model
@@ -25,29 +25,29 @@ describe PgSearch do
         end
 
         it "returns rows that match the query in the columns of the associated model only" do
-          associated = associated_model.create!(:title => 'abcdef')
+          associated = AssociatedModel.create!(:title => 'abcdef')
           included = [
-            model_without_against.create!(:title => 'abcdef', :another_model => associated),
-            model_without_against.create!(:title => 'ghijkl', :another_model => associated)
+            ModelWithoutAgainst.create!(:title => 'abcdef', :another_model => associated),
+            ModelWithoutAgainst.create!(:title => 'ghijkl', :another_model => associated)
           ]
           excluded = [
-            model_without_against.create!(:title => 'abcdef')
+            ModelWithoutAgainst.create!(:title => 'abcdef')
           ]
 
-          results = model_without_against.with_another('abcdef')
+          results = ModelWithoutAgainst.with_another('abcdef')
           results.map(&:title).should =~ included.map(&:title)
           results.should_not include(excluded)
         end
       end
 
       context "through a belongs_to association" do
-        with_model :associated_model do
+        with_model :AssociatedModel do
           table do |t|
             t.string 'title'
           end
         end
 
-        with_model :model_with_belongs_to do
+        with_model :ModelWithBelongsTo do
           table do |t|
             t.string 'title'
             t.belongs_to 'another_model'
@@ -62,36 +62,36 @@ describe PgSearch do
         end
 
         it "returns rows that match the query in either its own columns or the columns of the associated model" do
-          associated = associated_model.create!(:title => 'abcdef')
+          associated = AssociatedModel.create!(:title => 'abcdef')
           included = [
-            model_with_belongs_to.create!(:title => 'ghijkl', :another_model => associated),
-            model_with_belongs_to.create!(:title => 'abcdef')
+            ModelWithBelongsTo.create!(:title => 'ghijkl', :another_model => associated),
+            ModelWithBelongsTo.create!(:title => 'abcdef')
           ]
-          excluded = model_with_belongs_to.create!(:title => 'mnopqr',
-                                                   :another_model => associated_model.create!(:title => 'stuvwx'))
+          excluded = ModelWithBelongsTo.create!(:title => 'mnopqr',
+                                                   :another_model => AssociatedModel.create!(:title => 'stuvwx'))
 
-          results = model_with_belongs_to.with_associated('abcdef')
+          results = ModelWithBelongsTo.with_associated('abcdef')
           results.map(&:title).should =~ included.map(&:title)
           results.should_not include(excluded)
         end
       end
 
       context "through a has_many association" do
-        with_model :associated_model_with_has_many do
+        with_model :AssociatedModelWithHasMany do
           table do |t|
             t.string 'title'
-            t.belongs_to 'model_with_has_many'
+            t.belongs_to 'ModelWithHasMany'
           end
         end
 
-        with_model :model_with_has_many do
+        with_model :ModelWithHasMany do
           table do |t|
             t.string 'title'
           end
 
           model do
             include PgSearch
-            has_many :other_models, :class_name => 'AssociatedModelWithHasMany', :foreign_key => 'model_with_has_many_id'
+            has_many :other_models, :class_name => 'AssociatedModelWithHasMany', :foreign_key => 'ModelWithHasMany_id'
 
             pg_search_scope :with_associated, :against => [:title], :associated_against => {:other_models => :title}
           end
@@ -99,21 +99,21 @@ describe PgSearch do
 
         it "returns rows that match the query in either its own columns or the columns of the associated model" do
           included = [
-            model_with_has_many.create!(:title => 'abcdef', :other_models => [
-                                        associated_model_with_has_many.create!(:title => 'foo'),
-                                        associated_model_with_has_many.create!(:title => 'bar')
+            ModelWithHasMany.create!(:title => 'abcdef', :other_models => [
+                                        AssociatedModelWithHasMany.create!(:title => 'foo'),
+                                        AssociatedModelWithHasMany.create!(:title => 'bar')
           ]),
-            model_with_has_many.create!(:title => 'ghijkl', :other_models => [
-                                        associated_model_with_has_many.create!(:title => 'foo bar'),
-                                        associated_model_with_has_many.create!(:title => 'mnopqr')
+            ModelWithHasMany.create!(:title => 'ghijkl', :other_models => [
+                                        AssociatedModelWithHasMany.create!(:title => 'foo bar'),
+                                        AssociatedModelWithHasMany.create!(:title => 'mnopqr')
           ]),
-            model_with_has_many.create!(:title => 'foo bar')
+            ModelWithHasMany.create!(:title => 'foo bar')
           ]
-          excluded = model_with_has_many.create!(:title => 'stuvwx', :other_models => [
-                                                 associated_model_with_has_many.create!(:title => 'abcdef')
+          excluded = ModelWithHasMany.create!(:title => 'stuvwx', :other_models => [
+                                                 AssociatedModelWithHasMany.create!(:title => 'abcdef')
           ])
 
-          results = model_with_has_many.with_associated('foo bar')
+          results = ModelWithHasMany.with_associated('foo bar')
           results.map(&:title).should =~ included.map(&:title)
           results.should_not include(excluded)
         end
@@ -121,22 +121,22 @@ describe PgSearch do
 
       context "across multiple associations" do
         context "on different tables" do
-          with_model :first_associated_model do
+          with_model :FirstAssociatedModel do
             table do |t|
               t.string 'title'
-              t.belongs_to 'model_with_many_associations'
+              t.belongs_to 'ModelWithManyAssociations'
             end
             model {}
           end
 
-          with_model :second_associated_model do
+          with_model :SecondAssociatedModel do
             table do |t|
               t.string 'title'
             end
             model {}
           end
 
-          with_model :model_with_many_associations do
+          with_model :ModelWithManyAssociations do
             table do |t|
               t.string 'title'
               t.belongs_to 'model_of_second_type'
@@ -144,7 +144,7 @@ describe PgSearch do
 
             model do
               include PgSearch
-              has_many :models_of_first_type, :class_name => 'FirstAssociatedModel', :foreign_key => 'model_with_many_associations_id'
+              has_many :models_of_first_type, :class_name => 'FirstAssociatedModel', :foreign_key => 'ModelWithManyAssociations_id'
               belongs_to :model_of_second_type, :class_name => 'SecondAssociatedModel'
 
               pg_search_scope :with_associated, :against => :title,
@@ -153,24 +153,24 @@ describe PgSearch do
           end
 
           it "returns rows that match the query in either its own columns or the columns of the associated model" do
-            matching_second = second_associated_model.create!(:title => "foo bar")
-            unmatching_second = second_associated_model.create!(:title => "uiop")
+            matching_second = SecondAssociatedModel.create!(:title => "foo bar")
+            unmatching_second = SecondAssociatedModel.create!(:title => "uiop")
 
             included = [
               ModelWithManyAssociations.create!(:title => 'abcdef', :models_of_first_type => [
-                                                first_associated_model.create!(:title => 'foo'),
-                                                first_associated_model.create!(:title => 'bar')
+                                                FirstAssociatedModel.create!(:title => 'foo'),
+                                                FirstAssociatedModel.create!(:title => 'bar')
             ]),
               ModelWithManyAssociations.create!(:title => 'ghijkl', :models_of_first_type => [
-                                                first_associated_model.create!(:title => 'foo bar'),
-                                                first_associated_model.create!(:title => 'mnopqr')
+                                                FirstAssociatedModel.create!(:title => 'foo bar'),
+                                                FirstAssociatedModel.create!(:title => 'mnopqr')
             ]),
               ModelWithManyAssociations.create!(:title => 'foo bar'),
               ModelWithManyAssociations.create!(:title => 'qwerty', :model_of_second_type => matching_second)
             ]
             excluded = [
               ModelWithManyAssociations.create!(:title => 'stuvwx', :models_of_first_type => [
-                                                first_associated_model.create!(:title => 'abcdef')
+                                                FirstAssociatedModel.create!(:title => 'abcdef')
             ]),
               ModelWithManyAssociations.create!(:title => 'qwerty', :model_of_second_type => unmatching_second)
             ]
@@ -182,24 +182,24 @@ describe PgSearch do
         end
 
         context "on the same table" do
-          with_model :doubly_associated_model do
+          with_model :DoublyAssociatedModel do
             table do |t|
               t.string 'title'
-              t.belongs_to 'model_with_double_association'
-              t.belongs_to 'model_with_double_association_again'
+              t.belongs_to 'ModelWithDoubleAssociation'
+              t.belongs_to 'ModelWithDoubleAssociation_again'
             end
             model {}
           end
 
-          with_model :model_with_double_association do
+          with_model :ModelWithDoubleAssociation do
             table do |t|
               t.string 'title'
             end
 
             model do
               include PgSearch
-              has_many :things, :class_name => 'DoublyAssociatedModel', :foreign_key => 'model_with_double_association_id'
-              has_many :thingamabobs, :class_name => 'DoublyAssociatedModel', :foreign_key => 'model_with_double_association_again_id'
+              has_many :things, :class_name => 'DoublyAssociatedModel', :foreign_key => 'ModelWithDoubleAssociation_id'
+              has_many :thingamabobs, :class_name => 'DoublyAssociatedModel', :foreign_key => 'ModelWithDoubleAssociation_again_id'
 
               pg_search_scope :with_associated, :against => :title,
                 :associated_against => {:things => :title, :thingamabobs => :title}
@@ -238,14 +238,14 @@ describe PgSearch do
       end
 
       context "against multiple attributes on one association" do
-        with_model :associated_model do
+        with_model :AssociatedModel do
           table do |t|
             t.string 'title'
             t.text 'author'
           end
         end
 
-        with_model :model_with_association do
+        with_model :ModelWithAssociation do
           table do |t|
             t.belongs_to 'another_model'
           end

@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe PgSearch::Multisearch do
   with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
-  with_model :multisearchable_model do
+  with_model :MultisearchableModel do
     table do |t|
       t.string :title
       t.text :content
