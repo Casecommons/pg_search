@@ -55,9 +55,22 @@ module PgSearch
           search_column.weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
         end.join(" || ")
       end
+      
+      # From http://www.postgresql.org/docs/8.3/static/textsearch-controls.html
+      #   0 (the default) ignores the document length
+      #   1 divides the rank by 1 + the logarithm of the document length
+      #   2 divides the rank by the document length
+      #   4 divides the rank by the mean harmonic distance between extents (this is implemented only by ts_rank_cd)
+      #   8 divides the rank by the number of unique words in document
+      #   16 divides the rank by 1 + the logarithm of the number of unique words in document
+      #   32 divides the rank by itself + 1
+      # The integer option controls several behaviors, so it is a bit mask: you can specify one or more behaviors
+      def normalization_option
+        @options[:normalization_option] || 0
+      end
 
       def tsearch_rank
-        ["ts_rank((#{tsdocument}), (#{tsquery}))", interpolations]
+        ["ts_rank((#{tsdocument}), (#{tsquery}), #{normalization_option})", interpolations]
       end
 
       def dictionary
