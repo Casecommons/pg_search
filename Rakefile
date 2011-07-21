@@ -24,6 +24,6 @@ end
 namespace "doc" do
   desc "Generate README and preview in browser"
   task "readme" do
-    sh "rdoc -c utf8 README.rdoc && open doc/files/README_rdoc.html"
+    sh "rdoc -c utf8 README.rdoc && open doc/README_rdoc.html"
   end
 end
