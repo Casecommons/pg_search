@@ -52,3 +52,5 @@ require "pg_search/normalizer"
 require "pg_search/scope"
 require "pg_search/scope_options"
 require "pg_search/version"
+
+require "pg_search/railtie" if defined?(Rails)

@@ -18,6 +18,12 @@ In Gemfile
 
  gem 'pg_search'
 
+=== Other ActiveRecord-based projects
+
+In addition to installing and requiring the gem, you may want to include the PgSearch rake tasks in your Rakefile:
+
+ load "pg_search/tasks.rb"
+
 == USAGE
 
 To add PgSearch to an ActiveRecord model, simply include the PgSearch module.
@@ -221,11 +227,7 @@ PostgreSQL full text search also support multiple dictionaries for stemming. You
 
 {Double Metaphone}[http://en.wikipedia.org/wiki/Double_Metaphone] is an algorithm for matching words that sound alike even if they are spelled very differently. For example, "Geoff" and "Jeff" sound identical and thus match. Currently, this is not a true double-metaphone, as only the first metaphone is used for searching.
 
-Double Metaphone support is currently available as part of the {fuzzystrmatch contrib package}[http://www.postgresql.org/docs/current/static/fuzzystrmatch.html] that must be installed before this feature can be used. In addition to the contrib package, you must install a utility function into your database. To generate a migration for this, add the following line to your Rakefile:
-
-  include "pg_search/tasks"
-
-and then run:
+Double Metaphone support is currently available as part of the {fuzzystrmatch contrib package}[http://www.postgresql.org/docs/current/static/fuzzystrmatch.html] that must be installed before this feature can be used. In addition to the contrib package, you must install a utility function into your database. To generate a migration for this, run:
 
   $ rake pg_search:migration:dmetaphone
 
