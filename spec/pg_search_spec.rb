@@ -369,14 +369,14 @@ describe "an ActiveRecord model which includes PgSearch" do
           results.should =~ included
         end
       end
-      
+
       describe "ranking" do
         before do
           ["Strip Down", "Down", "Down and Out", "Won't Let You Down"].each do |name|
             ModelWithPgSearch.create! :content => name
           end
         end
-        
+
         context "with a normalization_option specified" do
           before do
             ModelWithPgSearch.class_eval do
@@ -389,12 +389,12 @@ describe "an ActiveRecord model which includes PgSearch" do
           end
           it "ranks the results for documents with less text higher" do
             results = ModelWithPgSearch.search_content_with_normalization("down")
-            
+
             results.map(&:content).should == ["Down", "Strip Down", "Down and Out", "Won't Let You Down"]
             results.first.rank.should be > results.last.rank
           end
         end
-        
+
         context "with no normalization_option" do
           before do
             ModelWithPgSearch.class_eval do
@@ -405,7 +405,7 @@ describe "an ActiveRecord model which includes PgSearch" do
           end
           it "ranks the results equally" do
             results = ModelWithPgSearch.search_content_without_normalization("down")
-            
+
             results.map(&:content).should == ["Strip Down", "Down", "Down and Out", "Won't Let You Down"]
             results.first.rank.should == results.last.rank
           end
@@ -460,6 +460,33 @@ describe "an ActiveRecord model which includes PgSearch" do
           results = ModelWithPgSearch.search_weighted('foo')
           results[0].rank.should > results[1].rank
           results.should == [winner, loser]
+        end
+      end
+
+      context "searching any_word option" do
+        before do
+          ModelWithPgSearch.class_eval do
+            pg_search_scope :search_title_with_any_word,
+                            :against => :title,
+                            :using => {
+                              :tsearch => {:any_word => true}
+                            }
+
+            pg_search_scope :search_title_with_all_words,
+                            :against => :title
+          end
+        end
+
+        it "returns all results containing any word in their title" do
+          numbers = %w(one two three four).map{|number| ModelWithPgSearch.create!(:title => number)}
+
+          results = ModelWithPgSearch.search_title_with_any_word("one two three four")
+
+          results.map(&:title).should == %w(one two three four)
+
+          results = ModelWithPgSearch.search_title_with_all_words("one two three four")
+
+          results.map(&:title).should == []
         end
       end
     end

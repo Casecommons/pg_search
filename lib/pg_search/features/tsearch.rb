@@ -46,7 +46,7 @@ module PgSearch
           tsquery_sql = "#{tsquery_sql} || #{connection.quote(':*')}" if @options[:prefix]
 
           "to_tsquery(:dictionary, #{tsquery_sql})"
-        end.join(" && ")
+        end.join(@options[:any_word] ? ' || ' : ' && ')
       end
 
       def tsdocument
@@ -55,7 +55,7 @@ module PgSearch
           search_column.weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
         end.join(" || ")
       end
-      
+
       # From http://www.postgresql.org/docs/8.3/static/textsearch-controls.html
       #   0 (the default) ignores the document length
       #   1 divides the rank by 1 + the logarithm of the document length
