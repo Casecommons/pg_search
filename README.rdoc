@@ -223,6 +223,29 @@ PostgreSQL full text search also support multiple dictionaries for stemming. You
   BoringTweet.kinda_matching("sleeping") # => [sleepy, sleeping, sleeper]
   BoringTweet.literally_matching("sleeping") # => [sleeping]
 
+===== :any_word
+
+Setting this attribute to true will perform a search which will return all models containing any word in the search terms.
+
+  class Number < ActiveRecord::Base
+    include PgSearch
+    pg_search_scope :search_any_word,
+                    :against => :text,
+                    :using => {
+                      :tsearch => {:any_word => true}
+                    }
+
+    pg_search_scope :search_all_words,
+                    :against => :text
+  end
+
+  one = Number.create! :text => 'one'
+  two = Number.create! :text => 'two'
+  three = Number.create! :text => 'three'
+
+  Number.search_any_word('one two three') # => [one, two, three]
+  Number.search_all_words('one two three') # => []
+
 ==== :dmetaphone (Double Metaphone soundalike search)
 
 {Double Metaphone}[http://en.wikipedia.org/wiki/Double_Metaphone] is an algorithm for matching words that sound alike even if they are spelled very differently. For example, "Geoff" and "Jeff" sound identical and thus match. Currently, this is not a true double-metaphone, as only the first metaphone is used for searching.

@@ -46,7 +46,7 @@ module PgSearch
           tsquery_sql = "#{tsquery_sql} || #{connection.quote(':*')}" if @options[:prefix]
 
           "to_tsquery(:dictionary, #{tsquery_sql})"
-        end.join(" && ")
+        end.join(@options[:any_word] ? ' || ' : ' && ')
       end
 
       def tsdocument

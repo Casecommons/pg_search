@@ -462,6 +462,33 @@ describe "an ActiveRecord model which includes PgSearch" do
           results.should == [winner, loser]
         end
       end
+
+      context "searching any_word option" do
+        before do
+          ModelWithPgSearch.class_eval do
+            pg_search_scope :search_title_with_any_word,
+                            :against => :title,
+                            :using => {
+                              :tsearch => {:any_word => true}
+                            }
+
+            pg_search_scope :search_title_with_all_words,
+                            :against => :title
+          end
+        end
+
+        it "returns all results containing any word in their title" do
+          numbers = %w(one two three four).map{|number| ModelWithPgSearch.create!(:title => number)}
+
+          results = ModelWithPgSearch.search_title_with_any_word("one two three four")
+
+          results.map(&:title).should == %w(one two three four)
+
+          results = ModelWithPgSearch.search_title_with_all_words("one two three four")
+
+          results.map(&:title).should == []
+        end
+      end
     end
 
     context "using dmetaphone" do
