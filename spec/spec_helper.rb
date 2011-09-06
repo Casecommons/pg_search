@@ -4,7 +4,7 @@ require "pg_search"
 begin
   ActiveRecord::Base.establish_connection(:adapter  => 'postgresql',
                                           :database => 'pg_search_test',
-                                          :username => ('postgres' if ENV["TRAVIS"])
+                                          :username => ('postgres' if ENV["TRAVIS"]),
                                           :min_messages => 'warning')
   connection = ActiveRecord::Base.connection
   connection.execute("SELECT 1")
