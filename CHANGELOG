@@ -1,6 +1,14 @@
-### 1.0
+### 0.3
 
  * Drop Active Record 2.0 support.
+
+ * Add PgSearch.multisearch for cross-model searching.
+
+ * Fix PostgreSQL warnings about truncated identifiers
+
+ * Support specifying a method of rank normalisation when using tsearch. (Arthur Gunn)
+
+ * Add :any_word option to :tsearch which uses OR between query terms instead of AND. (Fernando Espinosa)
 
 ### 0.2
 
