@@ -311,6 +311,37 @@ PostgreSQL full text search also support multiple dictionaries for stemming. You
   BoringTweet.kinda_matching("sleeping") # => [sleepy, sleeping, sleeper]
   BoringTweet.literally_matching("sleeping") # => [sleeping]
 
+===== :normalization
+
+PostgreSQL supports multiple algorithms for ranking results against queries. For instance, you might want to consider overall document size or the distance between multiple search terms in the original text. This option takes an integer, which is passed directly to PostgreSQL. According to the latest {PostgreSQL documentation}[http://www.postgresql.org/docs/current/static/textsearch-controls.html], the supported algorithms are:
+
+ 0 (the default) ignores the document length
+ 1 divides the rank by 1 + the logarithm of the document length
+ 2 divides the rank by the document length
+ 4 divides the rank by the mean harmonic distance between extents
+ 8 divides the rank by the number of unique words in document
+ 16 divides the rank by 1 + the logarithm of the number of unique words in document
+ 32 divides the rank by itself + 1
+
+This integer is a bitmask, so if you want to combine algorithms, you can add their numbers together. (e.g. to use algorithms 1, 8, and 32, you would pass 1 + 8 + 32 = 41)
+
+  class BigLongDocument < ActiveRecord::Base
+    include PgSearch
+    pg_search_scope :regular_search,
+                    :against => :text
+
+    pg_search_scope :short_search,
+                    :against => :text,
+                    :using => {
+                      :tsearch => {:normalization => 2}
+                    }
+
+  long = BigLongDocument.create!(:text => "Four score and twenty years ago")
+  short = BigLongDocument.create!(:text => "Four score")
+
+  BigLongDocument.regular_search("four score") #=> [long, short]
+  BigLongDocument.short_search("four score") #=> [short, long]
+
 ===== :any_word
 
 Setting this attribute to true will perform a search which will return all models containing any word in the search terms.
