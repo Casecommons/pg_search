@@ -32,6 +32,94 @@ To add PgSearch to an ActiveRecord model, simply include the PgSearch module.
    include PgSearch
  end
 
+=== Multi-search vs. search scopes
+
+pg_search supports two different techniques for searching, multi-search and search scopes.
+
+The first technique is multi-search, in which records of many different Active Record classes can be mixed together into one global search index across your entire application. Most sites that want to support a generic search page will want to use this feature.
+
+The other technique is search scopes, which allow you to do more advanced searching against only one Active Record class. This is more useful for building things like autocompleters or filtering a list of items in a faceted search.
+
+=== Multi-search
+
+==== Setup
+
+Before using multi-search, you must generate and run a migration to create the pg_search_documents database table.
+
+ $ rake pg_search:migration:multisearch
+ $ rake db:migrate
+
+==== multisearchable
+
+To add a model to the global search index for your application, call multisearchable in its class definition.
+
+ class EpicPoem < ActiveRecord::Base
+   include PgSearch
+   multisearchable :against => [:title, :author]
+ end
+
+ class Flower < ActiveRecord::Base
+   include PgSearch
+   multisearchable :against => :color
+ end
+
+Whenever a record is created, updated, or destroyed, an Active Record callback will fire, leading to the creation of a corresponding PgSearch::Document record in the pg_search_documents table. The :against option can be one or several methods which will be called on the record to generate its search text.
+
+==== Multi-search associations
+
+Two associations are built automatically. On the original record, there is a has_one :pg_search_document association pointing to the PgSearch::Document record, and on the PgSearch::Document record there is a belongs_to :searchable polymorphic association pointing back to the original record.
+
+ odyssey = EpicPoem.create!(:title => "Odyssey", :author => "Homer")
+ search_document = odyssey.pg_search_document #=> PgSearch::Document instance
+ search_document.searchable #=> #<EpicPoem id: 1, title: "Odyssey", author: "Homer">
+
+==== Searching in the global search index
+
+To fetch the PgSearch::Document entries for all of the records that match a given query, use  PgSearch.multisearch.
+
+ odyssey = EpicPoem.create!(:title => "Odyssey", :author => "Homer")
+ rose = Flower.create!(:color => "Red")
+ PgSearch.multisearch("Homer") #=> [#<PgSearch::Document searchable: odyssey>]
+ PgSearch.multisearch("Red") #=> [#<PgSearch::Document searchable: rose>]
+
+==== Chaining method calls onto the results
+
+PgSearch.multisearch returns an ActiveRecord::Relation, just like scopes do, so you can chain scope calls to the end. This works with gems like Kaminari that add scope methods. Just like with regular scopes, the database will only receive SQL requests when necessary.
+
+ PgSearch.multisearch("Bertha").limit(10)
+ PgSearch.multisearch("Juggler").where(:searchable_type => "Occupation")
+ PgSearch.multisearch("Alamo").page(3).per_page(30)
+ PgSearch.mulitsearch("Diagonal").find_each do |document|
+   puts document.searchable.updated_at
+ end
+
+==== Rebuilding search documents for a given class
+
+If you change the :against option on a class, add multisearchable to a class that already has records in the database, or remove multisearchable from a class in order to remove it from the index, you will find that the pg_search_documents table could become out-of-sync with the actual records in your other tables.
+
+The index can also become out-of-sync if you ever modify records in a way that does not trigger Active Record callbacks. For instance, the #update_attribute instance method and the .update_all class method both skip callbacks and directly modify the database.
+
+To remove all of the documents for a given class, you can simply delete all of the PgSearch::Document records.
+
+ PgSearch::Document.delete_all(:searchable_type => "Animal")
+
+Run this Rake task to regenerate all of the documents for a given class.
+
+ $ rake pg_search:multisearch:rebuild CLASS=BlogPost
+
+Currently this is only supported for :against methods that directly map to Active Record attributes. Until that is fixed, you could also manually rebuild all of the documents.
+
+ PgSearch::Document.delete_all(:searchable_type => "Ingredient")
+ Ingredient.find_each { |record| record.update_pg_search_document }
+
+==== Disabling multi-search indexing temporarily
+
+If you have a large bulk operation to perform, such as importing a lot of records from an external source, you might want to speed things up by turning off indexing temporarily. You could then use one of the techniques above to rebuild the search documents off-line.
+
+ PgSearch.disable_multisearch do
+   Movie.import_from_xml_file(File.open("movies.xml"))
+ end
+
 === pg_search_scope
 
 You can use pg_search_scope to build a search scope. The first parameter is a scope name, and the second parameter is an options hash. The only required option is :against, which tells pg_search_scope which column or columns to search against.
