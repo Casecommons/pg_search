@@ -1,0 +1,2 @@
+before_script:
+  - "psql -c 'create database pg_search_test;' -U postgres >/dev/null"
