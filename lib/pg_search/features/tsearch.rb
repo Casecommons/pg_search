@@ -65,12 +65,12 @@ module PgSearch
       #   16 divides the rank by 1 + the logarithm of the number of unique words in document
       #   32 divides the rank by itself + 1
       # The integer option controls several behaviors, so it is a bit mask: you can specify one or more behaviors
-      def normalization_option
-        @options[:normalization_option] || 0
+      def normalization
+        @options[:normalization] || 0
       end
 
       def tsearch_rank
-        ["ts_rank((#{tsdocument}), (#{tsquery}), #{normalization_option})", interpolations]
+        ["ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})", interpolations]
       end
 
       def dictionary

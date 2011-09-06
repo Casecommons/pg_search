@@ -377,13 +377,13 @@ describe "an ActiveRecord model which includes PgSearch" do
           end
         end
         
-        context "with a normalization_option specified" do
+        context "with a normalization specified" do
           before do
             ModelWithPgSearch.class_eval do
               pg_search_scope :search_content_with_normalization,
                               :against => :content,
                               :using => {
-                                :tsearch => {:normalization_option => 2}
+                                :tsearch => {:normalization => 2}
                               }
             end
           end
@@ -395,7 +395,7 @@ describe "an ActiveRecord model which includes PgSearch" do
           end
         end
         
-        context "with no normalization_option" do
+        context "with no normalization" do
           before do
             ModelWithPgSearch.class_eval do
               pg_search_scope :search_content_without_normalization,
