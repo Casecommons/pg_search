@@ -1,3 +1,7 @@
+### 0.3.1
+
+ * Fix syntax error in generated dmetaphone migration. (Max De Marzi)
+
 ### 0.3
 
  * Drop Active Record 2.0 support.
