@@ -31,22 +31,28 @@ module PgSearch
         @columns.map { |column| column.to_sql }.join(" || ' ' || ")
       end
 
+      DISALLOWED_TSQUERY_CHARACTERS = /['?\-\\:]/
+
+      def tsquery_for_term(term)
+        sanitized_term = term.gsub(DISALLOWED_TSQUERY_CHARACTERS, " ")
+
+        term_sql = @normalizer.add_normalization(connection.quote(sanitized_term))
+
+        # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
+        # If :prefix is true, then the term will also have :* appended to the end.
+        tsquery_sql = [
+            connection.quote("' "),
+            term_sql,
+            connection.quote(" '"),
+            (connection.quote(':*') if @options[:prefix])
+        ].compact.join(" || ")
+
+        "to_tsquery(:dictionary, #{tsquery_sql})"
+      end
+
       def tsquery
         return "''" if @query.blank?
-
-        @query.split(" ").compact.map do |term|
-          sanitized_term = term.gsub(/['?\-\\:]/, " ")
-
-          term_sql = @normalizer.add_normalization(connection.quote(sanitized_term))
-
-          # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
-          tsquery_sql = "#{connection.quote("' ")} || #{term_sql} || #{connection.quote(" '")}"
-
-          # Add tsearch prefix operator if we're using a prefix search.
-          tsquery_sql = "#{tsquery_sql} || #{connection.quote(':*')}" if @options[:prefix]
-
-          "to_tsquery(:dictionary, #{tsquery_sql})"
-        end.join(@options[:any_word] ? ' || ' : ' && ')
+        @query.split(" ").compact.map { |term| tsquery_for_term(term) }.join(@options[:any_word] ? ' || ' : ' && ')
       end
 
       def tsdocument
@@ -55,7 +61,7 @@ module PgSearch
           search_column.weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
         end.join(" || ")
       end
-      
+
       # From http://www.postgresql.org/docs/8.3/static/textsearch-controls.html
       #   0 (the default) ignores the document length
       #   1 divides the rank by 1 + the logarithm of the document length
