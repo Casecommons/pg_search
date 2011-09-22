@@ -369,14 +369,14 @@ describe "an ActiveRecord model which includes PgSearch" do
           results.should =~ included
         end
       end
-      
+
       describe "ranking" do
         before do
           ["Strip Down", "Down", "Down and Out", "Won't Let You Down"].each do |name|
             ModelWithPgSearch.create! :content => name
           end
         end
-        
+
         context "with a normalization specified" do
           before do
             ModelWithPgSearch.class_eval do
@@ -389,12 +389,12 @@ describe "an ActiveRecord model which includes PgSearch" do
           end
           it "ranks the results for documents with less text higher" do
             results = ModelWithPgSearch.search_content_with_normalization("down")
-            
+
             results.map(&:content).should == ["Down", "Strip Down", "Down and Out", "Won't Let You Down"]
             results.first.rank.should be > results.last.rank
           end
         end
-        
+
         context "with no normalization" do
           before do
             ModelWithPgSearch.class_eval do
@@ -405,7 +405,7 @@ describe "an ActiveRecord model which includes PgSearch" do
           end
           it "ranks the results equally" do
             results = ModelWithPgSearch.search_content_without_normalization("down")
-            
+
             results.map(&:content).should == ["Strip Down", "Down", "Down and Out", "Won't Let You Down"]
             results.first.rank.should == results.last.rank
           end
