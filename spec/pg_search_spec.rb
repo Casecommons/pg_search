@@ -599,14 +599,22 @@ describe "an ActiveRecord model which includes PgSearch" do
         end
       end
 
-      it "returns rows that match the query but not its accents" do
-        # \303\241 is a with acute accent
-        # \303\251 is e with acute accent
+      if ActiveRecord::Base.connection.send(:postgresql_version) < 90000
+        it "is unsupported in PostgreSQL 8.x" do
+          lambda do
+            ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
+          end.should raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
+        end
+      else
+        it "returns rows that match the query but not its accents" do
+          # \303\241 is a with acute accent
+          # \303\251 is e with acute accent
 
-        included = ModelWithPgSearch.create!(:title => "\303\241bcdef")
+          included = ModelWithPgSearch.create!(:title => "\303\241bcdef")
 
-        results = ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
-        results.should == [included]
+          results = ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
+          results.should == [included]
+        end
       end
     end
 

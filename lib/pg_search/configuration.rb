@@ -61,6 +61,14 @@ module PgSearch
       @options[:order_within_rank]
     end
 
+    def postgresql_version
+      @model.connection.send(:postgresql_version)
+    end
+
+    def logger
+      @model.logger
+    end
+
     private
 
     def default_options

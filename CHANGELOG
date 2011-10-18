@@ -2,6 +2,8 @@
 
  * Fix :prefix search in PostgreSQL 8.x
 
+ * Disable {:ignoring => :accents} in PostgreSQL 8.x
+
 ### 0.3.1
 
  * Fix syntax error in generated dmetaphone migration. (Max De Marzi)

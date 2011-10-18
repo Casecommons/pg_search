@@ -41,6 +41,8 @@ module PgSearch
       Thread.current.key?("PgSearch.enable_multisearch") ? Thread.current["PgSearch.enable_multisearch"] : true
     end
   end
+
+  class NotSupportedForPostgresqlVersion < StandardError; end
 end
 
 require "pg_search/configuration"

@@ -414,7 +414,7 @@ Trigram support is currently available as part of the {pg_trgm contrib package}[
 
   Website.kinda_spelled_like("Yahoo!") # => [yahooo, yohoo]
 
-=== Ignoring accent marks
+=== Ignoring accent marks (PostgreSQL 9.0 and above only)
 
 Most of the time you will want to ignore accent marks when searching. This makes it possible to find words like "piñata" when searching with the query "pinata". If you set a pg_search_scope to ignore accents, it will ignore accents in both the searchable text and the query terms.
 
