@@ -42,6 +42,9 @@ install_contrib_module_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "
 
 ActiveRecord::Base.connection.tap do |connection|
   if connection.send(:postgresql_version) < 80400
+    unless connection.select_value("SELECT 1 FROM pg_catalog.pg_aggregate WHERE aggfnoid = 'array_agg'::REGPROC") == "1"
+      connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'array_agg.sql')))
+    end
     connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'unnest.sql')))
   end
   connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'dmetaphone.sql')))

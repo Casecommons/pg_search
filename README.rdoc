@@ -181,7 +181,15 @@ Important: The returned hash must include a :query key. Its value does not neces
 
 ==== Searching through associations
 
-You can pass a Hash into the :associated_against option to search columns on other models. The keys are the names of the associations and the value works just like an :against option for the other model.
+It is possible to search columns on associated models. Note that if you do this, it will be impossible to speed up searches with database indexes. However, it is supported as a quick way to try out cross-model searching.
+
+In PostgreSQL 8.3 and earlier, you must install a utility function into your database. To generate a migration for this, run:
+
+  $ rake pg_search:migration:associated_against
+
+This migration is safe to run against newer versions of PostgreSQL as well. It will essentially do nothing.
+
+You can pass a Hash into the :associated_against option to set up searching through associations. The keys are the names of the associations and the value works just like an :against option for the other model. Right now, searching deeper than one association away is not supported. You can work around this by setting up a series of :through associations to point all the way through.
 
   class Cracker < ActiveRecord::Base
     has_many :cheeses
