@@ -316,36 +316,44 @@ describe "an ActiveRecord model which includes PgSearch" do
     end
 
     context "using tsearch" do
-      context "with :prefix => true" do
-        before do
-          ModelWithPgSearch.class_eval do
-            pg_search_scope :search_title_with_prefixes,
-                            :against => :title,
-                            :using => {
-                              :tsearch => {:prefix => true}
-                            }
+      before do
+        ModelWithPgSearch.class_eval do
+          pg_search_scope :search_title_with_prefixes,
+                          :against => :title,
+                          :using => {
+                            :tsearch => {:prefix => true}
+                          }
+        end
+      end
+
+      if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
+        it "is unsupported in PostgreSQL 8.3 and earlier" do
+          lambda do
+            ModelWithPgSearch.search_title_with_prefixes("abcd\303\251f")
+          end.should raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
+        end
+      else
+        context "with :prefix => true" do
+          it "returns rows that match the query and that are prefixed by the query" do
+            included = ModelWithPgSearch.create!(:title => 'prefix')
+            excluded = ModelWithPgSearch.create!(:title => 'postfix')
+
+            results = ModelWithPgSearch.search_title_with_prefixes("pre")
+            results.should == [included]
+            results.should_not include(excluded)
           end
-        end
 
-        it "returns rows that match the query and that are prefixed by the query" do
-          included = ModelWithPgSearch.create!(:title => 'prefix')
-          excluded = ModelWithPgSearch.create!(:title => 'postfix')
+          it "returns rows that match the query when the query has a hyphen" do
+            included = [
+              ModelWithPgSearch.create!(:title => 'foo bar'),
+              ModelWithPgSearch.create!(:title => 'foo-bar')
+            ]
+            excluded = ModelWithPgSearch.create!(:title => 'baz quux')
 
-          results = ModelWithPgSearch.search_title_with_prefixes("pre")
-          results.should == [included]
-          results.should_not include(excluded)
-        end
-
-        it "returns rows that match the query when the query has a hyphen" do
-          included = [
-            ModelWithPgSearch.create!(:title => 'foo bar'),
-            ModelWithPgSearch.create!(:title => 'foo-bar')
-          ]
-          excluded = ModelWithPgSearch.create!(:title => 'baz quux')
-
-          results = ModelWithPgSearch.search_title_with_prefixes("foo-bar")
-          results.should =~ included
-          results.should_not include(excluded)
+            results = ModelWithPgSearch.search_title_with_prefixes("foo-bar")
+            results.should =~ included
+            results.should_not include(excluded)
+          end
         end
       end
 
@@ -536,7 +544,7 @@ describe "an ActiveRecord model which includes PgSearch" do
           pg_search_scope :with_tsearch,
                           :against => :title,
                           :using => [
-                            [:tsearch, {:prefix => true}]
+                            [:tsearch, {:dictionary => 'english'}]
                           ]
 
           pg_search_scope :with_trigram, :against => :title, :using => :trigram
@@ -544,7 +552,7 @@ describe "an ActiveRecord model which includes PgSearch" do
           pg_search_scope :with_tsearch_and_trigram_using_array,
                           :against => :title,
                           :using => [
-                            [:tsearch, {:prefix => true}],
+                            [:tsearch, {:dictionary => 'english'}],
                             :trigram
                           ]
 
@@ -561,7 +569,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         ModelWithPgSearch.with_tsearch_and_trigram_using_array(trigram_query).should == [record]
 
         # matches tsearch only
-        tsearch_query = "til"
+        tsearch_query = "tiles"
         ModelWithPgSearch.with_tsearch(tsearch_query).should include(record)
         ModelWithPgSearch.with_trigram(tsearch_query).should_not include(record)
         ModelWithPgSearch.with_tsearch_and_trigram_using_array(tsearch_query).should == [record]

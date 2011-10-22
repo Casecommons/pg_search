@@ -11,6 +11,12 @@ module PgSearch
         @model = model
         @columns = columns
         @normalizer = normalizer
+
+        if @options[:prefix] && @model.connection.send(:postgresql_version) < 80400
+          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.gsub /^\s*/, '')
+            Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
+          MESSAGE
+        end
       end
 
       def conditions
