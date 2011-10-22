@@ -48,11 +48,17 @@ end
       dmetaphone_sql = File.read(File.join(File.dirname(__FILE__), '..', '..', 'sql', 'dmetaphone.sql')).chomp
       uninstall_dmetaphone_sql = File.read(File.join(File.dirname(__FILE__), '..', '..', 'sql', 'uninstall_dmetaphone.sql')).chomp
 
+      unnest_sql = File.read(File.join(File.dirname(__FILE__), '..', '..', 'sql', 'unnest.sql')).chomp
+      uninstall_unnest_sql = File.read(File.join(File.dirname(__FILE__), '..', '..', 'sql', 'uninstall_unnest.sql')).chomp
+
       File.open(Rails.root + 'db' + 'migrate' + filename, 'wb') do |migration_file|
         migration_file.puts <<-RUBY
 class AddPgSearchDmetaphoneSupportFunctions < ActiveRecord::Migration
   def self.up
     say_with_time("Adding support functions for pg_search :dmetaphone") do
+      if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
+        #{unnest_sql}
+      end
       ActiveRecord::Base.connection.execute(<<-SQL)
         #{dmetaphone_sql}
       SQL
@@ -64,6 +70,9 @@ class AddPgSearchDmetaphoneSupportFunctions < ActiveRecord::Migration
       ActiveRecord::Base.connection.execute(<<-SQL)
         #{uninstall_dmetaphone_sql}
       SQL
+      if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
+        #{uninstall_unnest_sql}
+      end
     end
   end
 end

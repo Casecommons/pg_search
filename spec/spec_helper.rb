@@ -40,7 +40,14 @@ unless connection.send(:postgresql_version) < 90000
 end
 install_contrib_module_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "f")
 
-ActiveRecord::Base.connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'dmetaphone.sql')))
+ActiveRecord::Base.connection.tap do |connection|
+  if connection.send(:postgresql_version) < 80400
+    connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'unnest.sql')))
+  end
+  connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'dmetaphone.sql')))
+end
+
+
 
 require "with_model"
 
