@@ -267,7 +267,7 @@ You can also pass the weights in as an array of arrays, or any other structure t
    ]
  end
 
-===== :prefix
+===== :prefix (PostgreSQL 8.4 and newer only)
 
 PostgreSQL's full text search matches on whole words by default. If you want to search for partial words, however, you can set :prefix to true. Since this is a :tsearch-specific option, you should pass it to :tsearch directly, as shown in the following example.
 
@@ -414,7 +414,7 @@ Trigram support is currently available as part of the {pg_trgm contrib package}[
 
   Website.kinda_spelled_like("Yahoo!") # => [yahooo, yohoo]
 
-=== Ignoring accent marks (PostgreSQL 9.0 and above only)
+=== Ignoring accent marks (PostgreSQL 9.0 and newer only)
 
 Most of the time you will want to ignore accent marks when searching. This makes it possible to find words like "piñata" when searching with the query "pinata". If you set a pg_search_scope to ignore accents, it will ignore accents in both the searchable text and the query terms.
 
