@@ -57,7 +57,9 @@ class AddPgSearchDmetaphoneSupportFunctions < ActiveRecord::Migration
   def self.up
     say_with_time("Adding support functions for pg_search :dmetaphone") do
       if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
-        #{unnest_sql}
+        ActiveRecord::Base.connection.execute(<<-SQL)
+          #{unnest_sql}
+        SQL
       end
       ActiveRecord::Base.connection.execute(<<-SQL)
         #{dmetaphone_sql}
@@ -71,7 +73,9 @@ class AddPgSearchDmetaphoneSupportFunctions < ActiveRecord::Migration
         #{uninstall_dmetaphone_sql}
       SQL
       if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
-        #{uninstall_unnest_sql}
+        ActiveRecord::Base.connection.execute(<<-SQL)
+          #{uninstall_unnest_sql}
+        end
       end
     end
   end
