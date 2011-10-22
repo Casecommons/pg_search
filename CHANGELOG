@@ -1,3 +1,13 @@
+### 0.3.3
+
+ * Backport array_agg() aggregate function to PostgreSQL 8.3 and earlier.
+   This fixes :associated_against searches.
+
+ * Backport unnest() function to PostgreSQL 8.3 and earlier.
+   This fixes {:using => :dmetaphone} searches.
+
+ * Disable {:using => {:tsearch => {:prefix => true}}} in PostgreSQL 8.3 and earlier.
+
 ### 0.3.2
 
  * Fix :prefix search in PostgreSQL 8.x
