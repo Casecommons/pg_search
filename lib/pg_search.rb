@@ -30,8 +30,8 @@ module PgSearch
   end
 
   class << self
-    def multisearch(query)
-      PgSearch::Document.search(query)
+    def multisearch(*args)
+      PgSearch::Document.search(*args)
     end
 
     def disable_multisearch
