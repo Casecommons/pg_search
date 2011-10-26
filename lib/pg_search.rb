@@ -1,8 +1,12 @@
 require "active_record"
 require "active_support/concern"
+require "active_support/core_ext/module/attribute_accessors"
 
 module PgSearch
   extend ActiveSupport::Concern
+
+  mattr_accessor :multisearch_options
+  self.multisearch_options = {}
 
   module ClassMethods
     def pg_search_scope(name, options)

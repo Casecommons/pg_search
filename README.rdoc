@@ -75,7 +75,7 @@ Two associations are built automatically. On the original record, there is a has
 
 ==== Searching in the global search index
 
-To fetch the PgSearch::Document entries for all of the records that match a given query, use  PgSearch.multisearch.
+To fetch the PgSearch::Document entries for all of the records that match a given query, use PgSearch.multisearch.
 
  odyssey = EpicPoem.create!(:title => "Odyssey", :author => "Homer")
  rose = Flower.create!(:color => "Red")
@@ -92,6 +92,15 @@ PgSearch.multisearch returns an ActiveRecord::Relation, just like scopes do, so 
  PgSearch.mulitsearch("Diagonal").find_each do |document|
    puts document.searchable.updated_at
  end
+
+==== Configuring multi-search
+
+PgSearch.multisearch can be configured using the same options as `pg_search_scope` (explained in more detail below). Just set the PgSearch.multisearchable_options in an initializer:
+
+ PgSearch.multisearchable_options = {
+   :using => [:tsearch, :trigram],
+   :ignoring => :accents
+ }
 
 ==== Rebuilding search documents for a given class
 

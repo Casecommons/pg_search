@@ -8,7 +8,9 @@ module PgSearch
 
     before_validation :update_content
 
-    pg_search_scope :search, :against => :content
+    pg_search_scope :search, lambda { |query|
+      PgSearch.multisearch_options.reverse_merge(:against => :content, :query => query)
+    }
 
     private
 

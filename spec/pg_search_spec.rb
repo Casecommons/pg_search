@@ -703,14 +703,38 @@ describe "an ActiveRecord model which includes PgSearch" do
   end
 
   describe ".multisearch" do
-    subject { PgSearch.multisearch(query) }
-    let(:query) { double(:query) }
-    let(:relation) { double(:relation) }
-    before do
-      PgSearch::Document.should_receive(:search).with(query).and_return(relation)
+    with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
+
+    describe "delegation to PgSearch::Document.search" do
+      subject { PgSearch.multisearch(query) }
+
+      let(:query) { double(:query) }
+      let(:relation) { double(:relation) }
+      before do
+        PgSearch::Document.should_receive(:search).with(query).and_return(relation)
+      end
+
+      it { should == relation }
     end
 
-    it { should == relation }
+    context "with PgSearch.multisearch_options set" do
+      before { PgSearch.stub(:multisearch_options).and_return({:using => :dmetaphone}) }
+      subject { PgSearch.multisearch(query).map(&:searchable) }
+
+      with_model :MultisearchableModel do
+        table do |t|
+          t.string :title
+        end
+        model do
+          include PgSearch
+          multisearchable :against => :title
+        end
+      end
+
+      let!(:soundalike_record) { MultisearchableModel.create!(:title => 'foning') }
+      let(:query) { "Phoning" }
+      it { should include(soundalike_record) }
+    end
   end
 
   describe ".disable_multisearch" do
