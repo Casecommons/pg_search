@@ -7,7 +7,9 @@ begin
                                           :username => ('postgres' if ENV["TRAVIS"]),
                                           :min_messages => 'warning')
   connection = ActiveRecord::Base.connection
+  postgresql_version = connection.send(:postgresql_version)
   connection.execute("SELECT 1")
+  puts "postgresql_version = #{postgresql_version}"
 rescue PGError => e
   puts "-" * 80
   puts "Unable to connect to database.  Please run:"
@@ -23,7 +25,7 @@ def install_extension_if_missing(name, query, expected_result)
   raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result.downcase
 rescue => e
   begin
-    if connection.send(:postgresql_version) >= 90100
+    if postgresql_version >= 90100
       ActiveRecord::Base.connection.execute "CREATE EXTENSION #{name};"
     else
       share_path = `pg_config --sharedir`.strip
@@ -39,12 +41,12 @@ rescue => e
 end
 
 install_extension_if_missing("pg_trgm", "SELECT 'abcdef' % 'cdef'", "t")
-unless connection.send(:postgresql_version) < 90000
+unless postgresql_version < 90000
   install_extension_if_missing("unaccent", "SELECT unaccent('foo')", "foo")
 end
 install_extension_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "f")
 
-if connection.send(:postgresql_version) < 80400
+if postgresql_version < 80400
   unless connection.select_value("SELECT 1 FROM pg_catalog.pg_aggregate WHERE aggfnoid = 'array_agg'::REGPROC") == "1"
     connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'array_agg.sql')))
   end
