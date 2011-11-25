@@ -37,7 +37,7 @@ module PgSearch
         @columns.map { |column| column.to_sql }.join(" || ' ' || ")
       end
 
-      DISALLOWED_TSQUERY_CHARACTERS = /['?\-\\:]/
+      DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
 
       def tsquery_for_term(term)
         sanitized_term = term.gsub(DISALLOWED_TSQUERY_CHARACTERS, " ")

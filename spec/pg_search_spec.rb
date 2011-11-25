@@ -344,14 +344,11 @@ describe "an ActiveRecord model which includes PgSearch" do
           end
 
           it "returns rows that match the query when the query has a hyphen" do
-            included = [
-              ModelWithPgSearch.create!(:title => 'foo bar'),
-              ModelWithPgSearch.create!(:title => 'foo-bar')
-            ]
-            excluded = ModelWithPgSearch.create!(:title => 'baz quux')
+            included = ModelWithPgSearch.create!(:title => 'foo-bar')
+            excluded = ModelWithPgSearch.create!(:title => 'foo bar')
 
             results = ModelWithPgSearch.search_title_with_prefixes("foo-bar")
-            results.should =~ included
+            results.should include(included)
             results.should_not include(excluded)
           end
         end
