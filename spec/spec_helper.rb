@@ -17,28 +17,32 @@ rescue PGError => e
   raise e
 end
 
-def install_contrib_module_if_missing(name, query, expected_result)
+def install_extension_if_missing(name, query, expected_result)
   connection = ActiveRecord::Base.connection
   result = connection.select_value(query)
   raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result.downcase
 rescue => e
   begin
-    share_path = `pg_config --sharedir`.strip
-    ActiveRecord::Base.connection.execute File.read(File.join(share_path, 'contrib', "#{name}.sql"))
-    puts $!.message
-  rescue
+    if connection.send(:postgresql_version) >= 90100
+      ActiveRecord::Base.connection.execute "CREATE EXTENSION #{name};"
+    else
+      share_path = `pg_config --sharedir`.strip
+      ActiveRecord::Base.connection.execute File.read(File.join(share_path, 'contrib', "#{name}.sql"))
+      puts $!.message
+    end
+  rescue => e2
     puts "-" * 80
     puts "Please install the #{name} contrib module"
     puts "-" * 80
-    raise e
+    raise e2
   end
 end
 
-install_contrib_module_if_missing("pg_trgm", "SELECT 'abcdef' % 'cdef'", "t")
+install_extension_if_missing("pg_trgm", "SELECT 'abcdef' % 'cdef'", "t")
 unless connection.send(:postgresql_version) < 90000
-  install_contrib_module_if_missing("unaccent", "SELECT unaccent('foo')", "foo")
+  install_extension_if_missing("unaccent", "SELECT unaccent('foo')", "foo")
 end
-install_contrib_module_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "f")
+install_extension_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "f")
 
 ActiveRecord::Base.connection.tap do |connection|
   if connection.send(:postgresql_version) < 80400
