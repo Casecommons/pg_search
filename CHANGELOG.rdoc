@@ -1,5 +1,11 @@
 = PgSearch
 
+== 0.3.4
+
+* Fix issue with {:using => {:tsearch => {:prefix => true}}} and hyphens.
+
+* Get tests running against PostgreSQL 9.1 by using CREATE EXTENSION
+
 == 0.3.3
 
 * Backport array_agg() aggregate function to PostgreSQL 8.3 and earlier.
