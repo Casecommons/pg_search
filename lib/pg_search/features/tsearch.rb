@@ -62,10 +62,14 @@ module PgSearch
       end
 
       def tsdocument
-        @columns.map do |search_column|
-          tsvector = "to_tsvector(:dictionary, #{@normalizer.add_normalization(search_column.to_sql)})"
-          search_column.weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
-        end.join(" || ")
+        if @options[:tsvector_column]
+          @options[:tsvector_column].to_s
+        else
+          @columns.map do |search_column|
+            tsvector = "to_tsvector(:dictionary, #{@normalizer.add_normalization(search_column.to_sql)})"
+            search_column.weight.nil? ? tsvector : "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
+          end.join(" || ")
+        end
       end
 
       # From http://www.postgresql.org/docs/8.3/static/textsearch-controls.html

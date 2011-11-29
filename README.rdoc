@@ -452,6 +452,32 @@ Ignoring accents uses the {unaccent contrib package}[http://www.postgresql.org/d
   SpanishQuestion.gringo_search("Que") # => [what]
   SpanishQuestion.gringo_search("Cüåñtô") # => [how_many]
 
+=== Using tsvector columns
+
+PostgreSQL allows you the ability to search against a column with type tsvector instead of using an expression; this speeds up searching dramatically as it offloads creation of the tsvector that the tsquery is evaluated against.
+
+To use this functionality you'll need to do a few things:
+
+* Create a column of type tsvector that you'd like to search against. If you want to search using multiple search methods, for example tsearch and dmetaphone, you'll need a column for each.
+* Create a trigger function that will update the column(s) using the expression appropriate for that type of search. See: http://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS
+* Should you have any pre-existing data in the table, update the newly-created tsvector columns with the expression that your trigger function uses.
+* Add the option to pg_search_scope, e.g:
+
+  pg_search_scope :fast_content_search,
+                  :against => :content,
+                  :using => {
+                    dmetaphone: {
+                      tsvector_column: 'tsvector_content_dmetaphone'
+                    },
+                    tsearch: {
+                      dictionary: 'english',
+                      tsvector_column: 'tsvector_content_tsearch'
+                    }
+                    trigram: {} # trigram does not use tsvectors
+                  }
+
+Please note that the :against column is only used when the tsvector_column is not present for the search type.
+
 == REQUIREMENTS
 
 * ActiveRecord 2 or 3

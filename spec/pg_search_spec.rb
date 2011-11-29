@@ -597,6 +597,46 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
 
+    context "using a tsvector column" do
+      with_model :ModelWithPgSearchUsingTsVectorColumn do
+        table do |t|
+          t.text 'content'
+          t.tsvector 'content_tsvector'
+        end
+
+        model { include PgSearch }
+      end
+
+      let!(:expected) { ModelWithPgSearchUsingTsVectorColumn.create!(:content => 'tiling is grouty') }
+      let!(:unexpected) { ModelWithPgSearchUsingTsVectorColumn.create!(:content => 'longcat is looooooooong') }
+
+      before do
+        ActiveRecord::Base.connection.execute <<-SQL
+          UPDATE #{ModelWithPgSearchUsingTsVectorColumn.table_name}
+          SET content_tsvector = to_tsvector('english'::regconfig, "#{ModelWithPgSearchUsingTsVectorColumn.table_name}"."content")
+        SQL
+
+        ModelWithPgSearchUsingTsVectorColumn.class_eval do
+          pg_search_scope :search_by_content_with_tsvector,
+            :against => :content,
+            :using => {
+              :tsearch => {
+                :tsvector_column => 'content_tsvector',
+                :dictionary => 'english'
+              }
+            }
+        end
+      end
+
+      it "should not use to_tsvector in the query" do
+        ModelWithPgSearchUsingTsVectorColumn.search_by_content_with_tsvector("tiles").to_sql.should_not =~ /to_tsvector/
+      end
+
+      it "should find the expected result" do
+        ModelWithPgSearchUsingTsVectorColumn.search_by_content_with_tsvector("tiles").map(&:id).should == [expected.id]
+      end
+    end
+
     context "ignoring accents" do
       before do
         ModelWithPgSearch.class_eval do
