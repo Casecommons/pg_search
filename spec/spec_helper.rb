@@ -19,6 +19,11 @@ rescue PGError => e
   raise e
 end
 
+if ENV["LOGGER"]
+  require "logger"
+  ActiveRecord::Base.logger = Logger.new(STDOUT)
+end
+
 def install_extension_if_missing(name, query, expected_result)
   connection = ActiveRecord::Base.connection
   result = connection.select_value(query)
