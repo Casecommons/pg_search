@@ -463,18 +463,18 @@ To use this functionality you'll need to do a few things:
 * Should you have any pre-existing data in the table, update the newly-created tsvector columns with the expression that your trigger function uses.
 * Add the option to pg_search_scope, e.g:
 
-  pg_search_scope :fast_content_search,
-                  :against => :content,
-                  :using => {
-                    dmetaphone: {
-                      tsvector_column: 'tsvector_content_dmetaphone'
-                    },
-                    tsearch: {
-                      dictionary: 'english',
-                      tsvector_column: 'tsvector_content_tsearch'
+    pg_search_scope :fast_content_search,
+                    :against => :content,
+                    :using => {
+                      dmetaphone: {
+                        tsvector_column: 'tsvector_content_dmetaphone'
+                      },
+                      tsearch: {
+                        dictionary: 'english',
+                        tsvector_column: 'tsvector_content_tsearch'
+                      }
+                      trigram: {} # trigram does not use tsvectors
                     }
-                    trigram: {} # trigram does not use tsvectors
-                  }
 
 Please note that the :against column is only used when the tsvector_column is not present for the search type.
 
