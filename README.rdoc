@@ -480,9 +480,9 @@ Please note that the :against column is only used when the tsvector_column is no
 
 == REQUIREMENTS
 
-* ActiveRecord 2 or 3
-* Postgresql
-* Postgresql contrib modules for certain features
+* ActiveRecord 3
+* PostgreSQL
+* PostgreSQL contrib packages for certain features
 
 == ATTRIBUTIONS
 
