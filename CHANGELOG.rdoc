@@ -1,5 +1,9 @@
 = PgSearch
 
+== 0.4
+
+* Add ability to search again tsvector columns. (Kris Hicks)
+
 == 0.3.4
 
 * Fix issue with {:using => {:tsearch => {:prefix => true}}} and hyphens.
