@@ -42,6 +42,10 @@
 
 * Add :any_word option to :tsearch which uses OR between query terms instead of AND. (Fernando Espinosa)
 
+== 0.2.1
+
+* Backport support for searching against tsvector columns (Kris Hicks)
+
 == 0.2
 
 * Set dictionary to :simple by default for :tsearch. Before it was unset,

@@ -18,6 +18,12 @@ In Gemfile
 
  gem 'pg_search'
 
+=== Rails 2
+
+The newest versions of PgSearch no longer support Rails 2. However, the 0.2 series still works. It's not actively maintained, but submissions are welcome for backports and bugfixes.
+
+The 0.2 branch lives at https://github.com/Casecommons/pg_search/tree/0.2-stable
+
 === Other ActiveRecord-based projects
 
 In addition to installing and requiring the gem, you may want to include the PgSearch rake tasks in your Rakefile:
