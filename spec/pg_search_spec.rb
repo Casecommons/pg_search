@@ -554,8 +554,10 @@ describe "an ActiveRecord model which includes PgSearch" do
         end
       end
 
-      it "should not use to_tsvector in the query" do
-        ModelWithPgSearchUsingTsVectorColumn.search_by_content_with_tsvector("tiles").to_sql.should_not =~ /to_tsvector/
+      if defined?(ActiveRecord::Relation)
+        it "should not use to_tsvector in the query" do
+          ModelWithPgSearchUsingTsVectorColumn.search_by_content_with_tsvector("tiles").to_sql.should_not =~ /to_tsvector/
+        end
       end
 
       it "should find the expected result" do
