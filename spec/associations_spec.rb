@@ -292,4 +292,50 @@ describe PgSearch do
       end
     end
   end
+
+  context "merging a pg_search_scope into another model's scope" do
+    with_model :ModelWithAssociation do
+      model do
+        has_many :associated_models
+      end
+    end
+
+    with_model :AssociatedModel do
+      table do |t|
+        t.string :content
+        t.belongs_to :model_with_association
+      end
+
+      model do
+        include PgSearch
+        belongs_to :model_with_association
+
+        pg_search_scope :search_content, :against => :content
+      end
+    end
+
+    it "should find records of the other model" do
+      included_associated_1 = AssociatedModel.create(:content => "foo bar")
+      included_associated_2 = AssociatedModel.create(:content => "foo baz")
+      excluded_associated_1 = AssociatedModel.create(:content => "baz quux")
+      excluded_associated_2 = AssociatedModel.create(:content => "baz bar")
+
+      included = [
+        ModelWithAssociation.create(:associated_models => [included_associated_1]),
+        ModelWithAssociation.create(:associated_models => [included_associated_2, excluded_associated_1])
+      ]
+
+      excluded = [
+        ModelWithAssociation.create(:associated_models => [excluded_associated_2]),
+        ModelWithAssociation.create(:associated_models => [])
+      ]
+
+      relation = AssociatedModel.search_content("foo")
+
+      results = ModelWithAssociation.joins(:associated_models).merge(relation)
+
+      results.should include(*included)
+      results.should_not include(*excluded)
+    end
+  end
 end
