@@ -26,6 +26,7 @@ end
 
 def install_extension_if_missing(name, query, expected_result)
   connection = ActiveRecord::Base.connection
+  postgresql_version = connection.send(:postgresql_version)
   result = connection.select_value(query)
   raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result.downcase
 rescue => e
