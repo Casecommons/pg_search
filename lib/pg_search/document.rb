@@ -3,7 +3,7 @@ require "pg_search/scope"
 module PgSearch
   class Document < ActiveRecord::Base
     include PgSearch
-    set_table_name :pg_search_documents
+    self.table_name = 'pg_search_documents'
     belongs_to :searchable, :polymorphic => true
 
     before_validation :update_content
