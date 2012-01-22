@@ -23,10 +23,8 @@ module PgSearch
     end
   end
 
-  module InstanceMethods
-    def rank
-      attributes['pg_search_rank'].to_f
-    end
+  def rank
+    attributes['pg_search_rank'].to_f
   end
 
   class << self

@@ -18,11 +18,9 @@ module PgSearch
         :if => lambda { PgSearch.multisearch_enabled? }
     end
 
-    module InstanceMethods
-      def update_pg_search_document
-        create_pg_search_document unless self.pg_search_document
-        self.pg_search_document.save
-      end
+    def update_pg_search_document
+      create_pg_search_document unless self.pg_search_document
+      self.pg_search_document.save
     end
   end
 end
