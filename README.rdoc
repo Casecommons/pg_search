@@ -101,9 +101,9 @@ PgSearch.multisearch returns an ActiveRecord::Relation, just like scopes do, so 
 
 ==== Configuring multi-search
 
-PgSearch.multisearch can be configured using the same options as `pg_search_scope` (explained in more detail below). Just set the PgSearch.multisearchable_options in an initializer:
+PgSearch.multisearch can be configured using the same options as `pg_search_scope` (explained in more detail below). Just set the PgSearch.multisearch_options in an initializer:
 
- PgSearch.multisearchable_options = {
+ PgSearch.multisearch_options = {
    :using => [:tsearch, :trigram],
    :ignoring => :accents
  }
