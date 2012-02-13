@@ -25,9 +25,9 @@ SQL
           model.pg_search_multisearchable_options[:against]
         )
 
-        content_expressions = columns.map do |column|
+        content_expressions = columns.map { |column|
           %Q{coalesce(:model_table.#{column}, '')}
-        end.join(" || ' ' || ")
+        }.join(" || ' ' || ")
 
         REBUILD_SQL_TEMPLATE.gsub(
           ":content_expressions", content_expressions
