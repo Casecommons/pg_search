@@ -1,5 +1,11 @@
 = PgSearch
 
+== 0.4.1
+
+* Fix Active Record 3.2 deprecation warnings. (Steven Harman)
+
+* Fix issue with undefined logger when PgSearch::Document.search is already defined.
+
 == 0.4
 
 * Add ability to search again tsvector columns. (Kris Hicks)
