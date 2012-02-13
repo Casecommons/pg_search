@@ -8,6 +8,12 @@ module PgSearch
 
     before_validation :update_content
 
+    # The logger might not have loaded yet.
+    # https://github.com/Casecommons/pg_search/issues/26
+    def self.logger
+      super || Logger.new(STDERR)
+    end
+
     pg_search_scope :search, lambda { |*args|
       options = if PgSearch.multisearch_options.respond_to?(:call)
         PgSearch.multisearch_options.call(*args)
