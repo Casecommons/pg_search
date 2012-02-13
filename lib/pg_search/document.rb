@@ -1,3 +1,4 @@
+require "logger"
 require "pg_search/scope"
 
 module PgSearch
