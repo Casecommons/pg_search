@@ -9,7 +9,6 @@ begin
   connection = ActiveRecord::Base.connection
   postgresql_version = connection.send(:postgresql_version)
   connection.execute("SELECT 1")
-  puts "postgresql_version = #{postgresql_version}"
 rescue PGError => e
   puts "-" * 80
   puts "Unable to connect to database.  Please run:"
