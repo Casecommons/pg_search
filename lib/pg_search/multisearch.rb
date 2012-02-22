@@ -13,9 +13,9 @@ INSERT INTO :documents_table (searchable_type, searchable_id, content, created_a
 SQL
 
     class << self
-      def rebuild(model)
+      def rebuild(model, clean_up=true)
         model.transaction do
-          PgSearch::Document.where(:searchable_type => model.name).delete_all
+          PgSearch::Document.where(:searchable_type => model.name).delete_all if clean_up
           model.connection.execute(rebuild_sql(model))
         end
       end
