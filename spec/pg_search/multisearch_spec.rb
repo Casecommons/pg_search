@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require "spec_helper"
 
 describe PgSearch::Multisearch do
   with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
