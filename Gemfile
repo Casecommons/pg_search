@@ -5,7 +5,7 @@ gemspec
 gem "rake"
 gem "rdoc"
 gem "pg"
-gem "rspec", "2.8.0"
+gem "rspec"
 gem "autotest"
 gem "with_model"
 

@@ -65,7 +65,7 @@ RSpec.configure do |config|
   config.extend WithModel
 end
 
-RSpec::Matchers::OperatorMatcher.register(ActiveRecord::Relation, '=~', RSpec::Matchers::MatchArray)
+RSpec::Matchers::OperatorMatcher.register(ActiveRecord::Relation, '=~', RSpec::Matchers::BuiltIn::MatchArray)
 
 DOCUMENTS_SCHEMA = lambda do |t|
   t.belongs_to :searchable, :polymorphic => true
