@@ -16,11 +16,6 @@ task "doc" do
   bundle_exec("rspec --format d spec")
 end
 
-desc "Launch autotest"
-task "autotest" do
-  bundle_exec("autotest -s rspec2")
-end
-
 namespace "doc" do
   desc "Generate README and preview in browser"
   task "readme" do
