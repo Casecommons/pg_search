@@ -20,6 +20,10 @@ describe PgSearch::Multisearch do
   end
 
   describe ".rebuild_sql" do
+    before do
+        @time = "2012-03-30 12:52:03 -0700"
+        Time.stub(:now){@time}
+    end
     context "with one attribute" do
       it "should generate the proper SQL code" do
         model = MultisearchableModel
@@ -28,9 +32,11 @@ describe PgSearch::Multisearch do
         model.multisearchable :against => :title
 
         expected_sql = <<-SQL
-INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content)
+INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
   SELECT #{connection.quote(model.name)} AS searchable_type,
          #{model.quoted_table_name}.id AS searchable_id,
+         #{@time} AS created_at,
+         #{@time} AS updated_at,
          (
            coalesce(#{model.quoted_table_name}.title, '')
          ) AS content
@@ -49,9 +55,11 @@ SQL
         model.multisearchable :against => [:title, :content]
 
         expected_sql = <<-SQL
-INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content)
+INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
   SELECT #{connection.quote(model.name)} AS searchable_type,
          #{model.quoted_table_name}.id AS searchable_id,
+         #{@time} AS created_at,
+         #{@time} AS updated_at,
          (
            coalesce(#{model.quoted_table_name}.title, '') || ' ' || coalesce(#{model.quoted_table_name}.content, '')
          ) AS content
