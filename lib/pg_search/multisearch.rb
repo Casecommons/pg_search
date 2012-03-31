@@ -44,7 +44,7 @@ SQL
         ).gsub(
           ":documents_table", PgSearch::Document.quoted_table_name
         ).gsub(
-          ":current_time", Time.now.to_s
+          ":current_time", connection.quote(connection.quoted_date(Time.now))
         )
       end
     end
