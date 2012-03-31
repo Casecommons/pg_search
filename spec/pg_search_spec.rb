@@ -212,7 +212,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         winner = ModelWithPgSearch.create!(:content => 'foo foo')
 
         results = ModelWithPgSearch.search_content("foo")
-        results[0].rank.should > results[1].rank
+        results[0].pg_search_rank.should > results[1].pg_search_rank
         results.should == [winner, loser]
       end
 
@@ -382,6 +382,16 @@ describe "an ActiveRecord model which includes PgSearch" do
           end
         end
 
+        it "adds a #pg_search_rank method to each returned model record" do
+          ModelWithPgSearch.class_eval do
+            pg_search_scope :search_content, :against => :content
+          end
+
+          result = ModelWithPgSearch.search_content("Strip Down").first
+
+          result.pg_search_rank.should be_a(Float)
+        end
+
         context "with a normalization specified" do
           before do
             ModelWithPgSearch.class_eval do
@@ -392,11 +402,12 @@ describe "an ActiveRecord model which includes PgSearch" do
                               }
             end
           end
+
           it "ranks the results for documents with less text higher" do
             results = ModelWithPgSearch.search_content_with_normalization("down")
 
             results.map(&:content).should == ["Down", "Strip Down", "Down and Out", "Won't Let You Down"]
-            results.first.rank.should be > results.last.rank
+            results.first.pg_search_rank.should be > results.last.pg_search_rank
           end
         end
 
@@ -408,11 +419,12 @@ describe "an ActiveRecord model which includes PgSearch" do
                               :using => :tsearch
             end
           end
+
           it "ranks the results equally" do
             results = ModelWithPgSearch.search_content_without_normalization("down")
 
             results.map(&:content).should == ["Strip Down", "Down", "Down and Out", "Won't Let You Down"]
-            results.first.rank.should == results.last.rank
+            results.first.pg_search_rank.should == results.last.pg_search_rank
           end
         end
       end
@@ -421,7 +433,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         before do
           ModelWithPgSearch.class_eval do
              pg_search_scope :search_weighted_by_array_of_arrays, :against => [[:content, 'B'], [:title, 'A']]
-           end
+          end
         end
 
         it "returns results sorted by weighted rank" do
@@ -429,7 +441,7 @@ describe "an ActiveRecord model which includes PgSearch" do
           winner = ModelWithPgSearch.create!(:title => 'foo', :content => 'bar')
 
           results = ModelWithPgSearch.search_weighted_by_array_of_arrays('foo')
-          results[0].rank.should > results[1].rank
+          results[0].pg_search_rank.should > results[1].pg_search_rank
           results.should == [winner, loser]
         end
       end
@@ -446,7 +458,7 @@ describe "an ActiveRecord model which includes PgSearch" do
           winner = ModelWithPgSearch.create!(:title => 'foo', :content => 'bar')
 
           results = ModelWithPgSearch.search_weighted_by_hash('foo')
-          results[0].rank.should > results[1].rank
+          results[0].pg_search_rank.should > results[1].pg_search_rank
           results.should == [winner, loser]
         end
       end
@@ -463,7 +475,7 @@ describe "an ActiveRecord model which includes PgSearch" do
           winner = ModelWithPgSearch.create!(:title => 'foo', :content => 'bar')
 
           results = ModelWithPgSearch.search_weighted('foo')
-          results[0].rank.should > results[1].rank
+          results[0].pg_search_rank.should > results[1].pg_search_rank
           results.should == [winner, loser]
         end
       end
@@ -680,14 +692,14 @@ describe "an ActiveRecord model which includes PgSearch" do
       it "should return records with a rank attribute equal to the :ranked_by expression" do
         ModelWithPgSearch.create!(:content => 'foo', :importance => 10)
         results = ModelWithPgSearch.search_content_with_importance_as_rank("foo")
-        results.first.rank.should == 10
+        results.first.pg_search_rank.should == 10
       end
 
       it "should substitute :tsearch with the tsearch rank expression in the :ranked_by expression" do
         ModelWithPgSearch.create!(:content => 'foo', :importance => 10)
 
-        tsearch_rank = ModelWithPgSearch.search_content_with_default_rank("foo").first.rank
-        multiplied_rank = ModelWithPgSearch.search_content_with_importance_as_rank_multiplier("foo").first.rank
+        tsearch_rank = ModelWithPgSearch.search_content_with_default_rank("foo").first.pg_search_rank
+        multiplied_rank = ModelWithPgSearch.search_content_with_importance_as_rank_multiplier("foo").first.pg_search_rank
 
         multiplied_rank.should be_within(0.001).of(tsearch_rank * 10)
       end
@@ -719,7 +731,7 @@ describe "an ActiveRecord model which includes PgSearch" do
             ModelWithPgSearch.create!(:content => 'foo')
 
             results = ModelWithPgSearch.send(@scope_name, 'foo')
-            results.first.rank.should_not be_nil
+            results.first.pg_search_rank.should_not be_nil
           end
         end
       end

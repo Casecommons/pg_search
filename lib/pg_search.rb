@@ -23,8 +23,8 @@ module PgSearch
     end
   end
 
-  def rank
-    attributes['pg_search_rank'].to_f
+  def pg_search_rank
+    read_attribute(:pg_search_rank).to_f
   end
 
   class << self
