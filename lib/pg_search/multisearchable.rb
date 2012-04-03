@@ -9,7 +9,7 @@ module PgSearch
       has_one :pg_search_document,
         :as => :searchable,
         :class_name => "PgSearch::Document",
-        :dependent => :delete
+        :dependent => :destroy
 
       after_create :create_pg_search_document,
         :if => lambda { PgSearch.multisearch_enabled? }
