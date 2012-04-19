@@ -75,7 +75,7 @@ class AddPgSearchDmetaphoneSupportFunctions < ActiveRecord::Migration
       if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
         ActiveRecord::Base.connection.execute(<<-SQL)
           #{uninstall_unnest_sql}
-        end
+        SQL
       end
     end
   end
