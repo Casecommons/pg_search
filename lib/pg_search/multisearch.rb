@@ -4,11 +4,11 @@ module PgSearch
 INSERT INTO :documents_table (searchable_type, searchable_id, content, created_at, updated_at)
   SELECT :model_name AS searchable_type,
          :model_table.id AS searchable_id,
-         :current_time AS created_at,
-         :current_time AS updated_at,
          (
            :content_expressions
-         ) AS content
+         ) AS content,
+         :current_time AS created_at,
+         :current_time AS updated_at
   FROM :model_table
 SQL
 
