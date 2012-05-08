@@ -37,11 +37,11 @@ describe PgSearch::Multisearch do
 INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
   SELECT #{connection.quote(model.name)} AS searchable_type,
          #{model.quoted_table_name}.id AS searchable_id,
-         #{connection.quote(connection.quoted_date(now))} AS created_at,
-         #{connection.quote(connection.quoted_date(now))} AS updated_at,
          (
            coalesce(#{model.quoted_table_name}.title, '')
-         ) AS content
+         ) AS content,
+         #{connection.quote(connection.quoted_date(now))} AS created_at,
+         #{connection.quote(connection.quoted_date(now))} AS updated_at
   FROM #{model.quoted_table_name}
 SQL
 
@@ -60,11 +60,11 @@ SQL
 INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
   SELECT #{connection.quote(model.name)} AS searchable_type,
          #{model.quoted_table_name}.id AS searchable_id,
-         #{connection.quote(connection.quoted_date(now))} AS created_at,
-         #{connection.quote(connection.quoted_date(now))} AS updated_at,
          (
            coalesce(#{model.quoted_table_name}.title, '') || ' ' || coalesce(#{model.quoted_table_name}.content, '')
-         ) AS content
+         ) AS content,
+         #{connection.quote(connection.quoted_date(now))} AS created_at,
+         #{connection.quote(connection.quoted_date(now))} AS updated_at
   FROM #{model.quoted_table_name}
 SQL
 
