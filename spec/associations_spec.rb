@@ -289,6 +289,43 @@ describe PgSearch do
       end
 
     end
+
+    context "against non-text columns" do
+      with_model :AssociatedModel do
+        table do |t|
+          t.integer 'number'
+        end
+      end
+
+      with_model :Model do
+        table do |t|
+          t.integer 'number'
+          t.belongs_to 'another_model'
+        end
+
+        model do
+          include PgSearch
+          belongs_to :another_model, :class_name => 'AssociatedModel'
+
+          pg_search_scope :with_associated, :associated_against => {:another_model => :number}
+        end
+      end
+
+      it "should cast the columns to text" do
+        associated = AssociatedModel.create!(:number => 123)
+        included = [
+          Model.create!(:number => 123, :another_model => associated),
+          Model.create!(:number => 456, :another_model => associated)
+        ]
+        excluded = [
+          Model.create!(:number => 123)
+        ]
+
+        results = Model.with_associated('123')
+        results.map(&:number).should =~ included.map(&:number)
+        results.should_not include(excluded)
+      end
+    end
   end
 
   context "merging a pg_search_scope into another model's scope" do

@@ -23,7 +23,7 @@ module PgSearch
           when 0..90000
             "array_to_string(array_agg(#{column.full_name}), ' ') AS #{column.alias}"
           else
-            "string_agg(#{column.full_name}, ' ') AS #{column.alias}"
+            "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
           end
         end.join(", ")
         relation = @model.joins(@name).select("#{primary_key} AS id, #{selects}").group(primary_key)
