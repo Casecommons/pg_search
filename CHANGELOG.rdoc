@@ -1,5 +1,17 @@
 = PgSearch
 
+== 0.4.2
+
+* Fill in timestamps correctly when rebuilding multisearch documents. (Barton McGuire)
+
+* Fix various issues with rebuilding multisearch documents. (Eugen Neagoe)
+
+* Fix syntax error in pg_search_dmetaphone() migration (Casey Foster)
+
+* Rename PgSearch#rank to PgSearch#pg_search_rank and always return a Float.
+
+* Fix issue with :associated_against and non-text columns.
+
 == 0.4.1
 
 * Fix Active Record 3.2 deprecation warnings. (Steven Harman)
