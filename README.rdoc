@@ -120,7 +120,7 @@ To remove all of the documents for a given class, you can simply delete all of t
 
 Run this Rake task to regenerate all of the documents for a given class.
 
- $ rake pg_search:multisearch:rebuild MODEL=BlogPost
+ $ rake pg_search:multisearch:rebuild[BlogPost]
 
 Currently this is only supported for :against methods that directly map to Active Record attributes. Until that is fixed, you could also manually rebuild all of the documents.
 
