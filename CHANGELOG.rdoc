@@ -1,12 +1,21 @@
 = PgSearch
 
+== 0.5
+
+* Convert migration rake tasks into generators.
+
+* Use rake task arguments for multisearch rebuild instead of environment
+  variable.
+
+* Always cast columns to text.
+
 == 0.4.2
 
 * Fill in timestamps correctly when rebuilding multisearch documents. (Barton McGuire)
 
 * Fix various issues with rebuilding multisearch documents. (Eugen Neagoe)
 
-* Fix syntax error in pg_search_dmetaphone() migration (Casey Foster)
+* Fix syntax error in pg_search_dmetaphone() migration. (Casey Foster)
 
 * Rename PgSearch#rank to PgSearch#pg_search_rank and always return a Float.
 
