@@ -52,7 +52,7 @@ The other technique is search scopes, which allow you to do more advanced search
 
 Before using multi-search, you must generate and run a migration to create the pg_search_documents database table.
 
- $ rake pg_search:migration:multisearch
+ $ rails g pg_search:migration:multisearch
  $ rake db:migrate
 
 ==== multisearchable
@@ -198,9 +198,10 @@ Important: The returned hash must include a :query key. Its value does not neces
 
 It is possible to search columns on associated models. Note that if you do this, it will be impossible to speed up searches with database indexes. However, it is supported as a quick way to try out cross-model searching.
 
-In PostgreSQL 8.3 and earlier, you must install a utility function into your database. To generate a migration for this, run:
+In PostgreSQL 8.3 and earlier, you must install a utility function into your database. To generate and run a migration for this, run:
 
-  $ rake pg_search:migration:associated_against
+  $ rails g pg_search:migration:associated_against
+  $ rake db:migrate
 
 This migration is safe to run against newer versions of PostgreSQL as well. It will essentially do nothing.
 
@@ -392,9 +393,10 @@ Setting this attribute to true will perform a search which will return all model
 
 {Double Metaphone}[http://en.wikipedia.org/wiki/Double_Metaphone] is an algorithm for matching words that sound alike even if they are spelled very differently. For example, "Geoff" and "Jeff" sound identical and thus match. Currently, this is not a true double-metaphone, as only the first metaphone is used for searching.
 
-Double Metaphone support is currently available as part of the {fuzzystrmatch contrib package}[http://www.postgresql.org/docs/current/static/fuzzystrmatch.html] that must be installed before this feature can be used. In addition to the contrib package, you must install a utility function into your database. To generate a migration for this, run:
+Double Metaphone support is currently available as part of the {fuzzystrmatch contrib package}[http://www.postgresql.org/docs/current/static/fuzzystrmatch.html] that must be installed before this feature can be used. In addition to the contrib package, you must install a utility function into your database. To generate and run a migration for this, run:
 
-  $ rake pg_search:migration:dmetaphone
+  $ rails g pg_search:migration:dmetaphone
+  $ rake db:migrate
 
 The following example shows how to use :dmetaphone.
 
