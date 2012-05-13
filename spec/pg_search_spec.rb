@@ -15,26 +15,21 @@ describe "an ActiveRecord model which includes PgSearch" do
   end
 
   describe ".pg_search_scope" do
-    it "builds a scope" do
-      ModelWithPgSearch.class_eval do
-        pg_search_scope "matching_query", :against => []
-      end
-
-      lambda {
-        ModelWithPgSearch.scoped({}).matching_query("foo").scoped({})
-      }.should_not raise_error
+    it "builds a chainable scope" do
+      ModelWithPgSearch.pg_search_scope "matching_query", :against => []
+      scope = ModelWithPgSearch.scoped({}).matching_query("foo").scoped({})
+      scope.should be_an ActiveRecord::Relation
     end
 
     context "when passed a lambda" do
       it "builds a dynamic scope" do
-        ModelWithPgSearch.class_eval do
-          pg_search_scope :search_title_or_content, lambda { |query, pick_content|
+        ModelWithPgSearch.pg_search_scope :search_title_or_content,
+          lambda { |query, pick_content|
             {
               :query => query.gsub("-remove-", ""),
               :against => pick_content ? :content : :title
             }
           }
-        end
 
         included = ModelWithPgSearch.create!(:title => 'foo', :content => 'bar')
         excluded = ModelWithPgSearch.create!(:title => 'bar', :content => 'foo')
@@ -46,86 +41,89 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     context "when an unknown option is passed in" do
       it "raises an exception when invoked" do
-        lambda {
-          ModelWithPgSearch.class_eval do
-            pg_search_scope :with_unknown_option, :against => :content, :foo => :bar
-          end
+        ModelWithPgSearch.pg_search_scope :with_unknown_option,
+          :against => :content,
+          :foo => :bar
+
+        expect {
           ModelWithPgSearch.with_unknown_option("foo")
-        }.should raise_error(ArgumentError, /foo/)
+        }.to raise_error(ArgumentError, /foo/)
       end
 
       context "dynamically" do
         it "raises an exception when invoked" do
-          lambda {
-            ModelWithPgSearch.class_eval do
-              pg_search_scope :with_unknown_option, lambda { |*| {:against => :content, :foo => :bar} }
-            end
+          ModelWithPgSearch.pg_search_scope :with_unknown_option,
+            lambda { |*| {:against => :content, :foo => :bar} }
+
+          expect {
             ModelWithPgSearch.with_unknown_option("foo")
-          }.should raise_error(ArgumentError, /foo/)
+          }.to raise_error(ArgumentError, /foo/)
         end
       end
     end
 
     context "when an unknown :using is passed" do
       it "raises an exception when invoked" do
-        lambda {
-          ModelWithPgSearch.class_eval do
-            pg_search_scope :with_unknown_using, :against => :content, :using => :foo
-          end
+        ModelWithPgSearch.pg_search_scope :with_unknown_using,
+          :against => :content,
+          :using => :foo
+
+        expect {
           ModelWithPgSearch.with_unknown_using("foo")
-        }.should raise_error(ArgumentError, /foo/)
+        }.to raise_error(ArgumentError, /foo/)
       end
 
       context "dynamically" do
         it "raises an exception when invoked" do
-          lambda {
-            ModelWithPgSearch.class_eval do
-              pg_search_scope :with_unknown_using, lambda { |*| {:against => :content, :using => :foo} }
-            end
+          ModelWithPgSearch.pg_search_scope :with_unknown_using,
+            lambda { |*| {:against => :content, :using => :foo} }
+
+          expect {
             ModelWithPgSearch.with_unknown_using("foo")
-          }.should raise_error(ArgumentError, /foo/)
+          }.to raise_error(ArgumentError, /foo/)
         end
       end
     end
 
     context "when an unknown :ignoring is passed" do
       it "raises an exception when invoked" do
-        lambda {
-          ModelWithPgSearch.class_eval do
-            pg_search_scope :with_unknown_ignoring, :against => :content, :ignoring => :foo
-          end
+        ModelWithPgSearch.pg_search_scope :with_unknown_ignoring,
+          :against => :content,
+          :ignoring => :foo
+
+        expect {
           ModelWithPgSearch.with_unknown_ignoring("foo")
-        }.should raise_error(ArgumentError, /ignoring.*foo/)
+        }.to raise_error(ArgumentError, /ignoring.*foo/)
       end
 
       context "dynamically" do
         it "raises an exception when invoked" do
-          lambda {
-            ModelWithPgSearch.class_eval do
-              pg_search_scope :with_unknown_ignoring, lambda { |*| {:against => :content, :ignoring => :foo} }
-            end
+          ModelWithPgSearch.pg_search_scope :with_unknown_ignoring,
+            lambda { |*| {:against => :content, :ignoring => :foo} }
+
+          expect {
             ModelWithPgSearch.with_unknown_ignoring("foo")
-          }.should raise_error(ArgumentError, /ignoring.*foo/)
+          }.to raise_error(ArgumentError, /ignoring.*foo/)
         end
       end
 
       context "when :against is not passed in" do
         it "raises an exception when invoked" do
-          lambda {
-            ModelWithPgSearch.class_eval do
-              pg_search_scope :with_unknown_ignoring, {}
-            end
+          ModelWithPgSearch.pg_search_scope :with_unknown_ignoring, {}
+
+          expect {
             ModelWithPgSearch.with_unknown_ignoring("foo")
-          }.should raise_error(ArgumentError, /against/)
+          }.to raise_error(ArgumentError, /against/)
         end
+
         context "dynamically" do
           it "raises an exception when invoked" do
-            lambda {
-              ModelWithPgSearch.class_eval do
-                pg_search_scope :with_unknown_ignoring, lambda { |*| {} }
-              end
+            ModelWithPgSearch.pg_search_scope :with_unknown_ignoring,
+              lambda { |*| {} }
+
+            expect {
               ModelWithPgSearch.with_unknown_ignoring("foo")
-            }.should raise_error(ArgumentError, /against/)
+            }.to raise_error(ArgumentError, /against/)
           end
         end
       end
@@ -135,9 +133,7 @@ describe "an ActiveRecord model which includes PgSearch" do
   describe "a search scope" do
     context "against a single column" do
       before do
-        ModelWithPgSearch.class_eval do
-          pg_search_scope :search_content, :against => :content
-        end
+        ModelWithPgSearch.pg_search_scope :search_content, :against => :content
       end
 
       it "returns an empty array when a blank query is passed in" do
@@ -256,9 +252,7 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     context "against multiple columns" do
       before do
-        ModelWithPgSearch.class_eval do
-          pg_search_scope :search_title_and_content, :against => [:title, :content]
-        end
+        ModelWithPgSearch.pg_search_scope :search_title_and_content, :against => [:title, :content]
       end
 
       it "returns rows whose columns contain all of the terms in the query across columns" do
@@ -297,9 +291,7 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     context "using trigram" do
       before do
-        ModelWithPgSearch.class_eval do
-          pg_search_scope :with_trigrams, :against => [:title, :content], :using => :trigram
-        end
+        ModelWithPgSearch.pg_search_scope :with_trigrams, :against => [:title, :content], :using => :trigram
       end
 
       it "returns rows where one searchable column and the query share enough trigrams" do
@@ -317,20 +309,18 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     context "using tsearch" do
       before do
-        ModelWithPgSearch.class_eval do
-          pg_search_scope :search_title_with_prefixes,
-                          :against => :title,
-                          :using => {
-                            :tsearch => {:prefix => true}
-                          }
-        end
+        ModelWithPgSearch.pg_search_scope :search_title_with_prefixes,
+                                          :against => :title,
+                                          :using => {
+                                            :tsearch => {:prefix => true}
+                                          }
       end
 
       if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
         it "is unsupported in PostgreSQL 8.3 and earlier" do
-          lambda do
+          expect {
             ModelWithPgSearch.search_title_with_prefixes("abcd\303\251f")
-          end.should raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
+          }.to raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
         end
       else
         context "with :prefix => true" do
@@ -356,13 +346,11 @@ describe "an ActiveRecord model which includes PgSearch" do
 
       context "with the english dictionary" do
         before do
-          ModelWithPgSearch.class_eval do
-            pg_search_scope :search_content_with_english,
-                            :against => :content,
-                            :using => {
-                              :tsearch => {:dictionary => :english}
-                            }
-          end
+          ModelWithPgSearch.pg_search_scope :search_content_with_english,
+            :against => :content,
+            :using => {
+              :tsearch => {:dictionary => :english}
+            }
         end
 
         it "returns rows that match the query when stemmed by the english dictionary" do
@@ -383,9 +371,7 @@ describe "an ActiveRecord model which includes PgSearch" do
         end
 
         it "adds a #pg_search_rank method to each returned model record" do
-          ModelWithPgSearch.class_eval do
-            pg_search_scope :search_content, :against => :content
-          end
+          ModelWithPgSearch.pg_search_scope :search_content, :against => :content
 
           result = ModelWithPgSearch.search_content("Strip Down").first
 
@@ -394,13 +380,11 @@ describe "an ActiveRecord model which includes PgSearch" do
 
         context "with a normalization specified" do
           before do
-            ModelWithPgSearch.class_eval do
-              pg_search_scope :search_content_with_normalization,
-                              :against => :content,
-                              :using => {
-                                :tsearch => {:normalization => 2}
-                              }
-            end
+            ModelWithPgSearch.pg_search_scope :search_content_with_normalization,
+              :against => :content,
+              :using => {
+                :tsearch => {:normalization => 2}
+              }
           end
 
           it "ranks the results for documents with less text higher" do
@@ -413,11 +397,9 @@ describe "an ActiveRecord model which includes PgSearch" do
 
         context "with no normalization" do
           before do
-            ModelWithPgSearch.class_eval do
-              pg_search_scope :search_content_without_normalization,
-                              :against => :content,
-                              :using => :tsearch
-            end
+            ModelWithPgSearch.pg_search_scope :search_content_without_normalization,
+              :against => :content,
+              :using => :tsearch
           end
 
           it "ranks the results equally" do
@@ -431,9 +413,8 @@ describe "an ActiveRecord model which includes PgSearch" do
 
       context "against columns ranked with arrays" do
         before do
-          ModelWithPgSearch.class_eval do
-             pg_search_scope :search_weighted_by_array_of_arrays, :against => [[:content, 'B'], [:title, 'A']]
-          end
+          ModelWithPgSearch.pg_search_scope :search_weighted_by_array_of_arrays,
+            :against => [[:content, 'B'], [:title, 'A']]
         end
 
         it "returns results sorted by weighted rank" do
@@ -448,9 +429,8 @@ describe "an ActiveRecord model which includes PgSearch" do
 
       context "against columns ranked with a hash" do
         before do
-          ModelWithPgSearch.class_eval do
-            pg_search_scope :search_weighted_by_hash, :against => {:content => 'B', :title => 'A'}
-          end
+          ModelWithPgSearch.pg_search_scope :search_weighted_by_hash,
+            :against => {:content => 'B', :title => 'A'}
         end
 
         it "returns results sorted by weighted rank" do
@@ -465,9 +445,8 @@ describe "an ActiveRecord model which includes PgSearch" do
 
       context "against columns of which only some are ranked" do
         before do
-          ModelWithPgSearch.class_eval do
-            pg_search_scope :search_weighted, :against => [:content, [:title, 'A']]
-          end
+          ModelWithPgSearch.pg_search_scope :search_weighted,
+            :against => [:content, [:title, 'A']]
         end
 
         it "returns results sorted by weighted rank using an implied low rank for unranked columns" do
@@ -482,16 +461,14 @@ describe "an ActiveRecord model which includes PgSearch" do
 
       context "searching any_word option" do
         before do
-          ModelWithPgSearch.class_eval do
-            pg_search_scope :search_title_with_any_word,
-                            :against => :title,
-                            :using => {
-                              :tsearch => {:any_word => true}
-                            }
+          ModelWithPgSearch.pg_search_scope :search_title_with_any_word,
+            :against => :title,
+            :using => {
+              :tsearch => {:any_word => true}
+            }
 
-            pg_search_scope :search_title_with_all_words,
-                            :against => :title
-          end
+            ModelWithPgSearch.pg_search_scope :search_title_with_all_words,
+              :against => :title
         end
 
         it "returns all results containing any word in their title" do
@@ -510,9 +487,9 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     context "using dmetaphone" do
       before do
-        ModelWithPgSearch.class_eval do
-          pg_search_scope :with_dmetaphones, :against => [:title, :content], :using => :dmetaphone
-        end
+        ModelWithPgSearch.pg_search_scope :with_dmetaphones,
+          :against => [:title, :content],
+          :using => :dmetaphone
       end
 
       it "returns rows where one searchable column and the query share enough dmetaphones" do
@@ -549,23 +526,23 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     context "using multiple features" do
       before do
-        ModelWithPgSearch.class_eval do
-          pg_search_scope :with_tsearch,
-                          :against => :title,
-                          :using => [
-                            [:tsearch, {:dictionary => 'english'}]
-                          ]
+        ModelWithPgSearch.pg_search_scope :with_tsearch,
+          :against => :title,
+          :using => [
+            [:tsearch, {:dictionary => 'english'}]
+          ]
 
-          pg_search_scope :with_trigram, :against => :title, :using => :trigram
+        ModelWithPgSearch.pg_search_scope :with_trigram,
+          :against => :title,
+          :using => :trigram
 
-          pg_search_scope :with_tsearch_and_trigram_using_array,
-                          :against => :title,
-                          :using => [
-                            [:tsearch, {:dictionary => 'english'}],
-                            :trigram
-                          ]
+        ModelWithPgSearch.pg_search_scope :with_tsearch_and_trigram,
+          :against => :title,
+          :using => [
+            [:tsearch, {:dictionary => 'english'}],
+            :trigram
+          ]
 
-        end
       end
 
       it "returns rows that match using any of the features" do
@@ -575,13 +552,13 @@ describe "an ActiveRecord model which includes PgSearch" do
         trigram_query = "ling is grouty"
         ModelWithPgSearch.with_trigram(trigram_query).should include(record)
         ModelWithPgSearch.with_tsearch(trigram_query).should_not include(record)
-        ModelWithPgSearch.with_tsearch_and_trigram_using_array(trigram_query).should == [record]
+        ModelWithPgSearch.with_tsearch_and_trigram(trigram_query).should == [record]
 
         # matches tsearch only
         tsearch_query = "tiles"
         ModelWithPgSearch.with_tsearch(tsearch_query).should include(record)
         ModelWithPgSearch.with_trigram(tsearch_query).should_not include(record)
-        ModelWithPgSearch.with_tsearch_and_trigram_using_array(tsearch_query).should == [record]
+        ModelWithPgSearch.with_tsearch_and_trigram(tsearch_query).should == [record]
       end
 
       context "with feature-specific configuration" do
@@ -589,14 +566,12 @@ describe "an ActiveRecord model which includes PgSearch" do
           @tsearch_config = tsearch_config = {:dictionary => 'english'}
           @trigram_config = trigram_config = {:foo => 'bar'}
 
-          ModelWithPgSearch.class_eval do
-            pg_search_scope :with_tsearch_and_trigram_using_hash,
-                            :against => :title,
-                            :using => {
-                              :tsearch => tsearch_config,
-                              :trigram => trigram_config
-                            }
-          end
+          ModelWithPgSearch.pg_search_scope :with_tsearch_and_trigram_using_hash,
+            :against => :title,
+            :using => {
+              :tsearch => tsearch_config,
+              :trigram => trigram_config
+            }
         end
 
         it "should pass the custom configuration down to the specified feature" do
@@ -628,16 +603,14 @@ describe "an ActiveRecord model which includes PgSearch" do
           SET content_tsvector = to_tsvector('english'::regconfig, "#{ModelWithPgSearchUsingTsVectorColumn.table_name}"."content")
         SQL
 
-        ModelWithPgSearchUsingTsVectorColumn.class_eval do
-          pg_search_scope :search_by_content_with_tsvector,
-            :against => :content,
-            :using => {
-              :tsearch => {
-                :tsvector_column => 'content_tsvector',
-                :dictionary => 'english'
-              }
+        ModelWithPgSearchUsingTsVectorColumn.pg_search_scope :search_by_content_with_tsvector,
+          :against => :content,
+          :using => {
+            :tsearch => {
+              :tsvector_column => 'content_tsvector',
+              :dictionary => 'english'
             }
-        end
+          }
       end
 
       it "should not use to_tsvector in the query" do
@@ -651,16 +624,16 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     context "ignoring accents" do
       before do
-        ModelWithPgSearch.class_eval do
-          pg_search_scope :search_title_without_accents, :against => :title, :ignoring => :accents
-        end
+        ModelWithPgSearch.pg_search_scope :search_title_without_accents,
+          :against => :title,
+          :ignoring => :accents
       end
 
       if ActiveRecord::Base.connection.send(:postgresql_version) < 90000
         it "is unsupported in PostgreSQL 8.x" do
-          lambda do
+          expect {
             ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
-          end.should raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
+          }.to raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
         end
       else
         it "returns rows that match the query but not its accents" do
@@ -677,16 +650,16 @@ describe "an ActiveRecord model which includes PgSearch" do
 
     context "when passed a :ranked_by expression" do
       before do
-        ModelWithPgSearch.class_eval do
-          pg_search_scope :search_content_with_default_rank,
-                          :against => :content
-          pg_search_scope :search_content_with_importance_as_rank,
-                          :against => :content,
-                          :ranked_by => "importance"
-          pg_search_scope :search_content_with_importance_as_rank_multiplier,
-                          :against => :content,
-                          :ranked_by => ":tsearch * importance"
-        end
+        ModelWithPgSearch.pg_search_scope :search_content_with_default_rank,
+          :against => :content
+
+        ModelWithPgSearch.pg_search_scope :search_content_with_importance_as_rank,
+          :against => :content,
+          :ranked_by => "importance"
+
+        ModelWithPgSearch.pg_search_scope :search_content_with_importance_as_rank_multiplier,
+          :against => :content,
+          :ranked_by => ":tsearch * importance"
       end
 
       it "should return records with a rank attribute equal to the :ranked_by expression" do
@@ -716,22 +689,20 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
 
       %w[tsearch trigram dmetaphone].each do |feature|
-
         context "using the #{feature} ranking algorithm" do
           before do
             @scope_name = scope_name = :"search_content_ranked_by_#{feature}"
-            ModelWithPgSearch.class_eval do
-              pg_search_scope scope_name,
-                              :against => :content,
-                              :ranked_by => ":#{feature}"
-            end
+
+            ModelWithPgSearch.pg_search_scope scope_name,
+              :against => :content,
+              :ranked_by => ":#{feature}"
           end
 
           it "should return results with a rank" do
             ModelWithPgSearch.create!(:content => 'foo')
 
             results = ModelWithPgSearch.send(@scope_name, 'foo')
-            results.first.pg_search_rank.should_not be_nil
+            results.first.pg_search_rank.should be_a Float
           end
         end
       end

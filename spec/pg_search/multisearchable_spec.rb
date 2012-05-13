@@ -97,10 +97,13 @@ describe PgSearch::Multisearchable do
           record = ModelThatIsMultisearchable.create!
           document = record.pg_search_document
 
-          lambda { record.destroy }.should change(PgSearch::Document, :count).by(-1)
-          lambda {
+          expect {
+            record.destroy
+          }.to change(PgSearch::Document, :count).by(-1)
+
+          expect {
             PgSearch::Document.find(document.id)
-          }.should raise_error(ActiveRecord::RecordNotFound)
+          }.to raise_error(ActiveRecord::RecordNotFound)
         end
       end
     end
