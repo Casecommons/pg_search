@@ -26,7 +26,7 @@ The 0.2 branch lives at https://github.com/Casecommons/pg_search/tree/0.2-stable
 
 === Other ActiveRecord-based projects
 
-In addition to installing and requiring the gem, you may want to include the PgSearch rake tasks in your Rakefile:
+In addition to installing and requiring the gem, you may want to include the PgSearch rake tasks in your Rakefile. This isn't necessary for Rails projects, which gain the Rake tasks via a Railtie.
 
  load "pg_search/tasks.rb"
 
