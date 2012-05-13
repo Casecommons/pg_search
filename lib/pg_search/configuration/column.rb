@@ -26,7 +26,7 @@ module PgSearch
                else
                  full_name
                end
-        "coalesce(#{name}, '')"
+        "coalesce(#{name}::text, '')"
       end
 
       def foreign?

@@ -248,6 +248,31 @@ describe "an ActiveRecord model which includes PgSearch" do
         not_a_string = stub(:to_s => "foo")
         ModelWithPgSearch.search_content(not_a_string).should == [foo]
       end
+
+      context "when the column is not text" do
+        with_model :ModelWithTimestamps do
+          table do |t|
+            t.timestamps
+          end
+
+          model do
+            include PgSearch
+
+            # WARNING: searching timestamps is not something PostgreSQL
+            # full-text search is good at. Use at your own risk.
+            pg_search_scope :search_timestamps,
+              :against => [:created_at, :updated_at]
+          end
+        end
+
+        it "casts the column to text" do
+          record = ModelWithTimestamps.create!
+
+          query = record.created_at.strftime("%Y-%m-%d")
+          results = ModelWithTimestamps.search_timestamps(query)
+          results.should == [record]
+        end
+      end
     end
 
     context "against multiple columns" do

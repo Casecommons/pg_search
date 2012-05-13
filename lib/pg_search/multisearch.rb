@@ -32,7 +32,7 @@ SQL
         )
 
         content_expressions = columns.map { |column|
-          %Q{coalesce(:model_table.#{column}, '')}
+          %Q{coalesce(:model_table.#{column}::text, '')}
         }.join(" || ' ' || ")
 
         REBUILD_SQL_TEMPLATE.gsub(
