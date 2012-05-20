@@ -490,7 +490,7 @@ Please note that the :against column is only used when the tsvector_column is no
 
 * ActiveRecord 3
 * PostgreSQL
-* PostgreSQL contrib packages for certain features
+* {PostgreSQL contrib packages for certain features}[https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules]
 
 == ATTRIBUTIONS
 
