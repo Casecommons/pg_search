@@ -63,7 +63,8 @@ module PgSearch
 
       def tsdocument
         if @options[:tsvector_column]
-          @options[:tsvector_column].to_s
+          column_name = connection.quote_column_name(@options[:tsvector_column])
+          "#{quoted_table_name}.#{column_name}"
         else
           @columns.map do |search_column|
             tsvector = "to_tsvector(:dictionary, #{@normalizer.add_normalization(search_column.to_sql)})"
