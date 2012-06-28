@@ -2,14 +2,32 @@ require "bundler/setup"
 require "pg_search"
 
 begin
+  require "pg"
+  error_class = PGError
+rescue
+  begin
+    require "arjdbc/jdbc/core_ext"
+    error_class = ActiveRecord::JDBCError
+  rescue LoadError, StandardError
+    raise "I don't know what database adapter you're using, sorry."
+  end
+end
+
+begin
+  database_user = if ENV["TRAVIS"]
+                    "postgres"
+                  else
+                    ENV["USER"]
+                  end
+
   ActiveRecord::Base.establish_connection(:adapter  => 'postgresql',
                                           :database => 'pg_search_test',
-                                          :username => ('postgres' if ENV["TRAVIS"]),
+                                          :username => database_user,
                                           :min_messages => 'warning')
   connection = ActiveRecord::Base.connection
   postgresql_version = connection.send(:postgresql_version)
   connection.execute("SELECT 1")
-rescue PGError => e
+rescue error_class => e
   puts "-" * 80
   puts "Unable to connect to database.  Please run:"
   puts

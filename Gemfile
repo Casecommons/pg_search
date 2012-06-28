@@ -4,7 +4,15 @@ gemspec
 
 gem "rake"
 gem "rdoc"
-gem "pg"
+
+platforms :ruby do
+  gem 'pg'
+end
+
+platforms :jruby do
+  gem "activerecord-jdbcpostgresql-adapter"
+end
+
 gem "rspec"
 gem "with_model"
 
