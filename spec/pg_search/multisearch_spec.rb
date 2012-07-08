@@ -33,13 +33,13 @@ describe PgSearch::Multisearch do
       before do
         connection.execute <<-SQL
           INSERT INTO pg_search_documents
-            (searchable_type, searchable_id, content)
+            (searchable_type, searchable_id, content, created_at, updated_at)
             VALUES
-            ('#{model.name}', 123, 'foo');
+            ('#{model.name}', 123, 'foo', now(), now());
           INSERT INTO pg_search_documents
-            (searchable_type, searchable_id, content)
+            (searchable_type, searchable_id, content, created_at, updated_at)
             VALUES
-            ('Bar', 123, 'foo');
+            ('Bar', 123, 'foo', now(), now());
         SQL
         PgSearch::Document.count.should == 2
       end
