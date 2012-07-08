@@ -129,6 +129,39 @@ Currently this is only supported for :against methods that directly map to Activ
  PgSearch::Document.delete_all(:searchable_type => "Ingredient")
  Ingredient.find_each { |record| record.update_pg_search_document }
 
+
+You can also provide a custom implementation for rebuilding the documents by adding a class method called `rebuild_pg_search_documents` to your model.
+
+ class Movie < ActiveRecord::Base
+   belongs_to :director
+
+   def director_name
+     director.name
+   end
+
+   multisearchable against: [:name, :director_name]
+
+   # Naive approach
+   def self.rebuild_pg_search_documents
+     find_each { |record| record.update_pg_search_document }
+   end
+
+   # More sophisticated approach
+   def self.rebuild_pg_search_documents
+     connection.execute <<-SQL
+      INSERT INTO pg_search_documents (searchable_type, searchable_id, content, created_at, updated_at)
+        SELECT 'Movie' AS searchable_type,
+               movies.id AS searchable_id,
+               (movies.name || ' ' || directors.name) AS content,
+               now() AS created_at,
+               now() AS updated_at
+        FROM movies
+        LEFT JOIN directors
+          ON directors.id = movies.director_id
+     SQL
+   end
+ end
+
 ==== Disabling multi-search indexing temporarily
 
 If you have a large bulk operation to perform, such as importing a lot of records from an external source, you might want to speed things up by turning off indexing temporarily. You could then use one of the techniques above to rebuild the search documents off-line.

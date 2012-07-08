@@ -24,7 +24,7 @@ describe PgSearch::Multisearch do
     end
 
     it "should operate inside a transaction" do
-      model.should_receive(:transaction).once()
+      model.should_receive(:transaction).once
 
       PgSearch::Multisearch.rebuild(model)
     end
@@ -68,6 +68,27 @@ describe PgSearch::Multisearch do
         it "should not delete the document for the model" do
           PgSearch::Multisearch.rebuild(model, clean_up)
           PgSearch::Document.count.should == 2
+        end
+      end
+
+      context "when the model implements .rebuild_pg_search_documents" do
+        before do
+          def model.rebuild_pg_search_documents
+            connection.execute <<-SQL
+              INSERT INTO pg_search_documents
+                (searchable_type, searchable_id, content, created_at, updated_at)
+                VALUES
+                ('Baz', 789, 'baz', now(), now());
+            SQL
+          end
+        end
+
+        it "should call .rebuild_pg_search_documents and skip the default behavior" do
+          PgSearch::Multisearch.should_not_receive(:rebuild_sql)
+          PgSearch::Multisearch.rebuild(model)
+
+          record = PgSearch::Document.find_by_searchable_type_and_searchable_id("Baz", 789)
+          record.content.should == "baz"
         end
       end
     end

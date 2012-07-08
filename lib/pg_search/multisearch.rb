@@ -16,7 +16,11 @@ SQL
       def rebuild(model, clean_up=true)
         model.transaction do
           PgSearch::Document.where(:searchable_type => model.name).delete_all if clean_up
-          model.connection.execute(rebuild_sql(model))
+          if model.respond_to?(:rebuild_pg_search_documents)
+            model.rebuild_pg_search_documents
+          else
+            model.connection.execute(rebuild_sql(model))
+          end
         end
       end
 
