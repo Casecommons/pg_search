@@ -1,5 +1,9 @@
 = PgSearch
 
+== 0.5.1
+
+* Add ability to override multisearch rebuild SQL
+
 == 0.5
 
 * Convert migration rake tasks into generators.
