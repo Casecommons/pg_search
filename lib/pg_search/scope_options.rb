@@ -2,9 +2,7 @@ require "active_support/core_ext/module/delegation"
 
 module PgSearch
   class ScopeOptions
-    attr_reader :model
-
-    delegate :connection, :quoted_table_name, :sanitize_sql_array, :to => :model
+    delegate :connection, :quoted_table_name, :sanitize_sql_array, :to => :@model
 
     def initialize(name, config)
       @name = name
@@ -34,7 +32,7 @@ module PgSearch
     end
 
     def primary_key
-      "#{quoted_table_name}.#{connection.quote_column_name(model.primary_key)}"
+      "#{quoted_table_name}.#{connection.quote_column_name(@model.primary_key)}"
     end
 
     def joins
@@ -57,7 +55,13 @@ module PgSearch
 
       normalizer = Normalizer.new(@config)
 
-      feature_class.new(@config.query, @feature_options[feature_name], @config.columns, @model, normalizer)
+      feature_class.new(
+        @config.query,
+        @feature_options[feature_name],
+        @config.columns,
+        @config.model,
+        normalizer
+      )
     end
 
     def rank
