@@ -9,7 +9,7 @@ module PgSearch
     def to_proc
       lambda { |*args|
         config = Configuration.new(@options_proc.call(*args), @model)
-        ScopeOptions.new(@name, config).to_relation
+        ScopeOptions.new(@name, config).apply(@model)
       }
     end
 

@@ -8,23 +8,19 @@ module PgSearch
       @name = name
       @config = config
       @model = config.model
-
-      @feature_options = @config.features.inject({}) do |features_hash, (feature_name, feature_options)|
-        features_hash.merge(
-          feature_name => feature_options
-        )
-      end
-      @feature_names = @config.features.map { |feature_name, feature_options| feature_name }
+      @feature_options = Hash[config.features]
     end
 
-    def to_relation
-      @model.select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").where(conditions).order("pg_search_rank DESC, #{order_within_rank}").joins(joins)
+    def apply(scope)
+      scope.select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").where(conditions).order("pg_search_rank DESC, #{order_within_rank}").joins(joins)
     end
 
     private
 
     def conditions
-      @feature_names.map { |feature_name| "(#{sanitize_sql_array(feature_for(feature_name).conditions)})" }.join(" OR ")
+      @config.features.map do |feature_name, feature_options|
+        "(#{sanitize_sql_array(feature_for(feature_name).conditions)})"
+      end.join(" OR ")
     end
 
     def order_within_rank
