@@ -1,5 +1,4 @@
 require "logger"
-require "pg_search/scope"
 
 module PgSearch
   class Document < ActiveRecord::Base
