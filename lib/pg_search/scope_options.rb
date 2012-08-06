@@ -6,10 +6,10 @@ module PgSearch
 
     delegate :connection, :quoted_table_name, :sanitize_sql_array, :to => :model
 
-    def initialize(name, model, config)
+    def initialize(name, config)
       @name = name
-      @model = model
       @config = config
+      @model = config.model
 
       @feature_options = @config.features.inject({}) do |features_hash, (feature_name, feature_options)|
         features_hash.merge(

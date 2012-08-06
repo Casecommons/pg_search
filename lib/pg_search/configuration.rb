@@ -3,6 +3,8 @@ module PgSearch
     autoload :Association, "pg_search/configuration/association"
     autoload :Column, "pg_search/configuration/column"
 
+    attr_reader :model
+
     def initialize(options, model)
       options = options.reverse_merge(default_options)
       assert_valid_options(options)
