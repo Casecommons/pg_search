@@ -6,10 +6,10 @@ module PgSearch
     attr_reader :model
 
     def initialize(options, model)
-      options = options.reverse_merge(default_options)
-      assert_valid_options(options)
-      @options = options
+      @options = options.reverse_merge(default_options)
       @model = model
+
+      assert_valid_options(@options)
     end
 
     class << self
@@ -34,8 +34,7 @@ module PgSearch
     def associations
       return [] unless @options[:associated_against]
       @options[:associated_against].map do |association, column_names|
-        association = Association.new(@model, association, column_names)
-        association
+        Association.new(@model, association, column_names)
       end.flatten
     end
 
@@ -77,20 +76,26 @@ module PgSearch
       {:using => :tsearch}
     end
 
-    def assert_valid_options(options)
-      valid_keys = [:against, :ranked_by, :ignoring, :using, :query, :associated_against, :order_within_rank]
-      valid_values = {
-        :ignoring => [:accents]
-      }
+    VALID_KEYS = %w[
+      against ranked_by ignoring using query associated_against order_within_rank
+    ].map(&:to_sym)
 
+    VALID_VALUES = {
+      :ignoring => [:accents]
+    }
+
+    def assert_valid_options(options)
       unless options[:against] || options[:associated_against]
         raise ArgumentError, "the search scope #{@name} must have :against#{" or :associated_against" if defined?(ActiveRecord::Relation)} in its options"
       end
-      raise ArgumentError, ":associated_against requires ActiveRecord 3 or later" if options[:associated_against] && !defined?(ActiveRecord::Relation)
 
-      options.assert_valid_keys(valid_keys)
+      if options[:associated_against] && !defined?(ActiveRecord::Relation)
+        raise ArgumentError, ":associated_against requires Active Record 3 or later"
+      end
 
-      valid_values.each do |key, values_for_key|
+      options.assert_valid_keys(VALID_KEYS)
+
+      VALID_VALUES.each do |key, values_for_key|
         Array.wrap(options[key]).each do |value|
           unless values_for_key.include?(value)
             raise ArgumentError, ":#{key} cannot accept #{value}"
