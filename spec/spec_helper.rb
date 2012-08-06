@@ -28,11 +28,13 @@ begin
   postgresql_version = connection.send(:postgresql_version)
   connection.execute("SELECT 1")
 rescue error_class => e
-  puts "-" * 80
-  puts "Unable to connect to database.  Please run:"
-  puts
-  puts "    createdb pg_search_test"
-  puts "-" * 80
+  at_exit do
+    puts "-" * 80
+    puts "Unable to connect to database.  Please run:"
+    puts
+    puts "    createdb pg_search_test"
+    puts "-" * 80
+  end
   raise e
 end
 
@@ -56,9 +58,11 @@ rescue => e
       puts $!.message
     end
   rescue => e2
-    puts "-" * 80
-    puts "Please install the #{name} contrib module"
-    puts "-" * 80
+    at_exit do
+      puts "-" * 80
+      puts "Please install the #{name} contrib module"
+      puts "-" * 80
+    end
     raise e2
   end
 end
