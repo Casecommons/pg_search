@@ -1,8 +1,8 @@
-require "pg_search/configuration/association"
-require "pg_search/configuration/column"
-
 module PgSearch
   class Configuration
+    autoload :Association, "pg_search/configuration/association"
+    autoload :Column, "pg_search/configuration/column"
+
     def initialize(options, model)
       options = options.reverse_merge(default_options)
       assert_valid_options(options)
