@@ -105,22 +105,21 @@ describe PgSearch::Multisearch do
         PgSearch::Document.last(2).map(&:searchable).map(&:title).should =~ new_models.map(&:title)
       end
     end
-  end
 
-  describe ".rebuild_sql" do
-    let(:now) { Time.now }
+    describe "the generated SQL" do
+      let(:now) { Time.now }
 
-    before do
-      Time.stub(:now => now)
-    end
-
-    context "with one attribute" do
       before do
-        model.multisearchable :against => [:title]
+        Time.stub(:now => now)
       end
 
-      it "should generate the proper SQL code" do
-        expected_sql = <<-SQL
+      context "with one attribute" do
+        before do
+          model.multisearchable :against => [:title]
+        end
+
+        it "should generate the proper SQL code" do
+          expected_sql = <<-SQL
 INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
   SELECT #{connection.quote(model.name)} AS searchable_type,
          #{model.quoted_table_name}.id AS searchable_id,
@@ -132,17 +131,22 @@ INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable
   FROM #{model.quoted_table_name}
   SQL
 
-        PgSearch::Multisearch.rebuild_sql(model).should == expected_sql
-      end
-    end
+          statements = []
+          connection.stub(:execute) { |sql| statements << sql }
 
-    context "with multiple attributes" do
-      before do
-        model.multisearchable :against => [:title, :content]
+          PgSearch::Multisearch.rebuild(model)
+
+          statements.should include(expected_sql)
+        end
       end
 
-      it "should generate the proper SQL code" do
-        expected_sql = <<-SQL
+      context "with multiple attributes" do
+        before do
+          model.multisearchable :against => [:title, :content]
+        end
+
+        it "should generate the proper SQL code" do
+          expected_sql = <<-SQL
 INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
   SELECT #{connection.quote(model.name)} AS searchable_type,
          #{model.quoted_table_name}.id AS searchable_id,
@@ -152,9 +156,15 @@ INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable
          #{connection.quote(connection.quoted_date(now))} AS created_at,
          #{connection.quote(connection.quoted_date(now))} AS updated_at
   FROM #{model.quoted_table_name}
-  SQL
+SQL
 
-        PgSearch::Multisearch.rebuild_sql(model).should == expected_sql
+          statements = []
+          connection.stub(:execute) { |sql| statements << sql }
+
+          PgSearch::Multisearch.rebuild(model)
+
+          statements.should include(expected_sql)
+        end
       end
     end
   end
