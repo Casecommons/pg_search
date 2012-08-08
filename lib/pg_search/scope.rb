@@ -6,26 +6,22 @@ module PgSearch
       @options_proc = build_options_proc(scope_options_or_proc)
     end
 
-    def to_proc
-      lambda { |*args|
-        config = Configuration.new(@options_proc.call(*args), @model)
-        ScopeOptions.new(@name, config).apply(@model)
-      }
+    def build_relation(*args)
+      config = Configuration.new(@options_proc.call(*args), @model)
+      scope_options = ScopeOptions.new(@name, config)
+      scope_options.apply(@model)
     end
 
     private
 
-    def build_options_proc(scope_options_or_proc)
-      case scope_options_or_proc
-        when Proc
-          scope_options_or_proc
-        when Hash
-          lambda { |query|
-            scope_options_or_proc.reverse_merge(:query => query)
-          }
-        else
-          raise ArgumentError, "A PgSearch scope expects a Proc or Hash for its options"
+    def build_options_proc(scope_options)
+      return scope_options if scope_options.respond_to?(:call)
+
+      unless scope_options.respond_to?(:merge)
+        raise ArgumentError, "pg_search_scope expects a Hash or Proc"
       end
+
+      lambda { |query| {:query => query}.merge(scope_options) }
     end
   end
 end
