@@ -21,7 +21,14 @@ module PgSearch
   module ClassMethods
     def pg_search_scope(name, options)
       scope = PgSearch::Scope.new(name, self, options)
-      define_singleton_method name, &scope.method(:build_relation)
+
+      method_proc = scope.method(:build_relation)
+
+      if respond_to?(:define_singleton_method)
+        define_singleton_method name, &method_proc
+      else
+        (class << self; self; end).send :define_method, name, &method_proc
+      end
     end
 
     def multisearchable(options = {})
