@@ -36,19 +36,13 @@ SQL
       end
 
       def rebuild_sql
-        replacements.inject(REBUILD_SQL_TEMPLATE) do |sql, (key, replacement)|
-          sql.gsub ":#{key}", replacement
+        replacements.inject(REBUILD_SQL_TEMPLATE) do |sql, key|
+          sql.gsub ":#{key}", send(key)
         end
       end
 
       def replacements
-        {
-          :content_expressions => content_expressions,
-          :model_name => model_name,
-          :model_table => model_table,
-          :documents_table => documents_table,
-          :current_time => current_time
-        }
+        %w[content_expressions model_name model_table documents_table current_time]
       end
 
       def content_expressions
