@@ -55,7 +55,11 @@ module PgSearch
     end
 
     def multisearch_enabled?
-      Thread.current.key?("PgSearch.enable_multisearch") ? Thread.current["PgSearch.enable_multisearch"] : true
+      if Thread.current.key?("PgSearch.enable_multisearch")
+        Thread.current["PgSearch.enable_multisearch"]
+      else
+        true
+      end
     end
   end
 
