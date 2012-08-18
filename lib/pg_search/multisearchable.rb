@@ -19,8 +19,11 @@ module PgSearch
     end
 
     def update_pg_search_document
-      create_pg_search_document unless self.pg_search_document
-      self.pg_search_document.save
+      if self.pg_search_document
+        self.pg_search_document.save
+      else
+        create_pg_search_document
+      end
     end
   end
 end
