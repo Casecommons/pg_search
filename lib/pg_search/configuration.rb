@@ -6,7 +6,7 @@ module PgSearch
     attr_reader :model
 
     def initialize(options, model)
-      @options = options.reverse_merge(default_options)
+      @options = default_options.merge(options)
       @model = model
 
       assert_valid_options(@options)

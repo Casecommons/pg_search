@@ -18,9 +18,10 @@ module PgSearch
       options = if PgSearch.multisearch_options.respond_to?(:call)
         PgSearch.multisearch_options.call(*args)
       else
-        PgSearch.multisearch_options.reverse_merge(:query => args.first)
+        {:query => args.first}.merge(PgSearch.multisearch_options)
       end
-      options.reverse_merge(:against => :content)
+
+      {:against => :content}.merge(options)
     }
 
     private
