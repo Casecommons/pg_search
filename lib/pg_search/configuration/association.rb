@@ -9,7 +9,7 @@ module PgSearch
         @model = model
         @name = name
         @columns = Array(column_names).map do |column_name, weight|
-          Column.new(column_name, weight, @model, self)
+          ForeignColumn.new(column_name, weight, @model, self)
         end
       end
 
