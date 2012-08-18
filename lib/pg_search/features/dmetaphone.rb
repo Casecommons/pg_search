@@ -1,15 +1,18 @@
-require "active_support/core_ext/module/delegation"
-
 module PgSearch
   module Features
     class DMetaphone
-      delegate :conditions, :rank, :to => :'@tsearch'
-
-      # config is temporary as we refactor
-      def initialize(query, options, config, model, normalizer)
+      def initialize(query, options, columns, model, normalizer)
         dmetaphone_normalizer = Normalizer.new(normalizer)
         options = (options || {}).merge(:dictionary => 'simple')
-        @tsearch = TSearch.new(query, options, config, model, dmetaphone_normalizer)
+        @tsearch = TSearch.new(query, options, columns, model, dmetaphone_normalizer)
+      end
+
+      def conditions
+        @tsearch.conditions
+      end
+
+      def rank
+        @tsearch.rank
       end
 
       # Decorates a normalizer with dmetaphone processing.
