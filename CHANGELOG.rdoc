@@ -1,5 +1,9 @@
 = PgSearch
 
+== 0.5.2
+
+* Don't save twice if pg_search_document is missing on update
+
 == 0.5.1
 
 * Add ability to override multisearch rebuild SQL
