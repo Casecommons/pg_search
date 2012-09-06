@@ -1,5 +1,9 @@
 = PgSearch
 
+== 0.5.3
+
+* Prevent multiple attempts to create pg search document within a single transaction
+
 == 0.5.2
 
 * Don't save twice if pg_search_document is missing on update
