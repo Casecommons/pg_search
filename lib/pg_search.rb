@@ -11,7 +11,7 @@ module PgSearch
   autoload :Normalizer, "pg_search/normalizer"
   autoload :Scope, "pg_search/scope"
   autoload :ScopeOptions, "pg_search/scope_options"
-  autoload :Version, "pg_search/version"
+  autoload :VERSION, "pg_search/version"
 
   extend ActiveSupport::Concern
 
