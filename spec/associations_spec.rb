@@ -373,13 +373,13 @@ describe PgSearch do
       excluded_associated_2 = AssociatedModel.create(:content => "baz bar")
 
       included = [
-        ModelWithAssociation.create(:associated_models => [included_associated_1]),
-        ModelWithAssociation.create(:associated_models => [included_associated_2, excluded_associated_1])
+          ModelWithAssociation.create(:associated_models => [included_associated_1]),
+          ModelWithAssociation.create(:associated_models => [included_associated_2, excluded_associated_1])
       ]
 
       excluded = [
-        ModelWithAssociation.create(:associated_models => [excluded_associated_2]),
-        ModelWithAssociation.create(:associated_models => [])
+          ModelWithAssociation.create(:associated_models => [excluded_associated_2]),
+          ModelWithAssociation.create(:associated_models => [])
       ]
 
       relation = AssociatedModel.search_content("foo")
