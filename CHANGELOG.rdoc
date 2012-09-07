@@ -1,16 +1,22 @@
 = PgSearch
 
+== 0.5.4
+
+* Fix bug in associated_against join clause when search scope is chained after other scopes.
+
+* Fix autoloading of PgSearch::VERSION constant.
+
 == 0.5.3
 
-* Prevent multiple attempts to create pg search document within a single transaction
+* Prevent multiple attempts to create pg_search_document within a single transaction. (JT Archie & Trace Wax)
 
 == 0.5.2
 
-* Don't save twice if pg_search_document is missing on update
+* Don't save twice if pg_search_document is missing on update.
 
 == 0.5.1
 
-* Add ability to override multisearch rebuild SQL
+* Add ability to override multisearch rebuild SQL.
 
 == 0.5
 
