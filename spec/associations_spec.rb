@@ -116,6 +116,23 @@ describe PgSearch do
         results.map(&:title).should =~ included.map(&:title)
         results.should_not include(excluded)
       end
+
+      it "uses an unscoped relation of the assocated model" do
+        excluded = ModelWithHasMany.create!(:title => 'abcdef', :other_models => [
+          AssociatedModelWithHasMany.create!(:title => 'abcdef')
+        ])
+        included = [
+          ModelWithHasMany.create!(:title => 'abcdef', :other_models => [
+            AssociatedModelWithHasMany.create!(:title => 'foo'),
+            AssociatedModelWithHasMany.create!(:title => 'bar')
+          ])
+        ]
+
+        results = ModelWithHasMany.limit(1).order("id ASC").with_associated('foo bar')
+        results.map(&:title).should =~ included.map(&:title)
+        results.should_not include(excluded)
+      end
+
     end
 
     context "across multiple associations" do

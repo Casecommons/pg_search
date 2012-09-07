@@ -41,7 +41,7 @@ module PgSearch
       end
 
       def relation(primary_key)
-        @model.joins(@name).select("#{primary_key} AS id, #{selects}").group(primary_key)
+        @model.unscoped.joins(@name).select("#{primary_key} AS id, #{selects}").group(primary_key)
       end
     end
   end
