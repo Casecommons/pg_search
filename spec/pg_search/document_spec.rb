@@ -7,7 +7,7 @@ describe PgSearch::Document do
     table
     model do
       include PgSearch
-      multisearchable({})
+      multisearchable
     end
   end
 
