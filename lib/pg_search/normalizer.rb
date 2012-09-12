@@ -5,11 +5,11 @@ module PgSearch
     end
 
     def add_normalization(sql_expression)
-      if @config.ignore.include?(:accents)
-        if @config.postgresql_version < 90000
+      if config.ignore.include?(:accents)
+        if config.postgresql_version < 90000
           raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.gsub /^\s*/, '')
             Sorry, {:ignoring => :accents} only works in PostgreSQL 9.0 and above.
-            #{@config.inspect}
+            #{config.inspect}
           MESSAGE
         else
           "unaccent(#{sql_expression})"
@@ -18,5 +18,9 @@ module PgSearch
         sql_expression
       end
     end
+
+    private
+
+    attr_reader :config
   end
 end
