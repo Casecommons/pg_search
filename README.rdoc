@@ -495,6 +495,10 @@ Ignoring accents uses the {unaccent contrib package}[http://www.postgresql.org/d
   SpanishQuestion.gringo_search("Que") # => [what]
   SpanishQuestion.gringo_search("Cüåñtô") # => [how_many]
 
+Advanced users may wish to add indexes for the expressions that pg_search generates. Unfortunately, the unaccent function supplied by this contrib package is not indexable (as of PostgreSQL 9.1). Thus, you may want to write your own wrapper function and use it instead. This can be configured by calling the following code, perhaps in an initializer.
+
+  PgSearch.unaccent_function = "my_unaccent"
+
 === Using tsvector columns
 
 PostgreSQL allows you the ability to search against a column with type tsvector instead of using an expression; this speeds up searching dramatically as it offloads creation of the tsvector that the tsquery is evaluated against.

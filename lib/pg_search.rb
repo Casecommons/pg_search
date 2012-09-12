@@ -18,6 +18,9 @@ module PgSearch
   mattr_accessor :multisearch_options
   self.multisearch_options = {}
 
+  mattr_accessor :unaccent_function
+  self.unaccent_function = "unaccent"
+
   module ClassMethods
     def pg_search_scope(name, options)
       scope = PgSearch::Scope.new(name, self, options)

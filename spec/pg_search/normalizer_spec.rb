@@ -10,6 +10,17 @@ describe PgSearch::Normalizer do
           normalizer = PgSearch::Normalizer.new(config)
           normalizer.add_normalization("foo").should == "unaccent(foo)"
         end
+
+        context "when a custom unaccent function is specified" do
+          it "wraps the expression in that function" do
+            PgSearch.stub(:unaccent_function).and_return("my_unaccent")
+
+            config = stub("config", ignore: [:accents], postgresql_version: 90000)
+
+            normalizer = PgSearch::Normalizer.new(config)
+            normalizer.add_normalization("foo").should == "my_unaccent(foo)"
+          end
+        end
       end
 
       context "when config[:ignore] does not include :accents" do

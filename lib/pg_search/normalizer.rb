@@ -12,7 +12,7 @@ module PgSearch
             #{config.inspect}
           MESSAGE
         else
-          "unaccent(#{sql_expression})"
+          "#{PgSearch.unaccent_function}(#{sql_expression})"
         end
       else
         sql_expression
