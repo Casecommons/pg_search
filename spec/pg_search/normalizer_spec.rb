@@ -5,7 +5,7 @@ describe PgSearch::Normalizer do
     context "for PostgreSQL 9.0 and above" do
       context "when config[:ignore] includes :accents" do
         it "wraps the expression in unaccent()" do
-          config = stub("config", ignore: [:accents], postgresql_version: 90000)
+          config = stub("config", :ignore => [:accents], :postgresql_version => 90000)
 
           normalizer = PgSearch::Normalizer.new(config)
           normalizer.add_normalization("foo").should == "unaccent(foo)"
@@ -15,7 +15,7 @@ describe PgSearch::Normalizer do
           it "wraps the expression in that function" do
             PgSearch.stub(:unaccent_function).and_return("my_unaccent")
 
-            config = stub("config", ignore: [:accents], postgresql_version: 90000)
+            config = stub("config", :ignore => [:accents], :postgresql_version => 90000)
 
             normalizer = PgSearch::Normalizer.new(config)
             normalizer.add_normalization("foo").should == "my_unaccent(foo)"
@@ -25,7 +25,7 @@ describe PgSearch::Normalizer do
 
       context "when config[:ignore] does not include :accents" do
         it "passes the expression through" do
-          config = stub("config", ignore: [], postgresql_version: 90000)
+          config = stub("config", :ignore => [], :postgresql_version => 90000)
 
           normalizer = PgSearch::Normalizer.new(config)
           normalizer.add_normalization("foo").should == "foo"
@@ -36,7 +36,7 @@ describe PgSearch::Normalizer do
     context "for PostgreSQL versions before 9.0" do
       context "when config[:ignore] includes :accents" do
         it "raises a NotSupportedForPostgresqlVersion exception" do
-          config = stub("config", ignore: [:accents], postgresql_version: 89999)
+          config = stub("config", :ignore => [:accents], :postgresql_version => 89999)
 
           normalizer = PgSearch::Normalizer.new(config)
           expect {
@@ -47,7 +47,7 @@ describe PgSearch::Normalizer do
 
       context "when config[:ignore] does not include :accents" do
         it "passes the expression through" do
-          config = stub("config", ignore: [], postgresql_version: 90000)
+          config = stub("config", :ignore => [], :postgresql_version => 90000)
 
           normalizer = PgSearch::Normalizer.new(config)
           normalizer.add_normalization("foo").should == "foo"
