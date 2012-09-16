@@ -751,6 +751,50 @@ describe "an ActiveRecord model which includes PgSearch" do
         end
       end
     end
+
+    context "on an STI subclass" do
+      with_model :SuperclassModel do
+        table do |t|
+          t.text 'content'
+          t.string 'type'
+        end
+
+        model do
+          include PgSearch
+        end
+      end
+
+      before do
+        SuperclassModel.pg_search_scope :search_content, :against => :content
+
+        class SubclassModel < SuperclassModel
+        end
+
+        class AnotherSubclassModel < SuperclassModel
+        end
+      end
+
+      it "should returns only results for that subclass" do
+        included = [
+          SubclassModel.create!(:content => "foo bar")
+        ]
+        excluded = [
+          SubclassModel.create!(:content => "baz"),
+          SuperclassModel.create!(:content => "foo bar"),
+          SuperclassModel.create!(:content => "baz"),
+          AnotherSubclassModel.create!(:content => "foo bar"),
+          AnotherSubclassModel.create!(:content => "baz")
+        ]
+
+        SuperclassModel.count.should == 6
+        SubclassModel.count.should == 2
+
+        results = SubclassModel.search_content("foo bar")
+
+        results.should include(*included)
+        results.should_not include(*excluded)
+      end
+    end
   end
 
   describe ".multisearchable" do

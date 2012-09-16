@@ -23,9 +23,13 @@ module PgSearch
 
   module ClassMethods
     def pg_search_scope(name, options)
-      scope = PgSearch::Scope.new(name, self, options)
+      scope = PgSearch::Scope.new(options)
 
-      method_proc = scope.method(:build_relation)
+      method_proc = lambda do |*args|
+        config = Configuration.new(scope.options_proc.call(*args), self)
+        scope_options = ScopeOptions.new(@name, config)
+        scope_options.apply(self)
+      end
 
       if respond_to?(:define_singleton_method)
         define_singleton_method name, &method_proc
