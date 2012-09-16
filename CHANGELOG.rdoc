@@ -1,5 +1,11 @@
 = PgSearch
 
+== 0.5.5
+
+* Fix bug with single table inheritance.
+
+* Allow option for specifying an alternate function for unaccent().
+
 == 0.5.4
 
 * Fix bug in associated_against join clause when search scope is chained after other scopes.
