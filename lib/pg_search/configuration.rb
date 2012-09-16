@@ -15,7 +15,7 @@ module PgSearch
 
     class << self
       def alias(*strings)
-        name = Array.wrap(strings).compact.join("_")
+        name = Array(strings).compact.join("_")
         # By default, PostgreSQL limits names to 32 characters, so we hash and limit to 32 characters.
         "pg_search_#{Digest::SHA2.hexdigest(name)}"[0,32]
       end
@@ -48,7 +48,7 @@ module PgSearch
     end
 
     def ignore
-      Array.wrap(options[:ignoring])
+      Array(options[:ignoring])
     end
 
     def ranking_sql
@@ -95,7 +95,7 @@ module PgSearch
       options.assert_valid_keys(VALID_KEYS)
 
       VALID_VALUES.each do |key, values_for_key|
-        Array.wrap(options[key]).each do |value|
+        Array(options[key]).each do |value|
           unless values_for_key.include?(value)
             raise ArgumentError, ":#{key} cannot accept #{value}"
           end

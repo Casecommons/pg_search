@@ -52,7 +52,7 @@ SQL
       end
 
       def columns
-        Array.wrap(@model.pg_search_multisearchable_options[:against])
+        Array(@model.pg_search_multisearchable_options[:against])
       end
 
       def model_name
