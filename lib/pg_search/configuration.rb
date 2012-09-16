@@ -26,16 +26,16 @@ module PgSearch
     end
 
     def regular_columns
-      return [] unless @options[:against]
-      Array(@options[:against]).map do |column_name, weight|
-        Column.new(column_name, weight, @model)
+      return [] unless options[:against]
+      Array(options[:against]).map do |column_name, weight|
+        Column.new(column_name, weight, model)
       end
     end
 
     def associations
-      return [] unless @options[:associated_against]
-      @options[:associated_against].map do |association, column_names|
-        Association.new(@model, association, column_names)
+      return [] unless options[:associated_against]
+      options[:associated_against].map do |association, column_names|
+        Association.new(model, association, column_names)
       end.flatten
     end
 
@@ -44,34 +44,36 @@ module PgSearch
     end
 
     def query
-      @options[:query].to_s
+      options[:query].to_s
     end
 
     def ignore
-      Array.wrap(@options[:ignoring])
+      Array.wrap(options[:ignoring])
     end
 
     def ranking_sql
-      @options[:ranked_by]
+      options[:ranked_by]
     end
 
     def features
-      Array(@options[:using])
+      Array(options[:using])
     end
 
     def order_within_rank
-      @options[:order_within_rank]
+      options[:order_within_rank]
     end
 
     def postgresql_version
-      @model.connection.send(:postgresql_version)
+      model.connection.send(:postgresql_version)
     end
 
     def logger
-      @model.logger
+      model.logger
     end
 
     private
+
+    attr_reader :options
 
     def default_options
       {:using => :tsearch}
