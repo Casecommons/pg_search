@@ -67,10 +67,6 @@ module PgSearch
       model.connection.send(:postgresql_version)
     end
 
-    def logger
-      model.logger
-    end
-
     private
 
     attr_reader :options
