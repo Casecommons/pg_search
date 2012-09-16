@@ -22,17 +22,19 @@ SQL
       end
 
       def rebuild
-        if @model.respond_to?(:rebuild_pg_search_documents)
-          @model.rebuild_pg_search_documents
+        if model.respond_to?(:rebuild_pg_search_documents)
+          model.rebuild_pg_search_documents
         else
-          @model.connection.execute(rebuild_sql)
+          model.connection.execute(rebuild_sql)
         end
       end
 
       private
 
+      attr_reader :model
+
       def connection
-        @model.connection
+        model.connection
       end
 
       def rebuild_sql
@@ -52,15 +54,15 @@ SQL
       end
 
       def columns
-        Array(@model.pg_search_multisearchable_options[:against])
+        Array(model.pg_search_multisearchable_options[:against])
       end
 
       def model_name
-        connection.quote(@model.name)
+        connection.quote(model.name)
       end
 
       def model_table
-        @model.quoted_table_name
+        model.quoted_table_name
       end
 
       def documents_table
