@@ -34,7 +34,7 @@ module PgSearch
 
       method_proc = lambda do |*args|
         config = Configuration.new(options_proc.call(*args), self)
-        scope_options = ScopeOptions.new(@name, config)
+        scope_options = ScopeOptions.new(config)
         scope_options.apply(self)
       end
 

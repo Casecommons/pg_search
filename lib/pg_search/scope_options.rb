@@ -4,8 +4,7 @@ module PgSearch
   class ScopeOptions
     attr_reader :config, :feature_options
 
-    def initialize(name, config)
-      @name = name
+    def initialize(config)
       @config = config
       @model = config.model
       @feature_options = Hash[config.features]
