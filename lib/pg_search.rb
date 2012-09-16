@@ -23,10 +23,17 @@ module PgSearch
 
   module ClassMethods
     def pg_search_scope(name, options)
-      scope = PgSearch::Scope.new(options)
+      options_proc = if options.respond_to?(:call)
+                       options
+                     else
+                       unless options.respond_to?(:merge)
+                         raise ArgumentError, "pg_search_scope expects a Hash or Proc"
+                       end
+                       lambda { |query| {:query => query}.merge(options) }
+                     end
 
       method_proc = lambda do |*args|
-        config = Configuration.new(scope.options_proc.call(*args), self)
+        config = Configuration.new(options_proc.call(*args), self)
         scope_options = ScopeOptions.new(@name, config)
         scope_options.apply(self)
       end
