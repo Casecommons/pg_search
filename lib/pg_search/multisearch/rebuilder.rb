@@ -1,18 +1,6 @@
 module PgSearch
   module Multisearch
     class Rebuilder
-      REBUILD_SQL_TEMPLATE = <<-SQL
-INSERT INTO :documents_table (searchable_type, searchable_id, content, created_at, updated_at)
-  SELECT :model_name AS searchable_type,
-         :model_table.id AS searchable_id,
-         (
-           :content_expressions
-         ) AS content,
-         :current_time AS created_at,
-         :current_time AS updated_at
-  FROM :model_table
-SQL
-
       def initialize(model)
         unless model.respond_to?(:pg_search_multisearchable_options)
           raise ModelNotMultisearchable.new(model)
@@ -36,6 +24,18 @@ SQL
       def connection
         model.connection
       end
+
+      REBUILD_SQL_TEMPLATE = <<-SQL
+INSERT INTO :documents_table (searchable_type, searchable_id, content, created_at, updated_at)
+  SELECT :model_name AS searchable_type,
+         :model_table.id AS searchable_id,
+         (
+           :content_expressions
+         ) AS content,
+         :current_time AS created_at,
+         :current_time AS updated_at
+  FROM :model_table
+SQL
 
       def rebuild_sql
         replacements.inject(REBUILD_SQL_TEMPLATE) do |sql, key|
