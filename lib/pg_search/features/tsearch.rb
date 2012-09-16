@@ -5,10 +5,10 @@ module PgSearch
     class TSearch < Feature
       delegate :connection, :quoted_table_name, :to => :'@model'
 
-      def initialize(query, options, columns, model, normalizer)
+      def initialize(*args)
         super
 
-        if @options[:prefix] && @model.connection.send(:postgresql_version) < 80400
+        if options[:prefix] && model.connection.send(:postgresql_version) < 80400
           raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.gsub /^\s*/, '')
             Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
           MESSAGE
@@ -26,7 +26,7 @@ module PgSearch
       private
 
       def interpolations
-        {:query => @query.to_s, :dictionary => dictionary.to_s}
+        {:query => query.to_s, :dictionary => dictionary.to_s}
       end
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
@@ -42,25 +42,25 @@ module PgSearch
           connection.quote("' "),
           term_sql,
           connection.quote(" '"),
-          (connection.quote(':*') if @options[:prefix])
+          (connection.quote(':*') if options[:prefix])
         ].compact.join(" || ")
 
         "to_tsquery(:dictionary, #{tsquery_sql})"
       end
 
       def tsquery
-        return "''" if @query.blank?
-        query_terms = @query.split(" ").compact
+        return "''" if query.blank?
+        query_terms = query.split(" ").compact
         tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
-        tsquery_terms.join(@options[:any_word] ? ' || ' : ' && ')
+        tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
       end
 
       def tsdocument
-        if @options[:tsvector_column]
-          column_name = connection.quote_column_name(@options[:tsvector_column])
+        if options[:tsvector_column]
+          column_name = connection.quote_column_name(options[:tsvector_column])
           "#{quoted_table_name}.#{column_name}"
         else
-          @columns.map do |search_column|
+          columns.map do |search_column|
             tsvector = "to_tsvector(:dictionary, #{normalize(search_column.to_sql)})"
             if search_column.weight.nil?
               tsvector
@@ -81,7 +81,7 @@ module PgSearch
       #   32 divides the rank by itself + 1
       # The integer option controls several behaviors, so it is a bit mask: you can specify one or more behaviors
       def normalization
-        @options[:normalization] || 0
+        options[:normalization] || 0
       end
 
       def tsearch_rank
@@ -89,7 +89,7 @@ module PgSearch
       end
 
       def dictionary
-        @options[:dictionary] || :simple
+        options[:dictionary] || :simple
       end
     end
   end

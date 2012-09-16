@@ -11,17 +11,19 @@ module PgSearch
 
       private
 
+      attr_reader :query, :options, :columns, :model, :normalizer
+
       def document
-        if @columns.length == 1
-          @columns.first.to_sql
+        if columns.length == 1
+          columns.first.to_sql
         else
-          expressions = @columns.map { |column| column.to_sql }.join(", ")
+          expressions = columns.map { |column| column.to_sql }.join(", ")
           "array_to_string(ARRAY[#{expressions}], ' ')"
         end
       end
 
       def normalize(expression)
-        @normalizer.add_normalization(expression)
+        normalizer.add_normalization(expression)
       end
     end
   end

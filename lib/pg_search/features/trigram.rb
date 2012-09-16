@@ -4,14 +4,14 @@ module PgSearch
       def conditions
         [
           "(#{normalize(document)}) % #{normalize(":query")}",
-          {:query => @query}
+          {:query => query}
         ]
       end
 
       def rank
         [
           "similarity((#{normalize(document)}), #{normalize(":query")})",
-          {:query => @query}
+          {:query => query}
         ]
       end
     end

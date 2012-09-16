@@ -8,23 +8,31 @@ module PgSearch
       end
 
       def conditions
-        @tsearch.conditions
+        tsearch.conditions
       end
 
       def rank
-        @tsearch.rank
+        tsearch.rank
       end
+
+      private
+
+      attr_reader :tsearch
 
       # Decorates a normalizer with dmetaphone processing.
       class Normalizer
         def initialize(normalizer_to_wrap)
-          @decorated_normalizer = normalizer_to_wrap
+          @normalizer_to_wrap = normalizer_to_wrap
         end
 
         def add_normalization(original_sql)
-          otherwise_normalized_sql = @decorated_normalizer.add_normalization(original_sql)
+          otherwise_normalized_sql = normalizer_to_wrap.add_normalization(original_sql)
           "pg_search_dmetaphone(#{otherwise_normalized_sql})"
         end
+
+        private
+
+        attr_reader :normalizer_to_wrap
       end
     end
   end
