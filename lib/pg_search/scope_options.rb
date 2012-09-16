@@ -2,7 +2,7 @@ require "active_support/core_ext/module/delegation"
 
 module PgSearch
   class ScopeOptions
-    delegate :connection, :quoted_table_name, :sanitize_sql_array, :to => :@model
+    attr_reader :config, :feature_options
 
     def initialize(name, config)
       @name = name
@@ -17,14 +17,16 @@ module PgSearch
 
     private
 
+    delegate :connection, :quoted_table_name, :sanitize_sql_array, :to => :@model
+
     def conditions
-      @config.features.map do |feature_name, feature_options|
+      config.features.map do |feature_name, feature_options|
         "(#{sanitize_sql_array(feature_for(feature_name).conditions)})"
       end.join(" OR ")
     end
 
     def order_within_rank
-      @config.order_within_rank || "#{primary_key} ASC"
+      config.order_within_rank || "#{primary_key} ASC"
     end
 
     def primary_key
@@ -32,7 +34,7 @@ module PgSearch
     end
 
     def joins
-      @config.associations.map do |association|
+      config.associations.map do |association|
         association.join(primary_key)
       end.join(' ')
     end
@@ -49,19 +51,19 @@ module PgSearch
 
       raise ArgumentError.new("Unknown feature: #{feature_name}") unless feature_class
 
-      normalizer = Normalizer.new(@config)
+      normalizer = Normalizer.new(config)
 
       feature_class.new(
-        @config.query,
-        @feature_options[feature_name],
-        @config.columns,
-        @config.model,
+        config.query,
+        feature_options[feature_name],
+        config.columns,
+        config.model,
         normalizer
       )
     end
 
     def rank
-      (@config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
+      (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
         sanitize_sql_array(feature_for($1).rank)
       end
     end
