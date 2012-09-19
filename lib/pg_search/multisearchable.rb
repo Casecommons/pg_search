@@ -16,11 +16,15 @@ module PgSearch
     end
 
     def update_pg_search_document
-      if self.pg_search_document
-        self.pg_search_document.save
+      if multisearchable?
+        pg_search_document ? pg_search_document.save : create_pg_search_document
       else
-        create_pg_search_document
+        pg_search_document.destroy if pg_search_document
       end
+    end
+    
+    def multisearchable?
+      true
     end
   end
 end
