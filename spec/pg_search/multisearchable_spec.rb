@@ -34,7 +34,7 @@ describe PgSearch::Multisearchable do
             end
 
             context "when the record itself is not multisearchable" do
-              before { record.stub(:multisearchable?) { false} }
+              before { record.stub(:multisearchable?) { false } }
               it { should_not change(PgSearch::Document, :count) }
             end
           end
