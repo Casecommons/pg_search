@@ -26,12 +26,20 @@ describe PgSearch::Multisearchable do
             lambda { record.save! }
           end
 
-          context "with multisearch enabled" do
+          context "with multisearch enabled on the model" do
             before { PgSearch.stub(:multisearch_enabled?) { true } }
-            it { should change(PgSearch::Document, :count).by(1) }
+
+            context "when the record itself is multisearchable (default)" do
+              it { should change(PgSearch::Document, :count).by(1) }
+            end
+
+            context "when the record itself is not multisearchable" do
+              before { record.stub(:multisearchable?) { false} }
+              it { should_not change(PgSearch::Document, :count) }
+            end
           end
 
-          context "with multisearch disabled" do
+          context "with multisearch disabled on the model" do
             before { PgSearch.stub(:multisearch_enabled?) { false } }
             it { should_not change(PgSearch::Document, :count) }
           end
@@ -55,11 +63,28 @@ describe PgSearch::Multisearchable do
               lambda { record.save! }
             end
 
-            context "with multisearch enabled" do
+            context "with multisearch enabled on the model" do
               before { PgSearch.stub(:multisearch_enabled?) { true } }
 
-              before { record.pg_search_document.should_receive(:save) }
-              it { should_not change(PgSearch::Document, :count) }
+              context "when the record itself is multisearchable" do
+                it "calls save on the pg_search_document" do
+                  record.pg_search_document.should_receive(:save)
+                  record.save!
+                end
+
+                it { should_not change(PgSearch::Document, :count) }
+              end
+
+              context "when the record itself is not multisearchable" do
+                before { record.stub(:multisearchable?) { false } }
+
+                it "calls destroy on the pg_search_document" do
+                  record.pg_search_document.should_receive(:destroy)
+                  record.save!
+                end
+
+                it { should change(PgSearch::Document, :count).by(-1) }
+              end
             end
 
             context "with multisearch disabled" do
@@ -81,7 +106,15 @@ describe PgSearch::Multisearchable do
 
             context "with multisearch enabled" do
               before { PgSearch.stub(:multisearch_enabled?) { true } }
-              it { should change(PgSearch::Document, :count).by(1) }
+
+              context "when the record itself is multisearchable" do
+                it { should change(PgSearch::Document, :count).by(1) }
+              end
+
+              context "when the record itself is not multisearchable" do
+                before { record.stub(:multisearchable?) { false } }
+                it { should_not change(PgSearch::Document, :count) }
+              end
             end
 
             context "with multisearch disabled" do
