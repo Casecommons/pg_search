@@ -73,6 +73,20 @@ To add a model to the global search index for your application, call multisearch
 
 Whenever a record is created, updated, or destroyed, an Active Record callback will fire, leading to the creation of a corresponding PgSearch::Document record in the pg_search_documents table. The :against option can be one or several methods which will be called on the record to generate its search text.
 
+You can also pass a Proc or method name to call to determine whether or not a particular record should be included.
+
+ class Convertible < ActiveRecord::Base
+   include PgSearch
+   multisearchable :against => [:make, :model],
+                   :if => :available_in_red?
+ end
+
+ class Jalopy < ActiveRecord::Base
+   include PgSearch
+   multisearchable :against => [:make, :model],
+                   :if => lambda { |record| record.model_year > 1970 }
+ end
+
 ==== Multi-search associations
 
 Two associations are built automatically. On the original record, there is a has_one :pg_search_document association pointing to the PgSearch::Document record, and on the PgSearch::Document record there is a belongs_to :searchable polymorphic association pointing back to the original record.
