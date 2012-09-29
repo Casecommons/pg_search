@@ -4,6 +4,7 @@ gemspec
 
 gem "rake"
 gem "rdoc"
+gem "pry"
 
 platforms :ruby do
   gem 'pg'
