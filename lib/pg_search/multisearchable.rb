@@ -16,9 +16,14 @@ module PgSearch
     end
 
     def update_pg_search_document
-      condition = pg_search_multisearchable_options[:if]
+      if_conditions = Array(pg_search_multisearchable_options[:if])
+      unless_conditions = Array(pg_search_multisearchable_options[:unless])
 
-      if !condition || condition.to_proc.call(self)
+      should_have_document =
+        if_conditions.all? { |condition| condition.to_proc.call(self) } &&
+        unless_conditions.all? { |condition| !condition.to_proc.call(self) }
+
+      if should_have_document
         pg_search_document ? pg_search_document.save : create_pg_search_document
       else
         pg_search_document.destroy if pg_search_document

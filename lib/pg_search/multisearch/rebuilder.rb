@@ -13,7 +13,7 @@ module PgSearch
       def rebuild
         if model.respond_to?(:rebuild_pg_search_documents)
           model.rebuild_pg_search_documents
-        elsif model.pg_search_multisearchable_options[:if].present?
+        elsif model.pg_search_multisearchable_options.key?(:if) || model.pg_search_multisearchable_options.key?(:unless)
           model.find_each { |record| record.update_pg_search_document }
         else
           model.connection.execute(rebuild_sql)

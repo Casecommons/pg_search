@@ -24,24 +24,28 @@ describe PgSearch::Multisearch::Rebuilder do
       end
 
       context "when multisearch is conditional" do
-        with_model :Model do
-          table do |t|
-            t.boolean :active
-          end
+        [:if, :unless].each do |conditional_key|
+          context "via :#{conditional_key}" do
+            with_model :Model do
+              table do |t|
+                t.boolean :active
+              end
 
-          model do
-            include PgSearch
-            multisearchable :if => :active?
+              model do
+                include PgSearch
+                multisearchable conditional_key => :active?
 
-            def rebuild_pg_search_documents
+                def rebuild_pg_search_documents
+                end
+              end
+            end
+
+            it "should call .rebuild_pg_search_documents" do
+              rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+              Model.should_receive(:rebuild_pg_search_documents)
+              rebuilder.rebuild
             end
           end
-        end
-
-        it "should call .rebuild_pg_search_documents" do
-          rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
-          Model.should_receive(:rebuild_pg_search_documents)
-          rebuilder.rebuild
         end
       end
     end
@@ -107,38 +111,76 @@ INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, crea
       end
 
       context "when multisearchable is conditional" do
-        with_model :Model do
-          table do |t|
-            t.boolean :active
+        context "via :if" do
+          with_model :Model do
+            table do |t|
+              t.boolean :active
+            end
+
+            model do
+              include PgSearch
+              multisearchable :if => :active?
+            end
           end
 
-          model do
-            include PgSearch
-            multisearchable :if => :active?
+          it "calls update_pg_search_document on each record" do
+            record1 = Model.create!(:active => true)
+            record2 = Model.create!(:active => false)
+
+            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+
+            # stub respond_to? to return false since should_not_receive defines the method
+            original_respond_to = Model.method(:respond_to?)
+            Model.stub(:respond_to?) do |method_name, *args|
+              if method_name == :rebuild_pg_search_documents
+                false
+              else
+                original_respond_to.call(method_name, *args)
+              end
+            end
+            Model.should_not_receive(:rebuild_pg_search_documents)
+
+            rebuilder.rebuild
+
+            record1.pg_search_document.should be_present
+            record2.pg_search_document.should_not be_present
           end
         end
 
-        it "calls update_pg_search_document on each record" do
-          record1 = Model.create!(:active => true)
-          record2 = Model.create!(:active => false)
+        context "via :unless" do
+          with_model :Model do
+            table do |t|
+              t.boolean :inactive
+            end
 
-          rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
-
-          # stub respond_to? to return false since should_not_receive defines the method
-          original_respond_to = Model.method(:respond_to?)
-          Model.stub(:respond_to?) do |method_name, *args|
-            if method_name == :rebuild_pg_search_documents
-              false
-            else
-              original_respond_to.call(method_name, *args)
+            model do
+              include PgSearch
+              multisearchable :unless => :inactive?
             end
           end
-          Model.should_not_receive(:rebuild_pg_search_documents)
 
-          rebuilder.rebuild
+          it "calls update_pg_search_document on each record" do
+            record1 = Model.create!(:inactive => true)
+            record2 = Model.create!(:inactive => false)
 
-          record1.pg_search_document.should be_present
-          record2.pg_search_document.should_not be_present
+            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+
+            # stub respond_to? to return false since should_not_receive defines the method
+            original_respond_to = Model.method(:respond_to?)
+            Model.stub(:respond_to?) do |method_name, *args|
+              if method_name == :rebuild_pg_search_documents
+                false
+              else
+                original_respond_to.call(method_name, *args)
+              end
+            end
+            Model.should_not_receive(:rebuild_pg_search_documents)
+
+            rebuilder.rebuild
+
+            record1.pg_search_document.should_not be_present
+            record2.pg_search_document.should be_present
+          end
         end
       end
     end
