@@ -1,5 +1,12 @@
 = PgSearch
 
+== 0.5.6
+
+* PgSearch#multisearchable accepts :if and :unless for conditional inclusion
+  in search documents table. (Francois Harbec)
+
+* Stop using array_to_string() in SQL since it is not indexable.
+
 == 0.5.5
 
 * Fix bug with single table inheritance.
