@@ -9,7 +9,6 @@ module PgSearch
   autoload :Multisearch, "pg_search/multisearch"
   autoload :Multisearchable, "pg_search/multisearchable"
   autoload :Normalizer, "pg_search/normalizer"
-  autoload :Scope, "pg_search/scope"
   autoload :ScopeOptions, "pg_search/scope_options"
   autoload :VERSION, "pg_search/version"
 
