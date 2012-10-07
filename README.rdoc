@@ -87,6 +87,36 @@ You can also pass a Proc or method name to call to determine whether or not a pa
                    :if => lambda { |record| record.model_year > 1970 }
  end
 
+Note that the Proc or method name is called in an after_save hook. This means that you should be careful when using Time or other objects. In the following example, if the record was last saved before the published_at timestamp, it won't get listed in global search at all until it is touched again after the timestamp.
+
+ class AntipatternExample
+   include PgSearch
+   multisearchable :against => [:contents],
+                   :if => :published?
+
+   def published?
+     published_at < Time.now
+   end
+ end
+
+ problematic_record = AntipatternExample.create!(
+   :contents => "Using :if with a timestamp",
+   :published_at => 10.minutes.from_now
+ )
+
+ problematic_record.published?     # => false
+ PgSearch.multisearch("timestamp") # => No results
+
+ sleep 20.minutes
+
+ problematic_record.published?     # => true
+ PgSearch.multisearch("timestamp") # => No results
+
+ problematic_record.save!
+
+ problematic_record.published?     # => true
+ PgSearch.multisearch("timestamp") # => Includes problematic_record
+
 ==== Multi-search associations
 
 Two associations are built automatically. On the original record, there is a has_one :pg_search_document association pointing to the PgSearch::Document record, and on the PgSearch::Document record there is a belongs_to :searchable polymorphic association pointing back to the original record.
