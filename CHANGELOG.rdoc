@@ -1,5 +1,9 @@
 = PgSearch
 
+== 0.5.7
+
+* Fix issue with eager loading now that the Scope class has been removed. (Piotr Murach)
+
 == 0.5.6
 
 * PgSearch#multisearchable accepts :if and :unless for conditional inclusion
