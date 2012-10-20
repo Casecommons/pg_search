@@ -170,7 +170,7 @@ Run this Rake task to regenerate all of the documents for a given class.
 
 A second optional argument can be passed to specify the Postgres schema against which the rebuild should be made. The following will set the schema to "2" before doing the reindexing.
 
- $ rake pg_search:multisearch:rebuild[BlogPost,2]
+ $ rake pg_search:multisearch:rebuild[BlogPost,public]
 
 Currently this is only supported for :against methods that directly map to Active Record attributes. Until that is fixed, you could also manually rebuild all of the documents.
 
