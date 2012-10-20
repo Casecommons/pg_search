@@ -168,10 +168,6 @@ Run this Rake task to regenerate all of the documents for a given class.
 
  $ rake pg_search:multisearch:rebuild[BlogPost]
 
-A second optional argument can be passed to specify the Postgres schema against which the rebuild should be made. The following will set the schema to "2" before doing the reindexing.
-
- $ rake pg_search:multisearch:rebuild[BlogPost,public]
-
 Currently this is only supported for :against methods that directly map to Active Record attributes. Until that is fixed, you could also manually rebuild all of the documents.
 
  PgSearch::Document.delete_all(:searchable_type => "Ingredient")
@@ -209,6 +205,10 @@ You can also provide a custom implementation for rebuilding the documents by add
      SQL
    end
  end
+
+A second optional argument can be passed to specify the PostgreSQL schema search path to use, for multi-tenant databases that have multiple pg_search_documents tables. The following will set the schema search path to "my_schema" before reindexing.
+
+ $ rake pg_search:multisearch:rebuild[BlogPost,my_schema]
 
 ==== Disabling multi-search indexing temporarily
 
