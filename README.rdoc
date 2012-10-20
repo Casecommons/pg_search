@@ -71,6 +71,8 @@ To add a model to the global search index for your application, call multisearch
    multisearchable :against => :color
  end
 
+If this model already has existing records, you will need to reindex this model to get existing records into the pg_search_documents table. See the rebuild task below.
+
 Whenever a record is created, updated, or destroyed, an Active Record callback will fire, leading to the creation of a corresponding PgSearch::Document record in the pg_search_documents table. The :against option can be one or several methods which will be called on the record to generate its search text.
 
 You can also pass a Proc or method name to call to determine whether or not a particular record should be included.
@@ -164,15 +166,22 @@ To remove all of the documents for a given class, you can simply delete all of t
 
  PgSearch::Document.delete_all(:searchable_type => "Animal")
 
-Run this Rake task to regenerate all of the documents for a given class.
+To regenerate the documents for a given class, run:
+
+ PgSearch::Multisearch.rebuild(Product)
+
+This is also available as a Rake task, for convenience.
 
  $ rake pg_search:multisearch:rebuild[BlogPost]
 
-Currently this is only supported for :against methods that directly map to Active Record attributes. Until that is fixed, you could also manually rebuild all of the documents.
+A second optional argument can be passed to specify the PostgreSQL schema search path to use, for multi-tenant databases that have multiple pg_search_documents tables. The following will set the schema search path to "my_schema" before reindexing.
+
+ $ rake pg_search:multisearch:rebuild[BlogPost,my_schema]
+
+For models that are multisearchable :against methods that directly map to Active Record attributes, an efficient single SQL statement is run to update the pg_search_documents table all at once. However, if you call any dynamic methods in :against, the following strategy will be used:
 
  PgSearch::Document.delete_all(:searchable_type => "Ingredient")
  Ingredient.find_each { |record| record.update_pg_search_document }
-
 
 You can also provide a custom implementation for rebuilding the documents by adding a class method called `rebuild_pg_search_documents` to your model.
 
@@ -205,10 +214,6 @@ You can also provide a custom implementation for rebuilding the documents by add
      SQL
    end
  end
-
-A second optional argument can be passed to specify the PostgreSQL schema search path to use, for multi-tenant databases that have multiple pg_search_documents tables. The following will set the schema search path to "my_schema" before reindexing.
-
- $ rake pg_search:multisearch:rebuild[BlogPost,my_schema]
 
 ==== Disabling multi-search indexing temporarily
 
