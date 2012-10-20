@@ -10,7 +10,7 @@ You must pass a model as an argument.
 Example: rake pg_search:multisearch:rebuild[BlogPost]
       MESSAGE
       model_class = args.model.classify.constantize
-      ActiveRecord::Base.connection.schema_search_path = args.schema unless !args.schema
+      ActiveRecord::Base.connection.schema_search_path = args.schema if args.schema
       PgSearch::Multisearch.rebuild(model_class)
     end
   end
