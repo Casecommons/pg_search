@@ -163,9 +163,6 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
 
       it "returns rows that match the query but not its case" do
-        # \303\241 is a with acute accent
-        # \303\251 is e with acute accent
-
         included = [ModelWithPgSearch.create!(:content => "foo"),
                     ModelWithPgSearch.create!(:content => "FOO")]
 
