@@ -135,6 +135,57 @@ describe "an Active Record model which includes PgSearch" do
         ModelWithPgSearch.pg_search_scope :search_content, :against => :content
       end
 
+      context "when chained after a select() scope" do
+        it "honors the select" do
+          included = ModelWithPgSearch.create!(content: 'foo', title: 'bar')
+          excluded = ModelWithPgSearch.create!(content: 'bar', title: 'foo')
+
+          results = ModelWithPgSearch.select('id, title').search_content('foo')
+
+          expect(results).to include(included)
+          expect(results).to_not include(excluded)
+
+          expect(results.first.attributes.key?('content')).to eq false
+
+          expect(results.select { |record| record.title == "bar" }).to eq [included]
+          expect(results.select { |record| record.title != "bar" }).to be_empty
+        end
+      end
+
+      context "when chained before a select() scope" do
+        it "honors the select" do
+          included = ModelWithPgSearch.create!(content: 'foo', title: 'bar')
+          excluded = ModelWithPgSearch.create!(content: 'bar', title: 'foo')
+
+          results = ModelWithPgSearch.search_content('foo').select('id, title')
+
+          expect(results).to include(included)
+          expect(results).to_not include(excluded)
+
+          expect(results.first.attributes.key?('content')).to eq false
+
+          expect(results.select { |record| record.title == "bar" }).to eq [included]
+          expect(results.select { |record| record.title != "bar" }).to be_empty
+        end
+      end
+
+      context "when surrouned by select() scopes" do
+        it "honors the select" do
+          included = ModelWithPgSearch.create!(content: 'foo', title: 'bar')
+          excluded = ModelWithPgSearch.create!(content: 'bar', title: 'foo')
+
+          results = ModelWithPgSearch.select('id').search_content('foo').select('title')
+
+          expect(results).to include(included)
+          expect(results).to_not include(excluded)
+
+          expect(results.first.attributes.key?('content')).to eq false
+
+          expect(results.select { |record| record.title == "bar" }).to eq [included]
+          expect(results.select { |record| record.title != "bar" }).to be_empty
+        end
+      end
+
       it "returns an empty array when a blank query is passed in" do
         ModelWithPgSearch.create!(:content => 'foo')
 
