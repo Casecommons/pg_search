@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/Casecommons/pg_search"
   s.summary     = %q{PgSearch builds ActiveRecord named scopes that take advantage of PostgreSQL's full text search}
   s.description = %q{PgSearch builds ActiveRecord named scopes that take advantage of PostgreSQL's full text search}
+  s.licenses    = ["MIT"]
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
