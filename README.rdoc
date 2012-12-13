@@ -578,6 +578,14 @@ To use this functionality you'll need to do a few things:
 
 Please note that the :against column is only used when the tsvector_column is not present for the search type.
 
+=== Returning only select columns
+
+By default pg_search_scope will return all of the columns for the table as well as the calculated pg_search_rank value.
+You can set the select configuration option to only select the columns you want from your table.
+
+    pg_search_scope :select_search,
+                    :select => { :word }
+
 == REQUIREMENTS
 
 * ActiveRecord 3

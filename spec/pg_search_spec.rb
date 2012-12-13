@@ -749,6 +749,22 @@ describe "an ActiveRecord model which includes PgSearch" do
       end
     end
 
+    context "when passed a :select expression" do
+      before do
+        ModelWithPgSearch.pg_search_scope :search_content_with_select,
+          :against => :content,
+          :select => :title
+
+        ModelWithPgSearch.create!(:title => 'test', :content => 'test')
+      end
+
+      it "only loads the selected fields" do
+        result = ModelWithPgSearch.search_content_with_select('test').first
+
+        expect { result.content }.to raise_error ActiveModel::MissingAttributeError
+      end
+    end
+
     context "on an STI subclass" do
       with_model :SuperclassModel do
         table do |t|
