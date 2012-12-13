@@ -11,12 +11,16 @@ module PgSearch
     end
 
     def apply(scope)
-      scope.select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").where(conditions).order("pg_search_rank DESC, #{order_within_rank}").joins(joins)
+      scope.select(select).select("(#{rank}) AS pg_search_rank").where(conditions).order("pg_search_rank DESC, #{order_within_rank}").joins(joins)
     end
 
     private
 
     delegate :connection, :quoted_table_name, :sanitize_sql_array, :to => :@model
+
+    def select
+      config.select || "#{quoted_table_name}.*"
+    end
 
     def conditions
       config.features.map do |feature_name, feature_options|
