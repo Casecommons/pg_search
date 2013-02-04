@@ -2,7 +2,9 @@
 
 * http://github.com/casecommons/pg_search/
 
-{<img src="https://secure.travis-ci.org/Casecommons/pg_search.png?branch=master" alt="Build Status" />}[http://travis-ci.org/Casecommons/pg_search] {<img src="https://gemnasium.com/Casecommons/pg_search.png" alt="Dependency Status" />}[https://gemnasium.com/Casecommons/pg_search] {<img src="https://codeclimate.com/badge.png" />}[https://codeclimate.com/github/Casecommons/pg_search]
+{<img src="https://secure.travis-ci.org/Casecommons/pg_search.png?branch=master" alt="Build Status" />}[http://travis-ci.org/Casecommons/pg_search] 
+{<img src="https://gemnasium.com/Casecommons/pg_search.png" alt="Dependency Status" />}[https://gemnasium.com/Casecommons/pg_search] 
+{<img src="https://codeclimate.com/github/Casecommons/pg_search.png" />}[https://codeclimate.com/github/Casecommons/pg_search]
 
 == DESCRIPTION
 
