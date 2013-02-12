@@ -4,6 +4,8 @@ require "active_support/core_ext/module/delegation"
 
 module PgSearch
   class ScopeOptions
+    include ActiveRecord::Sanitization::ClassMethods
+
     attr_reader :config, :feature_options
 
     def initialize(config)
@@ -18,7 +20,7 @@ module PgSearch
 
     private
 
-    delegate :connection, :quoted_table_name, :sanitize_sql_array, :to => :@model
+    delegate :connection, :quoted_table_name, :to => :@model
 
     def conditions
       config.features.map do |feature_name, feature_options|
