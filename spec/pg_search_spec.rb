@@ -801,13 +801,38 @@ describe "an ActiveRecord model which includes PgSearch" do
     end
 
     it "should set pg_search_multisearchable_options on the class" do
-      options = double(:options)
+      options = {}
       ModelWithPgSearch.multisearchable(options)
       ModelWithPgSearch.pg_search_multisearchable_options.should == options
     end
+
+    it "should update flat options (e.g. {:against => [:col]}) to be nested in PgSearch::Document" do
+      options = {:against => [:name]}
+      opts = options.dup
+      ModelWithPgSearch.multisearchable(options)
+      ModelWithPgSearch.pg_search_multisearchable_options.should == {
+        'PgSearch::Document' => opts
+      }
+    end
+
+    context "with custom document model" do
+      let(:options) do
+        {
+          "CustomDocument" => {}
+        }
+      end
+      it "should set pg_search_multisearchable_options on the class" do
+        opts = options.dup
+        ModelWithPgSearch.multisearchable(options)
+        ModelWithPgSearch.pg_search_multisearchable_options.should == opts
+      end
+    end
+
+
   end
 
   describe ".multisearch" do
+
     with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
     describe "delegation to PgSearch::Document.search" do
@@ -879,6 +904,106 @@ describe "an ActiveRecord model which includes PgSearch" do
         it { should_not include(soundalike_record) }
       end
     end
+
+    context "when the first parameter is the class name of a document model e.g. .multisearch('PgSearch::Document', query)" do
+      with_model :CustomDocument do
+        table do |t|
+          t.text 'content'
+          t.belongs_to :searchable, :polymorphic => true
+        end
+
+        model do
+          include PgSearch
+          belongs_to :searchable, :polymorphic => true
+          before_validation :update_content
+          pg_search_scope :search, lambda { |*args|
+            options = if PgSearch.multisearch_options.respond_to?(:call)
+              PgSearch.multisearch_options.call(*args)
+            else
+              {:query => args.first}.merge(PgSearch.multisearch_options)
+            end
+
+            {:against => :content}.merge(options)
+          }
+          def update_content
+            methods = Array(searchable.pg_search_multisearchable_options["#{self.class}"][:against])
+            searchable_text = methods.map { |symbol| searchable.send(symbol) }.join(" ")
+            self.content = searchable_text
+          end
+        end
+      end
+
+      describe "delegation to 'CustomDocument'.search" do
+        subject { PgSearch.multisearch(CustomDocument, query) }
+
+        let(:query) { double(:query) }
+        let(:relation) { double(:relation) }
+        before do
+          CustomDocument.should_receive(:search).with(query).and_return(relation)
+        end
+
+        it { should == relation }
+      end
+
+      context "with PgSearch.multisearch_options set to a Hash" do
+        before { PgSearch.stub(:multisearch_options).and_return({:using => :dmetaphone}) }
+        subject { PgSearch.multisearch('CustomDocument', query).map(&:searchable) }
+
+        with_model :MultisearchableModel do
+          table do |t|
+            t.string :title
+          end
+          model do
+            include PgSearch
+            multisearchable({'CustomDocument' => {:against => :title}})
+          end
+        end
+
+        let!(:soundalike_record) { MultisearchableModel.create!(:title => 'foning') }
+        let(:query) { "Phoning" }
+        it { should include(soundalike_record) }
+      end
+
+      context "with PgSearch.multisearch_options set to a Proc" do
+        subject { PgSearch.multisearch('CustomDocument', query, soundalike).map(&:searchable) }
+
+        before do
+          PgSearch.stub(:multisearch_options).and_return do
+            lambda do |query, soundalike|
+              if soundalike
+                {:using => :dmetaphone, :query => query}
+              else
+                {:query => query}
+              end
+            end
+          end
+        end
+
+        with_model :MultisearchableModel do
+          table do |t|
+            t.string :title
+          end
+          model do
+            include PgSearch
+            multisearchable({'CustomDocument' => {:against => :title}})
+          end
+        end
+
+        let!(:soundalike_record) { MultisearchableModel.create!(:title => 'foning') }
+        let(:query) { "Phoning" }
+
+        context "with soundalike true" do
+          let(:soundalike) { true }
+          it { should include(soundalike_record) }
+        end
+
+        context "with soundalike false" do
+          let(:soundalike) { false }
+          it { should_not include(soundalike_record) }
+        end
+      end
+    end
+
   end
 
   describe ".disable_multisearch" do

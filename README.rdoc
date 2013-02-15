@@ -59,6 +59,13 @@ Before using multi-search, you must generate and run a migration to create the p
  $ rails g pg_search:migration:multisearch
  $ rake db:migrate
 
+If you want to maintain more than one set (table) of search documents you can generate your own document models.
+
+ $ rails g pg_search:custom_multisearch PrivateDocument
+ $ rake db:migrate
+
+You can use custom search document models with or without having run `rails g pg_search:migration:multisearch`.
+
 ==== multisearchable
 
 To add a model to the global search index for your application, call multisearchable in its class definition.
@@ -72,6 +79,7 @@ To add a model to the global search index for your application, call multisearch
    include PgSearch
    multisearchable :against => :color
  end
+
 
 If this model already has existing records, you will need to reindex this model to get existing records into the pg_search_documents table. See the rebuild task below.
 
@@ -121,6 +129,19 @@ Note that the Proc or method name is called in an after_save hook. This means th
  problematic_record.published?     # => true
  PgSearch.multisearch("timestamp") # => Includes problematic_record
 
+The above multisearchable syntax will try to use PgSearch::Document so be sure you have generated and run the pg_search:migration:multisearch first.
+
+To use a custom or multiple global search index(es), nest the options you'd pass to multisearchable under the model name.
+
+ class EpicPoem < ActiveRecord::Base
+   include PgSearch
+   multisearchable({
+     :against => [:title, :author], :if => :published?, # Published poems stored in PgSearch::Document
+     'PrivateDocument' => {:against => [:title, :author], :if => :draft?} # Draft poems stored in PrivateDocument
+   })
+ end
+
+
 ==== Multi-search associations
 
 Two associations are built automatically. On the original record, there is a has_one :pg_search_document association pointing to the PgSearch::Document record, and on the PgSearch::Document record there is a belongs_to :searchable polymorphic association pointing back to the original record.
@@ -137,6 +158,13 @@ To fetch the PgSearch::Document entries for all of the records that match a give
  rose = Flower.create!(:color => "Red")
  PgSearch.multisearch("Homer") #=> [#<PgSearch::Document searchable: odyssey>]
  PgSearch.multisearch("Red") #=> [#<PgSearch::Document searchable: rose>]
+
+To fetch entries from a custom global search index (e.g. PrivateDocument), you can still use PgSearch.multisearch. The above syntax will always use PgSearch::Document.
+
+ cat_in_the_hat = EpicPoem.create!(:title => "The Cat in the Hat", :author => "Dr. Suess", :published => true)
+ hat_in_the_cat = EpicPoem.create!(:title => "The Hat in the Cat", :author => "Not-a-Suess", :published => false)
+ PgSearch.multisearch('PgSearch::Document', "Dr. Suess") #=> [#<PgSearch::Document searchable: cat_in_the_hat>]
+ PgSearch.multisearch('PrivateDocument', "Not-a-Suess") #=> [#<PrivateDocument searchable: hat_in_the_cat>]
 
 ==== Chaining method calls onto the results
 
@@ -168,9 +196,13 @@ To remove all of the documents for a given class, you can simply delete all of t
 
  PgSearch::Document.delete_all(:searchable_type => "Animal")
 
-To regenerate the documents for a given class, run:
+To regenerate all of the documents for a given class, run:
 
  PgSearch::Multisearch.rebuild(Product)
+
+To regenerate a specific set of documents for a given class, run:
+
+ PgSearch::Multisearch.rebuild('PrivateDocument', Product)
 
 This is also available as a Rake task, for convenience.
 
