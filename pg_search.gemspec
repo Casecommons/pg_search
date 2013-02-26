@@ -20,4 +20,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'activerecord', '>=3'
   s.add_dependency 'activesupport', '>=3'
+  s.add_dependency 'i18n', '<=0.6.1'
 end
