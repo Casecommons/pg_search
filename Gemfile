@@ -2,6 +2,7 @@ source "http://rubygems.org"
 
 gemspec
 
+gem "i18n", '~> 0.6', '>= 0.6.2'
 gem "rake"
 gem "rdoc"
 gem "pry"
