@@ -45,9 +45,34 @@ module PgSearch
     end
 
     def multisearchable(options = {})
+      setup_pg_search_multisearchable_options!(options)
       include PgSearch::Multisearchable
-      class_attribute :pg_search_multisearchable_options
-      self.pg_search_multisearchable_options = options
+    end
+
+  private
+    def setup_pg_search_multisearchable_options!(options = {})
+      options = update_options(options)
+      unless defined?(self.pg_search_multisearchable_options)
+        class_attribute :pg_search_multisearchable_options
+        self.pg_search_multisearchable_options = options
+      else
+        self.pg_search_multisearchable_options.deep_merge!(options)
+      end
+    end
+
+    def update_options(options)
+      valid_keys = [:against, :if, :unless]
+      needs_updating = (options.empty? or valid_keys.any?{|k| not options[k].nil?})
+
+      if needs_updating
+        options["PgSearch::Document"] ||= {}
+        valid_keys.each do |opt|
+          if options[opt]
+            options["PgSearch::Document"][opt] = options.delete(opt)
+          end
+        end
+      end
+      options
     end
   end
 
@@ -57,7 +82,16 @@ module PgSearch
 
   class << self
     def multisearch(*args)
-      PgSearch::Document.search(*args)
+      document_model = args.first
+      if document_model.kind_of?(String) and Object.const_defined?(document_model)
+        document_model = ActiveRecord::Base.const_get(document_model)
+      end
+      if document_model.is_a?(Class)
+        args.shift
+        document_model.search(*args)
+      else
+        PgSearch::Document.search(*args)
+      end
     end
 
     def disable_multisearch

@@ -1,0 +1,28 @@
+Generates a new ActiveRecord 'document' model for a custom global search index (i.e in addition to or instead of PgSearch::Document).
+
+Where NAME is the class name of the model to generate.
+
+To create an PrivateDocument global index:
+
+    rails g pg_search:multisearch_model PrivateDocument
+
+This just runs the model generator and updates the new model with the needed
+glue.
+
+  rails g pg_search:multisearch_model PrivateDocument tsearch
+
+Will generate a migration to add a tsvector column for tsearch. The same can be
+done with 'dmetaphone' as well. Make sure the model generator has been run once
+without tsearch before running it with.
+
+Finally, in the class body of records to include in the PrivateDocument index:
+
+    include PgSearch
+    multisearchable({
+      'PrivateDocument' => {
+        :against => [:title, :body, :author],
+	:if => :draft?
+      }
+    })
+
+You can use as many different document classes as you'd like.

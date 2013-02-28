@@ -1,20 +1,23 @@
 module PgSearch
   module Multisearch
     class Rebuilder
-      def initialize(model, time_source = Time.method(:now))
+      def initialize(model, time_source = Time.method(:now), document_model=PgSearch::Document)
         unless model.respond_to?(:pg_search_multisearchable_options)
           raise ModelNotMultisearchable.new(model)
         end
 
         @model = model
+        @document_model = document_model
+        @options = model.pg_search_multisearchable_options[document_model.to_s]
+        @options ||= {}
         @time_source = time_source
       end
 
       def rebuild
-        if model.respond_to?(:rebuild_pg_search_documents)
-          model.rebuild_pg_search_documents
-        elsif model.pg_search_multisearchable_options.key?(:if) || model.pg_search_multisearchable_options.key?(:unless)
-          model.find_each { |record| record.update_pg_search_document }
+        if model.respond_to?(:"rebuild_#{document_model.to_s.pluralize.underscore.parameterize('_')}")
+          model.send(:"rebuild_#{document_model.to_s.pluralize.underscore.parameterize('_')}")
+        elsif options.key?(:if) || options.key?(:unless)
+          model.find_each { |record| record.send(:"update_#{document_model.to_s.underscore.parameterize('_')}") }
         else
           model.connection.execute(rebuild_sql)
         end
@@ -22,7 +25,7 @@ module PgSearch
 
       private
 
-      attr_reader :model
+      attr_reader :model, :document_model, :options
 
       def connection
         model.connection
@@ -57,7 +60,7 @@ SQL
       end
 
       def columns
-        Array(model.pg_search_multisearchable_options[:against])
+        Array(options[:against])
       end
 
       def model_name
@@ -69,7 +72,7 @@ SQL
       end
 
       def documents_table
-        PgSearch::Document.quoted_table_name
+        document_model.quoted_table_name
       end
 
       def current_time
