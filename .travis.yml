@@ -14,8 +14,6 @@ matrix:
   allow_failures:
     - rvm: rbx-18mode
     - rvm: rbx-19mode
-    - rvm: jruby-18mode
-    - rvm: jruby-19mode
 
 before_script:
   - "psql -c 'create database pg_search_test;' -U postgres >/dev/null"
