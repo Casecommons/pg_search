@@ -801,10 +801,33 @@ describe "an ActiveRecord model which includes PgSearch" do
     end
 
     it "should set pg_search_multisearchable_options on the class" do
-      options = double(:options)
+      options = {}
       ModelWithPgSearch.multisearchable(options)
       ModelWithPgSearch.pg_search_multisearchable_options.should == options
     end
+
+    it "should update flat options (e.g. {:against => [:col]}) to be nested in PgSearch::Document" do
+      options = {:against => [:name]}
+      opts = options.dup
+      ModelWithPgSearch.multisearchable(options)
+      ModelWithPgSearch.pg_search_multisearchable_options.should == {
+        'PgSearch::Document' => opts
+      }
+    end
+
+    context "with custom document model" do
+      let(:options) do
+        {
+          "CustomDocument" => {}
+        }
+      end
+      it "should set pg_search_multisearchable_options on the class" do
+        opts = options.dup
+        ModelWithPgSearch.multisearchable(options)
+        ModelWithPgSearch.pg_search_multisearchable_options.should == opts
+      end
+    end
+
   end
 
   describe ".multisearch" do

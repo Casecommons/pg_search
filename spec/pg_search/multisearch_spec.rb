@@ -24,7 +24,7 @@ describe PgSearch::Multisearch do
     end
 
     it "should operate inside a transaction" do
-      model.should_receive(:transaction).once
+      model.should_receive(:transaction).exactly(model.pg_search_multisearchable_options.keys.size)
 
       PgSearch::Multisearch.rebuild(model)
     end
