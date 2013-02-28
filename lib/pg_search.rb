@@ -82,7 +82,16 @@ module PgSearch
 
   class << self
     def multisearch(*args)
-      PgSearch::Document.search(*args)
+      document_model = args.first
+      if document_model.kind_of?(String) and Object.const_defined?(document_model)
+        document_model = ActiveRecord::Base.const_get(document_model)
+      end
+      if document_model.is_a?(Class)
+        args.shift
+        document_model.search(*args)
+      else
+        PgSearch::Document.search(*args)
+      end
     end
 
     def disable_multisearch
