@@ -8,7 +8,7 @@ module PgSearch
     included do
       has_one :pg_search_document,
         :as => :searchable,
-        :class_name => "PgSearch::Document",
+        :class_name => "PgSearch::SearchDocument",
         :dependent => :delete
 
       after_save :update_pg_search_document,

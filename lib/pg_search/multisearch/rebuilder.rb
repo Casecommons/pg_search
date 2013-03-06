@@ -69,7 +69,7 @@ SQL
       end
 
       def documents_table
-        PgSearch::Document.quoted_table_name
+        PgSearch::SearchDocument.quoted_table_name
       end
 
       def current_time

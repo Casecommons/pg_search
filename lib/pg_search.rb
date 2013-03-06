@@ -4,7 +4,7 @@ require "active_support/core_ext/module/attribute_accessors"
 
 module PgSearch
   autoload :Configuration, "pg_search/configuration"
-  autoload :Document, "pg_search/document"
+  autoload :SearchDocument, "pg_search/search_document"
   autoload :Features, "pg_search/features"
   autoload :Multisearch, "pg_search/multisearch"
   autoload :Multisearchable, "pg_search/multisearchable"
@@ -57,7 +57,7 @@ module PgSearch
 
   class << self
     def multisearch(*args)
-      PgSearch::Document.search(*args)
+      PgSearch::SearchDocument.search(*args)
     end
 
     def disable_multisearch

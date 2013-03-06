@@ -41,14 +41,14 @@ describe PgSearch::Multisearch do
             VALUES
             ('Bar', 123, 'foo', now(), now());
         SQL
-        PgSearch::Document.count.should == 2
+        PgSearch::SearchDocument.count.should == 2
       end
 
       context "when clean_up is not passed" do
         it "should delete the document for the model" do
           PgSearch::Multisearch.rebuild(model)
-          PgSearch::Document.count.should == 1
-          PgSearch::Document.first.searchable_type.should == "Bar"
+          PgSearch::SearchDocument.count.should == 1
+          PgSearch::SearchDocument.first.searchable_type.should == "Bar"
         end
       end
 
@@ -57,8 +57,8 @@ describe PgSearch::Multisearch do
 
         it "should delete the document for the model" do
           PgSearch::Multisearch.rebuild(model, clean_up)
-          PgSearch::Document.count.should == 1
-          PgSearch::Document.first.searchable_type.should == "Bar"
+          PgSearch::SearchDocument.count.should == 1
+          PgSearch::SearchDocument.first.searchable_type.should == "Bar"
         end
       end
 
@@ -67,7 +67,7 @@ describe PgSearch::Multisearch do
 
         it "should not delete the document for the model" do
           PgSearch::Multisearch.rebuild(model, clean_up)
-          PgSearch::Document.count.should == 2
+          PgSearch::SearchDocument.count.should == 2
         end
       end
 
@@ -87,7 +87,7 @@ describe PgSearch::Multisearch do
           PgSearch::Multisearch.should_not_receive(:rebuild_sql)
           PgSearch::Multisearch.rebuild(model)
 
-          record = PgSearch::Document.find_by_searchable_type_and_searchable_id("Baz", 789)
+          record = PgSearch::SearchDocument.find_by_searchable_type_and_searchable_id("Baz", 789)
           record.content.should == "baz"
         end
       end
@@ -102,7 +102,7 @@ describe PgSearch::Multisearch do
 
       it "should create new documents for the two models" do
         PgSearch::Multisearch.rebuild(model)
-        PgSearch::Document.last(2).map(&:searchable).map(&:title).should =~ new_models.map(&:title)
+        PgSearch::SearchDocument.last(2).map(&:searchable).map(&:title).should =~ new_models.map(&:title)
       end
     end
 
@@ -120,7 +120,7 @@ describe PgSearch::Multisearch do
 
         it "should generate the proper SQL code" do
           expected_sql = <<-SQL
-INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
+INSERT INTO #{PgSearch::SearchDocument.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
   SELECT #{connection.quote(model.name)} AS searchable_type,
          #{model.quoted_table_name}.id AS searchable_id,
          (
@@ -147,7 +147,7 @@ INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable
 
         it "should generate the proper SQL code" do
           expected_sql = <<-SQL
-INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
+INSERT INTO #{PgSearch::SearchDocument.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
   SELECT #{connection.quote(model.name)} AS searchable_type,
          #{model.quoted_table_name}.id AS searchable_id,
          (
