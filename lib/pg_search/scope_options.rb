@@ -24,8 +24,10 @@ module PgSearch
 
     def conditions
       config.features.map do |feature_name, feature_options|
-        "(#{sanitize_sql_array(feature_for(feature_name).conditions)})"
-      end.join(" OR ")
+        Arel.sql("(#{sanitize_sql_array(feature_for(feature_name).conditions)})")
+      end.inject do |accumulator, expression|
+        Arel::Nodes::Or.new(accumulator, expression)
+      end
     end
 
     def order_within_rank
