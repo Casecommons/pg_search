@@ -60,7 +60,7 @@
 
 * Fix Active Record 3.2 deprecation warnings. (Steven Harman)
 
-* Fix issue with undefined logger when PgSearch::Document.search is already defined.
+* Fix issue with undefined logger when PgSearch::SearchDocument.search is already defined.
 
 == 0.4
 

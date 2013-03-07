@@ -814,13 +814,13 @@ describe "an ActiveRecord model which includes PgSearch" do
   describe ".multisearch" do
     with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
-    describe "delegation to PgSearch::Document.search" do
+    describe "delegation to PgSearch::SearchDocument.search" do
       subject { PgSearch.multisearch(query) }
 
       let(:query) { double(:query) }
       let(:relation) { double(:relation) }
       before do
-        PgSearch::Document.should_receive(:search).with(query).and_return(relation)
+        PgSearch::SearchDocument.should_receive(:search).with(query).and_return(relation)
       end
 
       it { should == relation }

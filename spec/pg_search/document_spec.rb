@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe PgSearch::Document do
+describe PgSearch::SearchDocument do
   with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
   with_model :Searchable do
@@ -16,7 +16,7 @@ describe PgSearch::Document do
   describe "callbacks" do
     describe "before_validation" do
       subject { document }
-      let(:document) { PgSearch::Document.new(:searchable => searchable) }
+      let(:document) { PgSearch::SearchDocument.new(:searchable => searchable) }
       let(:searchable) { Searchable.new }
 
       before do

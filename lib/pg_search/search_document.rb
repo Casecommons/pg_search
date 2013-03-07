@@ -1,7 +1,7 @@
 require "logger"
 
 module PgSearch
-  class Document < ActiveRecord::Base
+  class SearchDocument < ActiveRecord::Base
     include PgSearch
     self.table_name = 'pg_search_documents'
     belongs_to :searchable, :polymorphic => true

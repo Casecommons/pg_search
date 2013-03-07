@@ -75,7 +75,7 @@ To add a model to the global search index for your application, call multisearch
 
 If this model already has existing records, you will need to reindex this model to get existing records into the pg_search_documents table. See the rebuild task below.
 
-Whenever a record is created, updated, or destroyed, an Active Record callback will fire, leading to the creation of a corresponding PgSearch::Document record in the pg_search_documents table. The :against option can be one or several methods which will be called on the record to generate its search text.
+Whenever a record is created, updated, or destroyed, an Active Record callback will fire, leading to the creation of a corresponding PgSearch::SearchDocument record in the pg_search_documents table. The :against option can be one or several methods which will be called on the record to generate its search text.
 
 You can also pass a Proc or method name to call to determine whether or not a particular record should be included.
 
@@ -123,20 +123,20 @@ Note that the Proc or method name is called in an after_save hook. This means th
 
 ==== Multi-search associations
 
-Two associations are built automatically. On the original record, there is a has_one :pg_search_document association pointing to the PgSearch::Document record, and on the PgSearch::Document record there is a belongs_to :searchable polymorphic association pointing back to the original record.
+Two associations are built automatically. On the original record, there is a has_one :pg_search_document association pointing to the PgSearch::SearchDocument record, and on the PgSearch::SearchDocument record there is a belongs_to :searchable polymorphic association pointing back to the original record.
 
  odyssey = EpicPoem.create!(:title => "Odyssey", :author => "Homer")
- search_document = odyssey.pg_search_document #=> PgSearch::Document instance
+ search_document = odyssey.pg_search_document #=> PgSearch::SearchDocument instance
  search_document.searchable #=> #<EpicPoem id: 1, title: "Odyssey", author: "Homer">
 
 ==== Searching in the global search index
 
-To fetch the PgSearch::Document entries for all of the records that match a given query, use PgSearch.multisearch.
+To fetch the PgSearch::SearchDocument entries for all of the records that match a given query, use PgSearch.multisearch.
 
  odyssey = EpicPoem.create!(:title => "Odyssey", :author => "Homer")
  rose = Flower.create!(:color => "Red")
- PgSearch.multisearch("Homer") #=> [#<PgSearch::Document searchable: odyssey>]
- PgSearch.multisearch("Red") #=> [#<PgSearch::Document searchable: rose>]
+ PgSearch.multisearch("Homer") #=> [#<PgSearch::SearchDocument searchable: odyssey>]
+ PgSearch.multisearch("Red") #=> [#<PgSearch::SearchDocument searchable: rose>]
 
 ==== Chaining method calls onto the results
 
@@ -164,9 +164,9 @@ If you change the :against option on a class, add multisearchable to a class tha
 
 The index can also become out-of-sync if you ever modify records in a way that does not trigger Active Record callbacks. For instance, the #update_attribute instance method and the .update_all class method both skip callbacks and directly modify the database.
 
-To remove all of the documents for a given class, you can simply delete all of the PgSearch::Document records.
+To remove all of the documents for a given class, you can simply delete all of the PgSearch::SearchDocument records.
 
- PgSearch::Document.delete_all(:searchable_type => "Animal")
+ PgSearch::SearchDocument.delete_all(:searchable_type => "Animal")
 
 To regenerate the documents for a given class, run:
 
@@ -182,7 +182,7 @@ A second optional argument can be passed to specify the PostgreSQL schema search
 
 For models that are multisearchable :against methods that directly map to Active Record attributes, an efficient single SQL statement is run to update the pg_search_documents table all at once. However, if you call any dynamic methods in :against, the following strategy will be used:
 
- PgSearch::Document.delete_all(:searchable_type => "Ingredient")
+ PgSearch::SearchDocument.delete_all(:searchable_type => "Ingredient")
  Ingredient.find_each { |record| record.update_pg_search_document }
 
 You can also provide a custom implementation for rebuilding the documents by adding a class method called `rebuild_pg_search_documents` to your model.
