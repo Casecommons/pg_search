@@ -3,8 +3,6 @@ require "active_support/core_ext/module/delegation"
 module PgSearch
   module Features
     class TSearch < Feature
-      delegate :connection, :quoted_table_name, :to => :'@model'
-
       def initialize(*args)
         super
 
@@ -16,7 +14,9 @@ module PgSearch
       end
 
       def conditions
-        ["(#{tsdocument}) @@ (#{tsquery})", interpolations]
+        Arel::Nodes::Grouping.new(
+          Arel::Nodes::InfixOperation.new("@@", arel_wrap(tsdocument, interpolations), arel_wrap(tsquery, interpolations))
+        )
       end
 
       def rank

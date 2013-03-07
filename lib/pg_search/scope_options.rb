@@ -24,7 +24,7 @@ module PgSearch
 
     def conditions
       config.features.map do |feature_name, feature_options|
-        Arel.sql("(#{sanitize_sql_array(feature_for(feature_name).conditions)})")
+        feature_for(feature_name).conditions
       end.inject do |accumulator, expression|
         Arel::Nodes::Or.new(accumulator, expression)
       end

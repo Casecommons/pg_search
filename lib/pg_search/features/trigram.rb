@@ -2,10 +2,9 @@ module PgSearch
   module Features
     class Trigram < Feature
       def conditions
-        [
-          "(#{normalize(document)}) % #{normalize(":query")}",
-          {:query => query}
-        ]
+        Arel::Nodes::Grouping.new(
+          Arel::Nodes::InfixOperation.new("%", arel_wrap(document), query)
+        )
       end
 
       def rank
