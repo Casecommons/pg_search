@@ -8,10 +8,10 @@ module PgSearch
       end
 
       def rank
-        [
+        arel_wrap(
           "similarity((#{normalize(document)}), #{normalize(":query")})",
-          {:query => query}
-        ]
+          :query => query
+        )
       end
     end
   end

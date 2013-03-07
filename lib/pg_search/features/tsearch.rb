@@ -20,7 +20,7 @@ module PgSearch
       end
 
       def rank
-        tsearch_rank
+        arel_wrap(tsearch_rank, interpolations)
       end
 
       private
@@ -85,7 +85,7 @@ module PgSearch
       end
 
       def tsearch_rank
-        ["ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})", interpolations]
+        "ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})"
       end
 
       def dictionary

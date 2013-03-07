@@ -69,7 +69,7 @@ module PgSearch
 
     def rank
       (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
-        sanitize_sql_array(feature_for($1).rank)
+        feature_for($1).rank.to_sql
       end
     end
   end

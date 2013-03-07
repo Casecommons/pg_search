@@ -597,7 +597,11 @@ describe "an ActiveRecord model which includes PgSearch" do
         end
 
         it "should pass the custom configuration down to the specified feature" do
-          stub_feature = stub(:conditions => "1 = 1", :rank => "1.0")
+          stub_feature = stub(
+            :conditions => Arel::Nodes::Grouping.new(Arel.sql("1 = 1")),
+            :rank => Arel::Nodes::Grouping.new(Arel.sql("1.0"))
+          )
+
           PgSearch::Features::TSearch.should_receive(:new).with(anything, @tsearch_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
           PgSearch::Features::Trigram.should_receive(:new).with(anything, @trigram_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
 
