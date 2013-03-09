@@ -524,4 +524,30 @@ describe PgSearch do
       expect(results).not_to include(*excluded)
     end
   end
+
+  describe "a scope that uses :associated_against and is chained onto another scope that joins to the same association" do
+    with_model :Parent do
+      model do
+        include PgSearch
+        has_one :child
+        pg_search_scope :search, associated_against: {:child => :name}
+        def self.enabled
+          joins(:child).where(:children => {:enabled => true})
+        end
+      end
+    end
+
+    with_model :Child do
+      table do |t|
+        t.string :name
+        t.belongs_to :parent
+      end
+    end
+
+    it "should not raise an exception" do
+      expect {
+        Parent.search("test").enabled.to_a
+      }.not_to raise_exception
+    end
+  end
 end
