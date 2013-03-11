@@ -19,4 +19,4 @@ gem "with_model"
 
 gem "activerecord", "~> #{ENV["ACTIVE_RECORD_VERSION"]}.0" if ENV["ACTIVE_RECORD_VERSION"]
 
-gem 'coveralls', :require => false
+gem 'coveralls', :require => false, :platform => :mri_20

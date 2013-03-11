@@ -1,8 +1,11 @@
 require "bundler/setup"
 require "pg_search"
 
-require 'coveralls'
-Coveralls.wear!
+begin
+  require 'coveralls'
+  Coveralls.wear!
+rescue LoadError
+end
 
 begin
   require "pg"
