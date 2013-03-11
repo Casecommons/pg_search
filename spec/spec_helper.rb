@@ -1,6 +1,9 @@
 require "bundler/setup"
 require "pg_search"
 
+require 'coveralls'
+Coveralls.wear!
+
 begin
   require "pg"
   error_class = PGError
