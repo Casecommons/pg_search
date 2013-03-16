@@ -10,6 +10,12 @@ rvm:
   - rbx-19mode
   - ree
 
+env:
+  - ACTIVE_RECORD_VERSION="~> 4.0.0.beta1"
+  - ACTIVE_RECORD_VERSION="~> 3.2.0"
+  - ACTIVE_RECORD_VERSION="~> 3.1.0"
+  - ACTIVE_RECORD_VERSION="~> 3.0.0"
+
 matrix:
   allow_failures:
     - rvm: rbx-18mode
