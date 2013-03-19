@@ -11,7 +11,7 @@ module PgSearch
     def initialize(config)
       @config = config
       @model = config.model
-      @feature_options = Hash[config.features]
+      @feature_options = Hash[config.features.compact]
     end
 
     def apply(scope)
