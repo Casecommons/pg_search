@@ -79,13 +79,19 @@ unless postgresql_version < 90000
 end
 install_extension_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "f")
 
+def load_sql(filename)
+  connection = ActiveRecord::Base.connection
+  file_contents = File.read(File.join(File.dirname(__FILE__), '..', 'sql', filename))
+  connection.execute(file_contents)
+end
+
 if postgresql_version < 80400
   unless connection.select_value("SELECT 1 FROM pg_catalog.pg_aggregate WHERE aggfnoid = 'array_agg'::REGPROC") == "1"
-    connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'array_agg.sql')))
+    load_sql("array_agg.sql")
   end
-  connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'unnest.sql')))
+  load_sql("unnest.sql")
 end
-connection.execute(File.read(File.join(File.dirname(__FILE__), '..', 'sql', 'dmetaphone.sql')))
+load_sql("dmetaphone.sql")
 
 require "with_model"
 
