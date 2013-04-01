@@ -735,20 +735,64 @@ describe "an ActiveRecord model which includes PgSearch" do
 
       %w[tsearch trigram dmetaphone].each do |feature|
         context "using the #{feature} ranking algorithm" do
-          before do
-            @scope_name = scope_name = :"search_content_ranked_by_#{feature}"
+          it "should return results with a rank" do
+            scope_name = :"search_content_ranked_by_#{feature}"
 
             ModelWithPgSearch.pg_search_scope scope_name,
               :against => :content,
               :ranked_by => ":#{feature}"
-          end
 
-          it "should return results with a rank" do
             ModelWithPgSearch.create!(:content => 'foo')
 
-            results = ModelWithPgSearch.send(@scope_name, 'foo')
+            results = ModelWithPgSearch.send(scope_name, 'foo')
             results.first.pg_search_rank.should be_a Float
           end
+        end
+      end
+
+      context "using the tsearch ranking algorithm" do
+        it "sorts results by the tsearch rank" do
+          ModelWithPgSearch.pg_search_scope :search_content_ranked_by_tsearch,
+            :using => :tsearch,
+            :against => :content,
+            :ranked_by => ":tsearch"
+
+
+          once = ModelWithPgSearch.create!(:content => 'foo bar')
+          twice = ModelWithPgSearch.create!(:content => 'foo foo')
+
+          results = ModelWithPgSearch.search_content_ranked_by_tsearch('foo')
+          results.index(twice).should be < results.index(once)
+        end
+      end
+
+      context "using the trigram ranking algorithm" do
+        it "sorts results by the trigram rank" do
+          ModelWithPgSearch.pg_search_scope :search_content_ranked_by_trigram,
+            :using => :trigram,
+            :against => :content,
+            :ranked_by => ":trigram"
+
+          close = ModelWithPgSearch.create!(:content => 'abcdef')
+          exact = ModelWithPgSearch.create!(:content => 'abc')
+
+          results = ModelWithPgSearch.search_content_ranked_by_trigram('abc')
+          results.index(exact).should be < results.index(close)
+        end
+      end
+
+      context "using the dmetaphone ranking algorithm" do
+        it "sorts results by the dmetaphone rank" do
+          ModelWithPgSearch.pg_search_scope :search_content_ranked_by_dmetaphone,
+            :using => :dmetaphone,
+            :against => :content,
+            :ranked_by => ":dmetaphone"
+
+          once = ModelWithPgSearch.create!(:content => 'Phoo Bar')
+          twice = ModelWithPgSearch.create!(:content => 'Phoo Fu')
+
+          results = ModelWithPgSearch.search_content_ranked_by_dmetaphone('foo')
+          results.index(twice).should be < results.index(once)
         end
       end
     end
