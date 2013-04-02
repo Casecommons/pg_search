@@ -624,8 +624,8 @@ describe "an Active Record model which includes PgSearch" do
 
       before do
         ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
-          UPDATE #{ModelWithTsvector.table_name}
-          SET content_tsvector = to_tsvector('english'::regconfig, "#{ModelWithTsvector.table_name}"."content")
+          UPDATE #{ModelWithTsvector.quoted_table_name}
+          SET content_tsvector = to_tsvector('english'::regconfig, #{ModelWithTsvector.quoted_table_name}."content")
         SQL
 
         ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,

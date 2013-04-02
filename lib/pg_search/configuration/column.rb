@@ -23,7 +23,7 @@ module PgSearch
       private
 
       def table_name
-        @connection.quote_table_name(@model.table_name)
+        @model.quoted_table_name
       end
 
       def column_name
