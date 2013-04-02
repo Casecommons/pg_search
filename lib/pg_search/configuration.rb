@@ -93,7 +93,7 @@ module PgSearch
 
     def assert_valid_options(options)
       unless options[:against] || options[:associated_against]
-        raise ArgumentError, "the search scope #{@name} must have :against#{" or :associated_against" if defined?(ActiveRecord::Relation)} in its options"
+        raise ArgumentError, "the search scope #{@name} must have :against or :associated_against in its options"
       end
 
       options.assert_valid_keys(VALID_KEYS)
