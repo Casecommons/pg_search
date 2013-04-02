@@ -15,7 +15,7 @@ Read the blog post introducing PgSearch at http://pivotallabs.com/pg-search/
 
 == REQUIREMENTS
 
-* ActiveRecord 3.1 or later
+* Active Record 3.1 or later
 * PostgreSQL
 * {PostgreSQL contrib packages for certain features}[https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules]
 
@@ -45,7 +45,7 @@ The newest versions of PgSearch no longer support Rails 2. However, the 0.2 seri
 
 The 0.2 branch lives at https://github.com/Casecommons/pg_search/tree/0.2-stable
 
-=== Other ActiveRecord-based projects
+=== Other Active Record projects
 
 In addition to installing and requiring the gem, you may want to include the PgSearch rake tasks in your Rakefile. This isn't necessary for Rails projects, which gain the Rake tasks via a Railtie.
 
@@ -53,7 +53,7 @@ In addition to installing and requiring the gem, you may want to include the PgS
 
 == USAGE
 
-To add PgSearch to an ActiveRecord model, simply include the PgSearch module.
+To add PgSearch to an Active Record model, simply include the PgSearch module.
 
  class Shape < ActiveRecord::Base
    include PgSearch

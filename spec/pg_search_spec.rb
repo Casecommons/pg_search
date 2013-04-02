@@ -1,7 +1,6 @@
 require "spec_helper"
 
-describe "an ActiveRecord model which includes PgSearch" do
-
+describe "an Active Record model which includes PgSearch" do
   with_model :ModelWithPgSearch do
     table do |t|
       t.string 'title'
