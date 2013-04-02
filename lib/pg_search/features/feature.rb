@@ -28,14 +28,6 @@ module PgSearch
       def normalize(expression)
         normalizer.add_normalization(expression)
       end
-
-      def arel_wrap(sql_string, interpolations = {})
-        Arel::Nodes::Grouping.new(
-          Arel.sql(
-            sanitize_sql_array([sql_string, interpolations])
-          )
-        )
-      end
     end
   end
 end

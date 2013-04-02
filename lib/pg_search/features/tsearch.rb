@@ -91,6 +91,14 @@ module PgSearch
       def dictionary
         options[:dictionary] || :simple
       end
+
+      def arel_wrap(sql_string, interpolations = {})
+        Arel::Nodes::Grouping.new(
+          Arel.sql(
+            sanitize_sql_array([sql_string, interpolations])
+          )
+        )
+      end
     end
   end
 end
