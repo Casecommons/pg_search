@@ -59,6 +59,14 @@ module PgSearch
       Array(options[:using])
     end
 
+    def feature_options
+      @feature_options ||= Hash.new.tap do |hash|
+        features.map do |feature_name, feature_options|
+          hash[feature_name] = feature_options
+        end
+      end
+    end
+
     def order_within_rank
       options[:order_within_rank]
     end
