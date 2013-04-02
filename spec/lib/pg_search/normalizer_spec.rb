@@ -4,21 +4,45 @@ describe PgSearch::Normalizer do
   describe "#add_normalization" do
     context "for PostgreSQL 9.0 and above" do
       context "when config[:ignore] includes :accents" do
-        it "wraps the expression in unaccent()" do
-          config = stub("config", :ignore => [:accents], :postgresql_version => 90000)
+        context "when passed an Arel node" do
+          it "wraps the expression in unaccent()" do
+            config = stub("config", :ignore => [:accents], :postgresql_version => 90000)
+            node = Arel::Nodes::NamedFunction.new("foo", ["bar"])
 
-          normalizer = PgSearch::Normalizer.new(config)
-          normalizer.add_normalization("foo").should == "unaccent(foo)"
+            normalizer = PgSearch::Normalizer.new(config)
+            normalizer.add_normalization(node).should == "unaccent(foo('bar'))"
+          end
+
+          context "when a custom unaccent function is specified" do
+            it "wraps the expression in that function" do
+              PgSearch.stub(:unaccent_function).and_return("my_unaccent")
+              node = Arel::Nodes::NamedFunction.new("foo", ["bar"])
+
+              config = stub("config", :ignore => [:accents], :postgresql_version => 90000)
+
+              normalizer = PgSearch::Normalizer.new(config)
+              normalizer.add_normalization(node).should == "my_unaccent(foo('bar'))"
+            end
+          end
         end
 
-        context "when a custom unaccent function is specified" do
-          it "wraps the expression in that function" do
-            PgSearch.stub(:unaccent_function).and_return("my_unaccent")
-
+        context "when passed a String" do
+          it "wraps the expression in unaccent()" do
             config = stub("config", :ignore => [:accents], :postgresql_version => 90000)
 
             normalizer = PgSearch::Normalizer.new(config)
-            normalizer.add_normalization("foo").should == "my_unaccent(foo)"
+            normalizer.add_normalization("foo").should == "unaccent(foo)"
+          end
+
+          context "when a custom unaccent function is specified" do
+            it "wraps the expression in that function" do
+              PgSearch.stub(:unaccent_function).and_return("my_unaccent")
+
+              config = stub("config", :ignore => [:accents], :postgresql_version => 90000)
+
+              normalizer = PgSearch::Normalizer.new(config)
+              normalizer.add_normalization("foo").should == "my_unaccent(foo)"
+            end
           end
         end
       end

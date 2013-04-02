@@ -5,18 +5,26 @@ module PgSearch
     end
 
     def add_normalization(sql_expression)
-      if config.ignore.include?(:accents)
-        if config.postgresql_version < 90000
-          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.gsub /^\s*/, '')
-            Sorry, {:ignoring => :accents} only works in PostgreSQL 9.0 and above.
-            #{config.inspect}
-          MESSAGE
-        else
-          "#{PgSearch.unaccent_function}(#{sql_expression})"
-        end
-      else
-        sql_expression
+      return sql_expression unless config.ignore.include?(:accents)
+
+      if config.postgresql_version < 90000
+        raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.gsub /^\s*/, '')
+          Sorry, {:ignoring => :accents} only works in PostgreSQL 9.0 and above.
+          #{config.inspect}
+        MESSAGE
       end
+
+      sql_node = case sql_expression
+                 when Arel::Nodes::Node
+                   sql_expression
+                 else
+                   Arel.sql(sql_expression)
+                 end
+
+      Arel::Nodes::NamedFunction.new(
+        PgSearch.unaccent_function,
+        [sql_node]
+      ).to_sql
     end
 
     private
