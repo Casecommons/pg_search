@@ -15,19 +15,15 @@ module PgSearch
 
       def conditions
         Arel::Nodes::Grouping.new(
-          Arel::Nodes::InfixOperation.new("@@", arel_wrap(tsdocument, interpolations), arel_wrap(tsquery, interpolations))
+          Arel::Nodes::InfixOperation.new("@@", arel_wrap(tsdocument), arel_wrap(tsquery))
         )
       end
 
       def rank
-        arel_wrap(tsearch_rank, interpolations)
+        arel_wrap(tsearch_rank)
       end
 
       private
-
-      def interpolations
-        {:query => query.to_s, :dictionary => dictionary.to_s}
-      end
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
 
@@ -45,7 +41,10 @@ module PgSearch
           (connection.quote(':*') if options[:prefix])
         ].compact.join(" || ")
 
-        "to_tsquery(:dictionary, #{tsquery_sql})"
+        Arel::Nodes::NamedFunction.new(
+          "to_tsquery",
+          [dictionary, Arel.sql(tsquery_sql)]
+        ).to_sql
       end
 
       def tsquery
@@ -61,7 +60,11 @@ module PgSearch
           "#{quoted_table_name}.#{column_name}"
         else
           columns.map do |search_column|
-            tsvector = "to_tsvector(:dictionary, #{normalize(search_column.to_sql)})"
+            tsvector = Arel::Nodes::NamedFunction.new(
+              "to_tsvector",
+              [dictionary, Arel.sql(normalize(search_column.to_sql))]
+            ).to_sql
+
             if search_column.weight.nil?
               tsvector
             else
@@ -92,12 +95,8 @@ module PgSearch
         options[:dictionary] || :simple
       end
 
-      def arel_wrap(sql_string, interpolations = {})
-        Arel::Nodes::Grouping.new(
-          Arel.sql(
-            sanitize_sql_array([sql_string, interpolations])
-          )
-        )
+      def arel_wrap(sql_string)
+        Arel::Nodes::Grouping.new(Arel.sql(sql_string))
       end
     end
   end
