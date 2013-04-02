@@ -96,10 +96,6 @@ module PgSearch
         raise ArgumentError, "the search scope #{@name} must have :against#{" or :associated_against" if defined?(ActiveRecord::Relation)} in its options"
       end
 
-      if options[:associated_against] && !defined?(ActiveRecord::Relation)
-        raise ArgumentError, ":associated_against requires Active Record 3 or later"
-      end
-
       options.assert_valid_keys(VALID_KEYS)
 
       VALID_VALUES.each do |key, values_for_key|
