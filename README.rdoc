@@ -6,6 +6,7 @@
 {<img src="https://gemnasium.com/Casecommons/pg_search.png" alt="Dependency Status" />}[https://gemnasium.com/Casecommons/pg_search] 
 {<img src="https://codeclimate.com/github/Casecommons/pg_search.png" />}[https://codeclimate.com/github/Casecommons/pg_search]
 {<img src="https://coveralls.io/repos/Casecommons/pg_search/badge.png?branch=master" alt="Coverage Status" />}[https://coveralls.io/r/Casecommons/pg_search]
+{<img src="https://badge.fury.io/rb/pg_search.png" alt="Gem Version" />}[http://badge.fury.io/rb/pg_search]
 
 == DESCRIPTION
 
