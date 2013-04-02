@@ -4,12 +4,6 @@ require "active_support/core_ext/module/delegation"
 
 module PgSearch
   class ScopeOptions
-    begin
-      include ActiveRecord::Sanitization::ClassMethods
-    rescue NameError
-      delegate :sanitize_sql_array, :to => :'@model'
-    end
-
     attr_reader :config, :feature_options
 
     def initialize(config)
