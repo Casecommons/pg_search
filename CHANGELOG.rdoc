@@ -1,5 +1,19 @@
 = PgSearch
 
+== 0.6.0
+
+* Drop support for Active Record 3.0.
+
+* Address warnings in Ruby 2.0.
+
+* Remove all usages of sanitize_sql_array for future Rails 4 compatibility.
+
+* Start using Arel internally to build SQL strings (not yet complete).
+
+* Disable eager loading, fixes issue #14.
+
+* Support named schemas in pg_search:multisearch:rebuild. (Victor Olteanu)
+
 == 0.5.7
 
 * Fix issue with eager loading now that the Scope class has been removed. (Piotr Murach)
