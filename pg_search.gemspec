@@ -6,8 +6,8 @@ Gem::Specification.new do |s|
   s.name        = "pg_search"
   s.version     = PgSearch::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Case Commons, LLC"]
-  s.email       = ["casecommons-dev@googlegroups.com"]
+  s.authors     = ["Grant Hutchins", "Case Commons, LLC"]
+  s.email       = ["gems@nertzy.com", "casecommons-dev@googlegroups.com"]
   s.homepage    = "https://github.com/Casecommons/pg_search"
   s.summary     = %q{PgSearch builds Active Record named scopes that take advantage of PostgreSQL's full text search}
   s.description = %q{PgSearch builds Active Record named scopes that take advantage of PostgreSQL's full text search}
