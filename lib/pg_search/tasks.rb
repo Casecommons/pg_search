@@ -5,9 +5,9 @@ namespace :pg_search do
   namespace :multisearch do
     desc "Rebuild PgSearch multisearch records for a given model"
     task :rebuild, [:model,:schema] => :environment do |task, args|
-      raise ArgumentError, <<-MESSAGE unless args.model
-You must pass a model as an argument.
-Example: rake pg_search:multisearch:rebuild[BlogPost]
+      raise ArgumentError, <<-MESSAGE.strip_heredoc unless args.model
+        You must pass a model as an argument.
+        Example: rake pg_search:multisearch:rebuild[BlogPost]
       MESSAGE
       model_class = args.model.classify.constantize
       connection = PgSearch::Document.connection

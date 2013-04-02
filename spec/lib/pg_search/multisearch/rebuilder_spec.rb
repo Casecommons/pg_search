@@ -84,16 +84,16 @@ describe PgSearch::Multisearch::Rebuilder do
           time = DateTime.parse("2001-01-01")
           rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, lambda { time } )
 
-          expected_sql = <<-SQL
-INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
-  SELECT 'Model' AS searchable_type,
-         #{Model.quoted_table_name}.id AS searchable_id,
-         (
-           coalesce(#{Model.quoted_table_name}.name::text, '')
-         ) AS content,
-         '2001-01-01 00:00:00' AS created_at,
-         '2001-01-01 00:00:00' AS updated_at
-  FROM #{Model.quoted_table_name}
+          expected_sql = <<-SQL.strip_heredoc
+            INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
+              SELECT 'Model' AS searchable_type,
+                     #{Model.quoted_table_name}.id AS searchable_id,
+                     (
+                       coalesce(#{Model.quoted_table_name}.name::text, '')
+                     ) AS content,
+                     '2001-01-01 00:00:00' AS created_at,
+                     '2001-01-01 00:00:00' AS updated_at
+              FROM #{Model.quoted_table_name}
           SQL
 
           executed_sql = []

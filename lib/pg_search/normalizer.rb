@@ -8,7 +8,7 @@ module PgSearch
       return sql_expression unless config.ignore.include?(:accents)
 
       if config.postgresql_version < 90000
-        raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.gsub /^\s*/, '')
+        raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
           Sorry, {:ignoring => :accents} only works in PostgreSQL 9.0 and above.
           #{config.inspect}
         MESSAGE

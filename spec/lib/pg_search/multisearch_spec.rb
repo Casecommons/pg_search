@@ -31,7 +31,7 @@ describe PgSearch::Multisearch do
 
     describe "cleaning up search documents for this model" do
       before do
-        connection.execute <<-SQL
+        connection.execute <<-SQL.strip_heredoc
           INSERT INTO pg_search_documents
             (searchable_type, searchable_id, content, created_at, updated_at)
             VALUES
@@ -74,7 +74,7 @@ describe PgSearch::Multisearch do
       context "when the model implements .rebuild_pg_search_documents" do
         before do
           def model.rebuild_pg_search_documents
-            connection.execute <<-SQL
+            connection.execute <<-SQL.strip_heredoc
               INSERT INTO pg_search_documents
                 (searchable_type, searchable_id, content, created_at, updated_at)
                 VALUES
@@ -119,17 +119,17 @@ describe PgSearch::Multisearch do
         end
 
         it "should generate the proper SQL code" do
-          expected_sql = <<-SQL
-INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
-  SELECT #{connection.quote(model.name)} AS searchable_type,
-         #{model.quoted_table_name}.id AS searchable_id,
-         (
-           coalesce(#{model.quoted_table_name}.title::text, '')
-         ) AS content,
-         #{connection.quote(connection.quoted_date(now))} AS created_at,
-         #{connection.quote(connection.quoted_date(now))} AS updated_at
-  FROM #{model.quoted_table_name}
-  SQL
+          expected_sql = <<-SQL.strip_heredoc
+            INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
+              SELECT #{connection.quote(model.name)} AS searchable_type,
+                     #{model.quoted_table_name}.id AS searchable_id,
+                     (
+                       coalesce(#{model.quoted_table_name}.title::text, '')
+                     ) AS content,
+                     #{connection.quote(connection.quoted_date(now))} AS created_at,
+                     #{connection.quote(connection.quoted_date(now))} AS updated_at
+              FROM #{model.quoted_table_name}
+          SQL
 
           statements = []
           connection.stub(:execute) { |sql| statements << sql }
@@ -146,17 +146,17 @@ INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable
         end
 
         it "should generate the proper SQL code" do
-          expected_sql = <<-SQL
-INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
-  SELECT #{connection.quote(model.name)} AS searchable_type,
-         #{model.quoted_table_name}.id AS searchable_id,
-         (
-           coalesce(#{model.quoted_table_name}.title::text, '') || ' ' || coalesce(#{model.quoted_table_name}.content::text, '')
-         ) AS content,
-         #{connection.quote(connection.quoted_date(now))} AS created_at,
-         #{connection.quote(connection.quoted_date(now))} AS updated_at
-  FROM #{model.quoted_table_name}
-SQL
+          expected_sql = <<-SQL.strip_heredoc
+            INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
+              SELECT #{connection.quote(model.name)} AS searchable_type,
+                     #{model.quoted_table_name}.id AS searchable_id,
+                     (
+                       coalesce(#{model.quoted_table_name}.title::text, '') || ' ' || coalesce(#{model.quoted_table_name}.content::text, '')
+                     ) AS content,
+                     #{connection.quote(connection.quoted_date(now))} AS created_at,
+                     #{connection.quote(connection.quoted_date(now))} AS updated_at
+              FROM #{model.quoted_table_name}
+          SQL
 
           statements = []
           connection.stub(:execute) { |sql| statements << sql }
