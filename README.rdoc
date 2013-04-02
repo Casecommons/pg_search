@@ -36,7 +36,7 @@ The newest versions of PgSearch no longer support Rails 3.0. However, the 0.5 se
 
  gem 'pg_search', "~> 0.5.7"
 
-The 0.5 branch lives at https://github.com/Casecommons/pg_search/tree/0.2-stable
+The 0.5 branch lives at https://github.com/Casecommons/pg_search/tree/0.5-stable
 
 === Rails 2
 
