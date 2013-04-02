@@ -2,7 +2,12 @@ module PgSearch
   module Features
     class Feature
       delegate :connection, :quoted_table_name, :to => :'@model'
-      include ActiveRecord::Sanitization::ClassMethods
+
+      begin
+        include ActiveRecord::Sanitization::ClassMethods
+      rescue NameError
+        delegate :sanitize_sql_array, :to => :'@model'
+      end
 
       def initialize(query, options, columns, model, normalizer)
         @query = query
