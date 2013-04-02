@@ -33,10 +33,6 @@ module PgSearch
       def expression
         full_name
       end
-
-      def alias
-        Configuration.alias(association.subselect_alias, @column_name)
-      end
     end
   end
 end
