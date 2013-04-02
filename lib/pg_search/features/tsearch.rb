@@ -30,20 +30,19 @@ module PgSearch
       def tsquery_for_term(term)
         sanitized_term = term.gsub(DISALLOWED_TSQUERY_CHARACTERS, " ")
 
-        term_sql = normalize(connection.quote(sanitized_term))
+        term_sql = Arel.sql(normalize(connection.quote(sanitized_term)))
 
         # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
         # If :prefix is true, then the term will also have :* appended to the end.
-        tsquery_sql = [
-          connection.quote("' "),
-          term_sql,
-          connection.quote(" '"),
-          (connection.quote(':*') if options[:prefix])
-        ].compact.join(" || ")
+        terms = ["' ", term_sql, " '", (':*' if options[:prefix])].compact
+
+        tsquery_sql = terms.inject do |memo, term|
+          Arel::Nodes::InfixOperation.new("||", memo, term)
+        end
 
         Arel::Nodes::NamedFunction.new(
           "to_tsquery",
-          [dictionary, Arel.sql(tsquery_sql)]
+          [dictionary, tsquery_sql]
         ).to_sql
       end
 
