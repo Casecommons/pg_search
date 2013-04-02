@@ -343,6 +343,42 @@ describe PgSearch do
         results.should_not include(excluded)
       end
     end
+
+    context "when including the associated model" do
+      with_model :Parent do
+        table do |t|
+          t.text :name
+        end
+
+        model do
+          has_many :children
+          include PgSearch
+          pg_search_scope :search_name, :against => :name
+        end
+      end
+
+      with_model :Child do
+        table do |t|
+          t.belongs_to :parent
+        end
+
+        model do
+          belongs_to :parent
+        end
+      end
+
+      # https://github.com/Casecommons/pg_search/issues/14
+      it "supports queries with periods" do
+        included = Parent.create!(:name => 'bar.foo')
+        excluded = Parent.create!(:name => 'foo.bar')
+
+        results = Parent.search_name('bar.foo').includes(:children)
+        results.to_a
+
+        results.should include(included)
+        results.should_not include(excluded)
+      end
+    end
   end
 
   context "merging a pg_search_scope into another model's scope" do
