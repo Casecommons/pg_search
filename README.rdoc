@@ -13,19 +13,35 @@ PgSearch builds named scopes that take advantage of PostgreSQL's full text searc
 
 Read the blog post introducing PgSearch at http://pivotallabs.com/pg-search/
 
+== REQUIREMENTS
+
+* ActiveRecord 3.1 or later
+* PostgreSQL
+* {PostgreSQL contrib packages for certain features}[https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules]
+
 == INSTALL
 
  gem install pg_search
 
-=== Rails 3
+=== Rails 3.1 or later
 
 In Gemfile
 
  gem 'pg_search'
 
+=== Rails 3.0
+
+The newest versions of PgSearch no longer support Rails 3.0. However, the 0.5 series still works. It's not actively maintained, but submissions are welcome for backports and bugfixes.
+
+ gem 'pg_search', "~> 0.5.7"
+
+The 0.5 branch lives at https://github.com/Casecommons/pg_search/tree/0.2-stable
+
 === Rails 2
 
 The newest versions of PgSearch no longer support Rails 2. However, the 0.2 series still works. It's not actively maintained, but submissions are welcome for backports and bugfixes.
+
+ gem 'pg_search', "~> 0.2.0"
 
 The 0.2 branch lives at https://github.com/Casecommons/pg_search/tree/0.2-stable
 
@@ -580,12 +596,6 @@ To use this functionality you'll need to do a few things:
                     }
 
 Please note that the :against column is only used when the tsvector_column is not present for the search type.
-
-== REQUIREMENTS
-
-* ActiveRecord 3
-* PostgreSQL
-* {PostgreSQL contrib packages for certain features}[https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules]
 
 == ATTRIBUTIONS
 
