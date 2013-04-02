@@ -3,15 +3,26 @@ module PgSearch
     class Trigram < Feature
       def conditions
         Arel::Nodes::Grouping.new(
-          Arel::Nodes::InfixOperation.new("%", arel_wrap(document), query)
+          Arel::Nodes::InfixOperation.new("%", normalized_document, normalize(query))
         )
       end
 
       def rank
-        arel_wrap(
-          "similarity((#{normalize(document)}), #{normalize(":query")})",
-          :query => query
+        Arel::Nodes::Grouping.new(
+          Arel::Nodes::NamedFunction.new(
+            "similarity",
+            [
+              normalized_document,
+              normalize(query)
+            ]
+          )
         )
+      end
+
+      private
+
+      def normalized_document
+        Arel::Nodes::Grouping.new(normalize(Arel.sql(document)))
       end
     end
   end
