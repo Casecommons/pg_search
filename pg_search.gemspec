@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'activerecord', '>=3.1'
   s.add_dependency 'activesupport', '>=3.1'
+  s.add_dependency 'arel'
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rdoc'

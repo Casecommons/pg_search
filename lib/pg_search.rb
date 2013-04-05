@@ -2,6 +2,7 @@ require "active_record"
 require "active_support/concern"
 require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/string/strip"
+require "pg_search/extensions/arel"
 
 module PgSearch
   autoload :Configuration, "pg_search/configuration"
