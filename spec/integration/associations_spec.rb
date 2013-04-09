@@ -452,13 +452,13 @@ describe PgSearch do
       another_company = Company.create!
 
       included = [
-        Position.create!(company_id: company.id, title: "teller 1")
+        Position.create!(:company_id => company.id, :title => "teller 1")
       ]
 
       excluded = [
-        Position.create!(company_id: nil, title: "teller 1"),
-        Position.create!(company_id: another_company.id, title: "teller 1"),
-        Position.create!(company_id: company.id, title: "penn 1")
+        Position.create!(:company_id => nil, :title => "teller 1"),
+        Position.create!(:company_id => another_company.id, :title => "teller 1"),
+        Position.create!(:company_id => company.id, :title => "penn 1")
       ]
 
       results = company.positions.search('teller 1')
