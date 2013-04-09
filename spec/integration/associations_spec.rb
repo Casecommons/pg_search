@@ -426,4 +426,45 @@ describe PgSearch do
       results.should_not include(*excluded)
     end
   end
+
+  context "chained onto a has_many association" do
+    with_model :Company do
+      model do
+        has_many :positions
+      end
+    end
+
+    with_model :Position do
+      table do |t|
+        t.string :title
+        t.belongs_to :company
+      end
+
+      model do
+        include PgSearch
+        pg_search_scope :search, :against => :title, :using => [:tsearch, :trigram]
+      end
+    end
+
+    # https://github.com/Casecommons/pg_search/issues/106
+    it "should handle numbers in a trigram query properly" do
+      company = Company.create!
+      another_company = Company.create!
+
+      included = [
+        Position.create!(company_id: company.id, title: "teller 1")
+      ]
+
+      excluded = [
+        Position.create!(company_id: nil, title: "teller 1"),
+        Position.create!(company_id: another_company.id, title: "teller 1"),
+        Position.create!(company_id: company.id, title: "penn 1")
+      ]
+
+      results = company.positions.search('teller 1')
+
+      results.should include(*included)
+      results.should_not include(*excluded)
+    end
+  end
 end
