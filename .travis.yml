@@ -11,7 +11,7 @@ rvm:
   - ree
 
 env:
-  - ACTIVE_RECORD_VERSION="~> 4.0.0.beta1"
+  - ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
   - ACTIVE_RECORD_VERSION="~> 3.2.0"
   - ACTIVE_RECORD_VERSION="~> 3.1.0"
 
@@ -20,16 +20,16 @@ matrix:
     - rvm: rbx-18mode
     - rvm: rbx-19mode
     - rvm: jruby-19mode
-    - env: ACTIVE_RECORD_VERSION="~> 4.0.0.beta1"
+    - env: ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
   exclude:
     - rvm: 1.8.7
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0.beta1"
+      env: ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
     - rvm: jruby-18mode
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0.beta1"
+      env: ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
     - rvm: rbx-18mode
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0.beta1"
+      env: ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
     - rvm: ree
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0.beta1"
+      env: ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
 
 
 before_script:
