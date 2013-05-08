@@ -16,7 +16,7 @@ describe "an Active Record model which includes PgSearch" do
   describe ".pg_search_scope" do
     it "builds a chainable scope" do
       ModelWithPgSearch.pg_search_scope "matching_query", :against => []
-      scope = ModelWithPgSearch.scoped({}).matching_query("foo").scoped({})
+      scope = ModelWithPgSearch.where("1 = 1").matching_query("foo").where("1 = 1")
       scope.should be_an ActiveRecord::Relation
     end
 
@@ -660,7 +660,7 @@ describe "an Active Record model which includes PgSearch" do
 
         it "should refer to the tsvector column in the query unambiguously" do
           expect {
-            ModelWithTsvector.joins(:another_models).search_by_content_with_tsvector("test").all
+            ModelWithTsvector.joins(:another_models).search_by_content_with_tsvector("test").to_a
           }.not_to raise_exception
         end
       end
