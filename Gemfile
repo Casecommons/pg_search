@@ -16,5 +16,3 @@ group :development do
   gem 'rb-fsevent', :require => false
   gem 'rb-fchange', :require => false
 end
-
-gem "with_model", path: "../with_model"
