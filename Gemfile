@@ -6,6 +6,7 @@ gem 'pg', :platform => :ruby
 gem "activerecord-jdbcpostgresql-adapter", :platform => :jruby
 
 gem "activerecord", ENV["ACTIVE_RECORD_VERSION"] if ENV["ACTIVE_RECORD_VERSION"]
+gem "activerecord", :github => "rails", branch: ENV["ACTIVE_RECORD_BRANCH"] if ENV["ACTIVE_RECORD_BRANCH"]
 
 gem 'coveralls', :require => false, :platform => :mri_20
 
@@ -15,3 +16,5 @@ group :development do
   gem 'rb-fsevent', :require => false
   gem 'rb-fchange', :require => false
 end
+
+gem "with_model", path: "../with_model"

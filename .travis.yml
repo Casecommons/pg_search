@@ -11,7 +11,8 @@ rvm:
   - ree
 
 env:
-  - ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
+  - ACTIVE_RECORD_BRANCH="master"
+  - ACTIVE_RECORD_BRANCH="4-0-stable"
   - ACTIVE_RECORD_VERSION="~> 3.2.0"
   - ACTIVE_RECORD_VERSION="~> 3.1.0"
 
@@ -20,17 +21,25 @@ matrix:
     - rvm: rbx-18mode
     - rvm: rbx-19mode
     - rvm: jruby-19mode
-    - env: ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
+    - env: ACTIVE_RECORD_BRANCH="master"
+    - env: ACTIVE_RECORD_BRANCH="4-0-stable"
   exclude:
     - rvm: 1.8.7
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
+      env: ACTIVE_RECORD_BRANCH="master"
+    - rvm: 1.8.7
+      env: ACTIVE_RECORD_BRANCH="4-0-stable"
     - rvm: jruby-18mode
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
+      env: ACTIVE_RECORD_BRANCH="master"
+    - rvm: jruby-18mode
+      env: ACTIVE_RECORD_BRANCH="4-0-stable"
     - rvm: rbx-18mode
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
+      env: ACTIVE_RECORD_BRANCH="master"
+    - rvm: rbx-18mode
+      env: ACTIVE_RECORD_BRANCH="4-0-stable"
     - rvm: ree
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0.rc1"
-
+      env: ACTIVE_RECORD_BRANCH="master"
+    - rvm: ree
+      env: ACTIVE_RECORD_BRANCH="4-0-stable"
 
 before_script:
   - "psql -c 'create database pg_search_test;' -U postgres >/dev/null"
