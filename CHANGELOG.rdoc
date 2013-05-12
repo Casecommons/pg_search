@@ -1,5 +1,9 @@
 = PgSearch
 
+== 0.6.3
+
+* Fix issues and deprecations for Active Record 4.0.0.rc1
+
 == 0.6.2
 
 * Add workaround for issue with how ActiveRecord relations handle Arel OR
