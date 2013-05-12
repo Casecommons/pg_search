@@ -49,9 +49,11 @@ module PgSearch
     end
 
     def joins
-      config.associations.map do |association|
-        association.join(primary_key)
-      end.join(' ')
+      if config.associations.any?
+        config.associations.map do |association|
+          association.join(primary_key)
+        end.join(' ')
+      end
     end
 
     FEATURE_CLASSES = {
