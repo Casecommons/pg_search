@@ -564,6 +564,13 @@ describe "an Active Record model which includes PgSearch" do
             :trigram
           ]
 
+        ModelWithPgSearch.pg_search_scope :complex_search,
+          :against => [:content, :title],
+          :using => {
+            :tsearch => {:dictionary => 'english'},
+            :dmetaphone => {},
+            :trigram => {}
+          }
       end
 
       it "returns rows that match using any of the features" do
@@ -574,12 +581,21 @@ describe "an Active Record model which includes PgSearch" do
         ModelWithPgSearch.with_trigram(trigram_query).should include(record)
         ModelWithPgSearch.with_tsearch(trigram_query).should_not include(record)
         ModelWithPgSearch.with_tsearch_and_trigram(trigram_query).should == [record]
+        ModelWithPgSearch.complex_search(trigram_query).should include(record)
 
         # matches tsearch only
         tsearch_query = "tiles"
         ModelWithPgSearch.with_tsearch(tsearch_query).should include(record)
         ModelWithPgSearch.with_trigram(tsearch_query).should_not include(record)
         ModelWithPgSearch.with_tsearch_and_trigram(tsearch_query).should == [record]
+        ModelWithPgSearch.complex_search(tsearch_query).should include(record)
+
+        # matches dmetaphone only
+        dmetaphone_query = "tyling"
+        ModelWithPgSearch.with_tsearch(dmetaphone_query).should_not include(record)
+        ModelWithPgSearch.with_trigram(dmetaphone_query).should_not include(record)
+        ModelWithPgSearch.with_tsearch_and_trigram(dmetaphone_query).should_not include(record)
+        ModelWithPgSearch.complex_search(dmetaphone_query).should include(record)
       end
 
       context "with feature-specific configuration" do

@@ -36,8 +36,8 @@ module PgSearch
       config.features.map do |feature_name, feature_options|
         feature_for(feature_name).conditions
       end.inject do |accumulator, expression|
-        Arel::Nodes::Or.new(accumulator, expression).to_sql
-      end
+        Arel::Nodes::Or.new(accumulator, expression)
+      end.to_sql
     end
 
     def order_within_rank
