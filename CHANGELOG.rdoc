@@ -1,5 +1,9 @@
 = PgSearch
 
+== 0.6.4
+
+* Fix issue with using more than two features in the same scope
+
 == 0.6.3
 
 * Fix issues and deprecations for Active Record 4.0.0.rc1
