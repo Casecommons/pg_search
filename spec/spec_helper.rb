@@ -1,10 +1,12 @@
 require "bundler/setup"
 require "pg_search"
 
-begin
-  require 'coveralls'
-  Coveralls.wear!
-rescue LoadError
+if ENV["TRAVIS"]
+  begin
+    require 'coveralls'
+    Coveralls.wear!
+  rescue LoadError
+  end
 end
 
 begin
