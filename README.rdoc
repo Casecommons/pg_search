@@ -615,6 +615,24 @@ Note that :ranked_by using a String to represent the ranking expression. This al
     # A more complex example, where books.num_pages is an integer column in the table itself
     :ranked_by => "(books.num_pages * :trigram) + (:tsearch / 2.0)"
 
+=== :order_within_rank (Breaking ties)
+
+PostgreSQL does not guarantee a consistent order when multiple records have the same value in the ORDER BY clause. This can cause trouble with pagination. 
+
+Imagine a case where 12 records all have the same ranking value. If you use a pagination library such as {kaminari}[https://github.com/amatsuda/kaminari] or {will_paginate}[https://github.com/mislav/will_paginate] to return results in pages of 10, then you would expect to see 10 of the records on page 1, and the remaining 2 records at the top of the next page, ahead of lower-ranked results.
+
+But since there is no consistent ordering, PostgreSQL might choose to rearrange the order of those 12 records between different SQL statements. You might end up getting some of the same records from page 1 on page 2 as well, and likewise there may be records that don't show up at all.
+
+pg_search fixes this problem by adding a second expression to the ORDER BY clause, after the :ranked_by expression explained above. By default, the tiebreaker order is ascending by id.
+
+    ORDER BY [complicated :ranked_by expression...], id ASC
+
+This might not be desirable for your application, especially if you do not want old records to outrank new records. By passing an :order_within_rank, you can specify an alternate tiebreaker expression. A common example would be descending by updated_at, to rank the most recently updated records first.
+
+    pg_search_scope :search_and_break_ties_by_latest_update,
+                    :against => [:title, :content],
+                    :order_within_rank => "blog_posts.updated_at DESC"
+
 == ATTRIBUTIONS
 
 PgSearch would not have been possible without inspiration from
