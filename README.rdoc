@@ -598,7 +598,9 @@ To use this functionality you'll need to do a few things:
 
 Please note that the :against column is only used when the tsvector_column is not present for the search type.
 
-=== :ranked_by (Controlling ranking algorithm)
+=== Configuring ranking and ordering
+
+==== :ranked_by (Choosing a ranking algorithm)
 
 By default, pg_search ranks results based on the :tsearch similarity between the searchable text and the query. To use a different ranking algorithm, you can pass a :ranked_by option to pg_search_scope.
 
@@ -615,7 +617,7 @@ Note that :ranked_by using a String to represent the ranking expression. This al
     # A more complex example, where books.num_pages is an integer column in the table itself
     :ranked_by => "(books.num_pages * :trigram) + (:tsearch / 2.0)"
 
-=== :order_within_rank (Breaking ties)
+==== :order_within_rank (Breaking ties)
 
 PostgreSQL does not guarantee a consistent order when multiple records have the same value in the ORDER BY clause. This can cause trouble with pagination. 
 
@@ -632,6 +634,14 @@ This might not be desirable for your application, especially if you do not want 
     pg_search_scope :search_and_break_ties_by_latest_update,
                     :against => [:title, :content],
                     :order_within_rank => "blog_posts.updated_at DESC"
+
+==== PgSearch#pg_search_rank (Reading a record's rank as a Float)
+
+It may be useful or interesting to see the rank of a particular record. This can be helpful for debugging why one record outranks another. You could also use it to show some sort of relevancy value to end users of an application. Just call .pg_search_rank on a record returned by a pg_search_scope.
+
+    shirt_brands = ShirtBrand.search_by_name("Penguin")
+    shirt_brands[0].pg_search_rank #=> 0.0759909
+    shirt_brands[1].pg_search_rank #=> 0.0607927
 
 == ATTRIBUTIONS
 
