@@ -598,6 +598,23 @@ To use this functionality you'll need to do a few things:
 
 Please note that the :against column is only used when the tsvector_column is not present for the search type.
 
+=== :ranked_by (Controlling ranking algorithm)
+
+By default, pg_search ranks results based on the :tsearch similarity between the searchable text and the query. To use a different ranking algorithm, you can pass a :ranked_by option to pg_search_scope.
+
+    pg_search_scope :search_by_tsearch_but_rank_by_trigram,
+                    :against => :title,
+                    :using => [:tsearch],
+                    :ranked_by => ":trigram"
+
+Note that :ranked_by using a String to represent the ranking expression. This allows for more complex possibilities. Strings like ":tsearch", ":trigram", and ":dmetaphone" are automatically expanded into the appropriate SQL expressions.
+
+    # Weighted ranking to balance multiple approaches
+    :ranked_by => ":dmetaphone + (0.25 * :trigram)"
+
+    # A more complex example, where books.num_pages is an integer column in the table itself
+    :ranked_by => "(books.num_pages * :trigram) + (:tsearch / 2.0)"
+
 == ATTRIBUTIONS
 
 PgSearch would not have been possible without inspiration from
