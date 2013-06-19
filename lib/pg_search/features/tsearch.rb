@@ -28,7 +28,7 @@ module PgSearch
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
 
       def tsquery_for_term(term)
-        negate = if term[0] == '!'
+        negate = if term.start_with?('!')
           term[0] = ''
           true
         end
