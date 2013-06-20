@@ -54,7 +54,7 @@ describe PgSearch::Features::TSearch do
         PgSearch::Configuration::Column.new(:name, nil, Model),
         PgSearch::Configuration::Column.new(:content, nil, Model),
       ]
-      options = {}
+      options = {:negation => true}
       config = stub(:config, :ignore => [])
       normalizer = PgSearch::Normalizer.new(config)
 
