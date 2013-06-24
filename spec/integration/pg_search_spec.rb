@@ -668,7 +668,54 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
-    context "using a tsvector column" do
+    context "using a tsvector column and a single column" do
+      with_model :ModelWithTsvectorAndSingle do
+        table do |t|
+          t.text 'name'
+          t.text 'content'
+          t.tsvector 'content_tsvector'
+        end
+
+        model { include PgSearch }
+      end
+
+      let!(:expected) { ModelWithTsvectorAndSingle.create!(:name => 'Adam', content: 'phooey') }
+      let!(:unexpected) { ModelWithTsvectorAndSingle.create!(:name => 'Bob', :content => 'longcat is looooooooong') }
+
+      before do
+        ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
+          UPDATE #{ModelWithTsvectorAndSingle.quoted_table_name}
+          SET content_tsvector = to_tsvector('english'::regconfig, #{ModelWithTsvectorAndSingle.quoted_table_name}."content")
+        SQL
+
+        ModelWithTsvectorAndSingle.pg_search_scope :search_by_content_with_tsvector,
+          :against => [:name],
+          :using => {
+            :tsearch => {
+              :tsvector_column => 'content_tsvector',
+              :dictionary => 'english'
+            }
+          }
+      end
+
+      it "should use to_tsvector in the query" do
+        ModelWithTsvectorAndSingle.search_by_content_with_tsvector("tiles").to_sql.should =~ /to_tsvector/
+      end
+
+      it "should find by the tsvector column" do
+        ModelWithTsvectorAndSingle.search_by_content_with_tsvector("phooey").map(&:id).should == [expected.id]
+      end
+
+      it "should find by the single column" do
+        ModelWithTsvectorAndSingle.search_by_content_with_tsvector("Adam").map(&:id).should == [expected.id]
+      end
+
+      it "should find by a combination of the two" do
+        ModelWithTsvectorAndSingle.search_by_content_with_tsvector("Adam phooey").map(&:id).should == [expected.id]
+      end
+    end
+
+    context "using a tsvector column with" do
       with_model :ModelWithTsvector do
         table do |t|
           t.text 'content'
@@ -688,7 +735,7 @@ describe "an Active Record model which includes PgSearch" do
         SQL
 
         ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
-          :against => :content,
+          :against => [],
           :using => {
             :tsearch => {
               :tsvector_column => 'content_tsvector',
