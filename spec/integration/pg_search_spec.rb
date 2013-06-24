@@ -676,7 +676,66 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
-    context "using a tsvector column" do
+    context "using a tsvector column and an association" do
+      with_model :Comment do
+        table do |t|
+          t.integer :post_id
+          t.string :body
+        end
+
+        model do
+          belongs_to :post
+        end
+      end
+
+      with_model :Post do
+        table do |t|
+          t.text 'content'
+          t.tsvector 'content_tsvector'
+        end
+
+        model do
+          include PgSearch
+          has_many :comments
+        end
+      end
+
+      let!(:expected) { Post.create!(content: 'phooey') }
+      let!(:unexpected) { Post.create!(content: 'longcat is looooooooong') }
+
+      before do
+        ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
+          UPDATE #{Post.quoted_table_name}
+          SET content_tsvector = to_tsvector('english'::regconfig, #{Post.quoted_table_name}."content")
+        SQL
+
+        expected.comments.create(body: 'commentone')
+        unexpected.comments.create(body: 'commentwo')
+
+        Post.pg_search_scope :search_by_content_with_tsvector,
+          :associated_against => { comments: [:body] },
+          :using => {
+            :tsearch => {
+              :tsvector_column => 'content_tsvector',
+              :dictionary => 'english'
+            }
+          }
+      end
+
+      it "should find by the tsvector column" do
+        Post.search_by_content_with_tsvector("phooey").map(&:id).should == [expected.id]
+      end
+
+      it "should find by the associated record" do
+        Post.search_by_content_with_tsvector("commentone").map(&:id).should == [expected.id]
+      end
+
+      it 'should find by a combination of the two' do
+        Post.search_by_content_with_tsvector("phooey commentone").map(&:id).should == [expected.id]
+      end
+    end
+
+    context "using a tsvector column with" do
       with_model :ModelWithTsvector do
         table do |t|
           t.text 'content'
