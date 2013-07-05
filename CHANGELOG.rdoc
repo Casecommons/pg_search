@@ -1,5 +1,9 @@
 = PgSearch
 
+== 0.7.0
+
+* Start requiring Ruby 1.9.2 or later
+
 == 0.6.4
 
 * Fix issue with using more than two features in the same scope
