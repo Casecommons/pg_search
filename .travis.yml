@@ -1,14 +1,10 @@
 language: ruby
 
 rvm:
-  - 1.8.7
   - 1.9.3
   - 2.0.0
-  - jruby-18mode
   - jruby-19mode
-  - rbx-18mode
   - rbx-19mode
-  - ree
 
 env:
   - ACTIVE_RECORD_BRANCH="master"
@@ -19,41 +15,11 @@ env:
 
 matrix:
   allow_failures:
-    - rvm: rbx-18mode
     - rvm: rbx-19mode
     - rvm: jruby-19mode
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="4-0-stable"
     - env: ACTIVE_RECORD_VERSION="~> 4.0.0"
-
-  exclude:
-    - rvm: 1.8.7
-      env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: 1.8.7
-      env: ACTIVE_RECORD_BRANCH="4-0-stable"
-    - rvm: 1.8.7
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0"
-
-    - rvm: jruby-18mode
-      env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: jruby-18mode
-      env: ACTIVE_RECORD_BRANCH="4-0-stable"
-    - rvm: jruby-18mode
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0"
-
-    - rvm: rbx-18mode
-      env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: rbx-18mode
-      env: ACTIVE_RECORD_BRANCH="4-0-stable"
-    - rvm: rbx-18mode
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0"
-
-    - rvm: ree
-      env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: ree
-      env: ACTIVE_RECORD_BRANCH="4-0-stable"
-    - rvm: ree
-      env: ACTIVE_RECORD_VERSION="~> 4.0.0"
 
 before_script:
   - "psql -c 'create database pg_search_test;' -U postgres >/dev/null"
