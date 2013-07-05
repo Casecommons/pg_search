@@ -84,6 +84,16 @@ describe PgSearch::Multisearch::Rebuilder do
           time = DateTime.parse("2001-01-01")
           rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, lambda { time } )
 
+          # Handle change in precision of DateTime objects in SQL in Rails 4.1
+          # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
+          expected_timestamp =
+            if ActiveRecord::VERSION::MAJOR >= 4 && ActiveRecord::VERSION::MINOR >= 1
+              "2001-01-01 00:00:00.000000"
+            else
+              "2001-01-01 00:00:00"
+            end
+
+
           expected_sql = <<-SQL.strip_heredoc
             INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
               SELECT 'Model' AS searchable_type,
@@ -91,8 +101,8 @@ describe PgSearch::Multisearch::Rebuilder do
                      (
                        coalesce(#{Model.quoted_table_name}.name::text, '')
                      ) AS content,
-                     '2001-01-01 00:00:00' AS created_at,
-                     '2001-01-01 00:00:00' AS updated_at
+                     '#{expected_timestamp}' AS created_at,
+                     '#{expected_timestamp}' AS updated_at
               FROM #{Model.quoted_table_name}
           SQL
 
