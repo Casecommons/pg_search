@@ -16,6 +16,7 @@ Read the blog post introducing PgSearch at http://pivotallabs.com/pg-search/
 
 == REQUIREMENTS
 
+* Ruby 1.9.2 or later
 * Active Record 3.1 or later
 * PostgreSQL
 * {PostgreSQL contrib packages for certain features}[https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules]
@@ -24,7 +25,7 @@ Read the blog post introducing PgSearch at http://pivotallabs.com/pg-search/
 
  gem install pg_search
 
-=== Rails 3.1 or later
+=== Rails 3.1 or later, Ruby 1.9.2 or later
 
 In Gemfile
 
@@ -51,6 +52,14 @@ The 0.2 branch lives at https://github.com/Casecommons/pg_search/tree/0.2-stable
 In addition to installing and requiring the gem, you may want to include the PgSearch rake tasks in your Rakefile. This isn't necessary for Rails projects, which gain the Rake tasks via a Railtie.
 
  load "pg_search/tasks.rb"
+
+=== Ruby 1.8.7 or earlier
+
+The newest versions of PgSearch no longer support Ruby 1.8.7. However, the 0.6 series still works. It's not actively maintained, but submissions are welcome for backports and bugfixes.
+
+ gem 'pg_search', "~> 0.6.4"
+
+The 0.6 branch lives at https://github.com/Casecommons/pg_search/tree/0.6-stable
 
 == USAGE
 
