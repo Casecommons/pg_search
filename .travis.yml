@@ -19,7 +19,6 @@ matrix:
     - rvm: jruby-19mode
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="4-0-stable"
-    - env: ACTIVE_RECORD_VERSION="~> 4.0.0"
 
 before_script:
   - "psql -c 'create database pg_search_test;' -U postgres >/dev/null"
