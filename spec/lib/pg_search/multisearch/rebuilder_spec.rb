@@ -84,10 +84,15 @@ describe PgSearch::Multisearch::Rebuilder do
           time = DateTime.parse("2001-01-01")
           rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, lambda { time } )
 
-          # Handle change in precision of DateTime objects in SQL in Rails 4.1
+          # Handle change in precision of DateTime objects in SQL in Active Record 4.1
           # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
+          version_4_1_or_newer = (
+            ActiveRecord::VERSION::MAJOR > 4 ||
+            ActiveRecord::VERSION::MAJOR = 4 && ActiveRecord::VERSION::MINOR >= 1
+          )
+
           expected_timestamp =
-            if ActiveRecord::VERSION::MAJOR >= 4 && ActiveRecord::VERSION::MINOR >= 1
+            if version_4_1_or_newer
               "2001-01-01 00:00:00.000000"
             else
               "2001-01-01 00:00:00"
