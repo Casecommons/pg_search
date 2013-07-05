@@ -1,8 +1,7 @@
 require "spec_helper"
 
 describe "pagination" do
-  describe "with will_paginate" do
-    require 'will_paginate/active_record'
+  describe "using LIMIT and OFFSET" do
     with_model :PaginatedModel do
       table do |t|
         t.string :name
@@ -10,8 +9,12 @@ describe "pagination" do
 
       model do
         include PgSearch
-        self.per_page = 2
         pg_search_scope :search_name, :against => :name
+
+        def self.page(page_number)
+          offset = (page_number - 1) * 2
+          limit(2).offset(offset)
+        end
       end
     end
 

@@ -27,7 +27,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pry'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'with_model'
-  s.add_development_dependency 'will_paginate'
 
   s.required_ruby_version = ">= 1.9.2"
 end
