@@ -140,6 +140,11 @@
 
 * Add :any_word option to :tsearch which uses OR between query terms instead of AND. (Fernando Espinosa)
 
+== 0.2.2
+
+* Fix a compatibility issue between Ruby 1.8.7 and 1.9.3 when using Rails 2
+  (James Badger)
+
 == 0.2.1
 
 * Backport support for searching against tsvector columns (Kris Hicks)
