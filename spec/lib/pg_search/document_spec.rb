@@ -28,7 +28,7 @@ describe PgSearch::Document do
         let(:multisearchable_options) { {:against => :some_content} }
         let(:text) { "foo bar" }
         before do
-          searchable.stub!(:some_content => text)
+          searchable.stub(:some_content => text)
           document.valid?
         end
 
@@ -38,7 +38,7 @@ describe PgSearch::Document do
       context "when searching against multiple columns" do
         let(:multisearchable_options) { {:against => [:attr1, :attr2]} }
         before do
-          searchable.stub!(:attr1 => "1", :attr2 => "2")
+          searchable.stub(:attr1 => "1", :attr2 => "2")
           document.valid?
         end
 

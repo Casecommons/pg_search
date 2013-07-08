@@ -15,8 +15,8 @@ describe PgSearch::Features::Trigram do
         PgSearch::Configuration::Column.new(:name, nil, Model),
         PgSearch::Configuration::Column.new(:content, nil, Model),
       ]
-      options = stub(:options)
-      config = stub(:config, :ignore => [])
+      options = double(:options)
+      config = double(:config, :ignore => [])
       normalizer = PgSearch::Normalizer.new(config)
 
       feature = described_class.new(query, options, columns, Model, normalizer)

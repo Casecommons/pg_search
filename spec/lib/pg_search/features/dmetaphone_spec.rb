@@ -16,7 +16,7 @@ describe PgSearch::Features::DMetaphone do
         PgSearch::Configuration::Column.new(:content, nil, Model),
       ]
       options = {}
-      config = stub(:config, :ignore => [])
+      config = double(:config, :ignore => [])
       normalizer = PgSearch::Normalizer.new(config)
 
       feature = described_class.new(query, options, columns, Model, normalizer)
@@ -40,7 +40,7 @@ describe PgSearch::Features::DMetaphone do
         PgSearch::Configuration::Column.new(:content, nil, Model),
       ]
       options = {}
-      config = stub(:config, :ignore => [])
+      config = double(:config, :ignore => [])
       normalizer = PgSearch::Normalizer.new(config)
 
       feature = described_class.new(query, options, columns, Model, normalizer)

@@ -241,7 +241,7 @@ describe "an Active Record model which includes PgSearch" do
 
       it "accepts non-string queries and calls #to_s on them" do
         foo = ModelWithPgSearch.create!(:content => "foo")
-        not_a_string = stub(:to_s => "foo")
+        not_a_string = double(:to_s => "foo")
         ModelWithPgSearch.search_content(not_a_string).should == [foo]
       end
 
@@ -612,7 +612,7 @@ describe "an Active Record model which includes PgSearch" do
         end
 
         it "should pass the custom configuration down to the specified feature" do
-          stub_feature = stub(
+          stub_feature = double(
             :conditions => Arel::Nodes::Grouping.new(Arel.sql("1 = 1")),
             :rank => Arel::Nodes::Grouping.new(Arel.sql("1.0"))
           )
