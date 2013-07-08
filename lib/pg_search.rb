@@ -16,7 +16,7 @@ module PgSearch
     def pg_search_scope(name, options)
       scope = PgSearch::Scope.new(name, self, options)
       scope_method =
-        if respond_to?(:scope) && !protected_methods.include?('scope')
+        if respond_to?(:scope) && !protected_methods.map(&:to_s).include?('scope')
           :scope # ActiveRecord 3.x
         else
           :named_scope # ActiveRecord 2.x
