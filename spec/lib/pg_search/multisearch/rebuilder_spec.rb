@@ -88,7 +88,7 @@ describe PgSearch::Multisearch::Rebuilder do
           # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
           version_4_1_or_newer = (
             ActiveRecord::VERSION::MAJOR > 4 ||
-            ActiveRecord::VERSION::MAJOR = 4 && ActiveRecord::VERSION::MINOR >= 1
+            (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR >= 1)
           )
 
           expected_timestamp =
