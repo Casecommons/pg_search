@@ -14,7 +14,7 @@ namespace :pg_search do
       original_schema_search_path = connection.schema_search_path
       begin
         connection.schema_search_path = args.schema if args.schema
-        PgSearch::Multisearch.rebuild(model_class)
+        PgSearch::Multisearch.rebuild(model_class, true)
       ensure
         connection.schema_search_path = original_schema_search_path
       end
