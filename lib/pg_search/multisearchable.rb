@@ -11,8 +11,7 @@ module PgSearch
         :class_name => "PgSearch::Document",
         :dependent => :delete
 
-      after_save :update_pg_search_document,
-        :if => lambda { PgSearch.multisearch_enabled? }
+      after_save :update_pg_search_document, :if => :pg_search_enabled?
     end
 
     def update_pg_search_document
@@ -28,6 +27,10 @@ module PgSearch
       else
         pg_search_document.destroy if pg_search_document
       end
+    end
+
+    def pg_search_enabled?
+      ! pg_search_multisearchable_options[:disable_auto_indexing] && PgSearch.multisearch_enabled?
     end
   end
 end
