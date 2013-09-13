@@ -10,14 +10,17 @@ if ENV["TRAVIS"]
 end
 
 begin
-  require "pg"
-  error_class = PGError
-rescue
-  begin
-    require "arjdbc/jdbc/core_ext"
+  if defined? JRUBY_VERSION
+    # Can't require 'activerecord-jdbcpostgresql-adapter' until
+    # https://github.com/jruby/activerecord-jdbc-adapter/pull/463
+    # is resolved
+    require 'arjdbc'
+    require 'arjdbc/postgresql'
+
     error_class = ActiveRecord::JDBCError
-  rescue LoadError, StandardError
-    raise "I don't know what database adapter you're using, sorry."
+  else
+    require "pg"
+    error_class = PGError
   end
 end
 
@@ -35,7 +38,7 @@ begin
   connection = ActiveRecord::Base.connection
   postgresql_version = connection.send(:postgresql_version)
   connection.execute("SELECT 1")
-rescue error_class => e
+rescue error_class
   at_exit do
     puts "-" * 80
     puts "Unable to connect to database.  Please run:"
@@ -43,7 +46,7 @@ rescue error_class => e
     puts "    createdb pg_search_test"
     puts "-" * 80
   end
-  raise e
+  raise $!
 end
 
 if ENV["LOGGER"]
