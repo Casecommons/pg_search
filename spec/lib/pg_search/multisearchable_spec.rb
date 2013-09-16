@@ -486,6 +486,40 @@ describe PgSearch::Multisearchable do
       end
     end
 
+    context "using :disable_auto_indexing" do
+      with_model :ModelThatIsMultisearchable do
+        model do
+          include PgSearch
+          multisearchable :disable_auto_indexing => true
+        end
+      end
+
+      describe "callbacks" do
+        let(:record) { ModelThatIsMultisearchable.new }
+
+        describe "after_create" do
+          it "should not create a PgSearch::Document record" do
+            expect { record.save! }.not_to change(PgSearch::Document, :count)
+          end
+        end
+
+        describe "after_update" do
+          before do
+            record.save!
+          end
+
+          it "should not create a PgSearch::Document record" do
+            expect { record.touch }.not_to change(PgSearch::Document, :count)
+          end
+
+          it "should not destroy any existing PgSearch::Document record" do
+            expect { record.update_pg_search_document}.to change(PgSearch::Document, :count)
+            expect { record.touch }.not_to change(PgSearch::Document, :count)
+          end
+        end
+      end
+    end
+
     context "using :unless" do
       with_model :ModelThatIsMultisearchable do
         table do |t|
