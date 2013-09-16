@@ -574,8 +574,8 @@ the supported algorithms are:
     32 divides the rank by itself + 1
 
 This integer is a bitmask, so if you want to combine algorithms, you can add
-their numbers together. (e.g. to use algorithms 1, 8, and 32, you would pass 1
-+ 8 + 32 = 41)
+their numbers together.
+(e.g. to use algorithms 1, 8, and 32, you would pass 1 + 8 + 32 = 41)
 
     class BigLongDocument < ActiveRecord::Base
       include PgSearch
