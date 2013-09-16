@@ -67,9 +67,7 @@ In addition to installing and requiring the gem, you may want to include the
 PgSearch rake tasks in your Rakefile. This isn't necessary for Rails projects,
 which gain the Rake tasks via a Railtie.
 
-````ruby
-load "pg_search/tasks.rb"
-````
+    load "pg_search/tasks.rb"
 
 ### Ruby 1.8.7 or earlier
 
