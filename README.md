@@ -726,8 +726,7 @@ To use this functionality you'll need to do a few things:
     dmetaphone, you'll need a column for each.
 *   Create a trigger function that will update the column(s) using the
     expression appropriate for that type of search. See:
-    http://www.postgresql.org/docs/current/static/textsearch-features.html#TEX
-    TSEARCH-UPDATE-TRIGGERS
+    [the PostgreSQL documentation for text search triggers](http://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS)
 *   Should you have any pre-existing data in the table, update the
     newly-created tsvector columns with the expression that your trigger
     function uses.
