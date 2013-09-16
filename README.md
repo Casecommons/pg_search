@@ -819,8 +819,8 @@ Just call .pg_search_rank on a record returned by a pg_search_scope.
 ## ATTRIBUTIONS
 
 PgSearch would not have been possible without inspiration from texticle (now renamed
-[texticle](https://github.com/tenderlove/texticle)). Thanks to  [Aaron
-Patterson](http://tenderlovemaking.com/)!
+[textacular](https://github.com/textacular/textacular)). Thanks to [Aaron
+Patterson](http://tenderlovemaking.com/) for the original version!
 
 ## CONTRIBUTIONS AND FEEDBACK
 
