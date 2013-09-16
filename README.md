@@ -831,6 +831,8 @@ feature ideas and bugs.
 We also have a [Google Group](http://groups.google.com/group/casecommons-dev)
 for discussing pg_search and other Case Commons open source projects.
 
+Please read our [CONTRIBUTING guide](https://github.com/Casecommons/pg_search/blob/master/CONTRIBUTING.md).
+
 ## LICENSE
 
 MIT
