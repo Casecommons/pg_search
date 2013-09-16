@@ -1,24 +1,22 @@
 # pg_search
 
-*   http://github.com/casecommons/pg_search/
+http://github.com/Casecommons/pg_search/
 
-
-[<img
-src="https://secure.travis-ci.org/Casecommons/pg_search.png?branch=master"
-alt="Build Status" />](http://travis-ci.org/Casecommons/pg_search)  [<img
-src="https://gemnasium.com/Casecommons/pg_search.png" alt="Dependency Status"
-/>](https://gemnasium.com/Casecommons/pg_search)  [<img
-src="https://codeclimate.com/github/Casecommons/pg_search.png"
-/>](https://codeclimate.com/github/Casecommons/pg_search) [<img
-src="https://coveralls.io/repos/Casecommons/pg_search/badge.png?branch=master"
-alt="Coverage Status" />](https://coveralls.io/r/Casecommons/pg_search) [<img
-src="https://badge.fury.io/rb/pg_search.png" alt="Gem Version"
+[<img src="https://secure.travis-ci.org/Casecommons/pg_search.png?branch=master"
+alt="Build Status" />](http://travis-ci.org/Casecommons/pg_search)
+[<img src="https://gemnasium.com/Casecommons/pg_search.png" alt="Dependency Status"
+/>](https://gemnasium.com/Casecommons/pg_search)
+[<img src="https://codeclimate.com/github/Casecommons/pg_search.png"
+/>](https://codeclimate.com/github/Casecommons/pg_search) 
+[<img src="https://coveralls.io/repos/Casecommons/pg_search/badge.png?branch=master"
+alt="Coverage Status" />](https://coveralls.io/r/Casecommons/pg_search) 
+[<img src="https://badge.fury.io/rb/pg_search.png" alt="Gem Version"
 />](http://badge.fury.io/rb/pg_search)
 
 ## DESCRIPTION
 
 PgSearch builds named scopes that take advantage of PostgreSQL's full text
-search
+search.
 
 Read the blog post introducing PgSearch at http://pivotallabs.com/pg-search/
 
@@ -28,8 +26,7 @@ Read the blog post introducing PgSearch at http://pivotallabs.com/pg-search/
 *   Active Record 3.1 or later
 *   PostgreSQL
 *   [PostgreSQL contrib packages for certain
-    features](https://github.com/Casecommons/pg_search/wiki/Installing-Postgre
-    s-Contrib-Modules)
+    features](https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules)
 
 
 ## INSTALL
@@ -70,7 +67,9 @@ In addition to installing and requiring the gem, you may want to include the
 PgSearch rake tasks in your Rakefile. This isn't necessary for Rails projects,
 which gain the Rake tasks via a Railtie.
 
-    load "pg_search/tasks.rb"
+````ruby
+load "pg_search/tasks.rb"
+````
 
 ### Ruby 1.8.7 or earlier
 
@@ -456,16 +455,11 @@ search techniques.
 
 The currently implemented features are
 
-*   :tsearch - [Full text
-    search](http://www.postgresql.org/docs/current/static/textsearch-intro.htm
-    l) (built-in with 8.3 and later, available as a contrib package for some
-    earlier versions)
-*   :trigram - [Trigram
-    search](http://www.postgresql.org/docs/current/static/pgtrgm.html), which
+*   :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html) 
+    (built-in with 8.3 and later, available as a contrib package for some earlier versions)
+*   :trigram - [Trigram search](http://www.postgresql.org/docs/current/static/pgtrgm.html), which
     requires the trigram contrib package
-*   :dmetaphone - [Double Metaphone
-    search](http://www.postgresql.org/docs/9.0/static/fuzzystrmatch.html#AEN12
-    0188), which requires the fuzzystrmatch contrib package
+*   :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/9.0/static/fuzzystrmatch.html#AEN124771), which requires the fuzzystrmatch contrib package
 
 
 #### :tsearch (Full Text Search)
@@ -536,8 +530,8 @@ shown in the following example.
 
 PostgreSQL full text search also support multiple dictionaries for stemming.
 You can learn more about how dictionaries work by reading the [PostgreSQL
-documention](http://www.postgresql.org/docs/current/static/textsearch-dictiona
-ries.html). If you use one of the language dictionaries, such as "english",
+documention](http://www.postgresql.org/docs/current/static/textsearch-dictionaries.html). 
+If you use one of the language dictionaries, such as "english",
 then variants of words (e.g. "jumping" and "jumped") will match each other. If
 you don't want stemming, you should pick the "simple" dictionary which does
 not do any stemming. If you don't specify a dictionary, the "simple"
@@ -570,9 +564,8 @@ PostgreSQL supports multiple algorithms for ranking results against queries.
 For instance, you might want to consider overall document size or the distance
 between multiple search terms in the original text. This option takes an
 integer, which is passed directly to PostgreSQL. According to the latest
-[PostgreSQL
-documentation](http://www.postgresql.org/docs/current/static/textsearch-contro
-ls.html), the supported algorithms are:
+[PostgreSQL documentation](http://www.postgresql.org/docs/current/static/textsearch-controls.html),
+the supported algorithms are:
 
     0 (the default) ignores the document length
     1 divides the rank by 1 + the logarithm of the document length
@@ -636,8 +629,7 @@ Currently, this is not a true double-metaphone, as only the first metaphone is
 used for searching.
 
 Double Metaphone support is currently available as part of the [fuzzystrmatch
-contrib
-package](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html)
+contrib package](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html)
 that must be installed before this feature can be used. In addition to the
 contrib package, you must install a utility function into your database. To
 generate and run a migration for this, run:
@@ -828,8 +820,8 @@ Just call .pg_search_rank on a record returned by a pg_search_scope.
 
 ## ATTRIBUTIONS
 
-PgSearch would not have been possible without inspiration from
-[texticle](https://github.com/tenderlove/texticle). Thanks to  [Aaron
+PgSearch would not have been possible without inspiration from texticle (now renamed
+[texticle](https://github.com/tenderlove/texticle)). Thanks to  [Aaron
 Patterson](http://tenderlovemaking.com/)!
 
 ## CONTRIBUTIONS AND FEEDBACK
