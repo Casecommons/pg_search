@@ -11,12 +11,7 @@ end
 
 begin
   if defined? JRUBY_VERSION
-    # Can't require 'activerecord-jdbcpostgresql-adapter' until
-    # https://github.com/jruby/activerecord-jdbc-adapter/pull/463
-    # is resolved
-    require 'arjdbc'
-    require 'arjdbc/postgresql'
-
+    require 'activerecord-jdbcpostgresql-adapter'
     error_class = ActiveRecord::JDBCError
   else
     require "pg"
