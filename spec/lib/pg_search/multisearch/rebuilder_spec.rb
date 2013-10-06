@@ -200,11 +200,11 @@ describe PgSearch::Multisearch::Rebuilder do
       end
 
       context "when multisearchable is dynamic" do
-        context "implicitly" do
+        context "explicitly via :dynamic => true" do
           with_model :Model do
             model do
               include PgSearch
-              multisearchable :against => :dynamic_method
+              multisearchable :against => :dynamic_method, :dynamic => true
 
               def dynamic_method
                 'not a column'
