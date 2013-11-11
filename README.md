@@ -745,6 +745,10 @@ To use this functionality you'll need to do a few things:
                           trigram: {} # trigram does not use tsvectors
                         }
 
+*   In your config/application.rb you should set
+
+        config.active_record.schema_format = :sql
+
 
 Please note that the :against column is only used when the tsvector_column is
 not present for the search type.
