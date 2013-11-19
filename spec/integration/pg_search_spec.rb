@@ -557,6 +557,11 @@ describe "an Active Record model which includes PgSearch" do
           :against => :title,
           :using => :trigram
 
+        ModelWithPgSearch.pg_search_scope :with_trigram_and_ignoring_accents,
+          :against => :title,
+          :ignoring => :accents,
+          :using => :trigram
+
         ModelWithPgSearch.pg_search_scope :with_tsearch_and_trigram,
           :against => :title,
           :using => [
@@ -566,6 +571,7 @@ describe "an Active Record model which includes PgSearch" do
 
         ModelWithPgSearch.pg_search_scope :complex_search,
           :against => [:content, :title],
+          :ignoring => :accents,
           :using => {
             :tsearch => {:dictionary => 'english'},
             :dmetaphone => {},
@@ -579,14 +585,26 @@ describe "an Active Record model which includes PgSearch" do
         # matches trigram only
         trigram_query = "ling is grouty"
         ModelWithPgSearch.with_trigram(trigram_query).should include(record)
+        ModelWithPgSearch.with_trigram_and_ignoring_accents(trigram_query).should include(record)
         ModelWithPgSearch.with_tsearch(trigram_query).should_not include(record)
         ModelWithPgSearch.with_tsearch_and_trigram(trigram_query).should == [record]
         ModelWithPgSearch.complex_search(trigram_query).should include(record)
+
+        # matches accent
+        # \303\266 is o with diaeresis
+        # \303\272 is u with acute accent
+        accent_query = "gr\303\266\303\272ty"
+        ModelWithPgSearch.with_trigram(accent_query).should_not include(record)
+        ModelWithPgSearch.with_trigram_and_ignoring_accents(accent_query).should include(record)
+        ModelWithPgSearch.with_tsearch(accent_query).should_not include(record)
+        ModelWithPgSearch.with_tsearch_and_trigram(accent_query).should be_empty
+        ModelWithPgSearch.complex_search(accent_query).should include(record)
 
         # matches tsearch only
         tsearch_query = "tiles"
         ModelWithPgSearch.with_tsearch(tsearch_query).should include(record)
         ModelWithPgSearch.with_trigram(tsearch_query).should_not include(record)
+        ModelWithPgSearch.with_trigram_and_ignoring_accents(tsearch_query).should_not include(record)
         ModelWithPgSearch.with_tsearch_and_trigram(tsearch_query).should == [record]
         ModelWithPgSearch.complex_search(tsearch_query).should include(record)
 
@@ -594,6 +612,7 @@ describe "an Active Record model which includes PgSearch" do
         dmetaphone_query = "tyling"
         ModelWithPgSearch.with_tsearch(dmetaphone_query).should_not include(record)
         ModelWithPgSearch.with_trigram(dmetaphone_query).should_not include(record)
+        ModelWithPgSearch.with_trigram_and_ignoring_accents(dmetaphone_query).should_not include(record)
         ModelWithPgSearch.with_tsearch_and_trigram(dmetaphone_query).should_not include(record)
         ModelWithPgSearch.complex_search(dmetaphone_query).should include(record)
       end
