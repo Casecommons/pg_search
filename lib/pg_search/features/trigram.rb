@@ -3,7 +3,7 @@ module PgSearch
     class Trigram < Feature
       def conditions
         Arel::Nodes::Grouping.new(
-          Arel::Nodes::InfixOperation.new("%", normalized_document, normalize(query))
+          Arel::Nodes::InfixOperation.new("%", normalized_document, normalized_query)
         )
       end
 
@@ -13,7 +13,7 @@ module PgSearch
             "similarity",
             [
               normalized_document,
-              normalize(query)
+              normalized_query
             ]
           )
         )
@@ -22,7 +22,12 @@ module PgSearch
       private
 
       def normalized_document
-        Arel::Nodes::Grouping.new(normalize(Arel.sql(document)))
+        Arel::Nodes::Grouping.new(Arel.sql(normalize(document)))
+      end
+
+      def normalized_query
+        sanitized_query = connection.quote(query)
+        Arel.sql(normalize(sanitized_query))
       end
     end
   end
