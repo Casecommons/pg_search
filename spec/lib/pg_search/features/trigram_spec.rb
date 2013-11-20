@@ -26,14 +26,12 @@ describe PgSearch::Features::Trigram do
   end
 
   describe 'conditions' do
-    context 'paying attention to accents' do
-      it 'escapes the search document and query' do
-        config.ignore = []
-        expect(feature.conditions.to_sql).to eq("((#{coalesced_columns}) % '#{query}')")
-      end
+    it 'escapes the search document and query' do
+      config.ignore = []
+      expect(feature.conditions.to_sql).to eq("((#{coalesced_columns}) % '#{query}')")
     end
 
-    context 'ignoring to accents' do
+    context 'ignoring accents' do
       it 'escapes the search document and query, but not the accent function' do
         config.ignore = [:accents]
         expect(feature.conditions.to_sql).to eq("((unaccent(#{coalesced_columns})) % unaccent('#{query}'))")
