@@ -680,6 +680,42 @@ be installed before this feature can be used.
 
     Website.kinda_spelled_like("Yahoo!") # => [yahooo, yohoo]
 
+##### :threshold
+
+By default, trigram searches find records which have a similarity of at least 0.3
+using pg_trgm's calculations. You may specify a custom threshold if you prefer.
+Higher numbers match more strictly, and thus return fewer results. Lower numbers
+match more permissively, letting in more results.
+
+    class Vegetable < ActiveRecord::Base
+      include PgSearch
+
+      pg_search_scope :strictly_spelled_like,
+                      :against => :name,
+                      :using => {
+                        :trigram => {
+                          :threshold => 0.5
+                        }
+                      }
+
+      pg_search_scope :roughly_spelled_like,
+                      :against => :name,
+                      :using => {
+                        :trigram => {
+                          :threshold => 0.1
+                        }
+                      }
+    end
+
+    cauliflower = Vegetable.create! :name => "cauliflower"
+
+    Vegetable.roughly_spelled_like("couliflower") # => [cauliflower]
+    Vegetable.strictly_spelled_like("couliflower") # => [cauliflower]
+
+    Vegetable.roughly_spelled_like("collyflower") # => [cauliflower]
+    Vegetable.strictly_spelled_like("collyflower") # => []
+
+
 ### Ignoring accent marks (PostgreSQL 9.0 and newer only)
 
 Most of the time you will want to ignore accent marks when searching. This

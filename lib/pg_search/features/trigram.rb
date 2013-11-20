@@ -2,24 +2,32 @@ module PgSearch
   module Features
     class Trigram < Feature
       def conditions
-        Arel::Nodes::Grouping.new(
-          Arel::Nodes::InfixOperation.new("%", normalized_document, normalized_query)
-        )
+        if options[:threshold]
+          Arel::Nodes::Grouping.new(
+            similarity.gteq(options[:threshold])
+          )
+        else
+          Arel::Nodes::Grouping.new(
+            Arel::Nodes::InfixOperation.new("%", normalized_document, normalized_query)
+          )
+        end
       end
 
       def rank
-        Arel::Nodes::Grouping.new(
-          Arel::Nodes::NamedFunction.new(
-            "similarity",
-            [
-              normalized_document,
-              normalized_query
-            ]
-          )
-        )
+        Arel::Nodes::Grouping.new(similarity)
       end
 
       private
+
+      def similarity
+        Arel::Nodes::NamedFunction.new(
+          "similarity",
+          [
+            normalized_document,
+            normalized_query
+          ]
+        )
+      end
 
       def normalized_document
         Arel::Nodes::Grouping.new(Arel.sql(normalize(document)))

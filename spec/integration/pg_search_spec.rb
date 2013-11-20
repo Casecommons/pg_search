@@ -326,6 +326,30 @@ describe "an Active Record model which includes PgSearch" do
         results = ModelWithPgSearch.with_trigrams('cdefhijkl')
         results.should == [included]
       end
+
+      context "when a threshold is specified" do
+        before do
+          ModelWithPgSearch.pg_search_scope :with_strict_trigrams, :against => [:title, :content], :using => {trigram: {threshold: 0.5}}
+          ModelWithPgSearch.pg_search_scope :with_permissive_trigrams, :against => [:title, :content], :using => {trigram: {threshold: 0.1}}
+        end
+
+        it "uses the threshold in the trigram expression" do
+          low_similarity = ModelWithPgSearch.create!(:title => "a")
+          medium_similarity = ModelWithPgSearch.create!(:title => "abc")
+          high_similarity = ModelWithPgSearch.create!(:title => "abcdefghijkl")
+
+          results = ModelWithPgSearch.with_strict_trigrams("abcdefg")
+          expect(results).to include(high_similarity)
+          expect(results).not_to include(medium_similarity, low_similarity)
+
+          results = ModelWithPgSearch.with_trigrams("abcdefg")
+          expect(results).to include(high_similarity, medium_similarity)
+          expect(results).not_to include(low_similarity)
+
+          results = ModelWithPgSearch.with_permissive_trigrams("abcdefg")
+          expect(results).to include(high_similarity, medium_similarity, low_similarity)
+        end
+      end
     end
 
     context "using tsearch" do

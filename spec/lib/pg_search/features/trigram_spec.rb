@@ -37,6 +37,19 @@ describe PgSearch::Features::Trigram do
         expect(feature.conditions.to_sql).to eq("((unaccent(#{coalesced_columns})) % unaccent('#{query}'))")
       end
     end
+
+    context 'when a threshold is specified' do
+      let(:options) do
+        { threshold: 0.5 }
+      end
+
+      it 'uses a minimum similarity expression instead of the "%" operator' do
+        expect(feature.conditions.to_sql).to eq(
+          "(similarity((#{coalesced_columns}), '#{query}') >= 0.5)"
+        )
+      end
+    end
+
   end
 
   describe '#rank' do
