@@ -1,26 +1,45 @@
-require "spec_helper"
+require 'spec_helper'
+require 'ostruct'
 
 describe PgSearch::Features::Trigram do
-  describe "#rank" do
-    with_model :Model do
-      table do |t|
-        t.string :name
-        t.text :content
+  subject(:feature) { described_class.new(query, options, columns, Model, normalizer) }
+  let(:query) { 'lolwut' }
+  let(:options) { {} }
+  let(:columns) {[
+    PgSearch::Configuration::Column.new(:name, nil, Model),
+    PgSearch::Configuration::Column.new(:content, nil, Model)
+  ]}
+  let(:normalizer) { PgSearch::Normalizer.new(config) }
+  let(:config) { OpenStruct.new(:ignore => [], :postgresql_version => 90000) }
+  let(:coalesced_colums) { %Q{coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || \
+                           coalesce(#{Model.quoted_table_name}."content"::text, '')}.squeeze(' ') }
+
+  with_model :Model do
+    table do |t|
+      t.string :name
+      t.string :content
+    end
+  end
+
+  describe 'conditions' do
+    context 'paying attention to accents' do
+      it 'escapes the search document and query' do
+        config.ignore = []
+        expect(feature.conditions.to_sql).to eq("((#{coalesced_colums}) % '#{query}')")
       end
     end
 
-    it "returns an expression using the similarity() function" do
-      query = "query"
-      columns = [
-        PgSearch::Configuration::Column.new(:name, nil, Model),
-        PgSearch::Configuration::Column.new(:content, nil, Model),
-      ]
-      options = double(:options)
-      config = double(:config, :ignore => [])
-      normalizer = PgSearch::Normalizer.new(config)
+    context 'ignoring to accents' do
+      it 'escapes the search document and query, but not the accent function' do
+        config.ignore = [:accents]
+        expect(feature.conditions.to_sql).to eq("((unaccent(#{coalesced_colums})) % unaccent('#{query}'))")
+      end
+    end
+  end
 
-      feature = described_class.new(query, options, columns, Model, normalizer)
-      feature.rank.to_sql.should == %Q{(similarity((coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), 'query'))}
+  describe '#rank' do
+    it 'returns an expression using the similarity() function' do
+      expect(feature.rank.to_sql).to eq("(similarity((#{coalesced_colums}), '#{query}'))")
     end
   end
 end
