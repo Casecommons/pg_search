@@ -1,5 +1,10 @@
 # pg_search changelog
 
+## 0.7.1
+
+*   Fix issue with {:using => :trigram, :ignoring => :accents} that generated
+    bad SQL. (Steven Harman)
+
 ## 0.7.0
 
 *   Start requiring Ruby 1.9.2 or later
