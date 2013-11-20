@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'ostruct'
 
 describe PgSearch::Features::Trigram do
   subject(:feature) { described_class.new(query, options, columns, Model, normalizer) }
