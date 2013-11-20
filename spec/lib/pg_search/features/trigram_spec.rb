@@ -11,7 +11,7 @@ describe PgSearch::Features::Trigram do
   ]}
   let(:normalizer) { PgSearch::Normalizer.new(config) }
   let(:config) { OpenStruct.new(:ignore => [], :postgresql_version => 90000) }
-  let(:coalesced_colums) { %Q{coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || \
+  let(:coalesced_columns) { %Q{coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || \
                            coalesce(#{Model.quoted_table_name}."content"::text, '')}.squeeze(' ') }
 
   with_model :Model do
@@ -25,21 +25,21 @@ describe PgSearch::Features::Trigram do
     context 'paying attention to accents' do
       it 'escapes the search document and query' do
         config.ignore = []
-        expect(feature.conditions.to_sql).to eq("((#{coalesced_colums}) % '#{query}')")
+        expect(feature.conditions.to_sql).to eq("((#{coalesced_columns}) % '#{query}')")
       end
     end
 
     context 'ignoring to accents' do
       it 'escapes the search document and query, but not the accent function' do
         config.ignore = [:accents]
-        expect(feature.conditions.to_sql).to eq("((unaccent(#{coalesced_colums})) % unaccent('#{query}'))")
+        expect(feature.conditions.to_sql).to eq("((unaccent(#{coalesced_columns})) % unaccent('#{query}'))")
       end
     end
   end
 
   describe '#rank' do
     it 'returns an expression using the similarity() function' do
-      expect(feature.rank.to_sql).to eq("(similarity((#{coalesced_colums}), '#{query}'))")
+      expect(feature.rank.to_sql).to eq("(similarity((#{coalesced_columns}), '#{query}'))")
     end
   end
 end
