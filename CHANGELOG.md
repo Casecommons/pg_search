@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## 0.7.2
+
+*   Add :threshold option for configuring how permissive trigram searches are.
+
 ## 0.7.1
 
 *   Fix issue with {:using => :trigram, :ignoring => :accents} that generated
@@ -7,15 +11,15 @@
 
 ## 0.7.0
 
-*   Start requiring Ruby 1.9.2 or later
+*   Start requiring Ruby 1.9.2 or later.
 
 ## 0.6.4
 
-*   Fix issue with using more than two features in the same scope
+*   Fix issue with using more than two features in the same scope.
 
 ## 0.6.3
 
-*   Fix issues and deprecations for Active Record 4.0.0.rc1
+*   Fix issues and deprecations for Active Record 4.0.0.rc1.
 
 ## 0.6.2
 
