@@ -11,8 +11,12 @@ describe PgSearch::Features::Trigram do
   ]}
   let(:normalizer) { PgSearch::Normalizer.new(config) }
   let(:config) { OpenStruct.new(:ignore => [], :postgresql_version => 90000) }
-  let(:coalesced_columns) { %Q{coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || \
-                           coalesce(#{Model.quoted_table_name}."content"::text, '')}.squeeze(' ') }
+
+  let(:coalesced_columns) do
+    <<-SQL.strip_heredoc.chomp
+      coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')
+    SQL
+  end
 
   with_model :Model do
     table do |t|
