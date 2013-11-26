@@ -1,8 +1,9 @@
+require "pg_search/configuration/association"
+require "pg_search/configuration/column"
+require "pg_search/configuration/foreign_column"
+
 module PgSearch
   class Configuration
-    autoload :Association, "pg_search/configuration/association"
-    autoload :Column, "pg_search/configuration/column"
-    autoload :ForeignColumn, "pg_search/configuration/foreign_column"
 
     attr_reader :model
 

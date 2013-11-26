@@ -1,6 +1,7 @@
+require "pg_search/multisearch/rebuilder"
+
 module PgSearch
   module Multisearch
-    autoload :Rebuilder, "pg_search/multisearch/rebuilder"
 
     class << self
       def rebuild(model, clean_up=true)

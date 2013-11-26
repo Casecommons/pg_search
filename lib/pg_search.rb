@@ -2,17 +2,17 @@ require "active_record"
 require "active_support/concern"
 require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/string/strip"
+
+require "pg_search/configuration"
 require "pg_search/extensions/arel"
+require "pg_search/features"
+require "pg_search/multisearch"
+require "pg_search/multisearchable"
+require "pg_search/normalizer"
+require "pg_search/scope_options"
+require "pg_search/version"
 
 module PgSearch
-  autoload :Configuration, "pg_search/configuration"
-  autoload :Document, "pg_search/document"
-  autoload :Features, "pg_search/features"
-  autoload :Multisearch, "pg_search/multisearch"
-  autoload :Multisearchable, "pg_search/multisearchable"
-  autoload :Normalizer, "pg_search/normalizer"
-  autoload :ScopeOptions, "pg_search/scope_options"
-  autoload :VERSION, "pg_search/version"
 
   extend ActiveSupport::Concern
 
@@ -81,4 +81,5 @@ module PgSearch
   class NotSupportedForPostgresqlVersion < StandardError; end
 end
 
+require "pg_search/document"
 require "pg_search/railtie" if defined?(Rails)
