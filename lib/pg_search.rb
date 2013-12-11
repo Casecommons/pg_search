@@ -5,6 +5,7 @@ require "active_support/core_ext/string/strip"
 require "pg_search/extensions/arel"
 
 module PgSearch
+  autoload :Compatibility, "pg_search/compatibility"
   autoload :Configuration, "pg_search/configuration"
   autoload :Document, "pg_search/document"
   autoload :Features, "pg_search/features"
@@ -15,6 +16,7 @@ module PgSearch
   autoload :VERSION, "pg_search/version"
 
   extend ActiveSupport::Concern
+  include Compatibility::ActiveRecord3 if ActiveRecord::VERSION::MAJOR == 3
 
   mattr_accessor :multisearch_options
   self.multisearch_options = {}
@@ -51,10 +53,6 @@ module PgSearch
       class_attribute :pg_search_multisearchable_options
       self.pg_search_multisearchable_options = options
     end
-  end
-
-  def pg_search_rank
-    read_attribute(:pg_search_rank).to_f
   end
 
   class << self
