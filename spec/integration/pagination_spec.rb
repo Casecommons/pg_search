@@ -8,7 +8,7 @@ describe "pagination" do
       end
 
       model do
-        include PgSearch
+        extend PgSearch
         pg_search_scope :search_name, :against => :name
 
         def self.page(page_number)

@@ -85,7 +85,7 @@ https://github.com/Casecommons/pg_search/tree/0.6-stable
 To add PgSearch to an Active Record model, simply include the PgSearch module.
 
     class Shape < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
     end
 
 ### Multi-search vs. search scopes
@@ -119,12 +119,12 @@ To add a model to the global search index for your application, call
 multisearchable in its class definition.
 
     class EpicPoem < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       multisearchable :against => [:title, :author]
     end
 
     class Flower < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       multisearchable :against => :color
     end
 
@@ -142,13 +142,13 @@ You can also pass a Proc or method name to call to determine whether or not a
 particular record should be included.
 
     class Convertible < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       multisearchable :against => [:make, :model],
                       :if => :available_in_red?
     end
 
     class Jalopy < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       multisearchable :against => [:make, :model],
                       :if => lambda { |record| record.model_year > 1970 }
     end
@@ -160,7 +160,7 @@ won't get listed in global search at all until it is touched again after the
 timestamp.
 
     class AntipatternExample
-      include PgSearch
+      extend PgSearch
       multisearchable :against => [:contents],
                       :if => :published?
 
@@ -330,7 +330,7 @@ search against.
 To search against a column, pass a symbol as the :against option.
 
     class BlogPost < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :search_by_title, :against => :title
     end
 
@@ -346,7 +346,7 @@ It takes one parameter, a search query string.
 Just pass an Array if you'd like to search more than one column.
 
     class Person < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :search_by_full_name, :against => [:first_name, :last_name]
     end
 
@@ -369,7 +369,7 @@ necessary have to be dynamic. You could choose to hard-code it to a specific
 value if you wanted.
 
     class Person < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :search_by_name, lambda do |name_part, query|
         raise ArgumentError unless [:first, :last].include?(name_part)
         {
@@ -414,7 +414,7 @@ setting up a series of :through associations to point all the way through.
     end
 
     class Salami < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
 
       belongs_to :cracker
       has_many :cheeses, :through => :cracker
@@ -447,7 +447,7 @@ If you pass the :using option to pg_search_scope, you can choose alternative
 search techniques.
 
     class Beer < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :search_name, :against => :name, :using => [:tsearch, :trigram, :dmetaphone]
     end
 
@@ -472,7 +472,7 @@ the following example, the title is the most important, followed by the
 subtitle, and finally the content.
 
     class NewsArticle < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :search_full_text, :against => {
         :title => 'A',
         :subtitle => 'B',
@@ -485,7 +485,7 @@ that responds to #each and yields either a single symbol or a symbol and a
 weight. If you omit the weight, a default will be used.
 
     class NewsArticle < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :search_full_text, :against => [
         [:title, 'A'],
         [:subtitle, 'B'],
@@ -494,7 +494,7 @@ weight. If you omit the weight, a default will be used.
     end
 
     class NewsArticle < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :search_full_text, :against => [
         [:title, 'A'],
         {:subtitle => 'B'},
@@ -510,7 +510,7 @@ is a :tsearch-specific option, you should pass it to :tsearch directly, as
 shown in the following example.
 
     class Superhero < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :whose_name_starts_with,
                       :against => :name,
                       :using => {
@@ -536,7 +536,7 @@ not do any stemming. If you don't specify a dictionary, the "simple"
 dictionary will be used.
 
     class BoringTweet < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :kinda_matching,
                       :against => :text,
                       :using => {
@@ -578,7 +578,7 @@ their numbers together.
 (e.g. to use algorithms 1, 8, and 32, you would pass 1 + 8 + 32 = 41)
 
     class BigLongDocument < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :regular_search,
                       :against => :text
 
@@ -600,7 +600,7 @@ Setting this attribute to true will perform a search which will return all
 models containing any word in the search terms.
 
     class Number < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :search_any_word,
                       :against => :text,
                       :using => {
@@ -638,7 +638,7 @@ generate and run a migration for this, run:
 The following example shows how to use :dmetaphone.
 
     class Word < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :that_sounds_like,
                       :against => :spelling,
                       :using => :dmetaphone
@@ -667,7 +667,7 @@ package](http://www.postgresql.org/docs/current/static/pgtrgm.html) that must
 be installed before this feature can be used.
 
     class Website < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :kinda_spelled_like,
                       :against => :name,
                       :using => :trigram
@@ -688,7 +688,7 @@ Higher numbers match more strictly, and thus return fewer results. Lower numbers
 match more permissively, letting in more results.
 
     class Vegetable < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
 
       pg_search_scope :strictly_spelled_like,
                       :against => :name,
@@ -728,7 +728,7 @@ package](http://www.postgresql.org/docs/current/static/unaccent.html) that
 must be installed before this feature can be used.
 
     class SpanishQuestion < ActiveRecord::Base
-      include PgSearch
+      extend PgSearch
       pg_search_scope :gringo_search,
                       :against => :word,
                       :ignoring => :accents

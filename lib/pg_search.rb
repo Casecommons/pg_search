@@ -1,5 +1,4 @@
 require "active_record"
-require "active_support/concern"
 require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/string/strip"
 require "pg_search/extensions/arel"
@@ -15,47 +14,47 @@ module PgSearch
   autoload :ScopeOptions, "pg_search/scope_options"
   autoload :VERSION, "pg_search/version"
 
-  extend ActiveSupport::Concern
-  include Compatibility::ActiveRecord3 if ActiveRecord::VERSION::MAJOR == 3
-
   mattr_accessor :multisearch_options
   self.multisearch_options = {}
 
   mattr_accessor :unaccent_function
   self.unaccent_function = "unaccent"
 
-  module ClassMethods
-    def pg_search_scope(name, options)
-      options_proc = if options.respond_to?(:call)
-                       options
-                     else
-                       unless options.respond_to?(:merge)
-                         raise ArgumentError, "pg_search_scope expects a Hash or Proc"
-                       end
-                       lambda { |query| {:query => query}.merge(options) }
+  def pg_search_scope(name, options)
+    options_proc = if options.respond_to?(:call)
+                     options
+                   else
+                     unless options.respond_to?(:merge)
+                       raise ArgumentError, "pg_search_scope expects a Hash or Proc"
                      end
+                     lambda { |query| {:query => query}.merge(options) }
+                   end
 
-      method_proc = lambda do |*args|
-        config = Configuration.new(options_proc.call(*args), self)
-        scope_options = ScopeOptions.new(config)
-        scope_options.apply(self)
-      end
-
-      if respond_to?(:define_singleton_method)
-        define_singleton_method name, &method_proc
-      else
-        (class << self; self; end).send :define_method, name, &method_proc
-      end
+    method_proc = lambda do |*args|
+      config = Configuration.new(options_proc.call(*args), self)
+      scope_options = ScopeOptions.new(config)
+      scope_options.apply(self)
     end
 
-    def multisearchable(options = {})
-      include PgSearch::Multisearchable
-      class_attribute :pg_search_multisearchable_options
-      self.pg_search_multisearchable_options = options
+    if respond_to?(:define_singleton_method)
+      define_singleton_method name, &method_proc
+    else
+      (class << self; self; end).send :define_method, name, &method_proc
     end
   end
 
+  def multisearchable(options = {})
+    include PgSearch::Multisearchable
+    class_attribute :pg_search_multisearchable_options
+    self.pg_search_multisearchable_options = options
+  end
+
   class << self
+    def extended mod
+      return if ActiveRecord::VERSION::MAJOR >= 4
+      mod.send :include, Compatibility::ActiveRecord3
+    end
+
     def multisearch(*args)
       PgSearch::Document.search(*args)
     end

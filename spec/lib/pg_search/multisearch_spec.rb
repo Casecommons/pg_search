@@ -10,7 +10,7 @@ describe PgSearch::Multisearch do
       t.timestamps
     end
     model do
-      include PgSearch
+      extend PgSearch
     end
   end
 

@@ -9,7 +9,7 @@ describe "an Active Record model which includes PgSearch" do
     end
 
     model do
-      include PgSearch
+      extend PgSearch
     end
   end
 
@@ -252,7 +252,7 @@ describe "an Active Record model which includes PgSearch" do
           end
 
           model do
-            include PgSearch
+            extend PgSearch
 
             # WARNING: searching timestamps is not something PostgreSQL
             # full-text search is good at. Use at your own risk.
@@ -675,7 +675,7 @@ describe "an Active Record model which includes PgSearch" do
           t.tsvector 'content_tsvector'
         end
 
-        model { include PgSearch }
+        model { extend PgSearch }
       end
 
       let!(:expected) { ModelWithTsvector.create!(:content => 'tiling is grouty') }
@@ -863,7 +863,7 @@ describe "an Active Record model which includes PgSearch" do
         end
 
         model do
-          include PgSearch
+          extend PgSearch
         end
       end
 
@@ -937,7 +937,7 @@ describe "an Active Record model which includes PgSearch" do
           t.string :title
         end
         model do
-          include PgSearch
+          extend PgSearch
           multisearchable :against => :title
         end
       end
@@ -967,7 +967,7 @@ describe "an Active Record model which includes PgSearch" do
           t.string :title
         end
         model do
-          include PgSearch
+          extend PgSearch
           multisearchable :against => :title
         end
       end

@@ -6,7 +6,7 @@ describe PgSearch::Document do
   with_model :Searchable do
     table
     model do
-      include PgSearch
+      extend PgSearch
       multisearchable
     end
   end

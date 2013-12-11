@@ -6,7 +6,7 @@ describe PgSearch::Multisearchable do
   describe "a model that is multisearchable" do
     with_model :ModelThatIsMultisearchable do
       model do
-        include PgSearch
+        extend PgSearch
         multisearchable
       end
     end
@@ -104,7 +104,7 @@ describe PgSearch::Multisearchable do
         end
 
         model do
-          include PgSearch
+          extend PgSearch
           multisearchable :if => lambda { |record| record.multisearchable? }
         end
       end
@@ -232,7 +232,7 @@ describe PgSearch::Multisearchable do
         end
 
         model do
-          include PgSearch
+          extend PgSearch
           multisearchable :unless => lambda { |record| record.not_multisearchable? }
         end
       end
@@ -361,7 +361,7 @@ describe PgSearch::Multisearchable do
         end
 
         model do
-          include PgSearch
+          extend PgSearch
           multisearchable :if => :multisearchable?
         end
       end
@@ -493,7 +493,7 @@ describe PgSearch::Multisearchable do
         end
 
         model do
-          include PgSearch
+          extend PgSearch
           multisearchable :unless => :not_multisearchable?
         end
       end

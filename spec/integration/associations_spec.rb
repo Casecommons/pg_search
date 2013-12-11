@@ -16,7 +16,7 @@ describe PgSearch do
         end
 
         model do
-          include PgSearch
+          extend PgSearch
           belongs_to :another_model, :class_name => 'AssociatedModel'
 
           pg_search_scope :with_another, :associated_against => {:another_model => :title}
@@ -53,7 +53,7 @@ describe PgSearch do
         end
 
         model do
-          include PgSearch
+          extend PgSearch
           belongs_to :another_model, :class_name => 'AssociatedModel'
 
           pg_search_scope :with_associated, :against => :title, :associated_against => {:another_model => :title}
@@ -89,7 +89,7 @@ describe PgSearch do
         end
 
         model do
-          include PgSearch
+          extend PgSearch
           has_many :other_models, :class_name => 'AssociatedModelWithHasMany', :foreign_key => 'ModelWithHasMany_id'
 
           pg_search_scope :with_associated, :against => [:title], :associated_against => {:other_models => :title}
@@ -159,7 +159,7 @@ describe PgSearch do
           end
 
           model do
-            include PgSearch
+            extend PgSearch
             has_many :models_of_first_type, :class_name => 'FirstAssociatedModel', :foreign_key => 'ModelWithManyAssociations_id'
             belongs_to :model_of_second_type, :class_name => 'SecondAssociatedModel'
 
@@ -213,7 +213,7 @@ describe PgSearch do
           end
 
           model do
-            include PgSearch
+            extend PgSearch
             has_many :things, :class_name => 'DoublyAssociatedModel', :foreign_key => 'ModelWithDoubleAssociation_id'
             has_many :thingamabobs, :class_name => 'DoublyAssociatedModel', :foreign_key => 'ModelWithDoubleAssociation_again_id'
 
@@ -267,7 +267,7 @@ describe PgSearch do
         end
 
         model do
-          include PgSearch
+          extend PgSearch
           belongs_to :another_model, :class_name => 'AssociatedModel'
 
           pg_search_scope :with_associated, :associated_against => {:another_model => [:title, :author]}
@@ -321,7 +321,7 @@ describe PgSearch do
         end
 
         model do
-          include PgSearch
+          extend PgSearch
           belongs_to :another_model, :class_name => 'AssociatedModel'
 
           pg_search_scope :with_associated, :associated_against => {:another_model => :number}
@@ -352,7 +352,7 @@ describe PgSearch do
 
         model do
           has_many :children
-          include PgSearch
+          extend PgSearch
           pg_search_scope :search_name, :against => :name
         end
       end
@@ -395,7 +395,7 @@ describe PgSearch do
       end
 
       model do
-        include PgSearch
+        extend PgSearch
         belongs_to :model_with_association
 
         pg_search_scope :search_content, :against => :content
@@ -441,7 +441,7 @@ describe PgSearch do
       end
 
       model do
-        include PgSearch
+        extend PgSearch
         pg_search_scope :search, :against => :title, :using => [:tsearch, :trigram]
       end
     end
@@ -482,7 +482,7 @@ describe PgSearch do
       end
 
       model do
-        include PgSearch
+        extend PgSearch
         pg_search_scope :search, :against => :title, :using => [:tsearch, :trigram]
       end
     end
