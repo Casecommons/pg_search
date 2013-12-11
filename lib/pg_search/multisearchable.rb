@@ -1,18 +1,17 @@
-require "active_support/concern"
 require "active_support/core_ext/class/attribute"
 
 module PgSearch
   module Multisearchable
-    extend ActiveSupport::Concern
+    def self.included mod
+      mod.class_eval do
+        has_one :pg_search_document,
+          :as => :searchable,
+          :class_name => "PgSearch::Document",
+          :dependent => :delete
 
-    included do
-      has_one :pg_search_document,
-        :as => :searchable,
-        :class_name => "PgSearch::Document",
-        :dependent => :delete
-
-      after_save :update_pg_search_document,
-        :if => lambda { PgSearch.multisearch_enabled? }
+        after_save :update_pg_search_document,
+          :if => lambda { PgSearch.multisearch_enabled? }
+      end
     end
 
     def update_pg_search_document
