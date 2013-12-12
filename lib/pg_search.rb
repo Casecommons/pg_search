@@ -55,6 +55,10 @@ module PgSearch
       mod.send :include, Compatibility::ActiveRecord3
     end
 
+    def included _
+      raise 'extend PgSearch instead of including it'
+    end
+
     def multisearch(*args)
       PgSearch::Document.search(*args)
     end
