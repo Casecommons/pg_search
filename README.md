@@ -22,8 +22,8 @@ Read the blog post introducing PgSearch at http://pivotallabs.com/pg-search/
 
 ## REQUIREMENTS
 
-*   Ruby 1.9.2 or later
-*   Active Record 3.1 or later
+*   Ruby 1.9.2, 2.0, or later
+*   Active Record 3.1, 3.2, 4.0 or later
 *   PostgreSQL
 *   [PostgreSQL contrib packages for certain
     features](https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules)
@@ -33,7 +33,7 @@ Read the blog post introducing PgSearch at http://pivotallabs.com/pg-search/
 
     gem install pg_search
 
-### Rails 3.1 or later, Ruby 1.9.2 or later
+### Rails 3.1, 3.2, 4.0 or later, Ruby 1.9.2, 2.0, or later
 
 In Gemfile
 
