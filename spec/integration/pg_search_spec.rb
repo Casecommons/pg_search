@@ -668,28 +668,44 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
-    context "using a tsvector column and a single column" do
-      with_model :ModelWithTsvectorAndSingle do
+    context "using a tsvector column and an association" do
+      with_model :Comment do
         table do |t|
-          t.text 'name'
+          t.integer :post_id
+          t.string :body
+        end
+
+        model do
+          belongs_to :post
+        end
+      end
+
+      with_model :Post do
+        table do |t|
           t.text 'content'
           t.tsvector 'content_tsvector'
         end
 
-        model { include PgSearch }
+        model do
+          include PgSearch
+          has_many :comments
+        end
       end
 
-      let!(:expected) { ModelWithTsvectorAndSingle.create!(:name => 'Adam', content: 'phooey') }
-      let!(:unexpected) { ModelWithTsvectorAndSingle.create!(:name => 'Bob', :content => 'longcat is looooooooong') }
+      let!(:expected) { Post.create!(content: 'phooey') }
+      let!(:unexpected) { Post.create!(content: 'longcat is looooooooong') }
 
       before do
         ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
-          UPDATE #{ModelWithTsvectorAndSingle.quoted_table_name}
-          SET content_tsvector = to_tsvector('english'::regconfig, #{ModelWithTsvectorAndSingle.quoted_table_name}."content")
+          UPDATE #{Post.quoted_table_name}
+          SET content_tsvector = to_tsvector('english'::regconfig, #{Post.quoted_table_name}."content")
         SQL
 
-        ModelWithTsvectorAndSingle.pg_search_scope :search_by_content_with_tsvector,
-          :against => [:name],
+        expected.comments.create(body: 'commentone')
+        unexpected.comments.create(body: 'commentwo')
+
+        Post.pg_search_scope :search_by_content_with_tsvector,
+          :associated_against => { comments: [:body] },
           :using => {
             :tsearch => {
               :tsvector_column => 'content_tsvector',
@@ -698,20 +714,16 @@ describe "an Active Record model which includes PgSearch" do
           }
       end
 
-      it "should use to_tsvector in the query" do
-        ModelWithTsvectorAndSingle.search_by_content_with_tsvector("tiles").to_sql.should =~ /to_tsvector/
-      end
-
       it "should find by the tsvector column" do
-        ModelWithTsvectorAndSingle.search_by_content_with_tsvector("phooey").map(&:id).should == [expected.id]
+        Post.search_by_content_with_tsvector("phooey").map(&:id).should == [expected.id]
       end
 
-      it "should find by the single column" do
-        ModelWithTsvectorAndSingle.search_by_content_with_tsvector("Adam").map(&:id).should == [expected.id]
+      it "should find by the associated record" do
+        Post.search_by_content_with_tsvector("commentone").map(&:id).should == [expected.id]
       end
 
-      it "should find by a combination of the two" do
-        ModelWithTsvectorAndSingle.search_by_content_with_tsvector("Adam phooey").map(&:id).should == [expected.id]
+      it 'should find by a combination of the two' do
+        Post.search_by_content_with_tsvector("phooey commentone").map(&:id).should == [expected.id]
       end
     end
 
