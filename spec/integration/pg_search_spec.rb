@@ -877,7 +877,7 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
-      it "should returns only results for that subclass" do
+      it "returns only results for that subclass" do
         included = [
           SubclassModel.create!(:content => "foo bar")
         ]
