@@ -58,7 +58,9 @@ module PgSearch
           column_name = connection.quote_column_name(options[:tsvector_column])
           "#{quoted_table_name}.#{column_name}"
         else
-          return_str = columns.map do |search_column|
+          tsdocument_terms = []
+
+          tsdocument_terms << columns.map do |search_column|
             tsvector = Arel::Nodes::NamedFunction.new(
               "to_tsvector",
               [dictionary, Arel.sql(normalize(search_column.to_sql))]
@@ -73,10 +75,10 @@ module PgSearch
 
           if options[:tsvector_column]
             column_name = connection.quote_column_name(options[:tsvector_column])
-            return_str += " || #{quoted_table_name}.#{column_name}"
+            tsdocument_terms << "#{quoted_table_name}.#{column_name}"
           end
 
-          return_str
+          tsdocument_terms.join(' || ')
         end
       end
 
