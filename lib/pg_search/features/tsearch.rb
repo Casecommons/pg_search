@@ -54,13 +54,14 @@ module PgSearch
       end
 
       def tsdocument
-        if options[:tsvector_column] && columns.empty?
-          column_name = connection.quote_column_name(options[:tsvector_column])
-          "#{quoted_table_name}.#{column_name}"
-        else
-          tsdocument_terms = []
+        tsdocument_terms = []
 
-          tsdocument_terms << columns.map do |search_column|
+        columns_to_use = options[:tsvector_column] ?
+                           columns.select { |c| c.is_a?(PgSearch::Configuration::ForeignColumn) } :
+                           columns
+
+        if columns_to_use.present?
+          tsdocument_terms << columns_to_use.map do |search_column|
             tsvector = Arel::Nodes::NamedFunction.new(
               "to_tsvector",
               [dictionary, Arel.sql(normalize(search_column.to_sql))]
@@ -72,14 +73,14 @@ module PgSearch
               "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
             end
           end.join(" || ")
-
-          if options[:tsvector_column]
-            column_name = connection.quote_column_name(options[:tsvector_column])
-            tsdocument_terms << "#{quoted_table_name}.#{column_name}"
-          end
-
-          tsdocument_terms.join(' || ')
         end
+
+        if options[:tsvector_column]
+          column_name = connection.quote_column_name(options[:tsvector_column])
+          tsdocument_terms << "#{quoted_table_name}.#{column_name}"
+        end
+
+        tsdocument_terms.join(' || ')
       end
 
       # From http://www.postgresql.org/docs/8.3/static/textsearch-controls.html

@@ -747,7 +747,7 @@ describe "an Active Record model which includes PgSearch" do
         SQL
 
         ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
-          :against => [],
+          :against => :content,
           :using => {
             :tsearch => {
               :tsvector_column => 'content_tsvector',
