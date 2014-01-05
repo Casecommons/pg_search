@@ -156,7 +156,7 @@ describe "an Active Record model which includes PgSearch" do
         ModelWithPgSearch.create!(:content => 'bar')
 
         results = ModelWithPgSearch.search_content('foo')
-        expect(results.count).to eq 1
+        expect(results.count(:all)).to eq 1
       end
 
       it "returns rows where the column contains all the terms in the query in any order" do
@@ -629,7 +629,7 @@ describe "an Active Record model which includes PgSearch" do
         ModelWithPgSearch.with_trigram(accent_query).should_not include(record)
         ModelWithPgSearch.with_trigram_and_ignoring_accents(accent_query).should include(record)
         ModelWithPgSearch.with_tsearch(accent_query).should_not include(record)
-        ModelWithPgSearch.with_tsearch_and_trigram(accent_query).should be_empty
+        ModelWithPgSearch.with_tsearch_and_trigram(accent_query).count(:all).should == 0
         ModelWithPgSearch.complex_search(accent_query).should include(record)
 
         # matches tsearch only
