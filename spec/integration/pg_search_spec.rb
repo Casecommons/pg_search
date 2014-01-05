@@ -151,6 +151,14 @@ describe "an Active Record model which includes PgSearch" do
         results.should_not include(excluded)
       end
 
+      it "returns the correct count" do
+        ModelWithPgSearch.create!(:content => 'foo')
+        ModelWithPgSearch.create!(:content => 'bar')
+
+        results = ModelWithPgSearch.search_content('foo')
+        expect(results.count).to eq 1
+      end
+
       it "returns rows where the column contains all the terms in the query in any order" do
         included = [ModelWithPgSearch.create!(:content => 'foo bar'),
                     ModelWithPgSearch.create!(:content => 'bar foo')]
