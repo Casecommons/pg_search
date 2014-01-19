@@ -18,7 +18,3 @@ group :development do
   gem 'rb-fsevent', :require => false
   gem 'rb-fchange', :require => false
 end
-
-group :test do
-  gem "codeclimate-test-reporter", :require => false
-end

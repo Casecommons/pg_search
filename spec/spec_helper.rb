@@ -1,17 +1,13 @@
 require "bundler/setup"
+require "pg_search"
 
 if ENV["TRAVIS"]
-  require "codeclimate-test-reporter"
-  CodeClimate::TestReporter.start
-
   begin
     require 'coveralls'
     Coveralls.wear!
   rescue LoadError
   end
 end
-
-require "pg_search"
 
 begin
   if defined? JRUBY_VERSION
