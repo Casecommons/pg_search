@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## 0.7.3
+
+*   Allow simultaneously searching using `:associated_against` and `:tsvector_column` (Adam Becker)
+
 ## 0.7.2
 
 *   Add :threshold option for configuring how permissive trigram searches are.
