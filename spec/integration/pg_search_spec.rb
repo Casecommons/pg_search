@@ -1052,6 +1052,49 @@ describe "an Active Record model which includes PgSearch" do
         it { should_not include(soundalike_record) }
       end
     end
+
+    context "on an STI subclass" do
+      with_model :ASuperclassModel do
+        table do |t|
+          t.text 'content'
+          t.string 'type'
+        end
+      end
+
+      before do
+
+        class SearchableSubclassModel < ASuperclassModel
+          include PgSearch
+          multisearchable :against => :content
+        end
+
+        class NonSearchableSubclassModel < ASuperclassModel
+        end
+      end
+
+      it "returns only results for that subclass" do
+        included = [
+          SearchableSubclassModel.create!(:content => "foo bar")
+        ]
+        excluded = [
+          SearchableSubclassModel.create!(:content => "baz"),
+          ASuperclassModel.create!(:content => "foo bar"),
+          ASuperclassModel.create!(:content => "baz"),
+          NonSearchableSubclassModel.create!(:content => "foo bar"),
+          NonSearchableSubclassModel.create!(:content => "baz")
+        ]
+
+        expect(ASuperclassModel.count).to be 6
+        expect(SearchableSubclassModel.count).to be 2
+
+        results = PgSearch.multisearch("foo bar")
+
+        expect(results.map(&:searchable_id)).to include(*included.map(&:id))
+        expect(results.map(&:searchable_id)).not_to include(*excluded.map(&:id))
+        expect(results.map(&:searchable_type)).to include(*%w[SearchableSubclassModel])
+        expect(results.map(&:searchable_type)).not_to include(*%w[ASuperclassModel NonSearchableSubclassModel])
+      end
+    end
   end
 
   describe ".disable_multisearch" do
