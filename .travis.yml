@@ -3,7 +3,6 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.0
   - 2.1.1
   - jruby-19mode
 
@@ -18,7 +17,6 @@ env:
 
 matrix:
   allow_failures:
-    - rvm: 2.1.0
     - rvm: jruby-19mode
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="4-1-stable"
