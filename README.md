@@ -84,9 +84,11 @@ https://github.com/Casecommons/pg_search/tree/0.6-stable
 
 To add PgSearch to an Active Record model, simply include the PgSearch module.
 
-    class Shape < ActiveRecord::Base
-      include PgSearch
-    end
+```ruby
+class Shape < ActiveRecord::Base
+  include PgSearch
+end
+```    
 
 ### Multi-search vs. search scopes
 
@@ -118,15 +120,17 @@ pg_search_documents database table.
 To add a model to the global search index for your application, call
 multisearchable in its class definition.
 
-    class EpicPoem < ActiveRecord::Base
-      include PgSearch
-      multisearchable :against => [:title, :author]
-    end
+```ruby
+class EpicPoem < ActiveRecord::Base
+  include PgSearch
+  multisearchable :against => [:title, :author]
+end
 
-    class Flower < ActiveRecord::Base
-      include PgSearch
-      multisearchable :against => :color
-    end
+class Flower < ActiveRecord::Base
+  include PgSearch
+  multisearchable :against => :color
+end
+```
 
 If this model already has existing records, you will need to reindex this
 model to get existing records into the pg_search_documents table. See the
@@ -141,17 +145,19 @@ text.
 You can also pass a Proc or method name to call to determine whether or not a
 particular record should be included.
 
-    class Convertible < ActiveRecord::Base
-      include PgSearch
-      multisearchable :against => [:make, :model],
-                      :if => :available_in_red?
-    end
+```ruby
+class Convertible < ActiveRecord::Base
+  include PgSearch
+  multisearchable :against => [:make, :model],
+                  :if => :available_in_red?
+end
 
-    class Jalopy < ActiveRecord::Base
-      include PgSearch
-      multisearchable :against => [:make, :model],
-                      :if => lambda { |record| record.model_year > 1970 }
-    end
+class Jalopy < ActiveRecord::Base
+  include PgSearch
+  multisearchable :against => [:make, :model],
+                  :if => lambda { |record| record.model_year > 1970 }
+end
+```
 
 Note that the Proc or method name is called in an after_save hook. This means
 that you should be careful when using Time or other objects. In the following
@@ -159,33 +165,35 @@ example, if the record was last saved before the published_at timestamp, it
 won't get listed in global search at all until it is touched again after the
 timestamp.
 
-    class AntipatternExample
-      include PgSearch
-      multisearchable :against => [:contents],
-                      :if => :published?
+```ruby
+class AntipatternExample
+  include PgSearch
+  multisearchable :against => [:contents],
+                  :if => :published?
 
-      def published?
-        published_at < Time.now
-      end
-    end
+  def published?
+    published_at < Time.now
+  end
+end
 
-    problematic_record = AntipatternExample.create!(
-      :contents => "Using :if with a timestamp",
-      :published_at => 10.minutes.from_now
-    )
+problematic_record = AntipatternExample.create!(
+  :contents => "Using :if with a timestamp",
+  :published_at => 10.minutes.from_now
+)
 
-    problematic_record.published?     # => false
-    PgSearch.multisearch("timestamp") # => No results
+problematic_record.published?     # => false
+PgSearch.multisearch("timestamp") # => No results
 
-    sleep 20.minutes
+sleep 20.minutes
 
-    problematic_record.published?     # => true
-    PgSearch.multisearch("timestamp") # => No results
+problematic_record.published?     # => true
+PgSearch.multisearch("timestamp") # => No results
 
-    problematic_record.save!
+problematic_record.save!
 
-    problematic_record.published?     # => true
-    PgSearch.multisearch("timestamp") # => Includes problematic_record
+problematic_record.published?     # => true
+PgSearch.multisearch("timestamp") # => Includes problematic_record
+```
 
 #### Multi-search associations
 
@@ -194,19 +202,23 @@ has_one :pg_search_document association pointing to the PgSearch::Document
 record, and on the PgSearch::Document record there is a belongs_to :searchable
 polymorphic association pointing back to the original record.
 
-    odyssey = EpicPoem.create!(:title => "Odyssey", :author => "Homer")
-    search_document = odyssey.pg_search_document #=> PgSearch::Document instance
-    search_document.searchable #=> #<EpicPoem id: 1, title: "Odyssey", author: "Homer">
+```ruby
+odyssey = EpicPoem.create!(:title => "Odyssey", :author => "Homer")
+search_document = odyssey.pg_search_document #=> PgSearch::Document instance
+search_document.searchable #=> #<EpicPoem id: 1, title: "Odyssey", author: "Homer">
+```
 
 #### Searching in the global search index
 
 To fetch the PgSearch::Document entries for all of the records that match a
 given query, use PgSearch.multisearch.
 
-    odyssey = EpicPoem.create!(:title => "Odyssey", :author => "Homer")
-    rose = Flower.create!(:color => "Red")
-    PgSearch.multisearch("Homer") #=> [#<PgSearch::Document searchable: odyssey>]
-    PgSearch.multisearch("Red") #=> [#<PgSearch::Document searchable: rose>]
+```ruby
+odyssey = EpicPoem.create!(:title => "Odyssey", :author => "Homer")
+rose = Flower.create!(:color => "Red")
+PgSearch.multisearch("Homer") #=> [#<PgSearch::Document searchable: odyssey>]
+PgSearch.multisearch("Red") #=> [#<PgSearch::Document searchable: rose>]
+```
 
 #### Chaining method calls onto the results
 
@@ -215,12 +227,14 @@ so you can chain scope calls to the end. This works with gems like Kaminari
 that add scope methods. Just like with regular scopes, the database will only
 receive SQL requests when necessary.
 
-    PgSearch.multisearch("Bertha").limit(10)
-    PgSearch.multisearch("Juggler").where(:searchable_type => "Occupation")
-    PgSearch.multisearch("Alamo").page(3).per_page(30)
-    PgSearch.multisearch("Diagonal").find_each do |document|
-      puts document.searchable.updated_at
-    end
+```ruby
+PgSearch.multisearch("Bertha").limit(10)
+PgSearch.multisearch("Juggler").where(:searchable_type => "Occupation")
+PgSearch.multisearch("Alamo").page(3).per_page(30)
+PgSearch.multisearch("Diagonal").find_each do |document|
+  puts document.searchable.updated_at
+end
+```
 
 #### Configuring multi-search
 
@@ -228,10 +242,12 @@ PgSearch.multisearch can be configured using the same options as
 `pg_search_scope` (explained in more detail below). Just set the
 PgSearch.multisearch_options in an initializer:
 
-    PgSearch.multisearch_options = {
-      :using => [:tsearch, :trigram],
-      :ignoring => :accents
-    }
+```ruby
+PgSearch.multisearch_options = {
+  :using => [:tsearch, :trigram],
+  :ignoring => :accents
+}
+```
 
 #### Rebuilding search documents for a given class
 
@@ -249,11 +265,15 @@ directly modify the database.
 To remove all of the documents for a given class, you can simply delete all of
 the PgSearch::Document records.
 
-    PgSearch::Document.delete_all(:searchable_type => "Animal")
+```ruby
+PgSearch::Document.delete_all(:searchable_type => "Animal")
+```
 
 To regenerate the documents for a given class, run:
 
-    PgSearch::Multisearch.rebuild(Product)
+```ruby
+PgSearch::Multisearch.rebuild(Product)
+```
 
 This is also available as a Rake task, for convenience.
 
@@ -271,41 +291,45 @@ Active Record attributes, an efficient single SQL statement is run to update
 the pg_search_documents table all at once. However, if you call any dynamic
 methods in :against, the following strategy will be used:
 
-    PgSearch::Document.delete_all(:searchable_type => "Ingredient")
-    Ingredient.find_each { |record| record.update_pg_search_document }
+```ruby
+PgSearch::Document.delete_all(:searchable_type => "Ingredient")
+Ingredient.find_each { |record| record.update_pg_search_document }
+```
 
 You can also provide a custom implementation for rebuilding the documents by
 adding a class method called `rebuild_pg_search_documents` to your model.
 
-    class Movie < ActiveRecord::Base
-      belongs_to :director
+```ruby
+class Movie < ActiveRecord::Base
+  belongs_to :director
 
-      def director_name
-        director.name
-      end
+  def director_name
+    director.name
+  end
 
-      multisearchable against: [:name, :director_name]
+  multisearchable against: [:name, :director_name]
 
-      # Naive approach
-      def self.rebuild_pg_search_documents
-        find_each { |record| record.update_pg_search_document }
-      end
+  # Naive approach
+  def self.rebuild_pg_search_documents
+    find_each { |record| record.update_pg_search_document }
+  end
 
-      # More sophisticated approach
-      def self.rebuild_pg_search_documents
-        connection.execute <<-SQL
-         INSERT INTO pg_search_documents (searchable_type, searchable_id, content, created_at, updated_at)
-           SELECT 'Movie' AS searchable_type,
-                  movies.id AS searchable_id,
-                  (movies.name || ' ' || directors.name) AS content,
-                  now() AS created_at,
-                  now() AS updated_at
-           FROM movies
-           LEFT JOIN directors
-             ON directors.id = movies.director_id
-        SQL
-      end
-    end
+  # More sophisticated approach
+  def self.rebuild_pg_search_documents
+    connection.execute <<-SQL
+     INSERT INTO pg_search_documents (searchable_type, searchable_id, content, created_at, updated_at)
+       SELECT 'Movie' AS searchable_type,
+              movies.id AS searchable_id,
+              (movies.name || ' ' || directors.name) AS content,
+              now() AS created_at,
+              now() AS updated_at
+       FROM movies
+       LEFT JOIN directors
+         ON directors.id = movies.director_id
+    SQL
+  end
+end
+```
 
 #### Disabling multi-search indexing temporarily
 
@@ -314,9 +338,11 @@ records from an external source, you might want to speed things up by turning
 off indexing temporarily. You could then use one of the techniques above to
 rebuild the search documents off-line.
 
-    PgSearch.disable_multisearch do
-      Movie.import_from_xml_file(File.open("movies.xml"))
-    end
+```ruby
+PgSearch.disable_multisearch do
+  Movie.import_from_xml_file(File.open("movies.xml"))
+end
+```
 
 ### pg_search_scope
 
@@ -329,34 +355,42 @@ search against.
 
 To search against a column, pass a symbol as the :against option.
 
-    class BlogPost < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :search_by_title, :against => :title
-    end
+```ruby
+class BlogPost < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search_by_title, :against => :title
+end
+```
 
 We now have an ActiveRecord scope named search_by_title on our BlogPost model.
 It takes one parameter, a search query string.
 
-    BlogPost.create!(:title => "Recent Developments in the World of Pastrami")
-    BlogPost.create!(:title => "Prosciutto and You: A Retrospective")
-    BlogPost.search_by_title("pastrami") # => [#<BlogPost id: 2, title: "Recent Developments in the World of Pastrami">]
+```ruby
+BlogPost.create!(:title => "Recent Developments in the World of Pastrami")
+BlogPost.create!(:title => "Prosciutto and You: A Retrospective")
+BlogPost.search_by_title("pastrami") # => [#<BlogPost id: 2, title: "Recent Developments in the World of Pastrami">]
+```
 
 #### Searching against multiple columns
 
 Just pass an Array if you'd like to search more than one column.
 
-    class Person < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :search_by_full_name, :against => [:first_name, :last_name]
-    end
+```ruby
+class Person < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search_by_full_name, :against => [:first_name, :last_name]
+end
+```
 
 Now our search query can match either or both of the columns.
 
-    person_1 = Person.create!(:first_name => "Grant", :last_name => "Hill")
-    person_2 = Person.create!(:first_name => "Hugh", :last_name => "Grant")
+```ruby
+person_1 = Person.create!(:first_name => "Grant", :last_name => "Hill")
+person_2 = Person.create!(:first_name => "Hugh", :last_name => "Grant")
 
-    Person.search_by_full_name("Grant") # => [person_1, person_2]
-    Person.search_by_full_name("Grant Hill") # => [person_1]
+Person.search_by_full_name("Grant") # => [person_1, person_2]
+Person.search_by_full_name("Grant Hill") # => [person_1]
+```
 
 #### Dynamic search scopes
 
@@ -368,22 +402,24 @@ Important: The returned hash must include a :query key. Its value does not
 necessary have to be dynamic. You could choose to hard-code it to a specific
 value if you wanted.
 
-    class Person < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :search_by_name, lambda do |name_part, query|
-        raise ArgumentError unless [:first, :last].include?(name_part)
-        {
-          :against => name_part,
-          :query => query
-        }
-      end
-    end
+```ruby
+class Person < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search_by_name, lambda do |name_part, query|
+    raise ArgumentError unless [:first, :last].include?(name_part)
+    {
+      :against => name_part,
+      :query => query
+    }
+  end
+end
 
-    person_1 = Person.create!(:first_name => "Grant", :last_name => "Hill")
-    person_2 = Person.create!(:first_name => "Hugh", :last_name => "Grant")
+person_1 = Person.create!(:first_name => "Grant", :last_name => "Hill")
+person_2 = Person.create!(:first_name => "Hugh", :last_name => "Grant")
 
-    Person.search_by_name :first, "Grant" # => [person_1]
-    Person.search_by_name :last, "Grant" # => [person_2]
+Person.search_by_name :first, "Grant" # => [person_1]
+Person.search_by_name :last, "Grant" # => [person_2]
+```
 
 #### Searching through associations
 
@@ -406,38 +442,40 @@ works just like an :against option for the other model. Right now, searching
 deeper than one association away is not supported. You can work around this by
 setting up a series of :through associations to point all the way through.
 
-    class Cracker < ActiveRecord::Base
-      has_many :cheeses
-    end
+```ruby
+class Cracker < ActiveRecord::Base
+  has_many :cheeses
+end
 
-    class Cheese < ActiveRecord::Base
-    end
+class Cheese < ActiveRecord::Base
+end
 
-    class Salami < ActiveRecord::Base
-      include PgSearch
+class Salami < ActiveRecord::Base
+  include PgSearch
 
-      belongs_to :cracker
-      has_many :cheeses, :through => :cracker
+  belongs_to :cracker
+  has_many :cheeses, :through => :cracker
 
-      pg_search_scope :tasty_search, :associated_against => {
-        :cheeses => [:kind, :brand],
-        :cracker => :kind
-      }
-    end
+  pg_search_scope :tasty_search, :associated_against => {
+    :cheeses => [:kind, :brand],
+    :cracker => :kind
+  }
+end
 
-    salami_1 = Salami.create!
-    salami_2 = Salami.create!
-    salami_3 = Salami.create!
+salami_1 = Salami.create!
+salami_2 = Salami.create!
+salami_3 = Salami.create!
 
-    limburger = Cheese.create!(:kind => "Limburger")
-    brie = Cheese.create!(:kind => "Brie")
-    pepper_jack = Cheese.create!(:kind => "Pepper Jack")
+limburger = Cheese.create!(:kind => "Limburger")
+brie = Cheese.create!(:kind => "Brie")
+pepper_jack = Cheese.create!(:kind => "Pepper Jack")
 
-    Cracker.create!(:kind => "Black Pepper", :cheeses => [brie], :salami => salami_1)
-    Cracker.create!(:kind => "Ritz", :cheeses => [limburger, pepper_jack], :salami => salami_2)
-    Cracker.create!(:kind => "Graham", :cheeses => [limburger], :salami => salami_3)
+Cracker.create!(:kind => "Black Pepper", :cheeses => [brie], :salami => salami_1)
+Cracker.create!(:kind => "Ritz", :cheeses => [limburger, pepper_jack], :salami => salami_2)
+Cracker.create!(:kind => "Graham", :cheeses => [limburger], :salami => salami_3)
 
-    Salami.tasty_search("pepper") # => [salami_1, salami_2]
+Salami.tasty_search("pepper") # => [salami_1, salami_2]
+```
 
 ### Searching using different search features
 
@@ -446,10 +484,12 @@ search](http://www.postgresql.org/docs/current/static/textsearch-intro.html).
 If you pass the :using option to pg_search_scope, you can choose alternative
 search techniques.
 
-    class Beer < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :search_name, :against => :name, :using => [:tsearch, :trigram, :dmetaphone]
-    end
+```ruby
+class Beer < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search_name, :against => :name, :using => [:tsearch, :trigram, :dmetaphone]
+end
+```
 
 The currently implemented features are
 
@@ -471,36 +511,40 @@ with earlier letters are weighted higher than those with later letters. So, in
 the following example, the title is the most important, followed by the
 subtitle, and finally the content.
 
-    class NewsArticle < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :search_full_text, :against => {
-        :title => 'A',
-        :subtitle => 'B',
-        :content => 'C'
-      }
-    end
+```ruby
+class NewsArticle < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search_full_text, :against => {
+    :title => 'A',
+    :subtitle => 'B',
+    :content => 'C'
+  }
+end
+```
 
 You can also pass the weights in as an array of arrays, or any other structure
 that responds to #each and yields either a single symbol or a symbol and a
 weight. If you omit the weight, a default will be used.
 
-    class NewsArticle < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :search_full_text, :against => [
-        [:title, 'A'],
-        [:subtitle, 'B'],
-        [:content, 'C']
-      ]
-    end
+```ruby
+class NewsArticle < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search_full_text, :against => [
+    [:title, 'A'],
+    [:subtitle, 'B'],
+    [:content, 'C']
+  ]
+end
 
-    class NewsArticle < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :search_full_text, :against => [
-        [:title, 'A'],
-        {:subtitle => 'B'},
-        :content
-      ]
-    end
+class NewsArticle < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search_full_text, :against => [
+    [:title, 'A'],
+    {:subtitle => 'B'},
+    :content
+  ]
+end
+```
 
 ##### :prefix (PostgreSQL 8.4 and newer only)
 
@@ -509,20 +553,22 @@ to search for partial words, however, you can set :prefix to true. Since this
 is a :tsearch-specific option, you should pass it to :tsearch directly, as
 shown in the following example.
 
-    class Superhero < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :whose_name_starts_with,
-                      :against => :name,
-                      :using => {
-                        :tsearch => {:prefix => true}
-                      }
-    end
+```ruby
+class Superhero < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :whose_name_starts_with,
+                  :against => :name,
+                  :using => {
+                    :tsearch => {:prefix => true}
+                  }
+end
 
-    batman = Superhero.create :name => 'Batman'
-    batgirl = Superhero.create :name => 'Batgirl'
-    robin = Superhero.create :name => 'Robin'
+batman = Superhero.create :name => 'Batman'
+batgirl = Superhero.create :name => 'Batgirl'
+robin = Superhero.create :name => 'Robin'
 
-    Superhero.whose_name_starts_with("Bat") # => [batman, batgirl]
+Superhero.whose_name_starts_with("Bat") # => [batman, batgirl]
+```
 
 ##### :dictionary
 
@@ -535,26 +581,28 @@ you don't want stemming, you should pick the "simple" dictionary which does
 not do any stemming. If you don't specify a dictionary, the "simple"
 dictionary will be used.
 
-    class BoringTweet < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :kinda_matching,
-                      :against => :text,
-                      :using => {
-                        :tsearch => {:dictionary => "english"}
-                      }
-      pg_search_scope :literally_matching,
-                      :against => :text,
-                      :using => {
-                        :tsearch => {:dictionary => "simple"}
-                      }
-    end
+```ruby
+class BoringTweet < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :kinda_matching,
+                  :against => :text,
+                  :using => {
+                    :tsearch => {:dictionary => "english"}
+                  }
+  pg_search_scope :literally_matching,
+                  :against => :text,
+                  :using => {
+                    :tsearch => {:dictionary => "simple"}
+                  }
+end
 
-    sleepy = BoringTweet.create! :text => "I snoozed my alarm for fourteen hours today. I bet I can beat that tomorrow! #sleepy"
-    sleeping = BoringTweet.create! :text => "You know what I like? Sleeping. That's what. #enjoyment"
-    sleeper = BoringTweet.create! :text => "Have you seen Woody Allen's movie entitled Sleeper? Me neither. #boycott"
+sleepy = BoringTweet.create! :text => "I snoozed my alarm for fourteen hours today. I bet I can beat that tomorrow! #sleepy"
+sleeping = BoringTweet.create! :text => "You know what I like? Sleeping. That's what. #enjoyment"
+sleeper = BoringTweet.create! :text => "Have you seen Woody Allen's movie entitled Sleeper? Me neither. #boycott"
 
-    BoringTweet.kinda_matching("sleeping") # => [sleepy, sleeping, sleeper]
-    BoringTweet.literally_matching("sleeping") # => [sleeping]
+BoringTweet.kinda_matching("sleeping") # => [sleepy, sleeping, sleeper]
+BoringTweet.literally_matching("sleeping") # => [sleeping]
+```
 
 ##### :normalization
 
@@ -577,46 +625,50 @@ This integer is a bitmask, so if you want to combine algorithms, you can add
 their numbers together.
 (e.g. to use algorithms 1, 8, and 32, you would pass 1 + 8 + 32 = 41)
 
-    class BigLongDocument < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :regular_search,
-                      :against => :text
+```ruby
+class BigLongDocument < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :regular_search,
+                  :against => :text
 
-      pg_search_scope :short_search,
-                      :against => :text,
-                      :using => {
-                        :tsearch => {:normalization => 2}
-                      }
+  pg_search_scope :short_search,
+                  :against => :text,
+                  :using => {
+                    :tsearch => {:normalization => 2}
+                  }
 
-    long = BigLongDocument.create!(:text => "Four score and twenty years ago")
-    short = BigLongDocument.create!(:text => "Four score")
+long = BigLongDocument.create!(:text => "Four score and twenty years ago")
+short = BigLongDocument.create!(:text => "Four score")
 
-    BigLongDocument.regular_search("four score") #=> [long, short]
-    BigLongDocument.short_search("four score") #=> [short, long]
+BigLongDocument.regular_search("four score") #=> [long, short]
+BigLongDocument.short_search("four score") #=> [short, long]
+```
 
 ##### :any_word
 
 Setting this attribute to true will perform a search which will return all
 models containing any word in the search terms.
 
-    class Number < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :search_any_word,
-                      :against => :text,
-                      :using => {
-                        :tsearch => {:any_word => true}
-                      }
+```ruby
+class Number < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search_any_word,
+                  :against => :text,
+                  :using => {
+                    :tsearch => {:any_word => true}
+                  }
 
-      pg_search_scope :search_all_words,
-                      :against => :text
-    end
+  pg_search_scope :search_all_words,
+                  :against => :text
+end
 
-    one = Number.create! :text => 'one'
-    two = Number.create! :text => 'two'
-    three = Number.create! :text => 'three'
+one = Number.create! :text => 'one'
+two = Number.create! :text => 'two'
+three = Number.create! :text => 'three'
 
-    Number.search_any_word('one two three') # => [one, two, three]
-    Number.search_all_words('one two three') # => []
+Number.search_any_word('one two three') # => [one, two, three]
+Number.search_all_words('one two three') # => []
+```
 
 #### :dmetaphone (Double Metaphone soundalike search)
 
@@ -637,19 +689,21 @@ generate and run a migration for this, run:
 
 The following example shows how to use :dmetaphone.
 
-    class Word < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :that_sounds_like,
-                      :against => :spelling,
-                      :using => :dmetaphone
-    end
+```ruby
+class Word < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :that_sounds_like,
+                  :against => :spelling,
+                  :using => :dmetaphone
+end
 
-    four = Word.create! :spelling => 'four'
-    far = Word.create! :spelling => 'far'
-    fur = Word.create! :spelling => 'fur'
-    five = Word.create! :spelling => 'five'
+four = Word.create! :spelling => 'four'
+far = Word.create! :spelling => 'far'
+fur = Word.create! :spelling => 'fur'
+five = Word.create! :spelling => 'five'
 
-    Word.that_sounds_like("fir") # => [four, far, fur]
+Word.that_sounds_like("fir") # => [four, far, fur]
+```
 
 #### :trigram (Trigram search)
 
@@ -666,19 +720,21 @@ Trigram support is currently available as part of the [pg_trgm contrib
 package](http://www.postgresql.org/docs/current/static/pgtrgm.html) that must
 be installed before this feature can be used.
 
-    class Website < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :kinda_spelled_like,
-                      :against => :name,
-                      :using => :trigram
-    end
+```ruby
+class Website < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :kinda_spelled_like,
+                  :against => :name,
+                  :using => :trigram
+end
 
-    yahooo = Website.create! :name => "Yahooo!"
-    yohoo = Website.create! :name => "Yohoo!"
-    gogle = Website.create! :name => "Gogle"
-    facebook = Website.create! :name => "Facebook"
+yahooo = Website.create! :name => "Yahooo!"
+yohoo = Website.create! :name => "Yohoo!"
+gogle = Website.create! :name => "Gogle"
+facebook = Website.create! :name => "Facebook"
 
-    Website.kinda_spelled_like("Yahoo!") # => [yahooo, yohoo]
+Website.kinda_spelled_like("Yahoo!") # => [yahooo, yohoo]
+```
 
 ##### :threshold
 
@@ -687,34 +743,35 @@ using pg_trgm's calculations. You may specify a custom threshold if you prefer.
 Higher numbers match more strictly, and thus return fewer results. Lower numbers
 match more permissively, letting in more results.
 
-    class Vegetable < ActiveRecord::Base
-      include PgSearch
+```ruby
+class Vegetable < ActiveRecord::Base
+  include PgSearch
 
-      pg_search_scope :strictly_spelled_like,
-                      :against => :name,
-                      :using => {
-                        :trigram => {
-                          :threshold => 0.5
-                        }
-                      }
+  pg_search_scope :strictly_spelled_like,
+                  :against => :name,
+                  :using => {
+                    :trigram => {
+                      :threshold => 0.5
+                    }
+                  }
 
-      pg_search_scope :roughly_spelled_like,
-                      :against => :name,
-                      :using => {
-                        :trigram => {
-                          :threshold => 0.1
-                        }
-                      }
-    end
+  pg_search_scope :roughly_spelled_like,
+                  :against => :name,
+                  :using => {
+                    :trigram => {
+                      :threshold => 0.1
+                    }
+                  }
+end
 
-    cauliflower = Vegetable.create! :name => "cauliflower"
+cauliflower = Vegetable.create! :name => "cauliflower"
 
-    Vegetable.roughly_spelled_like("couliflower") # => [cauliflower]
-    Vegetable.strictly_spelled_like("couliflower") # => [cauliflower]
+Vegetable.roughly_spelled_like("couliflower") # => [cauliflower]
+Vegetable.strictly_spelled_like("couliflower") # => [cauliflower]
 
-    Vegetable.roughly_spelled_like("collyflower") # => [cauliflower]
-    Vegetable.strictly_spelled_like("collyflower") # => []
-
+Vegetable.roughly_spelled_like("collyflower") # => [cauliflower]
+Vegetable.strictly_spelled_like("collyflower") # => []
+```
 
 ### Ignoring accent marks (PostgreSQL 9.0 and newer only)
 
@@ -727,19 +784,21 @@ Ignoring accents uses the [unaccent contrib
 package](http://www.postgresql.org/docs/current/static/unaccent.html) that
 must be installed before this feature can be used.
 
-    class SpanishQuestion < ActiveRecord::Base
-      include PgSearch
-      pg_search_scope :gringo_search,
-                      :against => :word,
-                      :ignoring => :accents
-    end
+```ruby
+class SpanishQuestion < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :gringo_search,
+                  :against => :word,
+                  :ignoring => :accents
+end
 
-    what = SpanishQuestion.create(:word => "Qué")
-    how_many = SpanishQuestion.create(:word => "Cuánto")
-    how = SpanishQuestion.create(:word => "Cómo")
+what = SpanishQuestion.create(:word => "Qué")
+how_many = SpanishQuestion.create(:word => "Cuánto")
+how = SpanishQuestion.create(:word => "Cómo")
 
-    SpanishQuestion.gringo_search("Que") # => [what]
-    SpanishQuestion.gringo_search("Cüåñtô") # => [how_many]
+SpanishQuestion.gringo_search("Que") # => [what]
+SpanishQuestion.gringo_search("Cüåñtô") # => [how_many]
+```
 
 Advanced users may wish to add indexes for the expressions that pg_search
 generates. Unfortunately, the unaccent function supplied by this contrib
@@ -747,7 +806,9 @@ package is not indexable (as of PostgreSQL 9.1). Thus, you may want to write
 your own wrapper function and use it instead. This can be configured by
 calling the following code, perhaps in an initializer.
 
-    PgSearch.unaccent_function = "my_unaccent"
+```ruby
+PgSearch.unaccent_function = "my_unaccent"
+```
 
 ### Using tsvector columns
 
@@ -800,21 +861,25 @@ By default, pg_search ranks results based on the :tsearch similarity between
 the searchable text and the query. To use a different ranking algorithm, you
 can pass a :ranked_by option to pg_search_scope.
 
-    pg_search_scope :search_by_tsearch_but_rank_by_trigram,
-                    :against => :title,
-                    :using => [:tsearch],
-                    :ranked_by => ":trigram"
+```ruby
+pg_search_scope :search_by_tsearch_but_rank_by_trigram,
+                :against => :title,
+                :using => [:tsearch],
+                :ranked_by => ":trigram"
+```
 
 Note that :ranked_by using a String to represent the ranking expression. This
 allows for more complex possibilities. Strings like ":tsearch", ":trigram",
 and ":dmetaphone" are automatically expanded into the appropriate SQL
 expressions.
 
-    # Weighted ranking to balance multiple approaches
-    :ranked_by => ":dmetaphone + (0.25 * :trigram)"
+```ruby
+# Weighted ranking to balance multiple approaches
+:ranked_by => ":dmetaphone + (0.25 * :trigram)"
 
-    # A more complex example, where books.num_pages is an integer column in the table itself
-    :ranked_by => "(books.num_pages * :trigram) + (:tsearch / 2.0)"
+# A more complex example, where books.num_pages is an integer column in the table itself
+:ranked_by => "(books.num_pages * :trigram) + (:tsearch / 2.0)"
+```
 
 #### :order_within_rank (Breaking ties)
 
@@ -843,9 +908,11 @@ want old records to outrank new records. By passing an :order_within_rank, you
 can specify an alternate tiebreaker expression. A common example would be
 descending by updated_at, to rank the most recently updated records first.
 
-    pg_search_scope :search_and_break_ties_by_latest_update,
-                    :against => [:title, :content],
-                    :order_within_rank => "blog_posts.updated_at DESC"
+```ruby
+pg_search_scope :search_and_break_ties_by_latest_update,
+                :against => [:title, :content],
+                :order_within_rank => "blog_posts.updated_at DESC"
+````
 
 #### PgSearch#pg_search_rank (Reading a record's rank as a Float)
 
@@ -854,9 +921,11 @@ can be helpful for debugging why one record outranks another. You could also
 use it to show some sort of relevancy value to end users of an application.
 Just call .pg_search_rank on a record returned by a pg_search_scope.
 
-    shirt_brands = ShirtBrand.search_by_name("Penguin")
-    shirt_brands[0].pg_search_rank #=> 0.0759909
-    shirt_brands[1].pg_search_rank #=> 0.0607927
+```ruby
+shirt_brands = ShirtBrand.search_by_name("Penguin")
+shirt_brands[0].pg_search_rank #=> 0.0759909
+shirt_brands[1].pg_search_rank #=> 0.0607927
+```
 
 ## ATTRIBUTIONS
 
