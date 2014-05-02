@@ -103,7 +103,7 @@ describe PgSearch::Multisearch::Rebuilder do
           expected_sql = <<-SQL.strip_heredoc
             INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
               SELECT 'Model' AS searchable_type,
-                     #{Model.quoted_table_name}.id AS searchable_id,
+                     #{Model.quoted_table_name}.#{Model.primary_key} AS searchable_id,
                      (
                        coalesce(#{Model.quoted_table_name}.name::text, '')
                      ) AS content,
