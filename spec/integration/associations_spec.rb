@@ -364,6 +364,11 @@ describe PgSearch do
 
         model do
           belongs_to :parent
+          default_scope { where('parent_id IS NOT NULL') }
+          include PgSearch
+          pg_search_scope :search_parent, :associated_against => {
+            :parent => [:name],
+          }
         end
       end
 
@@ -377,6 +382,13 @@ describe PgSearch do
 
         results.should include(included)
         results.should_not include(excluded)
+
+        included_child = Child.create!(:parent => included)
+        excluded_child = Child.create!
+        results = Child.includes(:parent).search_parent('bar.foo')
+
+        results.should include(included_child)
+        results.should_not include(excluded_child)
       end
     end
   end
