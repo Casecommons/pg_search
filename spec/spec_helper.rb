@@ -97,6 +97,10 @@ require "with_model"
 
 RSpec.configure do |config|
   config.extend WithModel
+
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
+  end
 end
 
 RSpec::Matchers::OperatorMatcher.register(ActiveRecord::Relation, '=~', RSpec::Matchers::BuiltIn::MatchArray)
