@@ -23,8 +23,8 @@ describe "pagination" do
       best = PaginatedModel.create!(:name => "foo foo foo")
       good = PaginatedModel.create!(:name => "foo bar bar")
 
-      PaginatedModel.page(1).search_name("foo").should == [best, better]
-      PaginatedModel.page(2).search_name("foo").should == [good]
+      expect(PaginatedModel.page(1).search_name("foo")).to eq([best, better])
+      expect(PaginatedModel.page(2).search_name("foo")).to eq([good])
     end
 
     it "is chainable after a search scope" do
@@ -32,8 +32,8 @@ describe "pagination" do
       best = PaginatedModel.create!(:name => "foo foo foo")
       good = PaginatedModel.create!(:name => "foo bar bar")
 
-      PaginatedModel.search_name("foo").page(1).should == [best, better]
-      PaginatedModel.search_name("foo").page(2).should == [good]
+      expect(PaginatedModel.search_name("foo").page(1)).to eq([best, better])
+      expect(PaginatedModel.search_name("foo").page(2)).to eq([good])
     end
   end
 end

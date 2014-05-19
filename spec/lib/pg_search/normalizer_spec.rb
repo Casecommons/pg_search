@@ -10,18 +10,18 @@ describe PgSearch::Normalizer do
             node = Arel::Nodes::NamedFunction.new("foo", ["bar"])
 
             normalizer = PgSearch::Normalizer.new(config)
-            normalizer.add_normalization(node).should == "unaccent(foo('bar'))"
+            expect(normalizer.add_normalization(node)).to eq("unaccent(foo('bar'))")
           end
 
           context "when a custom unaccent function is specified" do
             it "wraps the expression in that function" do
-              PgSearch.stub(:unaccent_function).and_return("my_unaccent")
+              allow(PgSearch).to receive(:unaccent_function).and_return("my_unaccent")
               node = Arel::Nodes::NamedFunction.new("foo", ["bar"])
 
               config = double("config", :ignore => [:accents], :postgresql_version => 90000)
 
               normalizer = PgSearch::Normalizer.new(config)
-              normalizer.add_normalization(node).should == "my_unaccent(foo('bar'))"
+              expect(normalizer.add_normalization(node)).to eq("my_unaccent(foo('bar'))")
             end
           end
         end
@@ -31,17 +31,17 @@ describe PgSearch::Normalizer do
             config = double("config", :ignore => [:accents], :postgresql_version => 90000)
 
             normalizer = PgSearch::Normalizer.new(config)
-            normalizer.add_normalization("foo").should == "unaccent(foo)"
+            expect(normalizer.add_normalization("foo")).to eq("unaccent(foo)")
           end
 
           context "when a custom unaccent function is specified" do
             it "wraps the expression in that function" do
-              PgSearch.stub(:unaccent_function).and_return("my_unaccent")
+              allow(PgSearch).to receive(:unaccent_function).and_return("my_unaccent")
 
               config = double("config", :ignore => [:accents], :postgresql_version => 90000)
 
               normalizer = PgSearch::Normalizer.new(config)
-              normalizer.add_normalization("foo").should == "my_unaccent(foo)"
+              expect(normalizer.add_normalization("foo")).to eq("my_unaccent(foo)")
             end
           end
         end
@@ -52,7 +52,7 @@ describe PgSearch::Normalizer do
           config = double("config", :ignore => [], :postgresql_version => 90000)
 
           normalizer = PgSearch::Normalizer.new(config)
-          normalizer.add_normalization("foo").should == "foo"
+          expect(normalizer.add_normalization("foo")).to eq("foo")
         end
       end
     end
@@ -74,7 +74,7 @@ describe PgSearch::Normalizer do
           config = double("config", :ignore => [], :postgresql_version => 90000)
 
           normalizer = PgSearch::Normalizer.new(config)
-          normalizer.add_normalization("foo").should == "foo"
+          expect(normalizer.add_normalization("foo")).to eq("foo")
         end
       end
     end

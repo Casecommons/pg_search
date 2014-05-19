@@ -33,8 +33,8 @@ describe PgSearch::Multisearchable do
           it "should be associated to the record" do
             record.save!
             newest_pg_search_document = PgSearch::Document.last
-            record.pg_search_document.should == newest_pg_search_document
-            newest_pg_search_document.searchable.should == record
+            expect(record.pg_search_document).to eq(newest_pg_search_document)
+            expect(newest_pg_search_document.searchable).to eq(record)
           end
         end
       end
@@ -43,11 +43,11 @@ describe PgSearch::Multisearchable do
         let!(:record) { ModelThatIsMultisearchable.create! }
 
         context "when the document is present" do
-          before { record.pg_search_document.should be_present }
+          before { expect(record.pg_search_document).to be_present }
 
           describe "saving the record" do
             it "calls save on the pg_search_document" do
-              record.pg_search_document.should_receive(:save)
+              expect(record.pg_search_document).to receive(:save)
               record.save!
             end
 
@@ -59,7 +59,7 @@ describe PgSearch::Multisearchable do
               before { PgSearch.stub(:multisearch_enabled? => false) }
 
               it "should not create a PgSearch::Document record" do
-                record.pg_search_document.should_not_receive(:save)
+                expect(record.pg_search_document).not_to receive(:save)
                 expect { record.save! }.not_to change(PgSearch::Document, :count)
               end
             end
@@ -142,12 +142,12 @@ describe PgSearch::Multisearchable do
           let(:record) { ModelThatIsMultisearchable.create!(:multisearchable => true) }
 
           context "when the document is present" do
-            before { record.pg_search_document.should be_present }
+            before { expect(record.pg_search_document).to be_present }
 
             describe "saving the record" do
               context "when the condition is true" do
                 it "calls save on the pg_search_document" do
-                  record.pg_search_document.should_receive(:save)
+                  expect(record.pg_search_document).to receive(:save)
                   record.save!
                 end
 
@@ -160,7 +160,7 @@ describe PgSearch::Multisearchable do
                 before { record.multisearchable = false }
 
                 it "calls destroy on the pg_search_document" do
-                  record.pg_search_document.should_receive(:destroy)
+                  expect(record.pg_search_document).to receive(:destroy)
                   record.save!
                 end
 
@@ -174,7 +174,7 @@ describe PgSearch::Multisearchable do
               context "with multisearch disabled" do
                 before do
                   PgSearch.stub(:multisearch_enabled? => false)
-                  record.pg_search_document.should_not_receive(:save)
+                  expect(record.pg_search_document).not_to receive(:save)
                 end
 
                 it "should not create a PgSearch::Document record" do
@@ -270,12 +270,12 @@ describe PgSearch::Multisearchable do
           let!(:record) { ModelThatIsMultisearchable.create!(:not_multisearchable => false) }
 
           context "when the document is present" do
-            before { record.pg_search_document.should be_present }
+            before { expect(record.pg_search_document).to be_present }
 
             describe "saving the record" do
               context "when the condition is false" do
                 it "calls save on the pg_search_document" do
-                  record.pg_search_document.should_receive(:save)
+                  expect(record.pg_search_document).to receive(:save)
                   record.save!
                 end
 
@@ -286,7 +286,7 @@ describe PgSearch::Multisearchable do
                 context "with multisearch disabled" do
                   before do
                     PgSearch.stub(:multisearch_enabled? => false)
-                    record.pg_search_document.should_not_receive(:save)
+                    expect(record.pg_search_document).not_to receive(:save)
                   end
 
                   it "should not create a PgSearch::Document record" do
@@ -299,7 +299,7 @@ describe PgSearch::Multisearchable do
                 before { record.not_multisearchable = true }
 
                 it "calls destroy on the pg_search_document" do
-                  record.pg_search_document.should_receive(:destroy)
+                  expect(record.pg_search_document).to receive(:destroy)
                   record.save!
                 end
 
@@ -399,12 +399,12 @@ describe PgSearch::Multisearchable do
           let!(:record) { ModelThatIsMultisearchable.create!(:multisearchable => true) }
 
           context "when the document is present" do
-            before { record.pg_search_document.should be_present }
+            before { expect(record.pg_search_document).to be_present }
 
             describe "saving the record" do
               context "when the condition is true" do
                 it "calls save on the pg_search_document" do
-                  record.pg_search_document.should_receive(:save)
+                  expect(record.pg_search_document).to receive(:save)
                   record.save!
                 end
 
@@ -415,7 +415,7 @@ describe PgSearch::Multisearchable do
                 context "with multisearch disabled" do
                   before do
                     PgSearch.stub(:multisearch_enabled? => false)
-                    record.pg_search_document.should_not_receive(:save)
+                    expect(record.pg_search_document).not_to receive(:save)
                   end
 
                   it "should not create a PgSearch::Document record" do
@@ -428,7 +428,7 @@ describe PgSearch::Multisearchable do
                 before { record.multisearchable = false }
 
                 it "calls destroy on the pg_search_document" do
-                  record.pg_search_document.should_receive(:destroy)
+                  expect(record.pg_search_document).to receive(:destroy)
                   record.save!
                 end
 
@@ -531,14 +531,14 @@ describe PgSearch::Multisearchable do
           let!(:record) { ModelThatIsMultisearchable.create!(:not_multisearchable => false) }
 
           context "when the document is present" do
-            before { record.pg_search_document.should be_present }
+            before { expect(record.pg_search_document).to be_present }
 
             describe "saving the record" do
               context "when the condition is true" do
                 before { record.not_multisearchable = true }
 
                 it "calls destroy on the pg_search_document" do
-                  record.pg_search_document.should_receive(:destroy)
+                  expect(record.pg_search_document).to receive(:destroy)
                   record.save!
                 end
 
@@ -551,7 +551,7 @@ describe PgSearch::Multisearchable do
 
               context "when the condition is false" do
                 it "calls save on the pg_search_document" do
-                  record.pg_search_document.should_receive(:save)
+                  expect(record.pg_search_document).to receive(:save)
                   record.save!
                 end
 
@@ -562,7 +562,7 @@ describe PgSearch::Multisearchable do
                 context "with multisearch disabled" do
                   before do
                     PgSearch.stub(:multisearch_enabled? => false)
-                    record.pg_search_document.should_not_receive(:save)
+                    expect(record.pg_search_document).not_to receive(:save)
                   end
 
                   it "should not create a PgSearch::Document record" do

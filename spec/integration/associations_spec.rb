@@ -34,8 +34,8 @@ describe PgSearch do
         ]
 
         results = ModelWithoutAgainst.with_another('abcdef')
-        results.map(&:title).should =~ included.map(&:title)
-        results.should_not include(excluded)
+        expect(results.map(&:title)).to match_array(included.map(&:title))
+        expect(results).not_to include(excluded)
       end
     end
 
@@ -70,8 +70,8 @@ describe PgSearch do
                                                  :another_model => AssociatedModel.create!(:title => 'stuvwx'))
 
         results = ModelWithBelongsTo.with_associated('abcdef')
-        results.map(&:title).should =~ included.map(&:title)
-        results.should_not include(excluded)
+        expect(results.map(&:title)).to match_array(included.map(&:title))
+        expect(results).not_to include(excluded)
       end
     end
 
@@ -113,8 +113,8 @@ describe PgSearch do
         ])
 
         results = ModelWithHasMany.with_associated('foo bar')
-        results.map(&:title).should =~ included.map(&:title)
-        results.should_not include(excluded)
+        expect(results.map(&:title)).to match_array(included.map(&:title))
+        expect(results).not_to include(excluded)
       end
 
       it "uses an unscoped relation of the assocated model" do
@@ -129,8 +129,8 @@ describe PgSearch do
         ]
 
         results = ModelWithHasMany.limit(1).order("id ASC").with_associated('foo bar')
-        results.map(&:title).should =~ included.map(&:title)
-        results.should_not include(excluded)
+        expect(results.map(&:title)).to match_array(included.map(&:title))
+        expect(results).not_to include(excluded)
       end
 
     end
@@ -192,8 +192,8 @@ describe PgSearch do
           ]
 
           results = ModelWithManyAssociations.with_associated('foo bar')
-          results.map(&:title).should =~ included.map(&:title)
-          excluded.each { |object| results.should_not include(object) }
+          expect(results.map(&:title)).to match_array(included.map(&:title))
+          excluded.each { |object| expect(results).not_to include(object) }
         end
       end
 
@@ -247,8 +247,8 @@ describe PgSearch do
           ]
 
           results = ModelWithDoubleAssociation.with_associated('foo bar')
-          results.map(&:title).should =~ included.map(&:title)
-          excluded.each { |object| results.should_not include(object) }
+          expect(results.map(&:title)).to match_array(included.map(&:title))
+          excluded.each { |object| expect(results).not_to include(object) }
         end
       end
     end
@@ -300,9 +300,9 @@ describe PgSearch do
 
         results = ModelWithAssociation.with_associated('foo bar')
 
-        results.to_sql.scan("INNER JOIN").length.should == 1
-        included.each { |object| results.should include(object) }
-        excluded.each { |object| results.should_not include(object) }
+        expect(results.to_sql.scan("INNER JOIN").length).to eq(1)
+        included.each { |object| expect(results).to include(object) }
+        excluded.each { |object| expect(results).not_to include(object) }
       end
 
     end
@@ -339,8 +339,8 @@ describe PgSearch do
         ]
 
         results = Model.with_associated('123')
-        results.map(&:number).should =~ included.map(&:number)
-        results.should_not include(excluded)
+        expect(results.map(&:number)).to match_array(included.map(&:number))
+        expect(results).not_to include(excluded)
       end
     end
 
@@ -375,8 +375,8 @@ describe PgSearch do
         results = Parent.search_name('bar.foo').includes(:children)
         results.to_a
 
-        results.should include(included)
-        results.should_not include(excluded)
+        expect(results).to include(included)
+        expect(results).not_to include(excluded)
       end
     end
   end
@@ -422,8 +422,8 @@ describe PgSearch do
 
       results = ModelWithAssociation.joins(:associated_models).merge(relation)
 
-      results.should include(*included)
-      results.should_not include(*excluded)
+      expect(results).to include(*included)
+      expect(results).not_to include(*excluded)
     end
   end
 
@@ -463,8 +463,8 @@ describe PgSearch do
 
       results = company.positions.search('teller 1')
 
-      results.should include(*included)
-      results.should_not include(*excluded)
+      expect(results).to include(*included)
+      expect(results).not_to include(*excluded)
     end
   end
 
@@ -505,8 +505,8 @@ describe PgSearch do
 
       results = company.positions.search('teller 1')
 
-      results.should include(*included)
-      results.should_not include(*excluded)
+      expect(results).to include(*included)
+      expect(results).not_to include(*excluded)
     end
   end
 end

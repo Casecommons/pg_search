@@ -18,7 +18,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
         it "should call .rebuild_pg_search_documents" do
           rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
-          Model.should_receive(:rebuild_pg_search_documents)
+          expect(Model).to receive(:rebuild_pg_search_documents)
           rebuilder.rebuild
         end
       end
@@ -42,7 +42,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             it "should call .rebuild_pg_search_documents" do
               rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
-              Model.should_receive(:rebuild_pg_search_documents)
+              expect(Model).to receive(:rebuild_pg_search_documents)
               rebuilder.rebuild
             end
           end
@@ -68,7 +68,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
           # stub respond_to? to return false since should_not_receive defines the method
           original_respond_to = Model.method(:respond_to?)
-          Model.stub(:respond_to?) do |method_name, *args|
+          allow(Model).to receive(:respond_to?) do |method_name, *args|
             if method_name == :rebuild_pg_search_documents
               false
             else
@@ -76,7 +76,7 @@ describe PgSearch::Multisearch::Rebuilder do
             end
           end
 
-          Model.should_not_receive(:rebuild_pg_search_documents)
+          expect(Model).not_to receive(:rebuild_pg_search_documents)
           rebuilder.rebuild
         end
 
@@ -120,8 +120,8 @@ describe PgSearch::Multisearch::Rebuilder do
           rebuilder.rebuild
           ActiveSupport::Notifications.unsubscribe(notifier)
 
-          executed_sql.length.should == 1
-          executed_sql.first.should == expected_sql
+          expect(executed_sql.length).to eq(1)
+          expect(executed_sql.first).to eq(expected_sql)
         end
 
         context "for a model with a non-standard primary key" do
@@ -176,8 +176,8 @@ describe PgSearch::Multisearch::Rebuilder do
             rebuilder.rebuild
             ActiveSupport::Notifications.unsubscribe(notifier)
 
-            executed_sql.length.should == 1
-            executed_sql.first.should == expected_sql
+            expect(executed_sql.length).to eq(1)
+            expect(executed_sql.first).to eq(expected_sql)
           end
         end
       end
@@ -203,19 +203,19 @@ describe PgSearch::Multisearch::Rebuilder do
 
             # stub respond_to? to return false since should_not_receive defines the method
             original_respond_to = Model.method(:respond_to?)
-            Model.stub(:respond_to?) do |method_name, *args|
+            allow(Model).to receive(:respond_to?) do |method_name, *args|
               if method_name == :rebuild_pg_search_documents
                 false
               else
                 original_respond_to.call(method_name, *args)
               end
             end
-            Model.should_not_receive(:rebuild_pg_search_documents)
+            expect(Model).not_to receive(:rebuild_pg_search_documents)
 
             rebuilder.rebuild
 
-            record1.pg_search_document.should be_present
-            record2.pg_search_document.should_not be_present
+            expect(record1.pg_search_document).to be_present
+            expect(record2.pg_search_document).not_to be_present
           end
         end
 
@@ -239,19 +239,19 @@ describe PgSearch::Multisearch::Rebuilder do
 
             # stub respond_to? to return false since should_not_receive defines the method
             original_respond_to = Model.method(:respond_to?)
-            Model.stub(:respond_to?) do |method_name, *args|
+            allow(Model).to receive(:respond_to?) do |method_name, *args|
               if method_name == :rebuild_pg_search_documents
                 false
               else
                 original_respond_to.call(method_name, *args)
               end
             end
-            Model.should_not_receive(:rebuild_pg_search_documents)
+            expect(Model).not_to receive(:rebuild_pg_search_documents)
 
             rebuilder.rebuild
 
-            record1.pg_search_document.should_not be_present
-            record2.pg_search_document.should be_present
+            expect(record1.pg_search_document).not_to be_present
+            expect(record2.pg_search_document).to be_present
           end
         end
       end

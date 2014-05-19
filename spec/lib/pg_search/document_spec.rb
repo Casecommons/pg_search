@@ -32,7 +32,10 @@ describe PgSearch::Document do
           document.valid?
         end
 
-        its(:content) { should == text }
+        describe '#content' do
+          subject { super().content }
+          it { should == text }
+        end
       end
 
       context "when searching against multiple columns" do
@@ -42,7 +45,10 @@ describe PgSearch::Document do
           document.valid?
         end
 
-        its(:content) { should == "1 2" }
+        describe '#content' do
+          subject { super().content }
+          it { should == "1 2" }
+        end
       end
     end
   end

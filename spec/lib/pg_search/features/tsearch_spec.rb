@@ -20,8 +20,9 @@ describe PgSearch::Features::TSearch do
       normalizer = PgSearch::Normalizer.new(config)
 
       feature = described_class.new(query, options, columns, Model, normalizer)
-      feature.rank.to_sql.should ==
+      expect(feature.rank.to_sql).to eq(
         %Q{(ts_rank((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 0))}
+      )
     end
   end
 
@@ -44,8 +45,9 @@ describe PgSearch::Features::TSearch do
       normalizer = PgSearch::Normalizer.new(config)
 
       feature = described_class.new(query, options, columns, Model, normalizer)
-      feature.conditions.to_sql.should ==
+      expect(feature.conditions.to_sql).to eq(
         %Q{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+      )
     end
   end
 end
