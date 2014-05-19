@@ -9,15 +9,15 @@ if ENV["TRAVIS"]
   end
 end
 
-begin
-  if defined? JRUBY_VERSION
-    require 'activerecord-jdbcpostgresql-adapter'
-    error_class = ActiveRecord::JDBCError
-  else
-    require "pg"
-    error_class = PGError
-  end
+if defined? JRUBY_VERSION
+  require 'activerecord-jdbcpostgresql-adapter'
+  error_classes = [ActiveRecord::JDBCError]
+else
+  require "pg"
+  error_classes = [PGError]
 end
+
+error_classes << ActiveRecord::NoDatabaseError if defined? ActiveRecord::NoDatabaseError
 
 begin
   database_user = if ENV["TRAVIS"]
@@ -33,7 +33,7 @@ begin
   connection = ActiveRecord::Base.connection
   postgresql_version = connection.send(:postgresql_version)
   connection.execute("SELECT 1")
-rescue error_class
+rescue *error_classes
   at_exit do
     puts "-" * 80
     puts "Unable to connect to database.  Please run:"
