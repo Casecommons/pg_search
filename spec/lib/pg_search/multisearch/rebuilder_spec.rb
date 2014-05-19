@@ -99,7 +99,6 @@ describe PgSearch::Multisearch::Rebuilder do
               "2001-01-01 00:00:00"
             end
 
-
           expected_sql = <<-SQL.strip_heredoc
             INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
               SELECT 'Model' AS searchable_type,
@@ -115,7 +114,7 @@ describe PgSearch::Multisearch::Rebuilder do
           executed_sql = []
 
           notifier = ActiveSupport::Notifications.subscribe("sql.active_record") do |name, start, finish, id, payload|
-            executed_sql << payload[:sql]
+            executed_sql << payload[:sql] if payload[:sql].include?(%Q{INSERT INTO "pg_search_documents"})
           end
 
           rebuilder.rebuild
@@ -123,6 +122,63 @@ describe PgSearch::Multisearch::Rebuilder do
 
           executed_sql.length.should == 1
           executed_sql.first.should == expected_sql
+        end
+
+        context "for a model with a non-standard primary key" do
+          with_model :ModelWithNonStandardPrimaryKey do
+            table primary_key: :non_standard_primary_key do |t|
+              t.string :name
+            end
+
+            model do
+              include PgSearch
+              multisearchable :against => :name
+            end
+          end
+
+          it "generates SQL with the correct primary key" do
+            time = DateTime.parse("2001-01-01")
+            rebuilder = PgSearch::Multisearch::Rebuilder.new(ModelWithNonStandardPrimaryKey, lambda { time } )
+
+            # Handle change in precision of DateTime objects in SQL in Active Record 4.0.1
+            # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
+            version_4_0_1_or_newer = (
+              (ActiveRecord::VERSION::MAJOR > 4) ||
+              (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR >= 1) ||
+              (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 0 && ActiveRecord::VERSION::TINY >= 1)
+            )
+
+            expected_timestamp =
+              if version_4_0_1_or_newer
+                "2001-01-01 00:00:00.000000"
+              else
+                "2001-01-01 00:00:00"
+              end
+
+            expected_sql = <<-SQL.strip_heredoc
+              INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
+                SELECT 'ModelWithNonStandardPrimaryKey' AS searchable_type,
+                       #{ModelWithNonStandardPrimaryKey.quoted_table_name}.non_standard_primary_key AS searchable_id,
+                       (
+                         coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}.name::text, '')
+                       ) AS content,
+                       '#{expected_timestamp}' AS created_at,
+                       '#{expected_timestamp}' AS updated_at
+                FROM #{ModelWithNonStandardPrimaryKey.quoted_table_name}
+            SQL
+
+            executed_sql = []
+
+            notifier = ActiveSupport::Notifications.subscribe("sql.active_record") do |name, start, finish, id, payload|
+              executed_sql << payload[:sql] if payload[:sql].include?(%Q{INSERT INTO "pg_search_documents"})
+            end
+
+            rebuilder.rebuild
+            ActiveSupport::Notifications.unsubscribe(notifier)
+
+            executed_sql.length.should == 1
+            executed_sql.first.should == expected_sql
+          end
         end
       end
 
