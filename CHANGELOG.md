@@ -1,5 +1,10 @@
 # pg_search changelog
 
+## 0.7.4
+
+*   Fix which STI class name is used for searchable_type for PgSearch::Document. (Ewan McDougall)
+*   Add support for non-standard primary keys. (Matt Beedle)
+
 ## 0.7.3
 
 *   Allow simultaneously searching using `:associated_against` and `:tsvector_column` (Adam Becker)
