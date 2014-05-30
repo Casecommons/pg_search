@@ -76,8 +76,17 @@ module PgSearch
         end
 
         if options[:tsvector_column]
-          column_name = connection.quote_column_name(options[:tsvector_column])
-          tsdocument_terms << "#{quoted_table_name}.#{column_name}"
+          if options[:tsvector_column].is_a?(Array)
+            tsvector_columns = options[:tsvector_column]
+          else
+            tsvector_columns = [options[:tsvector_column]]
+          end
+
+          tsdocument_terms << tsvector_columns.map do |tsvector_column|
+            column_name = connection.quote_column_name(tsvector_column)
+
+            "#{quoted_table_name}.#{column_name}"
+          end
         end
 
         tsdocument_terms.join(' || ')
