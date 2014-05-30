@@ -1,17 +1,10 @@
-# pg_search
+# [pg_search](http://github.com/Casecommons/pg_search/)
 
-http://github.com/Casecommons/pg_search/
-
-[<img src="https://secure.travis-ci.org/Casecommons/pg_search.png?branch=master"
-alt="Build Status" />](http://travis-ci.org/Casecommons/pg_search)
-[<img src="https://gemnasium.com/Casecommons/pg_search.png" alt="Dependency Status"
-/>](https://gemnasium.com/Casecommons/pg_search)
-[<img src="https://codeclimate.com/github/Casecommons/pg_search.png"
-/>](https://codeclimate.com/github/Casecommons/pg_search) 
-[<img src="https://coveralls.io/repos/Casecommons/pg_search/badge.png?branch=master"
-alt="Coverage Status" />](https://coveralls.io/r/Casecommons/pg_search) 
-[<img src="https://badge.fury.io/rb/pg_search.png" alt="Gem Version"
-/>](http://badge.fury.io/rb/pg_search)
+[![Build Status](https://secure.travis-ci.org/Casecommons/pg_search.svg?branch=master)](https://travis-ci.org/Casecommons/pg_search)
+[![Code Climate](https://codeclimate.com/github/Casecommons/pg_search.png)](https://codeclimate.com/github/Casecommons/pg_search)
+[![Coverage Status](https://coveralls.io/repos/Casecommons/pg_search/badge.png?branch=master)](https://coveralls.io/r/Casecommons/pg_search)
+[![Gem Version](https://badge.fury.io/rb/pg_search.svg)](https://rubygems.org/gems/pg_search)
+[![Dependency Status](https://gemnasium.com/Casecommons/pg_search.svg)](https://gemnasium.com/Casecommons/pg_search)
 
 ## DESCRIPTION
 
