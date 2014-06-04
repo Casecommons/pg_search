@@ -110,6 +110,9 @@ describe PgSearch::Multisearch do
       let(:now) { Time.now }
 
       before do
+        # this syntax is deprecated but the updated implementation:
+        # `expect(Time).to receive(:now) { now }`
+        # ...causes a segfault.
         Time.stub(:now => now)
       end
 
