@@ -30,7 +30,7 @@ module PgSearch
 
     def update_content
       methods = Array(searchable.pg_search_multisearchable_options[:against])
-      searchable_text = methods.map { |symbol| searchable.send(symbol) }.join(" ")
+      searchable_text = methods.map { |symbol| searchable.send(symbol) }.join(' ')
       self.content = searchable_text
     end
   end
