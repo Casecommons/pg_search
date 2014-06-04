@@ -1,12 +1,14 @@
-require "logger"
+require 'logger'
 
 module PgSearch
   class Document < ActiveRecord::Base
     include PgSearch
+
     self.table_name = 'pg_search_documents'
     belongs_to :searchable, :polymorphic => true
 
-    before_validation :update_content
+    before_validation :update_content,
+                      :unless => Proc.new { |doc| doc.searchable.nil? }
 
     # The logger might not have loaded yet.
     # https://github.com/Casecommons/pg_search/issues/26
