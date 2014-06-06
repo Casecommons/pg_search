@@ -14,7 +14,6 @@ end
 require 'support/coveralls'
 require 'support/database'
 require 'support/with_model'
-require 'support/matchers'
 
 DOCUMENTS_SCHEMA = lambda do |t|
   t.belongs_to :searchable, :polymorphic => true
