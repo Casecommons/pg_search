@@ -3,7 +3,7 @@ class AddPgSearchAssociatedAgainstSupportFunctions < ActiveRecord::Migration
     say_with_time("Adding support functions for pg_search :associated_against") do
       if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
         execute <<-'SQL'
-          <%= read_sql_file "array_agg" %>
+<%= read_sql_file "array_agg" %>
         SQL
       end
     end
@@ -13,7 +13,7 @@ class AddPgSearchAssociatedAgainstSupportFunctions < ActiveRecord::Migration
     say_with_time("Dropping support functions for pg_search :associated_against") do
       if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
         execute <<-'SQL'
-          <%= read_sql_file "uninstall_array_agg" %>
+<%= read_sql_file "uninstall_array_agg" %>
         SQL
       end
     end
