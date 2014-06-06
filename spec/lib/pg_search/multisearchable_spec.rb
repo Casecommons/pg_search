@@ -21,7 +21,7 @@ describe PgSearch::Multisearchable do
           end
 
           context "with multisearch disabled" do
-            before { PgSearch.stub(:multisearch_enabled? => false) }
+            before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
             it "should not create a PgSearch::Document record" do
               expect { record.save! }.not_to change(PgSearch::Document, :count)
@@ -56,7 +56,7 @@ describe PgSearch::Multisearchable do
             end
 
             context "with multisearch disabled" do
-              before { PgSearch.stub(:multisearch_enabled? => false) }
+              before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
               it "should not create a PgSearch::Document record" do
                 expect(record.pg_search_document).not_to receive(:save)
@@ -75,7 +75,7 @@ describe PgSearch::Multisearchable do
             end
 
             context "with multisearch disabled" do
-              before { PgSearch.stub(:multisearch_enabled? => false) }
+              before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
               it "should not create a PgSearch::Document record" do
                 expect { record.save! }.not_to change(PgSearch::Document, :count)
@@ -120,7 +120,7 @@ describe PgSearch::Multisearchable do
               end
 
               context "with multisearch disabled" do
-                before { PgSearch.stub(:multisearch_enabled? => false) }
+                before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
                 it "should not create a PgSearch::Document record" do
                   expect { record.save! }.not_to change(PgSearch::Document, :count)
@@ -173,7 +173,7 @@ describe PgSearch::Multisearchable do
 
               context "with multisearch disabled" do
                 before do
-                  PgSearch.stub(:multisearch_enabled? => false)
+                  allow(PgSearch).to receive(:multisearch_enabled?).and_return(false)
                   expect(record.pg_search_document).not_to receive(:save)
                 end
 
@@ -194,7 +194,7 @@ describe PgSearch::Multisearchable do
                 end
 
                 context "with multisearch disabled" do
-                  before { PgSearch.stub(:multisearch_enabled? => false) }
+                  before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
                   it "should not create a PgSearch::Document record" do
                     expect { record.save! }.not_to change(PgSearch::Document, :count)
@@ -248,7 +248,7 @@ describe PgSearch::Multisearchable do
               end
 
               context "with multisearch disabled" do
-                before { PgSearch.stub(:multisearch_enabled? => false) }
+                before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
                 it "should not create a PgSearch::Document record" do
                   expect { record.save! }.not_to change(PgSearch::Document, :count)
@@ -285,7 +285,7 @@ describe PgSearch::Multisearchable do
 
                 context "with multisearch disabled" do
                   before do
-                    PgSearch.stub(:multisearch_enabled? => false)
+                    allow(PgSearch).to receive(:multisearch_enabled?).and_return(false)
                     expect(record.pg_search_document).not_to receive(:save)
                   end
 
@@ -332,7 +332,8 @@ describe PgSearch::Multisearchable do
               end
 
               context "with multisearch disabled" do
-                before { PgSearch.stub(:multisearch_enabled? => false) }
+                before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
+
                 it "should not create a PgSearch::Document record" do
                   expect { record.save! }.not_to change(PgSearch::Document, :count)
                 end
@@ -377,7 +378,7 @@ describe PgSearch::Multisearchable do
               end
 
               context "with multisearch disabled" do
-                before { PgSearch.stub(:multisearch_enabled? => false) }
+                before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
                 it "should not create a PgSearch::Document record" do
                   expect { record.save! }.not_to change(PgSearch::Document, :count)
@@ -414,7 +415,7 @@ describe PgSearch::Multisearchable do
 
                 context "with multisearch disabled" do
                   before do
-                    PgSearch.stub(:multisearch_enabled? => false)
+                    allow(PgSearch).to receive(:multisearch_enabled?).and_return(false)
                     expect(record.pg_search_document).not_to receive(:save)
                   end
 
@@ -446,7 +447,7 @@ describe PgSearch::Multisearchable do
 
             describe "saving the record" do
               context "with multisearch enabled" do
-                before { PgSearch.stub(:multisearch_enabled? => true) }
+                before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(true) }
 
                 context "when the condition is true" do
                   it "should create a PgSearch::Document record" do
@@ -464,7 +465,7 @@ describe PgSearch::Multisearchable do
               end
 
               context "with multisearch disabled" do
-                before { PgSearch.stub(:multisearch_enabled? => false) }
+                before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
                 it "should not create a PgSearch::Document record" do
                   expect { record.save! }.not_to change(PgSearch::Document, :count)
@@ -517,7 +518,7 @@ describe PgSearch::Multisearchable do
               end
 
               context "with multisearch disabled" do
-                before { PgSearch.stub(:multisearch_enabled? => false) }
+                before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
                 it "should not create a PgSearch::Document record" do
                   expect { record.save! }.not_to change(PgSearch::Document, :count)
@@ -561,7 +562,7 @@ describe PgSearch::Multisearchable do
 
                 context "with multisearch disabled" do
                   before do
-                    PgSearch.stub(:multisearch_enabled? => false)
+                    allow(PgSearch).to receive(:multisearch_enabled?).and_return(false)
                     expect(record.pg_search_document).not_to receive(:save)
                   end
 
@@ -578,7 +579,7 @@ describe PgSearch::Multisearchable do
 
             describe "saving the record" do
               context "with multisearch enabled" do
-                before { PgSearch.stub(:multisearch_enabled? => true) }
+                before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(true) }
 
                 context "when the condition is true" do
                   before { record.not_multisearchable = true }
@@ -594,7 +595,7 @@ describe PgSearch::Multisearchable do
                   end
 
                   context "with multisearch disabled" do
-                    before { PgSearch.stub(:multisearch_enabled? => false) }
+                    before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
                     it "should not create a PgSearch::Document record" do
                       expect { record.save! }.not_to change(PgSearch::Document, :count)

@@ -108,13 +108,7 @@ describe PgSearch::Multisearch do
 
     describe "the generated SQL" do
       let(:now) { Time.now }
-
-      before do
-        # this syntax is deprecated but the updated implementation:
-        # `expect(Time).to receive(:now) { now }`
-        # ...causes a segfault.
-        Time.stub(:now => now)
-      end
+      before { allow(Time).to receive(:now).and_return(now) }
 
       context "with one attribute" do
         before do
