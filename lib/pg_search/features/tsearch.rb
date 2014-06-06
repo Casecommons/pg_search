@@ -54,25 +54,8 @@ module PgSearch
       end
 
       def tsdocument
-        tsdocument_terms = []
-
-        columns_to_use = options[:tsvector_column] ?
-                           columns.select { |c| c.is_a?(PgSearch::Configuration::ForeignColumn) } :
-                           columns
-
-        if columns_to_use.present?
-          tsdocument_terms << columns_to_use.map do |search_column|
-            tsvector = Arel::Nodes::NamedFunction.new(
-              "to_tsvector",
-              [dictionary, Arel.sql(normalize(search_column.to_sql))]
-            ).to_sql
-
-            if search_column.weight.nil?
-              tsvector
-            else
-              "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
-            end
-          end.join(" || ")
+        tsdocument_terms = (columns_to_use || []).map do |search_column|
+          column_to_tsvector(search_column)
         end
 
         if options[:tsvector_column]
@@ -106,6 +89,27 @@ module PgSearch
 
       def arel_wrap(sql_string)
         Arel::Nodes::Grouping.new(Arel.sql(sql_string))
+      end
+
+      def columns_to_use
+        if options[:tsvector_column]
+          columns.select { |c| c.is_a?(PgSearch::Configuration::ForeignColumn) }
+        else
+          columns
+        end
+      end
+
+      def column_to_tsvector(search_column)
+        tsvector = Arel::Nodes::NamedFunction.new(
+          "to_tsvector",
+          [dictionary, Arel.sql(normalize(search_column.to_sql))]
+        ).to_sql
+
+        if search_column.weight.nil?
+          tsvector
+        else
+          "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
+        end
       end
     end
   end
