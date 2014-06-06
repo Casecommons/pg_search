@@ -21,7 +21,7 @@ module PgSearch
       def read_sql_file(filename)
         sql_directory = File.expand_path('../../../../sql', __FILE__)
         source_path = File.join(sql_directory, "#{filename}.sql")
-        File.read(source_path)
+        File.read(source_path).strip
       end
     end
   end
