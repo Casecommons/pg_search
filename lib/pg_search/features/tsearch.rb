@@ -42,7 +42,7 @@ module PgSearch
           connection.quote("' "),
           term_sql,
           connection.quote(" '"),
-          (connection.quote(':*') if options[:prefix])
+          (connection.quote(':*') if (options[:prefix] == true or (options[:prefix] == :query and !term.index('*').nil?) ))
         ].compact.join(" || ")
 
         "to_tsquery(:dictionary, #{tsquery_sql})"
