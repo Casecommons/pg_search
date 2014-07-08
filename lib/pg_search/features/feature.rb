@@ -8,7 +8,13 @@ module PgSearch
       def initialize(query, options, columns, model, normalizer)
         @query = query
         @options = options || {}
-        @columns = columns
+        if @options[:only]
+          @columns = columns.select do
+            |c| [options[:only]].flatten.map(&:to_s).include? c.name 
+          end
+        else
+          @columns = columns
+        end
         @model = model
         @normalizer = normalizer
       end
