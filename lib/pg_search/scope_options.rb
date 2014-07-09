@@ -34,8 +34,9 @@ module PgSearch
 
     def conditions
       config.features.map do |feature_name, feature_options|
+        next if feature_options.try(:[], :sort_only)
         feature_for(feature_name).conditions
-      end.inject do |accumulator, expression|
+      end.compact.inject do |accumulator, expression|
         Arel::Nodes::Or.new(accumulator, expression)
       end.to_sql
     end

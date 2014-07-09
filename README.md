@@ -663,6 +663,30 @@ Number.search_any_word('one two three') # => [one, two, three]
 Number.search_all_words('one two three') # => []
 ```
 
+##### :sort_only
+
+Setting this attribute to true will make this feature available for sorting,
+but will not include it in the query's WHERE condition.
+
+```ruby
+class Person < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search,
+                  :against => :name,
+                  :using => {
+                    :tsearch => {:any_word => true}
+                    :dmetaphone => {:any_word => true, :sort_only => true}
+                  }
+end
+
+exact = Person.create!(:name => 'ash hines')
+one_exact_one_close = Person.create!(:name => 'ash heinz')
+one_exact = Person.create!(:name => 'ash smith')
+one_close = Person.create!(:name => 'leigh heinz')
+
+Person.search('ash hines') # => [exact, one_exact_one_close, one_exact]
+```
+
 #### :dmetaphone (Double Metaphone soundalike search)
 
 [Double Metaphone](http://en.wikipedia.org/wiki/Double_Metaphone) is an
