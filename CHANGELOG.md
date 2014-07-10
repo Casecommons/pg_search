@@ -1,0 +1,200 @@
+# pg_search changelog
+
+## 0.7.4
+
+*   Fix which STI class name is used for searchable_type for PgSearch::Document. (Ewan McDougall)
+*   Add support for non-standard primary keys. (Matt Beedle)
+
+## 0.7.3
+
+*   Allow simultaneously searching using `:associated_against` and `:tsvector_column` (Adam Becker)
+
+## 0.7.2
+
+*   Add :threshold option for configuring how permissive trigram searches are.
+
+## 0.7.1
+
+*   Fix issue with {:using => :trigram, :ignoring => :accents} that generated
+    bad SQL. (Steven Harman)
+
+## 0.7.0
+
+*   Start requiring Ruby 1.9.2 or later.
+
+## 0.6.4
+
+*   Fix issue with using more than two features in the same scope.
+
+## 0.6.3
+
+*   Fix issues and deprecations for Active Record 4.0.0.rc1.
+
+## 0.6.2
+
+*   Add workaround for issue with how ActiveRecord relations handle Arel OR
+    nodes.
+
+## 0.6.1
+
+*   Fix issue with Arel::InfixOperation that prevented #count from working,
+    breaking pagination.
+
+## 0.6.0
+
+*   Drop support for Active Record 3.0.
+*   Address warnings in Ruby 2.0.
+*   Remove all usages of sanitize_sql_array for future Rails 4 compatibility.
+*   Start using Arel internally to build SQL strings (not yet complete).
+*   Disable eager loading, fixes issue #14.
+*   Support named schemas in pg_search:multisearch:rebuild. (Victor Olteanu)
+
+
+## 0.5.7
+
+*   Fix issue with eager loading now that the Scope class has been removed.
+    (Piotr Murach)
+
+
+## 0.5.6
+
+*   PgSearch#multisearchable accepts :if and :unless for conditional inclusion
+    in search documents table. (Francois Harbec)
+*   Stop using array_to_string() in SQL since it is not indexable.
+
+
+## 0.5.5
+
+*   Fix bug with single table inheritance.
+*   Allow option for specifying an alternate function for unaccent().
+
+
+## 0.5.4
+
+*   Fix bug in associated_against join clause when search scope is chained
+    after other scopes.
+*   Fix autoloading of PgSearch::VERSION constant.
+
+
+## 0.5.3
+
+*   Prevent multiple attempts to create pg_search_document within a single
+    transaction. (JT Archie & Trace Wax)
+
+
+## 0.5.2
+
+*   Don't save twice if pg_search_document is missing on update.
+
+
+## 0.5.1
+
+*   Add ability to override multisearch rebuild SQL.
+
+
+## 0.5
+
+*   Convert migration rake tasks into generators.
+*   Use rake task arguments for multisearch rebuild instead of environment
+    variable.
+*   Always cast columns to text.
+
+
+## 0.4.2
+
+*   Fill in timestamps correctly when rebuilding multisearch documents.
+    (Barton McGuire)
+*   Fix various issues with rebuilding multisearch documents. (Eugen Neagoe)
+*   Fix syntax error in pg_search_dmetaphone() migration. (Casey Foster)
+*   Rename PgSearch#rank to PgSearch#pg_search_rank and always return a Float.
+*   Fix issue with :associated_against and non-text columns.
+
+
+## 0.4.1
+
+*   Fix Active Record 3.2 deprecation warnings. (Steven Harman)
+
+*   Fix issue with undefined logger when PgSearch::Document.search is already
+    defined.
+
+
+## 0.4
+
+*   Add ability to search again tsvector columns. (Kris Hicks)
+
+
+## 0.3.4
+
+*   Fix issue with {:using => {:tsearch => {:prefix => true}}} and hyphens.
+*   Get tests running against PostgreSQL 9.1 by using CREATE EXTENSION
+
+
+## 0.3.3
+
+*   Backport array_agg() aggregate function to PostgreSQL 8.3 and earlier.
+    This fixes :associated_against searches.
+*   Backport unnest() function to PostgreSQL 8.3 and earlier. This fixes
+    {:using => :dmetaphone} searches.
+*   Disable {:using => {:tsearch => {:prefix => true}}} in PostgreSQL 8.3 and
+    earlier.
+
+
+## 0.3.2
+
+*   Fix :prefix search in PostgreSQL 8.x
+*   Disable {:ignoring => :accents} in PostgreSQL 8.x
+
+
+## 0.3.1
+
+*   Fix syntax error in generated dmetaphone migration. (Max De Marzi)
+
+
+## 0.3
+
+*   Drop Active Record 2.0 support.
+*   Add PgSearch.multisearch for cross-model searching.
+*   Fix PostgreSQL warnings about truncated identifiers
+*   Support specifying a method of rank normalisation when using tsearch.
+    (Arthur Gunn)
+*   Add :any_word option to :tsearch which uses OR between query terms instead
+    of AND. (Fernando Espinosa)
+
+## 0.2.2
+
+*   Fix a compatibility issue between Ruby 1.8.7 and 1.9.3 when using Rails 2
+    (James Badger)
+
+## 0.2.1
+
+*   Backport support for searching against tsvector columns (Kris Hicks)
+
+## 0.2
+
+*   Set dictionary to :simple by default for :tsearch. Before it was unset,
+    which would fall back to PostgreSQL's default dictionary, usually
+    "english".
+*   Fix a bug with search strings containing a colon ":"
+*   Improve performance of :associated_against by only doing one INNER JOIN
+    per association
+
+## 0.1.1
+
+*   Fix a bug with dmetaphone searches containing " w " (which dmetaphone maps
+    to an empty string)
+
+## 0.1
+
+*   Change API to {:ignoring => :accents} from {:normalizing => :diacritics}
+*   Improve documentation
+*   Fix bug where :associated_against would not work without an :against
+    present
+
+## 0.0.2
+
+*   Fix gem ownership.
+
+#  
+## 0.0.1
+
+*   Initial release.

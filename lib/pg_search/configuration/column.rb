@@ -23,7 +23,7 @@ module PgSearch
       private
 
       def table_name
-        @connection.quote_table_name(@model.table_name)
+        @model.quoted_table_name
       end
 
       def column_name
@@ -32,10 +32,6 @@ module PgSearch
 
       def expression
         full_name
-      end
-
-      def alias
-        Configuration.alias(association.subselect_alias, @column_name)
       end
     end
   end

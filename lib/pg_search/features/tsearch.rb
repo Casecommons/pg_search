@@ -3,49 +3,47 @@ require "active_support/core_ext/module/delegation"
 module PgSearch
   module Features
     class TSearch < Feature
-      delegate :connection, :quoted_table_name, :to => :'@model'
-
       def initialize(*args)
         super
 
         if options[:prefix] && model.connection.send(:postgresql_version) < 80400
-          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.gsub /^\s*/, '')
+          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
             Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
           MESSAGE
         end
       end
 
       def conditions
-        ["(#{tsdocument}) @@ (#{tsquery})", interpolations]
+        Arel::Nodes::Grouping.new(
+          Arel::Nodes::InfixOperation.new("@@", arel_wrap(tsdocument), arel_wrap(tsquery))
+        )
       end
 
       def rank
-        tsearch_rank
+        arel_wrap(tsearch_rank)
       end
 
       private
-
-      def interpolations
-        {:query => query.to_s, :dictionary => dictionary.to_s}
-      end
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
 
       def tsquery_for_term(term)
         sanitized_term = term.gsub(DISALLOWED_TSQUERY_CHARACTERS, " ")
 
-        term_sql = normalize(connection.quote(sanitized_term))
+        term_sql = Arel.sql(normalize(connection.quote(sanitized_term)))
 
         # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
         # If :prefix is true, then the term will also have :* appended to the end.
-        tsquery_sql = [
-          connection.quote("' "),
-          term_sql,
-          connection.quote(" '"),
-          (connection.quote(':*') if (options[:prefix] == true or (options[:prefix] == :query and !term.index('*').nil?) ))
-        ].compact.join(" || ")
+        terms = ["' ", term_sql, " '", (':*' if (options[:prefix] == true or (options[:prefix] == :query and !term.index('*').nil?) ))].compact
 
-        "to_tsquery(:dictionary, #{tsquery_sql})"
+        tsquery_sql = terms.inject do |memo, term|
+          Arel::Nodes::InfixOperation.new("||", memo, term)
+        end
+
+        Arel::Nodes::NamedFunction.new(
+          "to_tsquery",
+          [dictionary, tsquery_sql]
+        ).to_sql
       end
 
       def tsquery
@@ -56,19 +54,16 @@ module PgSearch
       end
 
       def tsdocument
+        tsdocument_terms = (columns_to_use || []).map do |search_column|
+          column_to_tsvector(search_column)
+        end
+
         if options[:tsvector_column]
           column_name = connection.quote_column_name(options[:tsvector_column])
-          "#{quoted_table_name}.#{column_name}"
-        else
-          columns.map do |search_column|
-            tsvector = "to_tsvector(:dictionary, #{normalize(search_column.to_sql)})"
-            if search_column.weight.nil?
-              tsvector
-            else
-              "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
-            end
-          end.join(" || ")
+          tsdocument_terms << "#{quoted_table_name}.#{column_name}"
         end
+
+        tsdocument_terms.join(' || ')
       end
 
       # From http://www.postgresql.org/docs/8.3/static/textsearch-controls.html
@@ -85,11 +80,36 @@ module PgSearch
       end
 
       def tsearch_rank
-        ["ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})", interpolations]
+        "ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})"
       end
 
       def dictionary
         options[:dictionary] || :simple
+      end
+
+      def arel_wrap(sql_string)
+        Arel::Nodes::Grouping.new(Arel.sql(sql_string))
+      end
+
+      def columns_to_use
+        if options[:tsvector_column]
+          columns.select { |c| c.is_a?(PgSearch::Configuration::ForeignColumn) }
+        else
+          columns
+        end
+      end
+
+      def column_to_tsvector(search_column)
+        tsvector = Arel::Nodes::NamedFunction.new(
+          "to_tsvector",
+          [dictionary, Arel.sql(normalize(search_column.to_sql))]
+        ).to_sql
+
+        if search_column.weight.nil?
+          tsvector
+        else
+          "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
+        end
       end
     end
   end

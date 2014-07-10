@@ -34,8 +34,8 @@ describe PgSearch do
         ]
 
         results = ModelWithoutAgainst.with_another('abcdef')
-        results.map(&:title).should =~ included.map(&:title)
-        results.should_not include(excluded)
+        expect(results.map(&:title)).to match_array(included.map(&:title))
+        expect(results).not_to include(excluded)
       end
     end
 
@@ -70,8 +70,8 @@ describe PgSearch do
                                                  :another_model => AssociatedModel.create!(:title => 'stuvwx'))
 
         results = ModelWithBelongsTo.with_associated('abcdef')
-        results.map(&:title).should =~ included.map(&:title)
-        results.should_not include(excluded)
+        expect(results.map(&:title)).to match_array(included.map(&:title))
+        expect(results).not_to include(excluded)
       end
     end
 
@@ -113,8 +113,8 @@ describe PgSearch do
         ])
 
         results = ModelWithHasMany.with_associated('foo bar')
-        results.map(&:title).should =~ included.map(&:title)
-        results.should_not include(excluded)
+        expect(results.map(&:title)).to match_array(included.map(&:title))
+        expect(results).not_to include(excluded)
       end
 
       it "uses an unscoped relation of the assocated model" do
@@ -129,8 +129,8 @@ describe PgSearch do
         ]
 
         results = ModelWithHasMany.limit(1).order("id ASC").with_associated('foo bar')
-        results.map(&:title).should =~ included.map(&:title)
-        results.should_not include(excluded)
+        expect(results.map(&:title)).to match_array(included.map(&:title))
+        expect(results).not_to include(excluded)
       end
 
     end
@@ -192,8 +192,8 @@ describe PgSearch do
           ]
 
           results = ModelWithManyAssociations.with_associated('foo bar')
-          results.map(&:title).should =~ included.map(&:title)
-          excluded.each { |object| results.should_not include(object) }
+          expect(results.map(&:title)).to match_array(included.map(&:title))
+          excluded.each { |object| expect(results).not_to include(object) }
         end
       end
 
@@ -247,8 +247,8 @@ describe PgSearch do
           ]
 
           results = ModelWithDoubleAssociation.with_associated('foo bar')
-          results.map(&:title).should =~ included.map(&:title)
-          excluded.each { |object| results.should_not include(object) }
+          expect(results.map(&:title)).to match_array(included.map(&:title))
+          excluded.each { |object| expect(results).not_to include(object) }
         end
       end
     end
@@ -300,9 +300,9 @@ describe PgSearch do
 
         results = ModelWithAssociation.with_associated('foo bar')
 
-        results.to_sql.scan("INNER JOIN").length.should == 1
-        included.each { |object| results.should include(object) }
-        excluded.each { |object| results.should_not include(object) }
+        expect(results.to_sql.scan("INNER JOIN").length).to eq(1)
+        included.each { |object| expect(results).to include(object) }
+        excluded.each { |object| expect(results).not_to include(object) }
       end
 
     end
@@ -339,8 +339,44 @@ describe PgSearch do
         ]
 
         results = Model.with_associated('123')
-        results.map(&:number).should =~ included.map(&:number)
-        results.should_not include(excluded)
+        expect(results.map(&:number)).to match_array(included.map(&:number))
+        expect(results).not_to include(excluded)
+      end
+    end
+
+    context "when including the associated model" do
+      with_model :Parent do
+        table do |t|
+          t.text :name
+        end
+
+        model do
+          has_many :children
+          include PgSearch
+          pg_search_scope :search_name, :against => :name
+        end
+      end
+
+      with_model :Child do
+        table do |t|
+          t.belongs_to :parent
+        end
+
+        model do
+          belongs_to :parent
+        end
+      end
+
+      # https://github.com/Casecommons/pg_search/issues/14
+      it "supports queries with periods" do
+        included = Parent.create!(:name => 'bar.foo')
+        excluded = Parent.create!(:name => 'foo.bar')
+
+        results = Parent.search_name('bar.foo').includes(:children)
+        results.to_a
+
+        expect(results).to include(included)
+        expect(results).not_to include(excluded)
       end
     end
   end
@@ -386,8 +422,91 @@ describe PgSearch do
 
       results = ModelWithAssociation.joins(:associated_models).merge(relation)
 
-      results.should include(*included)
-      results.should_not include(*excluded)
+      expect(results).to include(*included)
+      expect(results).not_to include(*excluded)
+    end
+  end
+
+  context "chained onto a has_many association" do
+    with_model :Company do
+      model do
+        has_many :positions
+      end
+    end
+
+    with_model :Position do
+      table do |t|
+        t.string :title
+        t.belongs_to :company
+      end
+
+      model do
+        include PgSearch
+        pg_search_scope :search, :against => :title, :using => [:tsearch, :trigram]
+      end
+    end
+
+    # https://github.com/Casecommons/pg_search/issues/106
+    it "should handle numbers in a trigram query properly" do
+      company = Company.create!
+      another_company = Company.create!
+
+      included = [
+        Position.create!(:company_id => company.id, :title => "teller 1")
+      ]
+
+      excluded = [
+        Position.create!(:company_id => nil, :title => "teller 1"),
+        Position.create!(:company_id => another_company.id, :title => "teller 1"),
+        Position.create!(:company_id => company.id, :title => "penn 1")
+      ]
+
+      results = company.positions.search('teller 1')
+
+      expect(results).to include(*included)
+      expect(results).not_to include(*excluded)
+    end
+  end
+
+  context "chained onto a has_many association" do
+    with_model :Company do
+      model do
+        has_many :positions
+      end
+    end
+
+    with_model :Position do
+      table do |t|
+        t.string :title
+        t.belongs_to :company
+      end
+
+      model do
+        include PgSearch
+        pg_search_scope :search, :against => :title, :using => [:tsearch, :trigram]
+      end
+    end
+
+    # https://github.com/Casecommons/pg_search/issues/106
+    it "should handle numbers in a trigram query properly" do
+      company = Company.create!
+      another_company = Company.create!
+
+      included = [
+        Position.create!(company_id: company.id, title: "teller 1"),
+        Position.create!(company_id: company.id, title: "teller 2") # close enough
+      ]
+
+      excluded = [
+        Position.create!(company_id: nil, title: "teller 1"),
+        Position.create!(company_id: another_company.id, title: "teller 1"),
+        Position.create!(company_id: company.id, title: "penn 1")
+      ]
+
+      results = company.positions.search('teller 1')
+
+      expect(results).to include(*included)
+      expect(results).not_to include(*excluded)
     end
   end
 end

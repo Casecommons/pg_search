@@ -1,19 +1,20 @@
-source "http://rubygems.org"
+source 'https://rubygems.org'
 
 gemspec
 
-gem "rake"
-gem "rdoc"
+gem 'pg', :platform => :ruby
+gem "activerecord-jdbcpostgresql-adapter", ">= 1.3.1", :platform => :jruby
 
-platforms :ruby do
-  gem 'pg'
+gem "activerecord", ENV["ACTIVE_RECORD_VERSION"] if ENV["ACTIVE_RECORD_VERSION"]
+gem "activerecord", :github => "rails", :branch => ENV["ACTIVE_RECORD_BRANCH"] if ENV["ACTIVE_RECORD_BRANCH"]
+
+if ENV["TRAVIS"]
+  gem 'coveralls', :require => false, :platform => :mri_20
 end
 
-platforms :jruby do
-  gem "activerecord-jdbcpostgresql-adapter"
+group :development do
+  gem 'guard-rspec', :require => false
+  gem 'rb-inotify', :require => false
+  gem 'rb-fsevent', :require => false
+  gem 'rb-fchange', :require => false
 end
-
-gem "rspec"
-gem "with_model"
-
-gem "activerecord", "~> #{ENV["ACTIVE_RECORD_VERSION"]}.0" if ENV["ACTIVE_RECORD_VERSION"]

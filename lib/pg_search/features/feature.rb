@@ -1,6 +1,10 @@
+require "active_support/core_ext/module/delegation"
+
 module PgSearch
   module Features
     class Feature
+      delegate :connection, :quoted_table_name, :to => :'@model'
+
       def initialize(query, options, columns, model, normalizer)
         @query = query
         @options = options || {}
@@ -14,12 +18,7 @@ module PgSearch
       attr_reader :query, :options, :columns, :model, :normalizer
 
       def document
-        if columns.length == 1
-          columns.first.to_sql
-        else
-          expressions = columns.map { |column| column.to_sql }.join(", ")
-          "array_to_string(ARRAY[#{expressions}], ' ')"
-        end
+        columns.map { |column| column.to_sql }.join(" || ' ' || ")
       end
 
       def normalize(expression)

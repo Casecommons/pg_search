@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require "active_support/core_ext/module/delegation"
 
 module PgSearch
@@ -7,21 +9,35 @@ module PgSearch
     def initialize(config)
       @config = config
       @model = config.model
-      @feature_options = Hash[config.features]
+      @feature_options = config.feature_options
     end
 
     def apply(scope)
-      scope.select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").where(conditions).order("pg_search_rank DESC, #{order_within_rank}").joins(joins)
+      scope.
+        select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").
+        where(conditions).
+        order("pg_search_rank DESC, #{order_within_rank}").
+        joins(joins).
+        extend(DisableEagerLoading)
+    end
+
+    # workaround for https://github.com/Casecommons/pg_search/issues/14
+    module DisableEagerLoading
+      def eager_loading?
+        return false
+      end
     end
 
     private
 
-    delegate :connection, :quoted_table_name, :sanitize_sql_array, :to => :@model
+    delegate :connection, :quoted_table_name, :to => :@model
 
     def conditions
       config.features.map do |feature_name, feature_options|
-        "(#{sanitize_sql_array(feature_for(feature_name).conditions)})"
-      end.join(" OR ")
+        feature_for(feature_name).conditions
+      end.inject do |accumulator, expression|
+        Arel::Nodes::Or.new(accumulator, expression)
+      end.to_sql
     end
 
     def order_within_rank
@@ -33,9 +49,11 @@ module PgSearch
     end
 
     def joins
-      config.associations.map do |association|
-        association.join(primary_key)
-      end.join(' ')
+      if config.associations.any?
+        config.associations.map do |association|
+          association.join(primary_key)
+        end.join(' ')
+      end
     end
 
     FEATURE_CLASSES = {
@@ -63,7 +81,7 @@ module PgSearch
 
     def rank
       (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
-        sanitize_sql_array(feature_for($1).rank)
+        feature_for($1).rank.to_sql
       end
     end
   end

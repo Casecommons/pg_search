@@ -1,8 +1,9 @@
+require "pg_search/configuration/association"
+require "pg_search/configuration/column"
+require "pg_search/configuration/foreign_column"
+
 module PgSearch
   class Configuration
-    autoload :Association, "pg_search/configuration/association"
-    autoload :Column, "pg_search/configuration/column"
-    autoload :ForeignColumn, "pg_search/configuration/foreign_column"
 
     attr_reader :model
 
@@ -59,6 +60,14 @@ module PgSearch
       Array(options[:using])
     end
 
+    def feature_options
+      @feature_options ||= Hash.new.tap do |hash|
+        features.map do |feature_name, feature_options|
+          hash[feature_name] = feature_options
+        end
+      end
+    end
+
     def order_within_rank
       options[:order_within_rank]
     end
@@ -85,11 +94,7 @@ module PgSearch
 
     def assert_valid_options(options)
       unless options[:against] || options[:associated_against]
-        raise ArgumentError, "the search scope #{@name} must have :against#{" or :associated_against" if defined?(ActiveRecord::Relation)} in its options"
-      end
-
-      if options[:associated_against] && !defined?(ActiveRecord::Relation)
-        raise ArgumentError, ":associated_against requires Active Record 3 or later"
+        raise ArgumentError, "the search scope #{@name} must have :against or :associated_against in its options"
       end
 
       options.assert_valid_keys(VALID_KEYS)

@@ -28,21 +28,28 @@ describe PgSearch::Document do
         let(:multisearchable_options) { {:against => :some_content} }
         let(:text) { "foo bar" }
         before do
-          searchable.stub!(:some_content => text)
+          allow(searchable).to receive(:some_content) { text }
           document.valid?
         end
 
-        its(:content) { should == text }
+        describe '#content' do
+          subject { super().content }
+          it { should == text }
+        end
       end
 
       context "when searching against multiple columns" do
         let(:multisearchable_options) { {:against => [:attr1, :attr2]} }
         before do
-          searchable.stub!(:attr1 => "1", :attr2 => "2")
+          allow(searchable).to receive(:attr1) { '1' }
+          allow(searchable).to receive(:attr2) { '2' }
           document.valid?
         end
 
-        its(:content) { should == "1 2" }
+        describe '#content' do
+          subject { super().content }
+          it { should == "1 2" }
+        end
       end
     end
   end
