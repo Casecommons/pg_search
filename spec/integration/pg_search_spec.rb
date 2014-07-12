@@ -965,6 +965,26 @@ describe "an Active Record model which includes PgSearch" do
         expect(results).not_to include(*excluded)
       end
     end
+
+    context "when there is a sort only feature" do
+      it "excludes that feature from the conditions, but uses it in the sorting" do
+        ModelWithPgSearch.pg_search_scope :search_content_ranked_by_dmetaphone,
+          :against => :content,
+          :using => {
+            :tsearch => { :any_word => true, :prefix => true },
+            :dmetaphone => { :any_word => true, :prefix => true, :sort_only => true }
+          },
+          :ranked_by => ":tsearch + (0.5 * :dmetaphone)"
+
+        exact = ModelWithPgSearch.create!(:content => "ash hines")
+        one_exact_one_close = ModelWithPgSearch.create!(:content => "ash heinz")
+        one_exact = ModelWithPgSearch.create!(:content => "ash smith")
+        one_close = ModelWithPgSearch.create!(:content => "leigh heinz")
+
+        results = ModelWithPgSearch.search_content_ranked_by_dmetaphone("ash hines")
+        expect(results).to eq [exact, one_exact_one_close, one_exact]
+      end
+    end
   end
 
   describe ".multisearchable" do
