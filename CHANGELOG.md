@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## 0.7.5
+
+*   Add option to make feature available only for sorting. (Brent Wheeldon)
+
 ## 0.7.4
 
 *   Fix which STI class name is used for searchable_type for PgSearch::Document. (Ewan McDougall)
