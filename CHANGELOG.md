@@ -1,5 +1,10 @@
 # pg_search changelog
 
+## 0.7.6
+
+*   Fix migration generator in Rails 3. (Andrew Marshall and Nora Lin)
+*   Add :only option for limiting search fields per feature. (Jonathan Greenberg)
+
 ## 0.7.5
 
 *   Add option to make feature available only for sorting. (Brent Wheeldon)
