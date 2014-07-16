@@ -790,6 +790,39 @@ Vegetable.roughly_spelled_like("collyflower") # => [cauliflower]
 Vegetable.strictly_spelled_like("collyflower") # => []
 ```
 
+### Limiting Fields When Combining Features 
+
+Sometimes when doing queries combining different features you 
+might want to searching against only some of the fields with certain features.
+For example perhaps you want to only do a trigram search against the shorter fields
+so that you don't need to reduce the threshold excessively. You can specify 
+which fields using the 'only' option:
+
+```ruby
+class Image < ActiveRecord::Base
+  include PgSearch
+
+  pg_search_scope :combined_search,
+                  :against => [:file_name, :short_description, :long_description]
+                  :using => {
+                    :tsearch => { :dictionary  => 'english' },
+                    :trigram => {
+                      :only => [:file_name, :short_description]
+                    }
+                  }
+
+end
+```
+
+Now you can succesfully retrieve an Image with a file_name: 'image_foo.jpg' 
+and long_description: 'This description is so long that it would make a trigram search
+fail any reasonable threshold limit' with:
+
+```ruby
+Image.combined_search('reasonable') # found with tsearch
+Image.combined_search('foo') # found with trigram
+```
+
 ### Ignoring accent marks (PostgreSQL 9.0 and newer only)
 
 Most of the time you will want to ignore accent marks when searching. This

@@ -50,6 +50,27 @@ describe PgSearch::Features::Trigram do
       end
     end
 
+    context 'only certain columns are selected' do
+      context 'one column' do
+        let(:options) { { only: :name } }
+
+        it 'only searches against the select column' do
+          options = { only: :name }
+          coalesced_column = "coalesce(#{Model.quoted_table_name}.\"name\"::text, '')"
+          expect(feature.conditions.to_sql).to eq("((#{coalesced_column}) % '#{query}')")
+        end
+
+      end
+      context 'multiple columns' do
+        let(:options) { { only: [:name, :content] } }
+
+        it 'concatenates when multiples columns are selected' do
+          options = { only: [:name, :content] }
+          expect(feature.conditions.to_sql).to eq("((#{coalesced_columns}) % '#{query}')")
+        end
+      end
+    end
+
   end
 
   describe '#rank' do
