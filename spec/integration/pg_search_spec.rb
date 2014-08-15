@@ -1115,8 +1115,8 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
-    context "on an STI superclass multiplesearching", focus: true do
-      with_model :SuperclassModel do
+    context "on an STI superclass", focus: true do
+      with_model :SuperclassModel, scope: :all do
         table do |t|
           t.text 'content'
           t.string 'type'
@@ -1127,24 +1127,18 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
-      before do
+      before :all do
         class SubclassModel < SuperclassModel
         end
       end
 
-      before :each do
-        included = [
-          SubclassModel.create!(:content => "foo bar")
-        ]
-        excluded = [
-          SubclassModel.create!(:content => "baz"),
-          SuperclassModel.create!(:content => "foo bar"),
-          SuperclassModel.create!(:content => "baz"),
-          SuperclassModel.create!(:content => "baz2")
-        ]
-      end
-
       it "doesn't index subclass as superclass" do
+        SubclassModel.create!(:content => "foo bar")
+        SubclassModel.create!(:content => "baz")
+        SuperclassModel.create!(:content => "foo bar")
+        SuperclassModel.create!(:content => "baz")
+        SuperclassModel.create!(:content => "baz2")
+
         expect(SuperclassModel.count).to be 5
         expect(SubclassModel.count).to be 2
 
