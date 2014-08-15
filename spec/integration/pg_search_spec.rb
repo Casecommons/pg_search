@@ -1152,7 +1152,7 @@ describe "an Active Record model which includes PgSearch" do
         expect(PgSearch::Document.where(searchable_type: "SubclassModel").count).to be 2
       end
 
-      it "can reindex and style doesn't index subclass as superclass" do
+      it "can reindex and still doesn't index subclass as superclass" do
         expect(SuperclassModel.count).to be 5
         expect(SubclassModel.count).to be 2
 
