@@ -1073,7 +1073,7 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
-    context "on an STI subclass" do
+    context "on an STI subclass multiplesearching" do
       with_model :ASuperclassModel do
         table do |t|
           t.text 'content'
@@ -1082,7 +1082,6 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       before do
-
         class SearchableSubclassModel < ASuperclassModel
           include PgSearch
           multisearchable :against => :content
@@ -1113,6 +1112,54 @@ describe "an Active Record model which includes PgSearch" do
         expect(results.map(&:searchable_id)).not_to include(*excluded.map(&:id))
         expect(results.map(&:searchable_type)).to include(*%w[SearchableSubclassModel])
         expect(results.map(&:searchable_type)).not_to include(*%w[ASuperclassModel NonSearchableSubclassModel])
+      end
+    end
+
+    context "on an STI superclass multiplesearching", focus: true do
+      with_model :SuperclassModel do
+        table do |t|
+          t.text 'content'
+          t.string 'type'
+        end
+        model do |m|
+          include PgSearch
+          multisearchable against: :content
+        end
+      end
+
+      before do
+        class SubclassModel < SuperclassModel
+        end
+      end
+
+      before :each do
+        included = [
+          SubclassModel.create!(:content => "foo bar")
+        ]
+        excluded = [
+          SubclassModel.create!(:content => "baz"),
+          SuperclassModel.create!(:content => "foo bar"),
+          SuperclassModel.create!(:content => "baz"),
+          SuperclassModel.create!(:content => "baz2")
+        ]
+      end
+
+      it "doesn't index subclass as superclass" do
+        expect(SuperclassModel.count).to be 5
+        expect(SubclassModel.count).to be 2
+
+        expect(PgSearch::Document.where(searchable_type: "SuperclassModel").count).to be 3
+        expect(PgSearch::Document.where(searchable_type: "SubclassModel").count).to be 2
+      end
+
+      it "can reindex and style doesn't index subclass as superclass" do
+        expect(SuperclassModel.count).to be 5
+        expect(SubclassModel.count).to be 2
+
+        PgSearch::Multisearch.rebuild(SuperclassModel, SubclassModel)
+
+        expect(PgSearch::Document.where(searchable_type: "SuperclassModel").count).to be 3
+        expect(PgSearch::Document.where(searchable_type: "SubclassModel").count).to be 2
       end
     end
   end
