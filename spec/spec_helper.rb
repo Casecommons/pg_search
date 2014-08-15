@@ -2,6 +2,7 @@ require "bundler/setup"
 require "pg_search"
 
 RSpec.configure do |config|
+  config.filter_run :focus => true
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
