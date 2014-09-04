@@ -1012,7 +1012,7 @@ describe "an Active Record model which includes PgSearch" do
         expect(PgSearch::Document).to receive(:search).with(query).and_return(relation)
       end
 
-      it { should == relation }
+      it { is_expected.to eq(relation) }
     end
 
     context "with PgSearch.multisearch_options set to a Hash" do
@@ -1031,7 +1031,7 @@ describe "an Active Record model which includes PgSearch" do
 
       let!(:soundalike_record) { MultisearchableModel.create!(:title => 'foning') }
       let(:query) { "Phoning" }
-      it { should include(soundalike_record) }
+      it { is_expected.to include(soundalike_record) }
     end
 
     context "with PgSearch.multisearch_options set to a Proc" do
@@ -1064,12 +1064,12 @@ describe "an Active Record model which includes PgSearch" do
 
       context "with soundalike true" do
         let(:soundalike) { true }
-        it { should include(soundalike_record) }
+        it { is_expected.to include(soundalike_record) }
       end
 
       context "with soundalike false" do
         let(:soundalike) { false }
-        it { should_not include(soundalike_record) }
+        it { is_expected.not_to include(soundalike_record) }
       end
     end
 
