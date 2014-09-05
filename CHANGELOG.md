@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## 0.7.7
+
+*   Fix future compatibility with Active Record 4.2.
+
 ## 0.7.6
 
 *   Fix migration generator in Rails 3. (Andrew Marshall and Nora Lin)
