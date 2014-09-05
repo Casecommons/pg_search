@@ -256,7 +256,7 @@ describe "an Active Record model which includes PgSearch" do
       context "when the column is not text" do
         with_model :ModelWithTimestamps do
           table do |t|
-            t.timestamps
+            t.timestamps null: false
           end
 
           model do
