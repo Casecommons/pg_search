@@ -6,8 +6,8 @@ module PgSearch
       attr_reader :weight, :name
 
       def initialize(column_name, weight, model)
-        @name = column_name.to_s
-        @column_name = column_name.to_s
+        @column_name, @hstore_key = column_name.to_s.split(/->/)
+        @name = @column_name
         @weight = weight
         @model = model
         @connection = model.connection
@@ -18,7 +18,7 @@ module PgSearch
       end
 
       def to_sql
-        "coalesce(#{expression}::text, '')"
+        "coalesce(#{expression}#{hstore_key}::text, '')"
       end
 
       private
@@ -33,6 +33,10 @@ module PgSearch
 
       def expression
         full_name
+      end
+      
+      def hstore_key
+        @hstore_key.present? ? "->'#{@hstore_key.delete("'\"")}'" : ""
       end
     end
   end

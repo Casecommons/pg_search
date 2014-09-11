@@ -385,6 +385,26 @@ Person.search_by_full_name("Grant") # => [person_1, person_2]
 Person.search_by_full_name("Grant Hill") # => [person_1]
 ```
 
+#### Searching against hstore columns
+
+PostgreSQL's hstore columns contain key-value pairs. By default, searches are 
+performed against all values in the column. You can query a specific key also:
+
+```ruby
+class Person < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search_phone, :against => :emails
+  pg_search_scope :search_work_phone, :against => 'emails->work'
+end
+
+person_1 = Person.create!(:first_name => "Grant", :phones => {"work" => "blackberry", "home" => "iphone"})
+person_2 = Person.create!(:first_name => "Hugh", :phones => {"work" => "iphone"})
+
+Person.search_phone("iphone") # => [person_1, person_2]
+Person.search_work_phone("iphone") # => [person_2]
+
+```
+
 #### Dynamic search scopes
 
 Just like with Active Record named scopes, you can pass in a Proc object that
