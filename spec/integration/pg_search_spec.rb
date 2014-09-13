@@ -40,6 +40,7 @@ describe "an Active Record model which includes PgSearch" do
 
     context "when an unknown option is passed in" do
       it "raises an exception when invoked" do
+        allow(ModelWithPgSearch).to receive(:_define_tsvector_rebuild_methods)
         ModelWithPgSearch.pg_search_scope :with_unknown_option,
           :against => :content,
           :foo => :bar
@@ -63,6 +64,7 @@ describe "an Active Record model which includes PgSearch" do
 
     context "when an unknown :using is passed" do
       it "raises an exception when invoked" do
+        allow(ModelWithPgSearch).to receive(:_define_tsvector_rebuild_methods)
         ModelWithPgSearch.pg_search_scope :with_unknown_using,
           :against => :content,
           :using => :foo
@@ -86,6 +88,7 @@ describe "an Active Record model which includes PgSearch" do
 
     context "when an unknown :ignoring is passed" do
       it "raises an exception when invoked" do
+        allow(ModelWithPgSearch).to receive(:_define_tsvector_rebuild_methods)
         ModelWithPgSearch.pg_search_scope :with_unknown_ignoring,
           :against => :content,
           :ignoring => :foo
@@ -108,6 +111,7 @@ describe "an Active Record model which includes PgSearch" do
 
       context "when :against is not passed in" do
         it "raises an exception when invoked" do
+          allow(ModelWithPgSearch).to receive(:_define_tsvector_rebuild_methods)
           ModelWithPgSearch.pg_search_scope :with_unknown_ignoring, {}
 
           expect {
