@@ -96,7 +96,7 @@ module PgSearch
               search_columns.any? { |column| object.send "#{column.name}_changed?" }
             end
 
-            if options[:auto]
+            if options[:autorebuild]
               model.class_eval do
                 after_save(rebuild_single_method_name, :if => columns_changed)
               end
