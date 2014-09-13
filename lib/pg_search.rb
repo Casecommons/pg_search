@@ -34,6 +34,8 @@ module PgSearch
                        lambda { |query| {:query => query}.merge(options) }
                      end
 
+      _define_tsvector_rebuild_methods options
+
       method_proc = lambda do |*args|
         config = Configuration.new(options_proc.call(*args), self)
         scope_options = ScopeOptions.new(config)
@@ -51,6 +53,57 @@ module PgSearch
       include PgSearch::Multisearchable
       class_attribute :pg_search_multisearchable_options
       self.pg_search_multisearchable_options = options
+    end
+
+    def _define_tsvector_rebuild_methods(_options)
+      if _options.is_a? Hash
+        model = self
+        config = Configuration.new(_options, model)
+        if config.features.any? { |feature, feature_options| feature == :tsearch }
+          scope_options = ScopeOptions.new(config)
+          tsearch = scope_options.send :feature_for, :tsearch
+
+          tsearch.instance_eval do
+            column_name = options[:tsvector_column]
+            return unless column_name
+
+            search_columns = (columns || []).reject { |c| c.is_a?(PgSearch::Configuration::ForeignColumn) }
+            terms = search_columns.map do |search_column|
+              column_to_tsvector(search_column)
+            end
+            document = terms.join(" || ")
+
+            quoted_column_name = connection.quote_column_name(column_name)
+            rebuild_all_method_name = "rebuild_all_#{column_name.to_s.pluralize}".to_sym
+            rebuild_all_proc = lambda do
+              if search_columns.any?
+                update_all "#{quoted_column_name} = #{document}"
+              end
+            end
+            if model.respond_to?(:define_singleton_method)
+              model.define_singleton_method rebuild_all_method_name, &rebuild_all_proc
+            else
+              (class << model; self; end).send :define_method, rebuild_all_method_name, &rebuild_all_proc
+            end
+
+            rebuild_single_method_name = "rebuild_#{column_name}".to_sym
+            rebuild_single_proc = lambda do
+              model.where(model.arel_table[model.primary_key].eq(id)).send(rebuild_all_method_name)
+            end
+            model.send :define_method, rebuild_single_method_name, &rebuild_single_proc
+
+            columns_changed = lambda do |object|
+              search_columns.any? { |column| object.send "#{column.name}_changed?" }
+            end
+
+            if options[:auto]
+              model.class_eval do
+                after_save(rebuild_single_method_name, :if => columns_changed)
+              end
+            end
+          end
+        end
+      end
     end
   end
 
