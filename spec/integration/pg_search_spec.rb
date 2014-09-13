@@ -708,15 +708,11 @@ describe "an Active Record model which includes PgSearch" do
       let!(:unexpected) { Post.create!(content: 'longcat is looooooooong') }
 
       before do
-        ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
-          UPDATE #{Post.quoted_table_name}
-          SET content_tsvector = to_tsvector('english'::regconfig, #{Post.quoted_table_name}."content")
-        SQL
-
         expected.comments.create(body: 'commentone')
         unexpected.comments.create(body: 'commentwo')
 
         Post.pg_search_scope :search_by_content_with_tsvector,
+          :against => :content,
           :associated_against => { comments: [:body] },
           :using => {
             :tsearch => {
@@ -724,6 +720,7 @@ describe "an Active Record model which includes PgSearch" do
               :dictionary => 'english'
             }
           }
+        Post.rebuild_all_content_tsvectors
       end
 
       it "should find by the tsvector column" do
@@ -753,11 +750,6 @@ describe "an Active Record model which includes PgSearch" do
       let!(:unexpected) { ModelWithTsvector.create!(:content => 'longcat is looooooooong') }
 
       before do
-        ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
-          UPDATE #{ModelWithTsvector.quoted_table_name}
-          SET content_tsvector = to_tsvector('english'::regconfig, #{ModelWithTsvector.quoted_table_name}."content")
-        SQL
-
         ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
           :against => :content,
           :using => {
@@ -766,6 +758,7 @@ describe "an Active Record model which includes PgSearch" do
               :dictionary => 'english'
             }
           }
+        ModelWithTsvector.rebuild_all_content_tsvectors
       end
 
       it "should not use to_tsvector in the query" do
