@@ -746,45 +746,47 @@ describe "an Active Record model which includes PgSearch" do
         model { include PgSearch }
       end
 
-      let!(:expected) { ModelWithTsvector.create!(:content => 'tiling is grouty') }
-      let!(:unexpected) { ModelWithTsvector.create!(:content => 'longcat is looooooooong') }
-
-      before do
-        ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
-          :against => :content,
-          :using => {
-            :tsearch => {
-              :tsvector_column => 'content_tsvector',
-              :dictionary => 'english'
-            }
-          }
-        ModelWithTsvector.rebuild_all_content_tsvectors
-      end
-
-      it "should not use to_tsvector in the query" do
-        expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").to_sql).not_to match(/to_tsvector/)
-      end
-
-      it "should find the expected result" do
-        expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").map(&:id)).to eq([expected.id])
-      end
-
-      context "when joining to a table with a column of the same name" do
-        with_model :AnotherModel do
-          table do |t|
-            t.string :content_tsvector # the type of the column doesn't matter
-            t.belongs_to :model_with_tsvector
-          end
-        end
+      context "no autorebuild" do
+        let!(:expected) { ModelWithTsvector.create!(:content => 'tiling is grouty') }
+        let!(:unexpected) { ModelWithTsvector.create!(:content => 'longcat is looooooooong') }
 
         before do
-          ModelWithTsvector.has_many :another_models
+          ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
+            :against => :content,
+            :using => {
+              :tsearch => {
+                :tsvector_column => 'content_tsvector',
+                :dictionary => 'english'
+              }
+            }
+          ModelWithTsvector.rebuild_all_content_tsvectors
         end
 
-        it "should refer to the tsvector column in the query unambiguously" do
-          expect {
-            ModelWithTsvector.joins(:another_models).search_by_content_with_tsvector("test").to_a
-          }.not_to raise_exception
+        it "should not use to_tsvector in the query" do
+          expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").to_sql).not_to match(/to_tsvector/)
+        end
+
+        it "should find the expected result" do
+          expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").map(&:id)).to eq([expected.id])
+        end
+
+        context "when joining to a table with a column of the same name" do
+          with_model :AnotherModel do
+            table do |t|
+              t.string :content_tsvector # the type of the column doesn't matter
+              t.belongs_to :model_with_tsvector
+            end
+          end
+
+          before do
+            ModelWithTsvector.has_many :another_models
+          end
+
+          it "should refer to the tsvector column in the query unambiguously" do
+            expect {
+              ModelWithTsvector.joins(:another_models).search_by_content_with_tsvector("test").to_a
+            }.not_to raise_exception
+          end
         end
       end
     end
