@@ -739,6 +739,7 @@ describe "an Active Record model which includes PgSearch" do
     context "using a tsvector column with" do
       with_model :ModelWithTsvector do
         table do |t|
+          t.text 'title'
           t.text 'content'
           t.tsvector 'content_tsvector'
         end
@@ -787,6 +788,37 @@ describe "an Active Record model which includes PgSearch" do
               ModelWithTsvector.joins(:another_models).search_by_content_with_tsvector("test").to_a
             }.not_to raise_exception
           end
+        end
+      end
+
+      context "autorebuild" do
+        before do
+          ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
+            :against => :content,
+            :using => {
+              :tsearch => {
+                :tsvector_column => 'content_tsvector',
+                :autorebuild => true,
+                :dictionary => 'english'
+              }
+            }
+        end
+
+        let!(:expected) { ModelWithTsvector.create!(:content => 'tiling is grouty') }
+        let!(:unexpected) { ModelWithTsvector.create!(:content => 'longcat is looooooooong') }
+
+        it "should find the expected result" do
+          expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").map(&:id)).to eq([expected.id])
+        end
+
+        it "calls rebuild on update" do
+          expect(expected).to receive(:rebuild_content_tsvector)
+          expected.update(:content => 'whatever')
+        end
+
+        it "doesn't call rebuild when updating other fields" do
+          expect(expected).not_to receive(:rebuild_content_tsvector)
+          expected.update(:title => 'just title')
         end
       end
     end
