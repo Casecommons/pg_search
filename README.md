@@ -871,6 +871,12 @@ To use this functionality you'll need to do a few things:
 *   Create a column of type tsvector that you'd like to search against. If you
     want to search using multiple search methods, for example tsearch and
     dmetaphone, you'll need a column for each.
+```ruby
+add_column :posts, :tsvector_content_tsearch, :tsvector
+add_column :posts, :tsvector_content_dmetaphone, :tsvector
+add_index :posts, :tsvector_content_tsearch, :using => :gin
+add_index :posts, :tsvector_content_dmetaphone, :using => :gin
+```
 *   Create a trigger function that will update the column(s) using the
     expression appropriate for that type of search. See:
     [the PostgreSQL documentation for text search triggers](http://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS)
