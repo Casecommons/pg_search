@@ -871,35 +871,44 @@ To use this functionality you'll need to do a few things:
 *   Create a column of type tsvector that you'd like to search against. If you
     want to search using multiple search methods, for example tsearch and
     dmetaphone, you'll need a column for each.
-```ruby
-add_column :posts, :tsvector_content_tsearch, :tsvector
-add_column :posts, :tsvector_content_dmetaphone, :tsvector
-add_index :posts, :tsvector_content_tsearch, :using => :gin
-add_index :posts, :tsvector_content_dmetaphone, :using => :gin
-```
-*   Create a trigger function that will update the column(s) using the
-    expression appropriate for that type of search. See:
-    [the PostgreSQL documentation for text search triggers](http://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS)
-*   Should you have any pre-existing data in the table, update the
-    newly-created tsvector columns with the expression that your trigger
-    function uses.
+
+        add_column :posts, :tsearch_content_tsvector, :tsvector
+        add_column :posts, :dmetaphone_content_tsvector, :tsvector
+        add_index :posts, :tsearch_content_tsvector, :using => :gin
+        add_index :posts, :dmetaphone_content_tsvector, :using => :gin
+
 *   Add the option to pg_search_scope, e.g:
 
         pg_search_scope :fast_content_search,
                         :against => :content,
                         :using => {
                           dmetaphone: {
-                            tsvector_column: 'tsvector_content_dmetaphone'
+                            tsvector_column: 'dmetaphone_content_tsvector'
                           },
                           tsearch: {
                             dictionary: 'english',
-                            tsvector_column: 'tsvector_content_tsearch'
+                            tsvector_column: 'tsearch_content_tsvector'
                           }
                           trigram: {} # trigram does not use tsvectors
                         }
 
-Please note that the :against column is only used when the tsvector_column is
-not present for the search type.
+*   PgSearch defines appropriate class and instance methods that update your tsvector column according to your `:against => ...` configuration.
+    So if you have column named `tsearch_content_tsvector` then you will have these methods:
+
+        Post.rebuild_all_tsearch_content_tsvectors
+        post.rebuild_tsearch_content_tsvector
+
+*   Also you can use `tsearch: { ..., autorebuild: true }` and tsvector rebuilding will be made whenever any `:against` field is changed.
+*   Should you have any pre-existing data in the table, update the
+    newly-created tsvector columns in migration:
+
+        add_column :posts, :content_tsvector, :tsvector
+        Post.rebuild_all_content_tsvectors
+
+*   Another approach is to create a trigger function that will update the column(s) using the
+    expression appropriate for that type of search. See:
+    [the PostgreSQL documentation for text search triggers](http://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS).
+    If you have any pre-existing data don't forget to update the newly-created tsvector columns with the expression that your trigger function uses.
 
 ### Configuring ranking and ordering
 
