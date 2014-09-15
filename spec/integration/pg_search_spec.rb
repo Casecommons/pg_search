@@ -813,12 +813,12 @@ describe "an Active Record model which includes PgSearch" do
 
         it "calls rebuild on update" do
           expect(expected).to receive(:rebuild_content_tsvector)
-          expected.update(:content => 'whatever')
+          expected.update_attributes(:content => 'whatever')
         end
 
         it "doesn't call rebuild when updating other fields" do
           expect(expected).not_to receive(:rebuild_content_tsvector)
-          expected.update(:title => 'just title')
+          expected.update_attributes(:title => 'just title')
         end
       end
     end
