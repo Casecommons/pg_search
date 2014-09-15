@@ -910,6 +910,13 @@ To use this functionality you'll need to do a few things:
     [the PostgreSQL documentation for text search triggers](http://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS).
     If you have any pre-existing data don't forget to update the newly-created tsvector columns with the expression that your trigger function uses.
 
+    However you cannot dump a trigger and its function to `schema.rb`. Instead, you need to switch to using the native PostgreSQL SQL format schema dump.
+    In your `config/application.rb` you should set
+
+        config.active_record.schema_format = :sql
+
+    Read more about it here: http://guides.rubyonrails.org/migrations.html#types-of-schema-dumps
+
 ### Configuring ranking and ordering
 
 #### :ranked_by (Choosing a ranking algorithm)
