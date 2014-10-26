@@ -121,7 +121,7 @@ describe PgSearch::Multisearch::Rebuilder do
           ActiveSupport::Notifications.unsubscribe(notifier)
 
           expect(executed_sql.length).to eq(1)
-          expect(executed_sql.first).to eq(expected_sql)
+          expect(executed_sql.first.strip).to eq(expected_sql.strip)
         end
 
         context "for a model with a non-standard primary key" do
@@ -177,7 +177,7 @@ describe PgSearch::Multisearch::Rebuilder do
             ActiveSupport::Notifications.unsubscribe(notifier)
 
             expect(executed_sql.length).to eq(1)
-            expect(executed_sql.first).to eq(expected_sql)
+            expect(executed_sql.first.strip).to eq(expected_sql.strip)
           end
         end
       end

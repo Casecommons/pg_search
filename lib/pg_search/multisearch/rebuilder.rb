@@ -42,7 +42,7 @@ module PgSearch
                    ) AS content,
                    :current_time AS created_at,
                    :current_time AS updated_at
-            FROM :model_table
+            FROM :model_table :sti_clause
         SQL
       end
 
@@ -52,8 +52,20 @@ module PgSearch
         end
       end
 
+      def sti_clause
+        clause = ""
+        if model.column_names().include? 'type'
+          clause = "WHERE "
+          if model.base_class == model
+            clause = clause + "type IS NULL OR "
+          end
+          clause = clause + "type = #{model_name}"
+        end
+        clause
+      end
+
       def replacements
-        %w[content_expressions model_name model_table documents_table current_time]
+        %w[content_expressions model_name model_table documents_table current_time sti_clause]
       end
 
       def content_expressions
