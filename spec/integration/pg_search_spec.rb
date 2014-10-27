@@ -1082,7 +1082,6 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       before do
-
         class SearchableSubclassModel < ASuperclassModel
           include PgSearch
           multisearchable :against => :content
@@ -1090,6 +1089,11 @@ describe "an Active Record model which includes PgSearch" do
 
         class NonSearchableSubclassModel < ASuperclassModel
         end
+      end
+
+      after do
+        Object.send(:remove_const, :SearchableSubclassModel)
+        Object.send(:remove_const, :NonSearchableSubclassModel)
       end
 
       it "returns only results for that subclass" do
@@ -1107,12 +1111,24 @@ describe "an Active Record model which includes PgSearch" do
         expect(ASuperclassModel.count).to be 6
         expect(SearchableSubclassModel.count).to be 2
 
+        expect(PgSearch::Document.count).to be 2
+
         results = PgSearch.multisearch("foo bar")
 
-        expect(results.map(&:searchable_id)).to include(*included.map(&:id))
-        expect(results.map(&:searchable_id)).not_to include(*excluded.map(&:id))
-        expect(results.map(&:searchable_type)).to include(*%w[SearchableSubclassModel])
-        expect(results.map(&:searchable_type)).not_to include(*%w[ASuperclassModel NonSearchableSubclassModel])
+        expect(results.length).to be 1
+        expect(results.first.searchable.class).to be SearchableSubclassModel
+      end
+
+      it "updates an existing STI model does not create a new pg_search document" do
+        model = SearchableSubclassModel.create!(:content => "foo bar")
+        expect(SearchableSubclassModel.count).to eq(1)
+        # We fetch the model from the database again otherwise
+        # the pg_search_document from the cache is used.
+        model = SearchableSubclassModel.find(model.id)
+        model.content = "foo"
+        model.save!
+        results = PgSearch.multisearch("foo")
+        expect(results.size).to eq(SearchableSubclassModel.count)
       end
     end
   end
