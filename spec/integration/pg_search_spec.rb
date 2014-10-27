@@ -1131,6 +1131,53 @@ describe "an Active Record model which includes PgSearch" do
         expect(results.size).to eq(SearchableSubclassModel.count)
       end
     end
+
+    context "on an STI superclass" do
+      with_model :SuperclassModel, scope: :all do
+        table do |t|
+          t.text 'content'
+          t.string 'type'
+        end
+        model do |m|
+          include PgSearch
+          multisearchable against: :content
+        end
+      end
+
+      before :all do
+        class ASubclassModel < SuperclassModel
+        end
+
+        class ASearchableSubclassModel < SuperclassModel
+          include PgSearch
+          multisearchable against: :content
+        end
+      end
+
+      before do
+        ASubclassModel.create!(:content => "foo bar")
+        ASubclassModel.create!(:content => "baz")
+        ASearchableSubclassModel.create!(:content => "baz")
+        SuperclassModel.create!(:content => "foo bar")
+        SuperclassModel.create!(:content => "baz")
+        SuperclassModel.create!(:content => "baz2")
+      end
+
+      it "reindexing works" do
+        expect(SuperclassModel.count).to be 6
+        expect(ASubclassModel.count).to be 2
+
+        expect(PgSearch::Document.where(searchable_type: "SuperclassModel").count).to be 3
+        expect(PgSearch::Document.where(searchable_type: "ASubclassModel").count).to be 2
+
+        PgSearch::Multisearch.rebuild(SuperclassModel)
+        PgSearch::Multisearch.rebuild(ASearchableSubclassModel)
+
+        expect(PgSearch::Document.where(searchable_type: "SuperclassModel").count).to be 3
+        expect(PgSearch::Document.where(searchable_type: "ASubclassModel").count).to be 2
+        expect(PgSearch::Document.where(searchable_type: "ASearchableSubclassModel").count).to be 1
+      end
+    end
   end
 
   describe ".disable_multisearch" do
