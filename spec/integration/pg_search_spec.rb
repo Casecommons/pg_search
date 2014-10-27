@@ -1117,6 +1117,7 @@ describe "an Active Record model which includes PgSearch" do
 
         expect(results.length).to be 1
         expect(results.first.searchable.class).to be SearchableSubclassModel
+        expect(results.first.searchable).to eq included.first
       end
 
       it "updates an existing STI model does not create a new pg_search document" do
@@ -1138,44 +1139,39 @@ describe "an Active Record model which includes PgSearch" do
           t.text 'content'
           t.string 'type'
         end
-        model do |m|
-          include PgSearch
-          multisearchable against: :content
-        end
-      end
-
-      before :all do
-        class ASubclassModel < SuperclassModel
-        end
-
-        class ASearchableSubclassModel < SuperclassModel
-          include PgSearch
-          multisearchable against: :content
-        end
       end
 
       before do
-        ASubclassModel.create!(:content => "foo bar")
-        ASubclassModel.create!(:content => "baz")
-        ASearchableSubclassModel.create!(:content => "baz")
+        class SearchableSubclassModel < SuperclassModel
+          include PgSearch
+          multisearchable :against => :content
+        end
+
+        class NonSearchableSubclassModel < SuperclassModel
+        end
+      end
+
+
+      it "reindexing works" do
+        NonSearchableSubclassModel.create!(:content => "foo bar")
+        NonSearchableSubclassModel.create!(:content => "baz")
+        expected = SearchableSubclassModel.create!(:content => "baz")
         SuperclassModel.create!(:content => "foo bar")
         SuperclassModel.create!(:content => "baz")
         SuperclassModel.create!(:content => "baz2")
-      end
 
-      it "reindexing works" do
         expect(SuperclassModel.count).to be 6
-        expect(ASubclassModel.count).to be 2
+        expect(NonSearchableSubclassModel.count).to be 2
+        expect(SearchableSubclassModel.count).to be 1
 
-        expect(PgSearch::Document.where(searchable_type: "SuperclassModel").count).to be 3
-        expect(PgSearch::Document.where(searchable_type: "ASubclassModel").count).to be 2
+        expect(PgSearch::Document.count).to be 1
 
-        PgSearch::Multisearch.rebuild(SuperclassModel)
-        PgSearch::Multisearch.rebuild(ASearchableSubclassModel)
+        PgSearch::Multisearch.rebuild(SearchableSubclassModel)
 
-        expect(PgSearch::Document.where(searchable_type: "SuperclassModel").count).to be 3
-        expect(PgSearch::Document.where(searchable_type: "ASubclassModel").count).to be 2
-        expect(PgSearch::Document.where(searchable_type: "ASearchableSubclassModel").count).to be 1
+        expect(PgSearch::Document.count).to be 1
+        expect(PgSearch::Document.first.searchable.class).to be SearchableSubclassModel
+        expect(PgSearch::Document.first.searchable).to eq expected
+
       end
     end
   end
