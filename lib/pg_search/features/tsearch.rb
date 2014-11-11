@@ -35,11 +35,12 @@ module PgSearch
 
         # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
         # If :prefix is true, then the term will also have :* appended to the end.
+
         terms = [
           Compatibility.build_quoted("' "),
           term_sql,
           Compatibility.build_quoted(" '"),
-          (Compatibility.build_quoted(":*") if options[:prefix])
+          (Compatibility.build_quoted(":*") if (options[:prefix] == true or (options[:prefix] == :query and !unsanitized_term.index('*').nil?) ))
         ].compact
 
         tsquery_sql = terms.inject do |memo, term|
