@@ -40,7 +40,7 @@ module PgSearch
           Compatibility.build_quoted("' "),
           term_sql,
           Compatibility.build_quoted(" '"),
-          (Compatibility.build_quoted(":*") if (options[:prefix] == true or (options[:prefix] == :query and !term.index('*').nil?) ))
+          (Compatibility.build_quoted(":*") if (options[:prefix] == true or (options[:prefix] == :query and !unsanitized_term.index('*').nil?) ))
         ].compact
 
         tsquery_sql = terms.inject do |memo, term|
