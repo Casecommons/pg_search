@@ -7,7 +7,7 @@ describe PgSearch::Normalizer do
         context "when passed an Arel node" do
           it "wraps the expression in unaccent()" do
             config = double("config", :ignore => [:accents], :postgresql_version => 90000)
-            node = Arel::Nodes::NamedFunction.new("foo", ["bar"])
+            node = Arel::Nodes::NamedFunction.new("foo", [PgSearch::Compatibility.build_quoted("bar")])
 
             normalizer = PgSearch::Normalizer.new(config)
             expect(normalizer.add_normalization(node)).to eq("unaccent(foo('bar'))")
@@ -16,7 +16,7 @@ describe PgSearch::Normalizer do
           context "when a custom unaccent function is specified" do
             it "wraps the expression in that function" do
               allow(PgSearch).to receive(:unaccent_function).and_return("my_unaccent")
-              node = Arel::Nodes::NamedFunction.new("foo", ["bar"])
+              node = Arel::Nodes::NamedFunction.new("foo", [PgSearch::Compatibility.build_quoted("bar")])
 
               config = double("config", :ignore => [:accents], :postgresql_version => 90000)
 

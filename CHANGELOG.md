@@ -1,5 +1,22 @@
 # pg_search changelog
 
+## 0.7.8
+
+*   Stop inadvertently including binstubs for guard and rspec.
+
+## 0.7.7
+
+*   Fix future compatibility with Active Record 4.2.
+
+## 0.7.6
+
+*   Fix migration generator in Rails 3. (Andrew Marshall and Nora Lin)
+*   Add `:only` option for limiting search fields per feature. (Jonathan Greenberg)
+
+## 0.7.5
+
+*   Add option to make feature available only for sorting. (Brent Wheeldon)
+
 ## 0.7.4
 
 *   Fix which STI class name is used for searchable_type for PgSearch::Document. (Ewan McDougall)

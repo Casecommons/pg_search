@@ -11,7 +11,7 @@ describe PgSearch::Document do
     end
   end
 
-  it { should be_an(ActiveRecord::Base) }
+  it { is_expected.to be_an(ActiveRecord::Base) }
 
   describe "callbacks" do
     describe "before_validation" do
@@ -34,7 +34,7 @@ describe PgSearch::Document do
 
         describe '#content' do
           subject { super().content }
-          it { should == text }
+          it { is_expected.to eq(text) }
         end
       end
 
@@ -48,7 +48,7 @@ describe PgSearch::Document do
 
         describe '#content' do
           subject { super().content }
-          it { should == "1 2" }
+          it { is_expected.to eq("1 2") }
         end
       end
     end

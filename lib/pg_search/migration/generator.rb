@@ -3,7 +3,7 @@ require 'rails/generators/base'
 module PgSearch
   module Migration
     class Generator < Rails::Generators::Base
-      hide!
+      Rails::Generators.hide_namespace namespace
 
       def self.inherited(subclass)
         super

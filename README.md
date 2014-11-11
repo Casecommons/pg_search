@@ -2,7 +2,6 @@
 
 [![Build Status](https://secure.travis-ci.org/Casecommons/pg_search.svg?branch=master)](https://travis-ci.org/Casecommons/pg_search)
 [![Code Climate](https://img.shields.io/codeclimate/github/Casecommons/pg_search.svg)](https://codeclimate.com/github/Casecommons/pg_search)
-[![Coverage Status](https://img.shields.io/coveralls/Casecommons/pg_search/master.svg)](https://coveralls.io/r/Casecommons/pg_search)
 [![Gem Version](https://badge.fury.io/rb/pg_search.svg)](https://rubygems.org/gems/pg_search)
 [![Dependency Status](https://gemnasium.com/Casecommons/pg_search.svg)](https://gemnasium.com/Casecommons/pg_search)
 
@@ -663,6 +662,30 @@ Number.search_any_word('one two three') # => [one, two, three]
 Number.search_all_words('one two three') # => []
 ```
 
+##### :sort_only
+
+Setting this attribute to true will make this feature available for sorting,
+but will not include it in the query's WHERE condition.
+
+```ruby
+class Person < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search,
+                  :against => :name,
+                  :using => {
+                    :tsearch => {:any_word => true}
+                    :dmetaphone => {:any_word => true, :sort_only => true}
+                  }
+end
+
+exact = Person.create!(:name => 'ash hines')
+one_exact_one_close = Person.create!(:name => 'ash heinz')
+one_exact = Person.create!(:name => 'ash smith')
+one_close = Person.create!(:name => 'leigh heinz')
+
+Person.search('ash hines') # => [exact, one_exact_one_close, one_exact]
+```
+
 #### :dmetaphone (Double Metaphone soundalike search)
 
 [Double Metaphone](http://en.wikipedia.org/wiki/Double_Metaphone) is an
@@ -764,6 +787,39 @@ Vegetable.strictly_spelled_like("couliflower") # => [cauliflower]
 
 Vegetable.roughly_spelled_like("collyflower") # => [cauliflower]
 Vegetable.strictly_spelled_like("collyflower") # => []
+```
+
+### Limiting Fields When Combining Features 
+
+Sometimes when doing queries combining different features you 
+might want to searching against only some of the fields with certain features.
+For example perhaps you want to only do a trigram search against the shorter fields
+so that you don't need to reduce the threshold excessively. You can specify 
+which fields using the 'only' option:
+
+```ruby
+class Image < ActiveRecord::Base
+  include PgSearch
+
+  pg_search_scope :combined_search,
+                  :against => [:file_name, :short_description, :long_description]
+                  :using => {
+                    :tsearch => { :dictionary  => 'english' },
+                    :trigram => {
+                      :only => [:file_name, :short_description]
+                    }
+                  }
+
+end
+```
+
+Now you can succesfully retrieve an Image with a file_name: 'image_foo.jpg' 
+and long_description: 'This description is so long that it would make a trigram search
+fail any reasonable threshold limit' with:
+
+```ruby
+Image.combined_search('reasonable') # found with tsearch
+Image.combined_search('foo') # found with trigram
 ```
 
 ### Ignoring accent marks (PostgreSQL 9.0 and newer only)

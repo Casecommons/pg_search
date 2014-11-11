@@ -3,9 +3,10 @@ require 'digest'
 module PgSearch
   class Configuration
     class Column
-      attr_reader :weight
+      attr_reader :weight, :name
 
       def initialize(column_name, weight, model)
+        @name = column_name.to_s
         @column_name = column_name.to_s
         @weight = weight
         @model = model
