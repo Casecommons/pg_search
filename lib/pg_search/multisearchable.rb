@@ -26,7 +26,7 @@ module PgSearch
         unless pg_search_document.present?
           build_pg_search_document.searchable_type = self.class.name
         end
-        pg_search_document.save
+        pg_search_document.save unless pg_search_document.destroyed?
       else
         pg_search_document.destroy if pg_search_document
       end
