@@ -536,6 +536,58 @@ describe "an Active Record model which includes PgSearch" do
           expect(results.map(&:title)).to eq([])
         end
       end
+
+      context "with :negation" do
+        before do
+          ModelWithPgSearch.pg_search_scope :search_with_negation,
+            :against => :title,
+            :using => {
+              :tsearch => {:negation => true}
+            }
+        end
+
+        it "doesn't return results that contain terms prepended with '!'" do
+          included = [
+            ModelWithPgSearch.create!(:title => "one fish"),
+            ModelWithPgSearch.create!(:title => "two fish")
+          ]
+
+          excluded = [
+            ModelWithPgSearch.create!(:title => "red fish"),
+            ModelWithPgSearch.create!(:title => "blue fish")
+          ]
+
+          results = ModelWithPgSearch.search_with_negation("fish !red !blue")
+
+          expect(results).to include(*included)
+          expect(results).not_to include(*excluded)
+        end
+      end
+
+      context "without :negation" do
+        before do
+          ModelWithPgSearch.pg_search_scope :search_without_negation,
+            :against => :title,
+            :using => {
+              :tsearch => {}
+            }
+        end
+
+        it "return results that contain terms prepended with '!'" do
+          included = [
+            ModelWithPgSearch.create!(:title => "!bang")
+          ]
+
+          excluded = [
+            ModelWithPgSearch.create!(:title => "?question")
+          ]
+
+          results = ModelWithPgSearch.search_without_negation("!bang")
+
+          expect(results).to include(*included)
+          expect(results).not_to include(*excluded)
+        end
+      end
     end
 
     context "using dmetaphone" do
