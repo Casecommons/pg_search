@@ -49,5 +49,21 @@ describe PgSearch::Features::TSearch do
         %Q{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
       )
     end
+
+    it "returns a negated expression when a query is prepended with !" do
+      query = "!query"
+      columns = [
+        PgSearch::Configuration::Column.new(:name, nil, Model),
+        PgSearch::Configuration::Column.new(:content, nil, Model),
+      ]
+      options = {:negation => true}
+      config = double(:config, :ignore => [])
+      normalizer = PgSearch::Normalizer.new(config)
+
+      feature = described_class.new(query, options, columns, Model, normalizer)
+      expect(feature.conditions.to_sql).to eq(
+        %Q{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', '!' || ''' ' || 'query' || ' ''')))}
+      )
+    end
   end
 end

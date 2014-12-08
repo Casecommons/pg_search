@@ -29,13 +29,20 @@ module PgSearch
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
 
       def tsquery_for_term(unsanitized_term)
+        negated = options[:negation] && if unsanitized_term.start_with?('!')
+          unsanitized_term[0] = ''
+          true
+        end
+
         sanitized_term = unsanitized_term.gsub(DISALLOWED_TSQUERY_CHARACTERS, " ")
 
         term_sql = Arel.sql(normalize(connection.quote(sanitized_term)))
 
         # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
-        # If :prefix is true, then the term will also have :* appended to the end.
+        # If :prefix is true, then the term will have :* appended to the end.
+        # If :negated is true, then the term will have ! prepended to the front.
         terms = [
+          ('!' if negated),
           Compatibility.build_quoted("' "),
           term_sql,
           Compatibility.build_quoted(" '"),
