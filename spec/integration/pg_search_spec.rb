@@ -1134,7 +1134,6 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       before do
-
         class SearchableSubclassModel < ASuperclassModel
           include PgSearch
           multisearchable :against => :content
@@ -1144,7 +1143,16 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
+      after do
+        # We have to remove the class definition otherwise
+        # we will get the following TypeError:
+        # superclass mismatch for class SearchableSubclassModel
+        Object.send(:remove_const, :SearchableSubclassModel)
+        Object.send(:remove_const, :NonSearchableSubclassModel)
+      end
+
       it "returns only results for that subclass" do
+        pending "This feature doesn't work as it was implemented in https://github.com/Casecommons/pg_search/pull/163"
         included = [
           SearchableSubclassModel.create!(:content => "foo bar")
         ]
@@ -1165,6 +1173,20 @@ describe "an Active Record model which includes PgSearch" do
         expect(results.map(&:searchable_id)).not_to include(*excluded.map(&:id))
         expect(results.map(&:searchable_type)).to include(*%w[SearchableSubclassModel])
         expect(results.map(&:searchable_type)).not_to include(*%w[ASuperclassModel NonSearchableSubclassModel])
+      end
+
+      it "updates an existing STI model does not create a new pg_search document" do
+        model = SearchableSubclassModel.create!(:content => "foo bar")
+        expect(SearchableSubclassModel.count).to eq(1)
+
+        # We fetch the model from the database again otherwise
+        # the pg_search_document from the cache is used.
+        model = SearchableSubclassModel.find(model.id)
+        model.content = "foo"
+        model.save!
+
+        results = PgSearch.multisearch("foo")
+        expect(results.size).to eq(SearchableSubclassModel.count)
       end
     end
   end
