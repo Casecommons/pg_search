@@ -561,6 +561,36 @@ robin = Superhero.create :name => 'Robin'
 
 Superhero.whose_name_starts_with("Bat") # => [batman, batgirl]
 ```
+##### :negation
+
+PostgreSQL's full text search matches all search terms by default. If you want
+to exclude certain words, you can set :negation to true. Then any term that begins with
+an exclamation point `!` will be excluded from the results. Since this
+is a :tsearch-specific option, you should pass it to :tsearch directly, as
+shown in the following example.
+
+Note that combining this with other search features can have unexpected results. For
+example, :trigram searches don't have a concept of excluded terms, and thus if you
+use both :tsearch and :trigram in tandem, you may still find results that contain the
+term that you were trying to exclude.
+
+```ruby
+class Animal < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :with_name_matching,
+                  :against => :name,
+                  :using => {
+                    :tsearch => {:negation => true}
+                  }
+end
+
+one_fish = Animal.create(:name => "one fish")
+two_fish = Animal.create(:name => "two fish")
+red_fish = Animal.create(:name => "red fish")
+blue_fish = Animal.create(:name => "blue fish")
+
+Animal.with_name_matching("fish !red !blue") # => [one_fish, two_fish]
+```
 
 ##### :dictionary
 
