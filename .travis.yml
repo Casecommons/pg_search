@@ -8,6 +8,7 @@ rvm:
 
 env:
   - ACTIVE_RECORD_BRANCH="master"
+  - ACTIVE_RECORD_BRANCH="4-2-stable"
   - ACTIVE_RECORD_BRANCH="4-1-stable"
   - ACTIVE_RECORD_BRANCH="4-0-stable"
   - ACTIVE_RECORD_VERSION="~> 4.2.0.rc2"
@@ -20,6 +21,7 @@ matrix:
   allow_failures:
     - rvm: jruby-19mode
     - env: ACTIVE_RECORD_BRANCH="master"
+    - env: ACTIVE_RECORD_BRANCH="4-2-stable"
     - env: ACTIVE_RECORD_BRANCH="4-1-stable"
     - env: ACTIVE_RECORD_BRANCH="4-0-stable"
     - env: ACTIVE_RECORD_VERSION="~> 4.2.0.rc2"
