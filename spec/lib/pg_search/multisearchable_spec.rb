@@ -11,33 +11,6 @@ describe PgSearch::Multisearchable do
       end
     end
 
-    with_model :MultisearchableParent do
-      table do |t|
-        t.string :secret
-      end
-
-      model do
-        include PgSearch
-        multisearchable
-
-        has_many :multisearchable_children, :dependent => :destroy
-      end
-    end
-
-    with_model :MultisearchableChild do
-      table do |t|
-        t.belongs_to :multisearchable_parent
-      end
-
-      model do
-        belongs_to :multisearchable_parent
-
-        after_destroy do
-          multisearchable_parent.update_attribute(:secret, rand(1000).to_s)
-        end
-      end
-    end
-
     describe "callbacks" do
       describe "after_create" do
         let(:record) { ModelThatIsMultisearchable.new }
@@ -117,18 +90,6 @@ describe PgSearch::Multisearchable do
           record = ModelThatIsMultisearchable.create!
           document = record.pg_search_document
           expect { record.destroy }.to change(PgSearch::Document, :count).by(-1)
-          expect { PgSearch::Document.find(document.id) }.to raise_error(ActiveRecord::RecordNotFound)
-        end
-
-        it "should remove its document in case of complex associations" do
-          parent = MultisearchableParent.create!
-
-          MultisearchableChild.create!(multisearchable_parent: parent)
-          MultisearchableChild.create!(multisearchable_parent: parent)
-
-          document = parent.pg_search_document
-
-          expect { parent.destroy }.to change(PgSearch::Document, :count).by(-1)
           expect { PgSearch::Document.find(document.id) }.to raise_error(ActiveRecord::RecordNotFound)
         end
       end
