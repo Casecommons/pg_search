@@ -9,3 +9,6 @@ Lint/HandleExceptions:
 
 Lint/UselessAssignment:
   Enabled: false
+
+Style/BlockDelimiters:
+  Enabled: false
