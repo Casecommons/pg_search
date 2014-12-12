@@ -314,7 +314,7 @@ describe "an Active Record model which includes PgSearch" do
 
         returned_record = records_with_only_id.first
 
-        expect(returned_record.attributes).to eq({"id" => record.id})
+        expect(returned_record.attributes).to eq("id" => record.id)
       end
 
       unless ActiveRecord::VERSION::MAJOR == 3 && ActiveRecord::VERSION::MINOR < 2
