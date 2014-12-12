@@ -223,7 +223,7 @@ describe PgSearch do
           @multisearch_enabled_inside = PgSearch.multisearch_enabled?
           raise
         end
-      rescue # rubocop:disable Lint/HandleExceptions
+      rescue
       end
 
       @multisearch_enabled_after = PgSearch.multisearch_enabled?
