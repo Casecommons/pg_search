@@ -1,5 +1,9 @@
 inherit_from: .rubocop_todo.yml
 
+AllCops:
+  Exclude:
+    - bin/**/*
+
 Style/StringLiterals:
   Enabled: false
 
@@ -12,3 +16,6 @@ Metrics/LineLength:
 
 Metrics/MethodLength:
   Max: 21
+
+Style/AlignParameters:
+  EnforcedStyle: with_fixed_indentation

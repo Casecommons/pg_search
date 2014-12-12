@@ -24,8 +24,8 @@ describe PgSearch::Configuration::ForeignColumn do
 
     it "returns a consistent string" do
       association = PgSearch::Configuration::Association.new(Model,
-                                                             :another_model,
-                                                             :title)
+        :another_model,
+        :title)
       foreign_column = described_class.new("title", nil, Model, association)
 
       column_alias = foreign_column.alias

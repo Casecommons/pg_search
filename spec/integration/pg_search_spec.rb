@@ -541,10 +541,10 @@ describe "an Active Record model which includes PgSearch" do
     context "using tsearch" do
       before do
         ModelWithPgSearch.pg_search_scope :search_title_with_prefixes,
-                                          :against => :title,
-                                          :using => {
-                                            :tsearch => {:prefix => true}
-                                          }
+          :against => :title,
+          :using => {
+            :tsearch => {:prefix => true}
+          }
       end
 
       if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
