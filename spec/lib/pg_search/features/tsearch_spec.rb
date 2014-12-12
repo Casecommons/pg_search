@@ -85,5 +85,41 @@ describe PgSearch::Features::TSearch do
         )
       end
     end
+
+    context "when options[:tsvector_column] is a string" do
+      it 'uses the tsvector column' do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model),
+        ]
+        options = { tsvector_column: "my_tsvector" }
+        config = double(:config, :ignore => [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = described_class.new(query, options, columns, Model, normalizer)
+        expect(feature.conditions.to_sql).to eq(
+          %Q{((#{Model.quoted_table_name}.\"my_tsvector\") @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+        )
+      end
+    end
+
+    context "when options[:tsvector_column] is an array of strings" do
+      it 'uses the tsvector column' do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model),
+        ]
+        options = { tsvector_column: ["tsvector1", "tsvector2"] }
+        config = double(:config, :ignore => [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = described_class.new(query, options, columns, Model, normalizer)
+        expect(feature.conditions.to_sql).to eq(
+          %Q{((#{Model.quoted_table_name}.\"tsvector1\" || #{Model.quoted_table_name}.\"tsvector2\") @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+        )
+      end
+    end
   end
 end
