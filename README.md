@@ -908,19 +908,20 @@ To use this functionality you'll need to do a few things:
     function uses.
 *   Add the option to pg_search_scope, e.g:
 
-        pg_search_scope :fast_content_search,
-                        :against => :content,
-                        :using => {
-                          dmetaphone: {
-                            tsvector_column: 'tsvector_content_dmetaphone'
-                          },
-                          tsearch: {
-                            dictionary: 'english',
-                            tsvector_column: 'tsvector_content_tsearch'
-                          }
-                          trigram: {} # trigram does not use tsvectors
-                        }
-
+    ```ruby
+    pg_search_scope :fast_content_search,
+                    :against => :content,
+                    :using => {
+                      dmetaphone: {
+                        tsvector_column: 'tsvector_content_dmetaphone'
+                      },
+                      tsearch: {
+                        dictionary: 'english',
+                        tsvector_column: 'tsvector_content_tsearch'
+                      }
+                      trigram: {} # trigram does not use tsvectors
+                    }
+    ```
 *   You cannot dump a `tsvector` column to `schema.rb`. Instead, you need to switch to using the native PostgreSQL SQL format schema dump.
     In your `config/application.rb` you should set
 
@@ -931,6 +932,36 @@ To use this functionality you'll need to do a few things:
 
 Please note that the :against column is only used when the tsvector_column is
 not present for the search type.
+
+#### Combining multiple tsvectors
+
+It's possible to search against more than one tsvector at a time. This could be useful if you want to maintain multiple search scopes but do not want to maintain separate tsvectors for each scope. For example:
+
+```ruby
+pg_search_scope :search_title,
+                :against => :title,
+                :using => {
+                  :tsearch => {
+                    :tsvector_column => "title_tsvector"
+                  }
+                }
+
+pg_search_scope :search_body,
+                :against => :body,
+                :using => {
+                  :tsearch => {
+                    :tsvector_column => "body_tsvector"
+                  }
+                }
+
+pg_search_scope :search_title_and_body,
+                :against => [:title, :body],
+                :using => {
+                  :tsearch => {
+                    :tsvector_column => ["title_tsvector", "body_tsvector"]
+                  }
+                }
+```
 
 ### Configuring ranking and ordering
 
