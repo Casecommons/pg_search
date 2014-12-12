@@ -2,7 +2,7 @@ require "active_support/core_ext/class/attribute"
 
 module PgSearch
   module Multisearchable
-    def self.included mod
+    def self.included(mod)
       mod.class_eval do
         has_one :pg_search_document,
           :as => :searchable,
