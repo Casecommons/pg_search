@@ -9,11 +9,6 @@
 Style/Documentation:
   Enabled: false
 
-# Offense count: 23
-# Cop supports --auto-correct.
-Style/IndentArray:
-  Enabled: false
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/IndentationConsistency:
