@@ -83,7 +83,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
           it "should execute the default SQL" do
             time = DateTime.parse("2001-01-01")
-            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, lambda { time } )
+            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, ->{ time } )
 
             # Handle change in precision of DateTime objects in SQL in Active Record 4.0.1
             # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
@@ -139,7 +139,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             it "generates SQL with the correct primary key" do
               time = DateTime.parse("2001-01-01")
-              rebuilder = PgSearch::Multisearch::Rebuilder.new(ModelWithNonStandardPrimaryKey, lambda { time } )
+              rebuilder = PgSearch::Multisearch::Rebuilder.new(ModelWithNonStandardPrimaryKey, ->{ time } )
 
               # Handle change in precision of DateTime objects in SQL in Active Record 4.0.1
               # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e

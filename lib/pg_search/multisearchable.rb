@@ -10,7 +10,7 @@ module PgSearch
           :dependent => :delete
 
         after_save :update_pg_search_document,
-          :if => lambda { PgSearch.multisearch_enabled? }
+          :if => -> { PgSearch.multisearch_enabled? }
       end
     end
 

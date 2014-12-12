@@ -9,10 +9,6 @@
 Style/Documentation:
   Enabled: false
 
-# Offense count: 10
-Style/Lambda:
-  Enabled: false
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
