@@ -114,7 +114,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             executed_sql = []
 
-            notifier = ActiveSupport::Notifications.subscribe("sql.active_record") do |name, start, finish, id, payload|
+            notifier = ActiveSupport::Notifications.subscribe("sql.active_record") do |_name, _start, _finish, _id, payload|
               executed_sql << payload[:sql] if payload[:sql].include?(%Q{INSERT INTO "pg_search_documents"})
             end
 
@@ -170,7 +170,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
               executed_sql = []
 
-              notifier = ActiveSupport::Notifications.subscribe("sql.active_record") do |name, start, finish, id, payload|
+              notifier = ActiveSupport::Notifications.subscribe("sql.active_record") do |_name, _start, _finish, _id, payload|
                 executed_sql << payload[:sql] if payload[:sql].include?(%Q{INSERT INTO "pg_search_documents"})
               end
 
