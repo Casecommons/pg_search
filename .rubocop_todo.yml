@@ -9,11 +9,6 @@
 Style/Documentation:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/MultilineBlockLayout:
-  Enabled: false
-
 # Offense count: 16
 # Cop supports --auto-correct.
 Style/NumericLiterals:
