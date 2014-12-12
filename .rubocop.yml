@@ -19,3 +19,6 @@ Metrics/MethodLength:
 
 Style/AlignParameters:
   EnforcedStyle: with_fixed_indentation
+
+Style/HashSyntax:
+  Enabled: false
