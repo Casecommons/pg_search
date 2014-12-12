@@ -18,10 +18,10 @@ module PgSearch
 
     pg_search_scope :search, lambda { |*args|
       options = if PgSearch.multisearch_options.respond_to?(:call)
-        PgSearch.multisearch_options.call(*args)
-      else
-        {:query => args.first}.merge(PgSearch.multisearch_options)
-      end
+                  PgSearch.multisearch_options.call(*args)
+                else
+                  {:query => args.first}.merge(PgSearch.multisearch_options)
+                end
 
       {:against => :content}.merge(options)
     }
