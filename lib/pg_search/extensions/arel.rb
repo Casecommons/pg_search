@@ -4,7 +4,7 @@ require "arel/visitors/depth_first"
 # Based on the solution from https://github.com/ernie/squeel/issues/122
 Arel::Visitors::DepthFirst.class_eval do
   unless method_defined?(:visit_Arel_Nodes_InfixOperation)
-    alias :visit_Arel_Nodes_InfixOperation :binary
+    alias_method :visit_Arel_Nodes_InfixOperation, :binary
   end
 end
 
