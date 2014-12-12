@@ -1213,7 +1213,7 @@ describe "an Active Record model which includes PgSearch" do
           @multisearch_enabled_inside = PgSearch.multisearch_enabled?
           raise
         end
-      rescue
+      rescue # rubocop:disable Lint/HandleExceptions
       end
 
       @multisearch_enabled_after = PgSearch.multisearch_enabled?
