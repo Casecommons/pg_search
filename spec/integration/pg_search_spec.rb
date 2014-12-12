@@ -1,4 +1,4 @@
-# rubocop:disable Lint/UselessAssignment
+# rubocop:disable Lint/UselessAssignment, Metrics/LineLength
 require "spec_helper"
 
 describe "an Active Record model which includes PgSearch" do

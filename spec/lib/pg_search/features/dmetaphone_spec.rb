@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/LineLength
 require "spec_helper"
 
 describe PgSearch::Features::DMetaphone do
