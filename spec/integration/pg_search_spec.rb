@@ -723,8 +723,8 @@ describe "an Active Record model which includes PgSearch" do
               :tsearch => {:any_word => true}
             }
 
-            ModelWithPgSearch.pg_search_scope :search_title_with_all_words,
-              :against => :title
+          ModelWithPgSearch.pg_search_scope :search_title_with_all_words,
+            :against => :title
         end
 
         it "returns all results containing any word in their title" do
