@@ -21,7 +21,7 @@ describe PgSearch::Features::DMetaphone do
 
       feature = described_class.new(query, options, columns, Model, normalizer)
       expect(feature.rank.to_sql).to eq(
-        %Q{(ts_rank((to_tsvector('simple', pg_search_dmetaphone(coalesce(#{Model.quoted_table_name}."name"::text, ''))) || to_tsvector('simple', pg_search_dmetaphone(coalesce(#{Model.quoted_table_name}."content"::text, '')))), (to_tsquery('simple', ''' ' || pg_search_dmetaphone('query') || ' ''')), 0))}
+        %{(ts_rank((to_tsvector('simple', pg_search_dmetaphone(coalesce(#{Model.quoted_table_name}."name"::text, ''))) || to_tsvector('simple', pg_search_dmetaphone(coalesce(#{Model.quoted_table_name}."content"::text, '')))), (to_tsquery('simple', ''' ' || pg_search_dmetaphone('query') || ' ''')), 0))}
       )
     end
   end
@@ -46,7 +46,7 @@ describe PgSearch::Features::DMetaphone do
 
       feature = described_class.new(query, options, columns, Model, normalizer)
       expect(feature.conditions.to_sql).to eq(
-        %Q{((to_tsvector('simple', pg_search_dmetaphone(coalesce(#{Model.quoted_table_name}."name"::text, ''))) || to_tsvector('simple', pg_search_dmetaphone(coalesce(#{Model.quoted_table_name}."content"::text, '')))) @@ (to_tsquery('simple', ''' ' || pg_search_dmetaphone('query') || ' ''')))}
+        %{((to_tsvector('simple', pg_search_dmetaphone(coalesce(#{Model.quoted_table_name}."name"::text, ''))) || to_tsvector('simple', pg_search_dmetaphone(coalesce(#{Model.quoted_table_name}."content"::text, '')))) @@ (to_tsquery('simple', ''' ' || pg_search_dmetaphone('query') || ' ''')))}
       )
     end
   end

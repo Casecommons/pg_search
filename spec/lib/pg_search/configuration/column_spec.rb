@@ -10,7 +10,7 @@ describe PgSearch::Configuration::Column do
 
     it "returns the fully-qualified table and column name" do
       column = described_class.new("name", nil, Model)
-      expect(column.full_name).to eq(%Q{#{Model.quoted_table_name}."name"})
+      expect(column.full_name).to eq(%{#{Model.quoted_table_name}."name"})
     end
   end
 
@@ -23,7 +23,7 @@ describe PgSearch::Configuration::Column do
 
     it "returns an expression that casts the column to text and coalesces it with an empty string" do
       column = described_class.new("name", nil, Model)
-      expect(column.to_sql).to eq(%Q{coalesce(#{Model.quoted_table_name}."name"::text, '')})
+      expect(column.to_sql).to eq(%{coalesce(#{Model.quoted_table_name}."name"::text, '')})
     end
   end
 end
