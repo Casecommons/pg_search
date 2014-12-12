@@ -4,7 +4,7 @@ module PgSearch
       @config = config
     end
 
-    def add_normalization(sql_expression)
+    def add_normalization(sql_expression) # rubocop:disable Metrics/AbcSize
       return sql_expression unless config.ignore.include?(:accents)
 
       if config.postgresql_version < 90000

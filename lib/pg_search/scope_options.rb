@@ -110,7 +110,7 @@ module PgSearch
       :trigram => Features::Trigram
     }
 
-    def feature_for(feature_name)
+    def feature_for(feature_name) # rubocop:disable Metrics/AbcSize
       feature_name = feature_name.to_sym
       feature_class = FEATURE_CLASSES[feature_name]
 

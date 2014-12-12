@@ -1,3 +1,4 @@
+# rubocop:disable Lint/UselessAssignment
 require 'spec_helper'
 require 'ostruct'
 

@@ -94,16 +94,13 @@ describe PgSearch do
         end
 
         it "returns only results for that subclass" do
-          included = [
-            SearchableSubclassModel.create!(:content => "foo bar")
-          ]
-          excluded = [
-            SearchableSubclassModel.create!(:content => "baz"),
-            SuperclassModel.create!(:content => "foo bar"),
-            SuperclassModel.create!(:content => "baz"),
-            NonSearchableSubclassModel.create!(:content => "foo bar"),
-            NonSearchableSubclassModel.create!(:content => "baz")
-          ]
+          included = SearchableSubclassModel.create!(:content => "foo bar")
+
+          SearchableSubclassModel.create!(:content => "baz")
+          SuperclassModel.create!(:content => "foo bar")
+          SuperclassModel.create!(:content => "baz")
+          NonSearchableSubclassModel.create!(:content => "foo bar")
+          NonSearchableSubclassModel.create!(:content => "baz")
 
           expect(SuperclassModel.count).to be 6
           expect(SearchableSubclassModel.count).to be 2
@@ -112,9 +109,7 @@ describe PgSearch do
 
           results = PgSearch.multisearch("foo bar")
 
-          expect(results.length).to be 1
-          expect(results.first.searchable.class).to be SearchableSubclassModel
-          expect(results.first.searchable).to eq included.first
+          expect(results).to eq [included.pg_search_document]
         end
 
         it "updates an existing STI model does not create a new pg_search document" do
@@ -151,8 +146,8 @@ describe PgSearch do
         end
 
         it "reindexing searchable STI doesn't clobber other related STI models" do
-          searchable_s = SearchableSubclassModel.create!(:content => "baz")
-          searchable_a = AnotherSearchableSubclassModel.create!(:content => "baz")
+          SearchableSubclassModel.create!(:content => "baz")
+          AnotherSearchableSubclassModel.create!(:content => "baz")
 
           expect(PgSearch::Document.count).to be 2
           PgSearch::Multisearch.rebuild(SearchableSubclassModel)
@@ -187,16 +182,13 @@ describe PgSearch do
         end
 
         it "returns only results for that subclass" do
-          included = [
-            SearchableSubclassModel.create!(:content => "foo bar")
-          ]
-          excluded = [
-            SearchableSubclassModel.create!(:content => "baz"),
-            SuperclassModel.create!(:content => "foo bar"),
-            SuperclassModel.create!(:content => "baz"),
-            NonSearchableSubclassModel.create!(:content => "foo bar"),
-            NonSearchableSubclassModel.create!(:content => "baz")
-          ]
+          included = SearchableSubclassModel.create!(:content => "foo bar")
+
+          SearchableSubclassModel.create!(:content => "baz")
+          SuperclassModel.create!(:content => "foo bar")
+          SuperclassModel.create!(:content => "baz")
+          NonSearchableSubclassModel.create!(:content => "foo bar")
+          NonSearchableSubclassModel.create!(:content => "baz")
 
           expect(SuperclassModel.count).to be 6
           expect(SearchableSubclassModel.count).to be 2
@@ -205,9 +197,7 @@ describe PgSearch do
 
           results = PgSearch.multisearch("foo bar")
 
-          expect(results.length).to be 1
-          expect(results.first.searchable.class).to be SearchableSubclassModel
-          expect(results.first.searchable).to eq included.first
+          expect(results).to eq [included.pg_search_document]
         end
       end
     end

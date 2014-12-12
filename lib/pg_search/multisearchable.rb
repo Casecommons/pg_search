@@ -14,7 +14,7 @@ module PgSearch
       end
     end
 
-    def update_pg_search_document
+    def update_pg_search_document # rubocop:disable Metrics/AbcSize
       if_conditions = Array(pg_search_multisearchable_options[:if])
       unless_conditions = Array(pg_search_multisearchable_options[:unless])
 
