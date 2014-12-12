@@ -10,12 +10,6 @@
 Metrics/MethodLength:
   Max: 21
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedHashRocketStyle, EnforcedColonStyle, EnforcedLastArgumentHashStyle, SupportedLastArgumentHashStyles.
-Style/AlignHash:
-  Enabled: false
-
 # Offense count: 42
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

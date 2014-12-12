@@ -67,7 +67,7 @@ describe PgSearch do
           ModelWithBelongsTo.create!(:title => 'abcdef')
         ]
         excluded = ModelWithBelongsTo.create!(:title => 'mnopqr',
-                                                 :another_model => AssociatedModel.create!(:title => 'stuvwx'))
+                                              :another_model => AssociatedModel.create!(:title => 'stuvwx'))
 
         results = ModelWithBelongsTo.with_associated('abcdef')
         expect(results.map(&:title)).to match_array(included.map(&:title))
@@ -173,7 +173,8 @@ describe PgSearch do
             belongs_to :model_of_second_type,
               :class_name => 'SecondAssociatedModel'
 
-            pg_search_scope :with_associated, :against => :title,
+            pg_search_scope :with_associated,
+              :against => :title,
               :associated_against => {:models_of_first_type => :title, :model_of_second_type => :title}
           end
         end
@@ -234,7 +235,7 @@ describe PgSearch do
               :foreign_key => 'ModelWithDoubleAssociation_again_id'
 
             pg_search_scope :with_associated, :against => :title,
-              :associated_against => {:things => :title, :thingamabobs => :title}
+                                              :associated_against => {:things => :title, :thingamabobs => :title}
           end
         end
 
