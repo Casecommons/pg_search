@@ -787,6 +787,30 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
+    context 'using multiple tsvector columns' do
+      with_model :ModelWithTsvector do
+        model do
+          include PgSearch
+
+          pg_search_scope :search_by_multiple_tsvector_columns,
+            :against => ['content', 'message'],
+            :using => {
+              :tsearch => {
+                :tsvector_column => ['content_tsvector', 'message_tsvector'],
+                :dictionary => 'english'
+              }
+            }
+        end
+      end
+
+      it 'concats tsvector columns' do
+        expected = "#{ModelWithTsvector.quoted_table_name}.\"content_tsvector\" || "\
+                   "#{ModelWithTsvector.quoted_table_name}.\"message_tsvector\""
+
+        expect(ModelWithTsvector.search_by_multiple_tsvector_columns("something").to_sql).to include(expected)
+      end
+    end
+
     context "using a tsvector column with" do
       with_model :ModelWithTsvector do
         table do |t|
