@@ -4,6 +4,7 @@
 [![Code Climate](https://img.shields.io/codeclimate/github/Casecommons/pg_search.svg)](https://codeclimate.com/github/Casecommons/pg_search)
 [![Gem Version](https://badge.fury.io/rb/pg_search.svg)](https://rubygems.org/gems/pg_search)
 [![Dependency Status](https://gemnasium.com/Casecommons/pg_search.svg)](https://gemnasium.com/Casecommons/pg_search)
+[![Inline docs](http://inch-ci.org/github/Casecommons/pg_search.svg?branch=master)](http://inch-ci.org/github/Casecommons/pg_search)
 
 ## DESCRIPTION
 
