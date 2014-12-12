@@ -1,4 +1,3 @@
-# rubocop:disable Lint/UselessAssignment, Metrics/LineLength
 require 'spec_helper'
 require 'ostruct'
 

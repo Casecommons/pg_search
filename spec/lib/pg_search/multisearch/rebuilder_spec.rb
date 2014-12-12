@@ -1,4 +1,3 @@
-# rubocop:disable Metrics/LineLength
 require "spec_helper"
 
 describe PgSearch::Multisearch::Rebuilder do
