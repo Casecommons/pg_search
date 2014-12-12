@@ -5,10 +5,12 @@ describe PgSearch::Features::Trigram do
   subject(:feature) { described_class.new(query, options, columns, Model, normalizer) }
   let(:query) { 'lolwut' }
   let(:options) { {} }
-  let(:columns) {[
-    PgSearch::Configuration::Column.new(:name, nil, Model),
-    PgSearch::Configuration::Column.new(:content, nil, Model)
-  ]}
+  let(:columns) {
+    [
+      PgSearch::Configuration::Column.new(:name, nil, Model),
+      PgSearch::Configuration::Column.new(:content, nil, Model)
+    ]
+  }
   let(:normalizer) { PgSearch::Normalizer.new(config) }
   let(:config) { OpenStruct.new(:ignore => [], :postgresql_version => 90000) }
 
