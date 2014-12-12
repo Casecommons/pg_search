@@ -29,9 +29,9 @@ module PgSearch
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
 
       def tsquery_for_term(unsanitized_term)
-        negated = options[:negation] && if unsanitized_term.start_with?('!')
+        if options[:negation] && unsanitized_term.start_with?("!")
           unsanitized_term[0] = ''
-          true
+          negated = true
         end
 
         sanitized_term = unsanitized_term.gsub(DISALLOWED_TSQUERY_CHARACTERS, " ")
