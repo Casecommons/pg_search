@@ -4,7 +4,6 @@ require "pg_search/configuration/foreign_column"
 
 module PgSearch
   class Configuration
-
     attr_reader :model
 
     def initialize(options, model)

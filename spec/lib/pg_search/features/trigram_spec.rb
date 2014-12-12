@@ -61,7 +61,6 @@ describe PgSearch::Features::Trigram do
           coalesced_column = "coalesce(#{Model.quoted_table_name}.\"name\"::text, '')"
           expect(feature.conditions.to_sql).to eq("((#{coalesced_column}) % '#{query}')")
         end
-
       end
       context 'multiple columns' do
         let(:options) { { only: [:name, :content] } }
@@ -72,7 +71,6 @@ describe PgSearch::Features::Trigram do
         end
       end
     end
-
   end
 
   describe '#rank' do

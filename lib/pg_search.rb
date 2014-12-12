@@ -87,7 +87,6 @@ module PgSearch
     end
   end
 
-
   class NotSupportedForPostgresqlVersion < StandardError; end
 
   class PgSearchRankNotSelected < StandardError

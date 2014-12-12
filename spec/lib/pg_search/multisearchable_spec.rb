@@ -309,7 +309,6 @@ describe PgSearch::Multisearchable do
                   expect { PgSearch::Document.find(document.id) }.to raise_error(ActiveRecord::RecordNotFound)
                 end
               end
-
             end
           end
 

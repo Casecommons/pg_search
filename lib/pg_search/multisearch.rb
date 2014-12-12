@@ -2,7 +2,6 @@ require "pg_search/multisearch/rebuilder"
 
 module PgSearch
   module Multisearch
-
     class << self
       def rebuild(model, clean_up=true)
         model.transaction do
