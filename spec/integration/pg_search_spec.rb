@@ -446,7 +446,19 @@ describe "an Active Record model which includes PgSearch" do
         end
 
         context "with highlight turned off" do
-          it "does not add a #pg_highlight method to each returned model record"
+          before do
+            ModelWithPgSearch.pg_search_scope :search_content,
+              :against => :content,
+              :using => {
+                :tsearch => {:highlight => false}
+              }
+          end
+
+          it "does not add a #pg_highlight method to each returned model record" do
+            result = ModelWithPgSearch.search_content("Strip Down").first
+
+            expect(result).to_not respond_to(:pg_highlight)
+          end
         end
       end
 
