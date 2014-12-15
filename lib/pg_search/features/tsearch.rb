@@ -110,7 +110,7 @@ module PgSearch
           Arel.sql(normalize(column.to_sql))
         end.join(' || ')
 
-        "ts_headline(#{document}, (#{tsquery}))"
+        "ts_headline((#{document}), (#{tsquery}))"
       end
 
       def dictionary
