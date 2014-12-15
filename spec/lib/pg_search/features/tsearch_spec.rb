@@ -122,4 +122,8 @@ describe PgSearch::Features::TSearch do
       end
     end
   end
+
+  describe "#highlight" do
+    it "returns an expression using the ts_headline() function"
+  end
 end
