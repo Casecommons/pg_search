@@ -129,11 +129,11 @@ describe PgSearch::Multisearch do
           SQL
 
           statements = []
-          allow(connection).to receive(:execute) { |sql| statements << sql }
+          allow(connection).to receive(:execute) { |sql| statements << sql.strip }
 
           PgSearch::Multisearch.rebuild(model)
 
-          expect(statements).to include(expected_sql)
+          expect(statements).to include(expected_sql.strip)
         end
       end
 
@@ -156,11 +156,11 @@ describe PgSearch::Multisearch do
           SQL
 
           statements = []
-          allow(connection).to receive(:execute) { |sql| statements << sql }
+          allow(connection).to receive(:execute) { |sql| statements << sql.strip }
 
           PgSearch::Multisearch.rebuild(model)
 
-          expect(statements).to include(expected_sql)
+          expect(statements).to include(expected_sql.strip)
         end
       end
     end

@@ -23,10 +23,7 @@ module PgSearch
         unless_conditions.all? { |condition| !condition.to_proc.call(self) }
 
       if should_have_document
-        unless pg_search_document.present?
-          build_pg_search_document.searchable_type = self.class.name
-        end
-        pg_search_document.save
+        pg_search_document ? pg_search_document.save : create_pg_search_document
       else
         pg_search_document.destroy if pg_search_document
       end
