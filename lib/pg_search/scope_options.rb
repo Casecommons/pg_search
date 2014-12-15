@@ -14,7 +14,7 @@ module PgSearch
 
     def apply(scope)
       scope.
-        select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").
+        select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank" + select_highlight).
         where(conditions).
         order("pg_search_rank DESC, #{order_within_rank}").
         joins(joins).
@@ -84,6 +84,14 @@ module PgSearch
     def rank
       (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
         feature_for($1).rank.to_sql
+      end
+    end
+
+    def select_highlight
+      if highlight = feature_for(:tsearch).highlight
+        ", (#{highlight.to_sql}) AS pg_highlight"
+      else
+        ""
       end
     end
   end

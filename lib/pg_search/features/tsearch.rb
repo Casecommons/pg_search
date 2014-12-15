@@ -24,6 +24,10 @@ module PgSearch
         arel_wrap(tsearch_rank)
       end
 
+      def highlight
+        arel_wrap(ts_headline) if options[:highlight]
+      end
+
       private
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
@@ -99,6 +103,14 @@ module PgSearch
 
       def tsearch_rank
         "ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})"
+      end
+
+      def ts_headline
+        document = columns_to_use.map do |column|
+          Arel.sql(normalize(column.to_sql))
+        end.join(' || ')
+
+        "ts_headline(#{document}, (#{tsquery}))"
       end
 
       def dictionary
