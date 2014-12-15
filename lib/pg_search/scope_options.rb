@@ -14,7 +14,7 @@ module PgSearch
 
     def apply(scope)
       scope.
-        select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank" + select_highlight).
+        select(fields).
         where(conditions).
         order("pg_search_rank DESC, #{order_within_rank}").
         joins(joins).
@@ -31,6 +31,22 @@ module PgSearch
     private
 
     delegate :connection, :quoted_table_name, :to => :@model
+
+    def fields
+      ["#{quoted_table_name}.*",
+       pg_search_rank_field,
+       pg_highlight_field].compact.join(", ")
+    end
+
+    def pg_search_rank_field
+      "(#{rank}) AS pg_search_rank"
+    end
+
+    def pg_highlight_field
+      if feature_options[:tsearch] && feature_options[:tsearch][:highlight]
+        "(#{highlight}) AS pg_highlight"
+      end
+    end
 
     def conditions
       config.features.reject do |feature_name, feature_options|
@@ -87,12 +103,8 @@ module PgSearch
       end
     end
 
-    def select_highlight
-      if highlight = feature_for(:tsearch).highlight
-        ", (#{highlight.to_sql}) AS pg_highlight"
-      else
-        ""
-      end
+    def highlight
+      feature_for(:tsearch).highlight.to_sql
     end
   end
 end

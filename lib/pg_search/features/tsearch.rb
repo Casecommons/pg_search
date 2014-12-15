@@ -25,7 +25,7 @@ module PgSearch
       end
 
       def highlight
-        arel_wrap(ts_headline) if options[:highlight]
+        arel_wrap(ts_headline)
       end
 
       private
