@@ -35,14 +35,14 @@ module PgSearch
       def rebuild_sql_template
          <<-SQL.strip_heredoc
           INSERT INTO :documents_table (searchable_type, searchable_id, content, created_at, updated_at)
-            SELECT :model_name AS searchable_type,
+            SELECT :base_model_name AS searchable_type,
                    :model_table.#{primary_key} AS searchable_id,
                    (
                      :content_expressions
                    ) AS content,
                    :current_time AS created_at,
                    :current_time AS updated_at
-            FROM :model_table
+            FROM :model_table :sti_clause
         SQL
       end
 
@@ -52,8 +52,20 @@ module PgSearch
         end
       end
 
+      def sti_clause
+        clause = ""
+        if model.column_names.include? 'type'
+          clause = "WHERE"
+          if model.base_class == model
+            clause = "#{clause} type IS NULL OR"
+          end
+          clause = "#{clause} type = #{model_name}"
+        end
+        clause
+      end
+
       def replacements
-        %w[content_expressions model_name model_table documents_table current_time]
+        %w[content_expressions base_model_name model_name model_table documents_table current_time sti_clause]
       end
 
       def content_expressions
@@ -68,6 +80,10 @@ module PgSearch
 
       def model_name
         connection.quote(model.name)
+      end
+
+      def base_model_name
+        connection.quote(model.base_class.name)
       end
 
       def model_table

@@ -2,9 +2,9 @@
 
 [![Build Status](https://secure.travis-ci.org/Casecommons/pg_search.svg?branch=master)](https://travis-ci.org/Casecommons/pg_search)
 [![Code Climate](https://img.shields.io/codeclimate/github/Casecommons/pg_search.svg)](https://codeclimate.com/github/Casecommons/pg_search)
-[![Coverage Status](https://img.shields.io/coveralls/Casecommons/pg_search/master.svg)](https://coveralls.io/r/Casecommons/pg_search)
 [![Gem Version](https://badge.fury.io/rb/pg_search.svg)](https://rubygems.org/gems/pg_search)
 [![Dependency Status](https://gemnasium.com/Casecommons/pg_search.svg)](https://gemnasium.com/Casecommons/pg_search)
+[![Inline docs](http://inch-ci.org/github/Casecommons/pg_search.svg?branch=master)](http://inch-ci.org/github/Casecommons/pg_search)
 
 ## DESCRIPTION
 
@@ -562,6 +562,36 @@ robin = Superhero.create :name => 'Robin'
 
 Superhero.whose_name_starts_with("Bat") # => [batman, batgirl]
 ```
+##### :negation
+
+PostgreSQL's full text search matches all search terms by default. If you want
+to exclude certain words, you can set :negation to true. Then any term that begins with
+an exclamation point `!` will be excluded from the results. Since this
+is a :tsearch-specific option, you should pass it to :tsearch directly, as
+shown in the following example.
+
+Note that combining this with other search features can have unexpected results. For
+example, :trigram searches don't have a concept of excluded terms, and thus if you
+use both :tsearch and :trigram in tandem, you may still find results that contain the
+term that you were trying to exclude.
+
+```ruby
+class Animal < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :with_name_matching,
+                  :against => :name,
+                  :using => {
+                    :tsearch => {:negation => true}
+                  }
+end
+
+one_fish = Animal.create(:name => "one fish")
+two_fish = Animal.create(:name => "two fish")
+red_fish = Animal.create(:name => "red fish")
+blue_fish = Animal.create(:name => "blue fish")
+
+Animal.with_name_matching("fish !red !blue") # => [one_fish, two_fish]
+```
 
 ##### :dictionary
 
@@ -911,11 +941,42 @@ To use this functionality you'll need to do a few things:
     If you have any pre-existing data don't forget to update the newly-created tsvector columns with the expression that your trigger function uses.
 
     However you cannot dump a trigger and its function to `schema.rb`. Instead, you need to switch to using the native PostgreSQL SQL format schema dump.
+
     In your `config/application.rb` you should set
 
         config.active_record.schema_format = :sql
 
     Read more about it here: http://guides.rubyonrails.org/migrations.html#types-of-schema-dumps
+
+#### Combining multiple tsvectors
+
+It's possible to search against more than one tsvector at a time. This could be useful if you want to maintain multiple search scopes but do not want to maintain separate tsvectors for each scope. For example:
+
+```ruby
+pg_search_scope :search_title,
+                :against => :title,
+                :using => {
+                  :tsearch => {
+                    :tsvector_column => "title_tsvector"
+                  }
+                }
+
+pg_search_scope :search_body,
+                :against => :body,
+                :using => {
+                  :tsearch => {
+                    :tsvector_column => "body_tsvector"
+                  }
+                }
+
+pg_search_scope :search_title_and_body,
+                :against => [:title, :body],
+                :using => {
+                  :tsearch => {
+                    :tsvector_column => ["title_tsvector", "body_tsvector"]
+                  }
+                }
+```
 
 ### Configuring ranking and ordering
 

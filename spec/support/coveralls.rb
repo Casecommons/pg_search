@@ -2,6 +2,6 @@ if ENV["TRAVIS"]
   begin
     require 'coveralls'
     Coveralls.wear!
-  rescue LoadError
+  rescue LoadError # rubocop:disable Lint/HandleExceptions
   end
 end
