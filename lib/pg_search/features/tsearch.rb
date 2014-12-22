@@ -110,7 +110,7 @@ module PgSearch
           Arel.sql(normalize(column.to_sql))
         end.join(' || ')
 
-        "ts_headline((#{document}), (#{tsquery}))"
+        "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"
       end
 
       def dictionary
@@ -140,6 +140,18 @@ module PgSearch
         else
           "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
         end
+      end
+
+      def ts_headline_options
+        return nil unless options[:highlight].is_a?(Hash)
+
+        headline_options = {}
+        headline_options["StartSel"] = options[:highlight][:start_sel]
+        headline_options["StopSel"] = options[:highlight][:stop_sel]
+
+        headline_options.map do |key, value|
+          "#{key} = #{value}" if value
+        end.compact.join(", ")
       end
     end
   end
