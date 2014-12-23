@@ -60,6 +60,10 @@ module PgSearch
       Array(options[:using])
     end
 
+    def feature?(name)
+      features.any? { |feature_name, feature_options| feature_name == name }
+    end
+
     def feature_options
       @feature_options ||= Hash.new.tap do |hash|
         features.map do |feature_name, feature_options|
