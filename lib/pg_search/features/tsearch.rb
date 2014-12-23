@@ -24,6 +24,10 @@ module PgSearch
         arel_wrap(tsearch_rank)
       end
 
+      def tsvector_column?
+        options.key? :tsvector_column
+      end
+
       private
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
@@ -71,7 +75,7 @@ module PgSearch
           column_to_tsvector(search_column)
         end
 
-        if options[:tsvector_column]
+        if tsvector_column?
           tsvector_columns = Array.wrap(options[:tsvector_column])
 
           tsdocument_terms << tsvector_columns.map do |tsvector_column|
@@ -110,7 +114,7 @@ module PgSearch
       end
 
       def columns_to_use
-        if options[:tsvector_column]
+        if tsvector_column?
           columns.select { |c| c.is_a?(PgSearch::Configuration::ForeignColumn) }
         else
           columns
