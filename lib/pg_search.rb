@@ -30,6 +30,10 @@ module PgSearch
       PgSearch::ScopeBuilder.new(self, name, options).define!
     end
 
+    def pg_search_tsvrebuilders(options)
+      PgSearch::TSVRebuildMethods.for_model(self, options).define!
+    end
+
     def multisearchable(options = {})
       include PgSearch::Multisearchable
       class_attribute :pg_search_multisearchable_options

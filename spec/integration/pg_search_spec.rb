@@ -1352,4 +1352,91 @@ describe "an Active Record model which includes PgSearch" do
       expect(@multisearch_enabled_after).to be(true)
     end
   end
+
+  describe ".pg_search_tsvrebuilders", focus: true do
+    with_model :Post do
+      table do |t|
+        t.text 'content'
+        t.text 'title'
+        t.tsvector 'search_tsvector'
+      end
+
+      model do
+        include PgSearch
+      end
+    end
+    let(:post) { Post.new }
+
+    context "with default options" do
+      before do
+        Post.pg_search_tsvrebuilders :against => :content,
+                                     :tsvector_column => 'search_tsvector'
+      end
+
+      it "should respond to class method name" do
+        expect(Post).to respond_to(:rebuild_all_search_tsvectors)
+      end
+
+      it "should respond to instance method name" do
+        expect(post).to respond_to(:rebuild_search_tsvector)
+      end
+    end
+
+    context "with disabled instance method" do
+      before do
+        Post.pg_search_tsvrebuilders :against => :content,
+                                     :tsvector_column => 'search_tsvector',
+                                     :instance_method => false
+      end
+
+      it "should respond to class method name" do
+        expect(Post).to respond_to(:rebuild_all_search_tsvectors)
+      end
+
+      it "should not respond to instance method name" do
+        expect(post).to_not respond_to(:rebuild_search_tsvector)
+      end
+    end
+
+    context "with disabled class method" do
+      before do
+        Post.pg_search_tsvrebuilders :against => :content,
+                                     :tsvector_column => 'search_tsvector',
+                                     :class_method => false
+      end
+
+      it "should not respond to class method name" do
+        expect(Post).to_not respond_to(:rebuild_all_search_tsvectors)
+      end
+
+      it "should respond to instance method name" do
+        expect(post).to respond_to(:rebuild_search_tsvector)
+      end
+    end
+
+    context "with custom method names" do
+      before do
+        Post.pg_search_tsvrebuilders :against => :content,
+                                     :tsvector_column => 'search_tsvector',
+                                     :instance_method => 'rebuild_tsvector',
+                                     :class_method => 'rebuild_all_tsvectors'
+      end
+
+      it "should respond to class method name" do
+        expect(Post).to respond_to(:rebuild_all_tsvectors)
+      end
+
+      it "should respond to instance method name" do
+        expect(post).to respond_to(:rebuild_tsvector)
+      end
+    end
+
+    context "without columns" do
+      it "should raise ArgumentError" do
+        expect {
+          Post.pg_search_tsvrebuilders :tsvector_column => 'search_tsvector'
+        }.to raise_error(ArgumentError)
+      end
+    end
+  end
 end

@@ -19,6 +19,26 @@ module PgSearch
       end
     end
 
+    def self.for_model(model, options)
+      feature_name = options.delete(:type) || :tsearch
+      columns = options.delete(:against)
+      if columns.blank?
+        raise ArgumentError, "you must specify `against` columns for tsvector rebuilders"
+      end
+      columns = Array.wrap(columns)
+      rebuilders_options = options.extract!(:instance_method, :class_method)
+      scope_options = {
+        :against => columns,
+        :using => {
+          feature_name => options
+        }
+      }
+      config = Configuration.new(scope_options, model)
+      scope_options = ScopeOptions.new(config)
+      feature = scope_options.send :feature_for, feature_name
+      new(feature, rebuilders_options)
+    end
+
     def define!
       if instance_method_name
         model.send :define_method, instance_method_name, &rebuild_single_proc
