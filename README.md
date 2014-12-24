@@ -922,20 +922,59 @@ To use this functionality you'll need to do a few things:
                           trigram: {} # trigram does not use tsvectors
                         }
 
-*   PgSearch defines appropriate class and instance methods that update your tsvector column according to your `:against => ...` configuration.
-    So if you have column named `tsearch_content_tsvector` then you will have these methods:
+*   You can define appropriate class and instance methods that update your tsvector column according to your `:against => ...` columns.
+
+        pg_search_scope :fast_content_search,
+                        :against => :content,
+                        :using => {
+                          tsearch: {
+                            tsvector_column: 'tsearch_content_tsvector'
+                            tsvector_rebuilders: true
+                          }
+
+    By default method names will be inferred from tsvector column name so if you have column named `tsearch_content_tsvector` then you will have these methods:
 
         Post.rebuild_all_tsearch_content_tsvectors
         post.rebuild_tsearch_content_tsvector
 
-*   Also you can use `tsearch: { ..., autorebuild: true }` and tsvector rebuilding will be made whenever any `:against` field is changed.
+    You can disable creation of instance or class method, also you can set custom method names:
+
+        pg_search_scope :fast_content_search,
+                        :against => :content,
+                        :using => {
+                          tsearch: {
+                            tsvector_column: 'tsearch_content_tsvector'
+                            tsvector_rebuilders: {
+                              class_method: false, # class method will not be added
+                              instance_method: 'rebuild_tsvector' # custom method name
+                            }
+                          }
+
+        # ...
+
+        post.rebuild_tsvector
+
+    Another useful feature is `call_after_save` option. With this option `after_save` callback with instance method will be added so your tsvector column will be automatically rebuilt whenever any of `:against` columns is changed:
+
+        pg_search_scope :fast_content_search,
+                        :against => :content,
+                        :using => {
+                          tsearch: {
+                            tsvector_column: 'tsearch_content_tsvector'
+                            tsvector_rebuilders: {
+                              call_after_save: true
+                            }
+                          }
+
+    Note that using `tsvector_rebuilders` assumes that you use hash options for `pg_search_scope` as in examples above. You cannot use this feature with [Proc object options](#dynamic-search-scopes).
+
 *   Should you have any pre-existing data in the table, update the
     newly-created tsvector columns in migration:
 
         add_column :posts, :content_tsvector, :tsvector
         Post.rebuild_all_content_tsvectors
 
-*   Another approach is to create a trigger function that will update the column(s) using the
+*   Another approach for automatic rebuilding tsvector column is to create a trigger function that will update the column(s) using the
     expression appropriate for that type of search. See:
     [the PostgreSQL documentation for text search triggers](http://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS).
     If you have any pre-existing data don't forget to update the newly-created tsvector columns with the expression that your trigger function uses.
@@ -976,6 +1015,18 @@ pg_search_scope :search_title_and_body,
                     :tsvector_column => ["title_tsvector", "body_tsvector"]
                   }
                 }
+```
+
+Note that with multiple tsvector columns you cannot use `tsvector_rebuilders` option. But you can define rebuilders manually instead:
+
+```ruby
+pg_search_tsvrebuilders :against => :title,
+                        :type => :tsearch,
+                        :tsvector_column => "title_tsvector"
+
+pg_search_tsvrebuilders :against => :body,
+                        :type => :tsearch,
+                        :tsvector_column => "body_tsvector"
 ```
 
 ### Configuring ranking and ordering
