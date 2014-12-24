@@ -28,6 +28,16 @@ module PgSearch
         options.key? :tsvector_column
       end
 
+      def tsvector_update_part
+        column_name = options[:tsvector_column]
+
+        terms = regular_columns.map { |search_column| column_to_tsvector(search_column) }
+        document = terms.join(" || ")
+
+        quoted_column_name = connection.quote_column_name(column_name)
+        "#{quoted_column_name} = #{document}"
+      end
+
       private
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
