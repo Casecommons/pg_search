@@ -34,8 +34,8 @@ module PgSearch
         }
       }
       config = Configuration.new(scope_options, model)
-      scope_options = ScopeOptions.new(config)
-      feature = scope_options.send :feature_for, feature_name
+      feature_builder = Features::Builder.new(config)
+      feature = feature_builder.build(feature_name)
       new(feature, rebuilders_options)
     end
 
