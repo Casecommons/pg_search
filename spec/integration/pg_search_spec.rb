@@ -40,10 +40,9 @@ describe "an Active Record model which includes PgSearch" do
 
     context "when an unknown option is passed in" do
       it "raises an exception when invoked" do
-        allow(ModelWithPgSearch).to receive(:_define_tsvector_rebuild_methods)
-        ModelWithPgSearch.pg_search_scope :with_unknown_option,
-          :against => :content,
-          :foo => :bar
+        scope_object = PgSearch::ScopeBuilder.new(ModelWithPgSearch, :with_unknown_option, :against => :content, :foo => :bar)
+        allow(scope_object).to receive(:define_tsvector_rebuilders!)
+        scope_object.define!
 
         expect {
           ModelWithPgSearch.with_unknown_option("foo")
@@ -64,10 +63,9 @@ describe "an Active Record model which includes PgSearch" do
 
     context "when an unknown :using is passed" do
       it "raises an exception when invoked" do
-        allow(ModelWithPgSearch).to receive(:_define_tsvector_rebuild_methods)
-        ModelWithPgSearch.pg_search_scope :with_unknown_using,
-          :against => :content,
-          :using => :foo
+        scope_object = PgSearch::ScopeBuilder.new(ModelWithPgSearch, :with_unknown_using, :against => :content, :using => :foo)
+        allow(scope_object).to receive(:define_tsvector_rebuilders!)
+        scope_object.define!
 
         expect {
           ModelWithPgSearch.with_unknown_using("foo")
@@ -88,10 +86,9 @@ describe "an Active Record model which includes PgSearch" do
 
     context "when an unknown :ignoring is passed" do
       it "raises an exception when invoked" do
-        allow(ModelWithPgSearch).to receive(:_define_tsvector_rebuild_methods)
-        ModelWithPgSearch.pg_search_scope :with_unknown_ignoring,
-          :against => :content,
-          :ignoring => :foo
+        scope_object = PgSearch::ScopeBuilder.new(ModelWithPgSearch, :with_unknown_ignoring, :against => :content, :ignoring => :foo)
+        allow(scope_object).to receive(:define_tsvector_rebuilders!)
+        scope_object.define!
 
         expect {
           ModelWithPgSearch.with_unknown_ignoring("foo")
@@ -111,8 +108,9 @@ describe "an Active Record model which includes PgSearch" do
 
       context "when :against is not passed in" do
         it "raises an exception when invoked" do
-          allow(ModelWithPgSearch).to receive(:_define_tsvector_rebuild_methods)
-          ModelWithPgSearch.pg_search_scope :with_unknown_ignoring, {}
+          scope_object = PgSearch::ScopeBuilder.new(ModelWithPgSearch, :with_unknown_ignoring, {})
+          allow(scope_object).to receive(:define_tsvector_rebuilders!)
+          scope_object.define!
 
           expect {
             ModelWithPgSearch.with_unknown_ignoring("foo")
@@ -769,6 +767,7 @@ describe "an Active Record model which includes PgSearch" do
           :using => {
             :tsearch => {
               :tsvector_column => 'content_tsvector',
+              :tsvector_rebuilders => true,
               :dictionary => 'english'
             }
           }
@@ -812,6 +811,28 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
+    context 'using multiple tsvector columns with rebuilders' do
+      with_model :ModelWithTsvector do
+        model do
+          include PgSearch
+        end
+      end
+
+      it "should raise error" do
+        expect {
+          ModelWithTsvector.pg_search_scope :search_by_multiple_tsvector_columns,
+            :against => ['content', 'message'],
+            :using => {
+              :tsearch => {
+                :tsvector_column => ['content_tsvector', 'message_tsvector'],
+                :tsvector_rebuilders => true,
+                :dictionary => 'english'
+              }
+            }
+        }.to raise_exception(ArgumentError)
+      end
+    end
+
     context "using a tsvector column with" do
       with_model :ModelWithTsvector do
         table do |t|
@@ -823,9 +844,15 @@ describe "an Active Record model which includes PgSearch" do
         model { include PgSearch }
       end
 
-      context "no autorebuild" do
+      context "without rebuilders" do
         let!(:expected) { ModelWithTsvector.create!(:content => 'tiling is grouty') }
         let!(:unexpected) { ModelWithTsvector.create!(:content => 'longcat is looooooooong') }
+        before do
+          ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
+            UPDATE #{ModelWithTsvector.quoted_table_name}
+            SET content_tsvector = to_tsvector('english'::regconfig, #{ModelWithTsvector.quoted_table_name}."content")
+          SQL
+        end
 
         before do
           ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
@@ -836,7 +863,6 @@ describe "an Active Record model which includes PgSearch" do
                 :dictionary => 'english'
               }
             }
-          ModelWithTsvector.rebuild_all_content_tsvectors
         end
 
         it "should not use to_tsvector in the query" do
@@ -867,14 +893,16 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
-      context "autorebuild" do
+      context "with rebuilders and call_after_save" do
         before do
           ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
             :against => :content,
             :using => {
               :tsearch => {
                 :tsvector_column => 'content_tsvector',
-                :autorebuild => true,
+                :tsvector_rebuilders => {
+                  :call_after_save => true
+                },
                 :dictionary => 'english'
               }
             }
