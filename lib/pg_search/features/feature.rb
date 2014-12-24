@@ -31,6 +31,14 @@ module PgSearch
         end
       end
 
+      def associated_columns
+        columns.select { |c| c.is_a?(PgSearch::Configuration::ForeignColumn) }
+      end
+
+      def regular_columns
+        columns.reject { |c| c.is_a?(PgSearch::Configuration::ForeignColumn) }
+      end
+
       def normalize(expression)
         normalizer.add_normalization(expression)
       end

@@ -115,7 +115,7 @@ module PgSearch
 
       def columns_to_use
         if tsvector_column?
-          columns.select { |c| c.is_a?(PgSearch::Configuration::ForeignColumn) }
+          associated_columns
         else
           columns
         end
