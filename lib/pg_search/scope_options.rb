@@ -13,7 +13,8 @@ module PgSearch
     end
 
     def apply(scope)
-      base_scope = scope.all.select_values.empty?
+      scope = Compatibility.ensure_scoped(scope)
+      base_scope = scope.select_values.empty?
 
       if base_scope
         all_columns = "#{quoted_table_name}.*"

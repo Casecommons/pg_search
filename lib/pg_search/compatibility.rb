@@ -13,5 +13,15 @@ module PgSearch
         string
       end
     end
+
+    if ActiveRecord::VERSION::MAJOR == 3
+      def self.ensure_scoped(scope)
+        scope.scoped
+      end
+    else
+      def self.ensure_scoped(scope)
+        scope.all
+      end
+    end
   end
 end
