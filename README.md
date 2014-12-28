@@ -1,10 +1,10 @@
 # [pg_search](http://github.com/Casecommons/pg_search/)
 
 [![Build Status](https://secure.travis-ci.org/Casecommons/pg_search.svg?branch=master)](https://travis-ci.org/Casecommons/pg_search)
-[![Code Climate](https://img.shields.io/codeclimate/github/Casecommons/pg_search.svg)](https://codeclimate.com/github/Casecommons/pg_search)
-[![Gem Version](https://badge.fury.io/rb/pg_search.svg)](https://rubygems.org/gems/pg_search)
-[![Dependency Status](https://gemnasium.com/Casecommons/pg_search.svg)](https://gemnasium.com/Casecommons/pg_search)
-[![Inline docs](http://inch-ci.org/github/Casecommons/pg_search.svg?branch=master)](http://inch-ci.org/github/Casecommons/pg_search)
+[![Code Climate](https://img.shields.io/codeclimate/github/Casecommons/pg_search.svg?style=flat)](https://codeclimate.com/github/Casecommons/pg_search)
+[![Gem Version](https://img.shields.io/gem/v/pg_search.svg?style=flat)](https://rubygems.org/gems/pg_search)
+[![Dependency Status](https://img.shields.io/gemnasium/Casecommons/pg_search.svg?style=flat)](https://gemnasium.com/Casecommons/pg_search)
+[![Inline docs](http://inch-ci.org/github/Casecommons/pg_search.svg?branch=master&style=flat)](http://inch-ci.org/github/Casecommons/pg_search)
 
 ## DESCRIPTION
 
