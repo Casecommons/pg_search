@@ -11,7 +11,6 @@ RSpec.configure do |config|
   end
 end
 
-require 'support/coveralls'
 require 'support/database'
 require 'support/with_model'
 
