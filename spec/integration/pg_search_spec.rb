@@ -1232,7 +1232,7 @@ describe "an Active Record model which includes PgSearch" do
         PgSearch::Multisearch.rebuild(SearchableSubclassModel)
         expect(PgSearch::Document.count).to be 2
 
-        classes= PgSearch::Document.all.collect {|d| d.searchable.class }
+        classes = PgSearch::Document.all.collect {|d| d.searchable.class }
         expect(classes).to include SearchableSubclassModel
         expect(classes).to include AnotherSearchableSubclassModel
       end

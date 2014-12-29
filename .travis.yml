@@ -37,4 +37,4 @@ matrix:
 before_script:
   - "psql -c 'create database pg_search_test;' -U postgres >/dev/null"
 
-script: "bundle exec rspec spec"
+script: "bin/rake"
