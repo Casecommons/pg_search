@@ -32,6 +32,8 @@ matrix:
       env: ACTIVE_RECORD_BRANCH="master"
     - rvm: "2.0"
       env: ACTIVE_RECORD_BRANCH="master"
+    - rvm: "2.1"
+      env: ACTIVE_RECORD_BRANCH="master"
     - rvm: jruby-19mode
       env: ACTIVE_RECORD_BRANCH="master"
 
