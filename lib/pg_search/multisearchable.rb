@@ -13,7 +13,7 @@ module PgSearch
           :if => lambda { PgSearch.multisearch_enabled? }
 
         if ActiveRecord::VERSION::MAJOR < 4 ||
-            (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR < 1)
+           (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR < 1)
 
           # For ActiveRecord versions before 4.1 we need to enforce document
           # deletion. If there are any updates to multisearchable object during
@@ -42,13 +42,19 @@ module PgSearch
         unless_conditions.all? { |condition| !condition.to_proc.call(self) }
 
       if should_have_document
-        if pg_search_document
-          pg_search_document.save unless pg_search_document.destroyed?
-        else
-          create_pg_search_document
-        end
+        save_pg_search_document
       else
         pg_search_document.destroy if pg_search_document
+      end
+    end
+
+    private
+
+    def save_pg_search_document
+      if pg_search_document
+        pg_search_document.save unless pg_search_document.destroyed?
+      else
+        create_pg_search_document
       end
     end
   end
