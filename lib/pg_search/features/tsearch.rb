@@ -24,6 +24,10 @@ module PgSearch
         arel_wrap(tsearch_rank)
       end
 
+      def highlight
+        arel_wrap(ts_headline)
+      end
+
       private
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
@@ -101,6 +105,14 @@ module PgSearch
         "ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})"
       end
 
+      def ts_headline
+        document = columns_to_use.map do |column|
+          Arel.sql(normalize(column.to_sql))
+        end.join(' || ')
+
+        "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"
+      end
+
       def dictionary
         Compatibility.build_quoted(options[:dictionary] || :simple)
       end
@@ -128,6 +140,18 @@ module PgSearch
         else
           "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
         end
+      end
+
+      def ts_headline_options
+        return nil unless options[:highlight].is_a?(Hash)
+
+        headline_options = {}
+        headline_options["StartSel"] = options[:highlight][:start_sel]
+        headline_options["StopSel"] = options[:highlight][:stop_sel]
+
+        headline_options.map do |key, value|
+          "#{key} = #{value}" if value
+        end.compact.join(", ")
       end
     end
   end
