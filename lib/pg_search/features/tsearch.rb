@@ -1,3 +1,5 @@
+# rubocop:disable Metrics/ClassLength
+
 require "pg_search/compatibility"
 require "active_support/core_ext/module/delegation"
 
