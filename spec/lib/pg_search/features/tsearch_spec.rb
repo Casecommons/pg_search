@@ -131,6 +131,26 @@ describe PgSearch::Features::TSearch do
       end
     end
 
+    context "when options[:highlight] is set" do
+      it "throws an error for PostgreSQL versions < 9.0" do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model),
+        ]
+        options = { highlight: true }
+        config = double(:config, :ignore => [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        connection = double(:connection, :postgresql_version => 80400)
+        mock_model = double(:model, :connection => connection)
+
+        expect {
+          described_class.new(query, options, columns, mock_model, normalizer)
+        }.to raise_error(PgSearch::NotSupportedForPostgresqlVersion)
+      end
+    end
+
     it "returns an expression using the ts_headline() function" do
       query = "query"
       columns = [

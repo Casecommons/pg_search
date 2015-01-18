@@ -14,6 +14,12 @@ module PgSearch
             Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
           MESSAGE
         end
+
+        if options[:highlight] && model.connection.send(:postgresql_version) < 90000
+          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
+            Sorry, {:using => {:tsearch => {:highlight => true}}} only works in PostgreSQL 9.0 and above.")
+          MESSAGE
+        end
       end
 
       def conditions
