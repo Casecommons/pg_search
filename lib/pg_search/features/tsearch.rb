@@ -116,10 +116,6 @@ module PgSearch
       end
 
       def ts_headline
-        document = columns_to_use.map do |column|
-          Arel.sql(normalize(column.to_sql))
-        end.join(' || ')
-
         "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"
       end
 

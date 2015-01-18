@@ -163,7 +163,7 @@ describe PgSearch::Features::TSearch do
         feature = described_class.new(query, options, columns, Model, normalizer)
 
         expect(feature.highlight.to_sql).to eq(
-          %Q{(ts_headline((coalesce(#{Model.quoted_table_name}."name"::text, '') || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), ''))}
+          %Q{(ts_headline((coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), ''))}
         )
       end
     end
@@ -182,7 +182,7 @@ describe PgSearch::Features::TSearch do
         feature = described_class.new(query, options, columns, Model, normalizer)
 
         expect(feature.highlight.to_sql).to eq(
-          %Q{(ts_headline((coalesce(#{Model.quoted_table_name}."name"::text, '') || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = <match>, StopSel = </match>'))}
+          %Q{(ts_headline((coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = <match>, StopSel = </match>'))}
         )
       end
     end
