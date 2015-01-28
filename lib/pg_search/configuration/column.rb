@@ -10,7 +10,6 @@ module PgSearch
         @column_name = column_name.to_s
         @weight = weight
         @model = model
-        @connection = model.connection
       end
 
       def full_name
@@ -28,7 +27,7 @@ module PgSearch
       end
 
       def column_name
-        @connection.quote_column_name(@column_name)
+        @model.connection.quote_column_name(@column_name)
       end
 
       def expression
