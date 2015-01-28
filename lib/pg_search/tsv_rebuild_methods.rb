@@ -1,7 +1,7 @@
 module PgSearch
   class TSVRebuildMethods
-    def initialize(feature, options)
-      @feature = feature
+    def initialize(config, options)
+      @config = config
       @options = options
 
       if tsvector_column.is_a? Array
@@ -20,13 +20,14 @@ module PgSearch
     end
 
     def self.for_model(model, options)
-      feature_name = options.delete(:type) || :tsearch
       columns = options.delete(:against)
       if columns.blank?
         raise ArgumentError, "you must specify `against` columns for tsvector rebuilders"
       end
       columns = Array.wrap(columns)
+      feature_name = options.delete(:type) || :tsearch
       rebuilders_options = options.extract!(:instance_method, :class_method)
+      rebuilders_options[:feature_name] = feature_name
       scope_options = {
         :against => columns,
         :using => {
@@ -34,48 +35,58 @@ module PgSearch
         }
       }
       config = Configuration.new(scope_options, model)
-      feature_builder = Features::Builder.new(config)
-      feature = feature_builder.build(feature_name)
-      new(feature, rebuilders_options)
+      new(config, rebuilders_options)
     end
 
     def define!
+      rebuilder = self
       if instance_method_name
-        model.send :define_method, instance_method_name, &rebuild_single_proc
+        model.send(:define_method, instance_method_name) do
+          rebuilder.rebuild_single(self)
+        end
       end
       if class_method_name
-        Compatibility.define_singleton_method(model, class_method_name, &rebuild_all_proc)
+        Compatibility.define_singleton_method(model, class_method_name) do
+          rebuilder.rebuild_all
+        end
       end
       if call_after_save?
-        columns = self.columns
         columns_changed_proc = lambda do |object|
-          columns.any? { |column| object.send "#{column.name}_changed?" }
+          rebuilder.any_column_changed? object
         end
         model.after_save(instance_method_name, :if => columns_changed_proc)
       end
     end
 
+    def any_column_changed?(object)
+      columns = build_feature.send(:regular_columns)
+      columns.any? { |column| object.send "#{column.name}_changed?" }
+    end
+
+    def rebuild_single(object)
+      update_part = build_feature.tsvector_update_part
+      model.unscoped.where(model.arel_table[model.primary_key].eq(object.id)).update_all(update_part)
+    end
+
+    def rebuild_all
+      update_part = build_feature.tsvector_update_part
+      model.update_all(update_part)
+    end
+
     protected
 
-    attr_reader :feature, :options, :instance_method_name, :class_method_name
+    attr_reader :config, :options, :instance_method_name, :class_method_name
 
-    def rebuild_single_proc
-      update_part = feature.tsvector_update_part
-      model = self.model
-      lambda do
-        model.unscoped.where(model.arel_table[model.primary_key].eq(id)).update_all(update_part)
-      end
+    def feature_builder
+      @feature_builder ||= Features::Builder.new(config)
     end
 
-    def rebuild_all_proc
-      update_part = feature.tsvector_update_part
-      lambda do
-        update_all(update_part)
-      end
+    def build_feature
+      feature_builder.build(feature_name)
     end
 
-    def columns
-      feature.send(:regular_columns)
+    def feature_name
+      options[:feature_name]
     end
 
     def call_after_save?
@@ -83,15 +94,11 @@ module PgSearch
     end
 
     def tsvector_column
-      @tsvector_column ||= feature_options[:tsvector_column]
-    end
-
-    def feature_options
-      @feature_options ||= feature.send(:options)
+      config.feature_options[feature_name][:tsvector_column]
     end
 
     def model
-      @model ||= feature.send(:model)
+      config.model
     end
   end
 end

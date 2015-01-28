@@ -52,9 +52,8 @@ module PgSearch
     end
 
     def define_tsvector_rebuilder(feature_name)
-      feature = scope_options.send :feature_for, feature_name
-      return unless feature.tsvector_column?
-      feature_options = scope_options.feature_options[feature_name]
+      feature_options = config.feature_options[feature_name]
+      return unless feature_options
       rebuilders_options = feature_options[:tsvector_rebuilders]
       return unless rebuilders_options
       rebuilders_options = if rebuilders_options.is_a? Hash
@@ -62,7 +61,8 @@ module PgSearch
                            else
                              {}
                            end
-      TSVRebuildMethods.new(feature, rebuilders_options).define!
+      rebuilders_options[:feature_name] = feature_name
+      TSVRebuildMethods.new(config, rebuilders_options).define!
     end
   end
 end
