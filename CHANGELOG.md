@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## 0.7.9
+
+*   Improve support for single table inheritance (STI) models (Ewan McDougall)
+
 ## 0.7.8
 
 *   Stop inadvertently including binstubs for guard and rspec.
