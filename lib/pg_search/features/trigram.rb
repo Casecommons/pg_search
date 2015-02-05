@@ -1,6 +1,9 @@
 module PgSearch
   module Features
     class Trigram < Feature
+      def self.valid_options
+        super + [:threshold]
+      end
 
       def conditions
         if options[:threshold]

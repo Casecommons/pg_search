@@ -1,13 +1,18 @@
 require "active_support/core_ext/module/delegation"
+require "active_support/core_ext/hash/keys"
 
 module PgSearch
   module Features
     class Feature
+      def self.valid_options
+        [:only, :sort_only]
+      end
+
       delegate :connection, :quoted_table_name, :to => :'@model'
 
       def initialize(query, options, all_columns, model, normalizer)
         @query = query
-        @options = options || {}
+        @options = (options || {}).assert_valid_keys(self.class.valid_options)
         @all_columns = all_columns
         @model = model
         @normalizer = normalizer
