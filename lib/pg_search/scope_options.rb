@@ -4,7 +4,7 @@ require "active_support/core_ext/module/delegation"
 
 module PgSearch
   class ScopeOptions
-    attr_reader :config, :feature_options
+    attr_reader :config, :feature_options, :model
 
     def initialize(config)
       @config = config
@@ -13,12 +13,11 @@ module PgSearch
     end
 
     def apply(scope)
-      scope.
-        select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").
-        where(conditions).
-        order("pg_search_rank DESC, #{order_within_rank}").
-        joins(joins).
-        extend(DisableEagerLoading)
+      scope
+        .joins(rank_join)
+        .order("pg_search.rank DESC, #{order_within_rank}")
+        .extend(DisableEagerLoading)
+        .extend(WithPgSearchRank)
     end
 
     # workaround for https://github.com/Casecommons/pg_search/issues/14
@@ -28,9 +27,27 @@ module PgSearch
       end
     end
 
+    module WithPgSearchRank
+      def with_pg_search_rank
+        scope = self
+        scope = scope.select("*") unless scope.select_values.any?
+        scope.select("pg_search.rank AS pg_search_rank")
+      end
+    end
+
     private
 
-    delegate :connection, :quoted_table_name, :to => :@model
+    delegate :connection, :quoted_table_name, :to => :model
+
+    def subquery
+      model
+        .select("#{primary_key} AS id")
+        .select("#{rank} AS rank")
+        .joins(subquery_join)
+        .where(conditions)
+        .limit(nil)
+        .offset(nil)
+    end
 
     def conditions
       config.features.reject do |feature_name, feature_options|
@@ -47,10 +64,10 @@ module PgSearch
     end
 
     def primary_key
-      "#{quoted_table_name}.#{connection.quote_column_name(@model.primary_key)}"
+      "#{quoted_table_name}.#{connection.quote_column_name(model.primary_key)}"
     end
 
-    def joins
+    def subquery_join
       if config.associations.any?
         config.associations.map do |association|
           association.join(primary_key)
@@ -85,6 +102,10 @@ module PgSearch
       (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
         feature_for($1).rank.to_sql
       end
+    end
+
+    def rank_join
+      "INNER JOIN (#{subquery.to_sql}) pg_search ON #{primary_key} = pg_search.id"
     end
   end
 end

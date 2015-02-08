@@ -15,7 +15,6 @@ require "pg_search/version"
 
 module PgSearch
   extend ActiveSupport::Concern
-  include Compatibility::ActiveRecord3 if ActiveRecord::VERSION::MAJOR == 3
 
   mattr_accessor :multisearch_options
   self.multisearch_options = {}
@@ -75,7 +74,33 @@ module PgSearch
     end
   end
 
+  def method_missing(symbol, *args)
+    case symbol
+    when :pg_search_rank
+      raise PgSearchRankNotSelected.new unless respond_to?(:pg_search_rank)
+      read_attribute(:pg_search_rank).to_f
+    else
+      super
+    end
+  end
+
+  def respond_to_missing?(symbol, *args)
+    case symbol
+    when :pg_search_rank
+      attributes.key?(:pg_search_rank)
+    else
+      super
+    end
+  end
+
+
   class NotSupportedForPostgresqlVersion < StandardError; end
+
+  class PgSearchRankNotSelected < StandardError
+    def message
+      "You must chain .with_pg_search_rank after the pg_search_scope to access the pg_search_rank attribute on returned records"
+    end
+  end
 end
 
 require "pg_search/document"

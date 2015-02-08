@@ -300,7 +300,7 @@ describe PgSearch do
 
         results = ModelWithAssociation.with_associated('foo bar')
 
-        expect(results.to_sql.scan("INNER JOIN").length).to eq(1)
+        expect(results.to_sql.scan("INNER JOIN #{AssociatedModel.quoted_table_name}").length).to eq(1)
         included.each { |object| expect(results).to include(object) }
         excluded.each { |object| expect(results).not_to include(object) }
       end

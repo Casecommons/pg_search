@@ -211,7 +211,7 @@ describe "an Active Record model which includes PgSearch" do
         loser = ModelWithPgSearch.create!(:content => 'foo')
         winner = ModelWithPgSearch.create!(:content => 'foo foo')
 
-        results = ModelWithPgSearch.search_content("foo")
+        results = ModelWithPgSearch.search_content("foo").with_pg_search_rank
         expect(results[0].pg_search_rank).to be > results[1].pg_search_rank
         expect(results).to eq([winner, loser])
       end
@@ -426,7 +426,7 @@ describe "an Active Record model which includes PgSearch" do
         it "adds a #pg_search_rank method to each returned model record" do
           ModelWithPgSearch.pg_search_scope :search_content, :against => :content
 
-          result = ModelWithPgSearch.search_content("Strip Down").first
+          result = ModelWithPgSearch.search_content("Strip Down").with_pg_search_rank.first
 
           expect(result.pg_search_rank).to be_a(Float)
         end
@@ -441,7 +441,7 @@ describe "an Active Record model which includes PgSearch" do
           end
 
           it "ranks the results for documents with less text higher" do
-            results = ModelWithPgSearch.search_content_with_normalization("down")
+            results = ModelWithPgSearch.search_content_with_normalization("down").with_pg_search_rank
 
             expect(results.map(&:content)).to eq(["Down", "Strip Down", "Down and Out", "Won't Let You Down"])
             expect(results.first.pg_search_rank).to be > results.last.pg_search_rank
@@ -456,7 +456,7 @@ describe "an Active Record model which includes PgSearch" do
           end
 
           it "ranks the results equally" do
-            results = ModelWithPgSearch.search_content_without_normalization("down")
+            results = ModelWithPgSearch.search_content_without_normalization("down").with_pg_search_rank
 
             expect(results.map(&:content)).to eq(["Strip Down", "Down", "Down and Out", "Won't Let You Down"])
             expect(results.first.pg_search_rank).to eq(results.last.pg_search_rank)
@@ -474,7 +474,7 @@ describe "an Active Record model which includes PgSearch" do
           loser = ModelWithPgSearch.create!(:title => 'bar', :content => 'foo')
           winner = ModelWithPgSearch.create!(:title => 'foo', :content => 'bar')
 
-          results = ModelWithPgSearch.search_weighted_by_array_of_arrays('foo')
+          results = ModelWithPgSearch.search_weighted_by_array_of_arrays('foo').with_pg_search_rank
           expect(results[0].pg_search_rank).to be > results[1].pg_search_rank
           expect(results).to eq([winner, loser])
         end
@@ -490,7 +490,7 @@ describe "an Active Record model which includes PgSearch" do
           loser = ModelWithPgSearch.create!(:title => 'bar', :content => 'foo')
           winner = ModelWithPgSearch.create!(:title => 'foo', :content => 'bar')
 
-          results = ModelWithPgSearch.search_weighted_by_hash('foo')
+          results = ModelWithPgSearch.search_weighted_by_hash('foo').with_pg_search_rank
           expect(results[0].pg_search_rank).to be > results[1].pg_search_rank
           expect(results).to eq([winner, loser])
         end
@@ -506,7 +506,7 @@ describe "an Active Record model which includes PgSearch" do
           loser = ModelWithPgSearch.create!(:title => 'bar', :content => 'foo')
           winner = ModelWithPgSearch.create!(:title => 'foo', :content => 'bar')
 
-          results = ModelWithPgSearch.search_weighted('foo')
+          results = ModelWithPgSearch.search_weighted('foo').with_pg_search_rank
           expect(results[0].pg_search_rank).to be > results[1].pg_search_rank
           expect(results).to eq([winner, loser])
         end
@@ -910,15 +910,24 @@ describe "an Active Record model which includes PgSearch" do
 
       it "should return records with a rank attribute equal to the :ranked_by expression" do
         ModelWithPgSearch.create!(:content => 'foo', :importance => 10)
-        results = ModelWithPgSearch.search_content_with_importance_as_rank("foo")
+        results = ModelWithPgSearch.search_content_with_importance_as_rank("foo").with_pg_search_rank
         expect(results.first.pg_search_rank).to eq(10)
       end
 
       it "should substitute :tsearch with the tsearch rank expression in the :ranked_by expression" do
         ModelWithPgSearch.create!(:content => 'foo', :importance => 10)
 
-        tsearch_rank = ModelWithPgSearch.search_content_with_default_rank("foo").first.pg_search_rank
-        multiplied_rank = ModelWithPgSearch.search_content_with_importance_as_rank_multiplier("foo").first.pg_search_rank
+        tsearch_result =
+          ModelWithPgSearch.search_content_with_default_rank("foo").with_pg_search_rank.first
+
+        tsearch_rank = tsearch_result.pg_search_rank
+
+        multiplied_result =
+          ModelWithPgSearch.search_content_with_importance_as_rank_multiplier("foo")
+          .with_pg_search_rank
+          .first
+
+        multiplied_rank = multiplied_result.pg_search_rank
 
         expect(multiplied_rank).to be_within(0.001).of(tsearch_rank * 10)
       end
@@ -936,17 +945,39 @@ describe "an Active Record model which includes PgSearch" do
 
       %w[tsearch trigram dmetaphone].each do |feature|
         context "using the #{feature} ranking algorithm" do
-          it "should return results with a rank" do
-            scope_name = :"search_content_ranked_by_#{feature}"
-
+          let(:scope_name) { :"search_content_ranked_by_#{feature}" }
+          before do
             ModelWithPgSearch.pg_search_scope scope_name,
               :against => :content,
               :ranked_by => ":#{feature}"
 
             ModelWithPgSearch.create!(:content => 'foo')
+          end
 
-            results = ModelWithPgSearch.send(scope_name, 'foo')
-            expect(results.first.pg_search_rank).to be_a Float
+          context "when .with_pg_search_rank is chained after" do
+            specify "its results respond to #pg_search_rank" do
+              result = ModelWithPgSearch.send(scope_name, 'foo').with_pg_search_rank.first
+              expect(result).to respond_to(:pg_search_rank)
+            end
+
+            it "returns the rank when #pg_search_rank is called on a result" do
+              results = ModelWithPgSearch.send(scope_name, 'foo').with_pg_search_rank
+              expect(results.first.pg_search_rank).to be_a Float
+            end
+          end
+
+          context "when .with_pg_search_rank is not chained after" do
+            specify "its results do not respond to #pg_search_rank" do
+              result = ModelWithPgSearch.send(scope_name, 'foo').first
+              expect(result).not_to respond_to(:pg_search_rank)
+            end
+
+            it "raises PgSearch::PgSearchRankNotSelected when #pg_search_rank is called on a result" do
+              result = ModelWithPgSearch.send(scope_name, 'foo').first
+              expect {
+                result.pg_search_rank
+              }.to raise_exception(PgSearch::PgSearchRankNotSelected)
+            end
           end
         end
       end
