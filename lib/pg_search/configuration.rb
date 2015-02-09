@@ -61,7 +61,7 @@ module PgSearch
     end
 
     def feature_options
-      @feature_options ||= Hash.new.tap do |hash|
+      @feature_options ||= {}.tap do |hash|
         features.map do |feature_name, feature_options|
           hash[feature_name] = feature_options
         end
