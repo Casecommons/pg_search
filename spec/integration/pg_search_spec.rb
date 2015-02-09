@@ -217,11 +217,40 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       it "returns results that match sorted by primary key for records that rank the same" do
-        sorted_results = [ModelWithPgSearch.create!(:content => 'foo'),
-                          ModelWithPgSearch.create!(:content => 'foo')].sort_by(&:id)
+        sorted_results = [
+          ModelWithPgSearch.create!(:content => 'foo'),
+          ModelWithPgSearch.create!(:content => 'foo')
+        ].sort_by(&:id)
 
         results = ModelWithPgSearch.search_content("foo")
         expect(results).to eq(sorted_results)
+      end
+
+      context "when the model has a non-standard primary key" do
+        with_model :ModelWithNonStandardPrimaryKey do
+          table id: false do |t|
+            t.uuid 'primary_key'
+            t.string 'title'
+            t.text 'content'
+            t.integer 'importance'
+          end
+
+          model do
+            include PgSearch
+            self.primary_key = "primary_key"
+            pg_search_scope :search_content, against: :content
+          end
+        end
+
+        it "returns results that match sorted by primary key for records that rank the same" do
+          sorted_results = [
+            ModelWithNonStandardPrimaryKey.create!(:content => 'foo'),
+            ModelWithNonStandardPrimaryKey.create!(:content => 'foo')
+          ].sort_by(&:primary_key)
+
+          p results = ModelWithNonStandardPrimaryKey.search_content("foo")
+          expect(results).to eq(sorted_results)
+        end
       end
 
       it "returns results that match a query with multiple space-separated search terms" do
