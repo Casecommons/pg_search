@@ -5,6 +5,9 @@ describe PgSearch::Multisearchable do
 
   describe "a model that is multisearchable" do
     with_model :ModelThatIsMultisearchable do
+     table do |t|
+        t.string :title
+      end
       model do
         include PgSearch
         multisearchable
@@ -48,6 +51,7 @@ describe PgSearch::Multisearchable do
           describe "saving the record" do
             it "calls save on the pg_search_document" do
               expect(record.pg_search_document).to receive(:save)
+              record.title = "A new title"
               record.save!
             end
 
@@ -69,8 +73,13 @@ describe PgSearch::Multisearchable do
         context "when the document is missing" do
           before { record.pg_search_document = nil }
 
-          describe "saving the record" do
+          describe "saving the record without changing any in it" do
+            it "should not create a PgSearch::Document record" do
+              expect { record.save! }.to change(PgSearch::Document, :count).by(0)
+            end
+
             it "should create a PgSearch::Document record" do
+              record.title = "A new title"
               expect { record.save! }.to change(PgSearch::Document, :count).by(1)
             end
 
@@ -100,6 +109,7 @@ describe PgSearch::Multisearchable do
     context "via :if" do
       with_model :ModelThatIsMultisearchable do
         table do |t|
+          t.string :title
           t.boolean :multisearchable
         end
 
@@ -144,10 +154,11 @@ describe PgSearch::Multisearchable do
           context "when the document is present" do
             before { expect(record.pg_search_document).to be_present }
 
-            describe "saving the record" do
+            describe "saving the record with new data" do
               context "when the condition is true" do
                 it "calls save on the pg_search_document" do
                   expect(record.pg_search_document).to receive(:save)
+                  record.title = "A new title"
                   record.save!
                 end
 
@@ -190,6 +201,7 @@ describe PgSearch::Multisearchable do
             describe "saving the record" do
               context "when the condition is true" do
                 it "should create a PgSearch::Document record" do
+                  record.title = "A new title"
                   expect { record.save! }.to change(PgSearch::Document, :count).by(1)
                 end
 
@@ -228,6 +240,7 @@ describe PgSearch::Multisearchable do
     context "using :unless" do
       with_model :ModelThatIsMultisearchable do
         table do |t|
+          t.string :title
           t.boolean :not_multisearchable
         end
 
@@ -271,6 +284,7 @@ describe PgSearch::Multisearchable do
 
           context "when the document is present" do
             before { expect(record.pg_search_document).to be_present }
+            before(:each) { record.title = "A new title" }
 
             describe "saving the record" do
               context "when the condition is false" do
@@ -315,6 +329,7 @@ describe PgSearch::Multisearchable do
 
           context "when the document is missing" do
             before { record.pg_search_document = nil }
+            before(:each) { record.title = "A new title" }
 
             describe "saving the record" do
               context "when the condition is false" do
@@ -359,6 +374,7 @@ describe PgSearch::Multisearchable do
       with_model :ModelThatIsMultisearchable do
         table do |t|
           t.boolean :multisearchable
+          t.string :title
         end
 
         model do
@@ -406,6 +422,7 @@ describe PgSearch::Multisearchable do
               context "when the condition is true" do
                 it "calls save on the pg_search_document" do
                   expect(record.pg_search_document).to receive(:save)
+                  record.title = "A new title"
                   record.save!
                 end
 
@@ -451,6 +468,7 @@ describe PgSearch::Multisearchable do
 
                 context "when the condition is true" do
                   it "should create a PgSearch::Document record" do
+                    record.title = "A new title"
                     expect { record.save! }.to change(PgSearch::Document, :count).by(1)
                   end
                 end
@@ -490,6 +508,7 @@ describe PgSearch::Multisearchable do
     context "using :unless" do
       with_model :ModelThatIsMultisearchable do
         table do |t|
+          t.string :title
           t.boolean :not_multisearchable
         end
 
@@ -553,6 +572,7 @@ describe PgSearch::Multisearchable do
               context "when the condition is false" do
                 it "calls save on the pg_search_document" do
                   expect(record.pg_search_document).to receive(:save)
+                  record.title = "A new title"
                   record.save!
                 end
 
@@ -576,6 +596,7 @@ describe PgSearch::Multisearchable do
 
           context "when the document is missing" do
             before { record.pg_search_document = nil }
+            before(:each) {record.title = "A new title"}
 
             describe "saving the record" do
               context "with multisearch enabled" do
