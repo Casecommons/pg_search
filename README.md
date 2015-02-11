@@ -24,13 +24,17 @@ Read the blog post introducing PgSearch at http://pivotallabs.com/pg-search/
 
 ## INSTALL
 
-    gem install pg_search
+```bash
+$ gem install pg_search
+```
 
 ### Rails 3.1, 3.2, 4.0 or later, Ruby 1.9.2, 2.0, or later
 
 In Gemfile
 
-    gem 'pg_search'
+```ruby
+gem 'pg_search'
+```
 
 ### Rails 3.0
 
@@ -38,7 +42,9 @@ The newest versions of PgSearch no longer support Rails 3.0. However, the 0.5
 series still works. It's not actively maintained, but submissions are welcome
 for backports and bugfixes.
 
-    gem 'pg_search', "~> 0.5.7"
+```ruby
+gem 'pg_search', "~> 0.5.7"
+```
 
 The 0.5 branch lives at
 https://github.com/Casecommons/pg_search/tree/0.5-stable
@@ -49,7 +55,9 @@ The newest versions of PgSearch no longer support Rails 2. However, the 0.2
 series still works. It's not actively maintained, but submissions are welcome
 for backports and bugfixes.
 
-    gem 'pg_search', "~> 0.2.0"
+```ruby
+gem 'pg_search', "~> 0.2.0"
+```
 
 The 0.2 branch lives at
 https://github.com/Casecommons/pg_search/tree/0.2-stable
@@ -60,7 +68,9 @@ In addition to installing and requiring the gem, you may want to include the
 PgSearch rake tasks in your Rakefile. This isn't necessary for Rails projects,
 which gain the Rake tasks via a Railtie.
 
-    load "pg_search/tasks.rb"
+```ruby
+load "pg_search/tasks.rb"
+```
 
 ### Ruby 1.8.7 or earlier
 
@@ -68,7 +78,9 @@ The newest versions of PgSearch no longer support Ruby 1.8.7. However, the 0.6
 series still works. It's not actively maintained, but submissions are welcome
 for backports and bugfixes.
 
-    gem 'pg_search', "~> 0.6.4"
+```ruby
+gem 'pg_search', "~> 0.6.4"
+```
 
 The 0.6 branch lives at
 https://github.com/Casecommons/pg_search/tree/0.6-stable
@@ -105,8 +117,10 @@ search.
 Before using multi-search, you must generate and run a migration to create the
 pg_search_documents database table.
 
-    $ rails g pg_search:migration:multisearch
-    $ rake db:migrate
+```bash
+$ rails g pg_search:migration:multisearch
+$ rake db:migrate
+```
 
 #### multisearchable
 
