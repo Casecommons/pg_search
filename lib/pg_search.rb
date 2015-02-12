@@ -10,6 +10,8 @@ require "pg_search/features"
 require "pg_search/multisearch"
 require "pg_search/multisearchable"
 require "pg_search/normalizer"
+require "pg_search/scope_builder"
+require "pg_search/tsv_rebuild_methods"
 require "pg_search/scope_options"
 require "pg_search/version"
 
@@ -25,26 +27,11 @@ module PgSearch
 
   module ClassMethods
     def pg_search_scope(name, options)
-      options_proc = if options.respond_to?(:call)
-                       options
-                     else
-                       unless options.respond_to?(:merge)
-                         raise ArgumentError, "pg_search_scope expects a Hash or Proc"
-                       end
-                       lambda { |query| {:query => query}.merge(options) }
-                     end
+      PgSearch::ScopeBuilder.new(self, name, options).define!
+    end
 
-      method_proc = lambda do |*args|
-        config = Configuration.new(options_proc.call(*args), self)
-        scope_options = ScopeOptions.new(config)
-        scope_options.apply(self)
-      end
-
-      if respond_to?(:define_singleton_method)
-        define_singleton_method name, &method_proc
-      else
-        (class << self; self; end).send :define_method, name, &method_proc
-      end
+    def pg_search_tsvrebuilders(options)
+      PgSearch::TSVRebuildMethods.for_model(self, options).define!
     end
 
     def multisearchable(options = {})

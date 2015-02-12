@@ -13,5 +13,14 @@ module PgSearch
         string
       end
     end
+
+    def self.define_singleton_method(model, name)
+      block = Proc.new
+      if model.respond_to?(:define_singleton_method)
+        model.define_singleton_method name, block
+      else
+        (class << model; self; end).send :define_method, name, block
+      end
+    end
   end
 end

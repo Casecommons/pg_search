@@ -24,6 +24,20 @@ module PgSearch
         arel_wrap(tsearch_rank)
       end
 
+      def tsvector_column?
+        options.key? :tsvector_column
+      end
+
+      def tsvector_update_part
+        column_name = options[:tsvector_column]
+
+        terms = regular_columns.map { |search_column| column_to_tsvector(search_column) }
+        document = terms.join(" || ")
+
+        quoted_column_name = connection.quote_column_name(column_name)
+        "#{quoted_column_name} = #{document}"
+      end
+
       private
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
@@ -71,7 +85,7 @@ module PgSearch
           column_to_tsvector(search_column)
         end
 
-        if options[:tsvector_column]
+        if tsvector_column?
           tsvector_columns = Array.wrap(options[:tsvector_column])
 
           tsdocument_terms << tsvector_columns.map do |tsvector_column|
@@ -110,8 +124,8 @@ module PgSearch
       end
 
       def columns_to_use
-        if options[:tsvector_column]
-          columns.select { |c| c.is_a?(PgSearch::Configuration::ForeignColumn) }
+        if tsvector_column?
+          associated_columns
         else
           columns
         end

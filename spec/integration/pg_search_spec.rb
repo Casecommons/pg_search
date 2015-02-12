@@ -40,9 +40,9 @@ describe "an Active Record model which includes PgSearch" do
 
     context "when an unknown option is passed in" do
       it "raises an exception when invoked" do
-        ModelWithPgSearch.pg_search_scope :with_unknown_option,
-          :against => :content,
-          :foo => :bar
+        scope_object = PgSearch::ScopeBuilder.new(ModelWithPgSearch, :with_unknown_option, :against => :content, :foo => :bar)
+        allow(scope_object).to receive(:define_tsvector_rebuilders!)
+        scope_object.define!
 
         expect {
           ModelWithPgSearch.with_unknown_option("foo")
@@ -63,9 +63,9 @@ describe "an Active Record model which includes PgSearch" do
 
     context "when an unknown :using is passed" do
       it "raises an exception when invoked" do
-        ModelWithPgSearch.pg_search_scope :with_unknown_using,
-          :against => :content,
-          :using => :foo
+        scope_object = PgSearch::ScopeBuilder.new(ModelWithPgSearch, :with_unknown_using, :against => :content, :using => :foo)
+        allow(scope_object).to receive(:define_tsvector_rebuilders!)
+        scope_object.define!
 
         expect {
           ModelWithPgSearch.with_unknown_using("foo")
@@ -86,9 +86,9 @@ describe "an Active Record model which includes PgSearch" do
 
     context "when an unknown :ignoring is passed" do
       it "raises an exception when invoked" do
-        ModelWithPgSearch.pg_search_scope :with_unknown_ignoring,
-          :against => :content,
-          :ignoring => :foo
+        scope_object = PgSearch::ScopeBuilder.new(ModelWithPgSearch, :with_unknown_ignoring, :against => :content, :ignoring => :foo)
+        allow(scope_object).to receive(:define_tsvector_rebuilders!)
+        scope_object.define!
 
         expect {
           ModelWithPgSearch.with_unknown_ignoring("foo")
@@ -108,7 +108,9 @@ describe "an Active Record model which includes PgSearch" do
 
       context "when :against is not passed in" do
         it "raises an exception when invoked" do
-          ModelWithPgSearch.pg_search_scope :with_unknown_ignoring, {}
+          scope_object = PgSearch::ScopeBuilder.new(ModelWithPgSearch, :with_unknown_ignoring, {})
+          allow(scope_object).to receive(:define_tsvector_rebuilders!)
+          scope_object.define!
 
           expect {
             ModelWithPgSearch.with_unknown_ignoring("foo")
@@ -756,22 +758,20 @@ describe "an Active Record model which includes PgSearch" do
       let!(:unexpected) { Post.create!(content: 'longcat is looooooooong') }
 
       before do
-        ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
-          UPDATE #{Post.quoted_table_name}
-          SET content_tsvector = to_tsvector('english'::regconfig, #{Post.quoted_table_name}."content")
-        SQL
-
         expected.comments.create(body: 'commentone')
         unexpected.comments.create(body: 'commentwo')
 
         Post.pg_search_scope :search_by_content_with_tsvector,
+          :against => :content,
           :associated_against => { comments: [:body] },
           :using => {
             :tsearch => {
               :tsvector_column => 'content_tsvector',
+              :tsvector_rebuilders => true,
               :dictionary => 'english'
             }
           }
+        Post.rebuild_all_content_tsvectors
       end
 
       it "should find by the tsvector column" do
@@ -811,9 +811,32 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
+    context 'using multiple tsvector columns with rebuilders' do
+      with_model :ModelWithTsvector do
+        model do
+          include PgSearch
+        end
+      end
+
+      it "should raise error" do
+        expect {
+          ModelWithTsvector.pg_search_scope :search_by_multiple_tsvector_columns,
+            :against => ['content', 'message'],
+            :using => {
+              :tsearch => {
+                :tsvector_column => ['content_tsvector', 'message_tsvector'],
+                :tsvector_rebuilders => true,
+                :dictionary => 'english'
+              }
+            }
+        }.to raise_exception(ArgumentError)
+      end
+    end
+
     context "using a tsvector column with" do
       with_model :ModelWithTsvector do
         table do |t|
+          t.text 'title'
           t.text 'content'
           t.tsvector 'content_tsvector'
         end
@@ -821,49 +844,85 @@ describe "an Active Record model which includes PgSearch" do
         model { include PgSearch }
       end
 
-      let!(:expected) { ModelWithTsvector.create!(:content => 'tiling is grouty') }
-      let!(:unexpected) { ModelWithTsvector.create!(:content => 'longcat is looooooooong') }
-
-      before do
-        ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
-          UPDATE #{ModelWithTsvector.quoted_table_name}
-          SET content_tsvector = to_tsvector('english'::regconfig, #{ModelWithTsvector.quoted_table_name}."content")
-        SQL
-
-        ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
-          :against => :content,
-          :using => {
-            :tsearch => {
-              :tsvector_column => 'content_tsvector',
-              :dictionary => 'english'
-            }
-          }
-      end
-
-      it "should not use to_tsvector in the query" do
-        expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").to_sql).not_to match(/to_tsvector/)
-      end
-
-      it "should find the expected result" do
-        expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").map(&:id)).to eq([expected.id])
-      end
-
-      context "when joining to a table with a column of the same name" do
-        with_model :AnotherModel do
-          table do |t|
-            t.string :content_tsvector # the type of the column doesn't matter
-            t.belongs_to :model_with_tsvector
-          end
+      context "without rebuilders" do
+        let!(:expected) { ModelWithTsvector.create!(:content => 'tiling is grouty') }
+        let!(:unexpected) { ModelWithTsvector.create!(:content => 'longcat is looooooooong') }
+        before do
+          ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
+            UPDATE #{ModelWithTsvector.quoted_table_name}
+            SET content_tsvector = to_tsvector('english'::regconfig, #{ModelWithTsvector.quoted_table_name}."content")
+          SQL
         end
 
         before do
-          ModelWithTsvector.has_many :another_models
+          ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
+            :against => :content,
+            :using => {
+              :tsearch => {
+                :tsvector_column => 'content_tsvector',
+                :dictionary => 'english'
+              }
+            }
         end
 
-        it "should refer to the tsvector column in the query unambiguously" do
-          expect {
-            ModelWithTsvector.joins(:another_models).search_by_content_with_tsvector("test").to_a
-          }.not_to raise_exception
+        it "should not use to_tsvector in the query" do
+          expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").to_sql).not_to match(/to_tsvector/)
+        end
+
+        it "should find the expected result" do
+          expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").map(&:id)).to eq([expected.id])
+        end
+
+        context "when joining to a table with a column of the same name" do
+          with_model :AnotherModel do
+            table do |t|
+              t.string :content_tsvector # the type of the column doesn't matter
+              t.belongs_to :model_with_tsvector
+            end
+          end
+
+          before do
+            ModelWithTsvector.has_many :another_models
+          end
+
+          it "should refer to the tsvector column in the query unambiguously" do
+            expect {
+              ModelWithTsvector.joins(:another_models).search_by_content_with_tsvector("test").to_a
+            }.not_to raise_exception
+          end
+        end
+      end
+
+      context "with rebuilders and call_after_save" do
+        before do
+          ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
+            :against => :content,
+            :using => {
+              :tsearch => {
+                :tsvector_column => 'content_tsvector',
+                :tsvector_rebuilders => {
+                  :call_after_save => true
+                },
+                :dictionary => 'english'
+              }
+            }
+        end
+
+        let!(:expected) { ModelWithTsvector.create!(:content => 'tiling is grouty') }
+        let!(:unexpected) { ModelWithTsvector.create!(:content => 'longcat is looooooooong') }
+
+        it "should find the expected result" do
+          expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").map(&:id)).to eq([expected.id])
+        end
+
+        it "calls rebuild on update" do
+          expect(expected).to receive(:rebuild_content_tsvector)
+          expected.update_attributes(:content => 'whatever')
+        end
+
+        it "doesn't call rebuild when updating other fields" do
+          expect(expected).not_to receive(:rebuild_content_tsvector)
+          expected.update_attributes(:title => 'just title')
         end
       end
     end
@@ -1291,6 +1350,93 @@ describe "an Active Record model which includes PgSearch" do
       expect(@multisearch_enabled_before).to be(true)
       expect(@multisearch_enabled_inside).to be(true)
       expect(@multisearch_enabled_after).to be(true)
+    end
+  end
+
+  describe ".pg_search_tsvrebuilders", focus: true do
+    with_model :Post do
+      table do |t|
+        t.text 'content'
+        t.text 'title'
+        t.tsvector 'search_tsvector'
+      end
+
+      model do
+        include PgSearch
+      end
+    end
+    let(:post) { Post.new }
+
+    context "with default options" do
+      before do
+        Post.pg_search_tsvrebuilders :against => :content,
+                                     :tsvector_column => 'search_tsvector'
+      end
+
+      it "should respond to class method name" do
+        expect(Post).to respond_to(:rebuild_all_search_tsvectors)
+      end
+
+      it "should respond to instance method name" do
+        expect(post).to respond_to(:rebuild_search_tsvector)
+      end
+    end
+
+    context "with disabled instance method" do
+      before do
+        Post.pg_search_tsvrebuilders :against => :content,
+                                     :tsvector_column => 'search_tsvector',
+                                     :instance_method => false
+      end
+
+      it "should respond to class method name" do
+        expect(Post).to respond_to(:rebuild_all_search_tsvectors)
+      end
+
+      it "should not respond to instance method name" do
+        expect(post).to_not respond_to(:rebuild_search_tsvector)
+      end
+    end
+
+    context "with disabled class method" do
+      before do
+        Post.pg_search_tsvrebuilders :against => :content,
+                                     :tsvector_column => 'search_tsvector',
+                                     :class_method => false
+      end
+
+      it "should not respond to class method name" do
+        expect(Post).to_not respond_to(:rebuild_all_search_tsvectors)
+      end
+
+      it "should respond to instance method name" do
+        expect(post).to respond_to(:rebuild_search_tsvector)
+      end
+    end
+
+    context "with custom method names" do
+      before do
+        Post.pg_search_tsvrebuilders :against => :content,
+                                     :tsvector_column => 'search_tsvector',
+                                     :instance_method => 'rebuild_tsvector',
+                                     :class_method => 'rebuild_all_tsvectors'
+      end
+
+      it "should respond to class method name" do
+        expect(Post).to respond_to(:rebuild_all_tsvectors)
+      end
+
+      it "should respond to instance method name" do
+        expect(post).to respond_to(:rebuild_tsvector)
+      end
+    end
+
+    context "without columns" do
+      it "should raise ArgumentError" do
+        expect {
+          Post.pg_search_tsvrebuilders :tsvector_column => 'search_tsvector'
+        }.to raise_error(ArgumentError)
+      end
     end
   end
 end

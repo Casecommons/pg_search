@@ -15,6 +15,8 @@ module PgSearch
         tsearch.rank
       end
 
+      delegate :tsvector_column?, :tsvector_update_part, :to => :'@tsearch'
+
       private
 
       attr_reader :tsearch
