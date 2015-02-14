@@ -731,6 +731,49 @@ one_close = Person.create!(:name => 'leigh heinz')
 Person.search('ash hines') # => [exact, one_exact_one_close, one_exact]
 ```
 
+##### :highlight (PostgreSQL 9.0 and newer only)
+
+Setting this attribute to true will return an excerpt of the matching text for the search term in a `pg_highlight` attribute.
+
+```ruby
+class Person < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search,
+                  :against => :bio,
+                  :using => {
+                    :tsearch => {:highlight => true}
+                  }
+end
+
+Person.create!(:bio => "Born in rural Alberta, where the buffalo roam.")
+
+first_match = Person.search("Alberta").first
+first_match.pg_highlight # => "Born in rural <b>Alberta</b>, where the buffalo roam."
+```
+
+By default, it will add the delimiters `<b>` and `</b>` around the matched text. You can customize these delimiters with the `:start_sel` and `stop_sel` options.
+
+```ruby
+class Person < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search,
+                  :against => :bio,
+                  :using => {
+                    :tsearch => {
+                      :highlight => {
+                        :start_sel => "*BEGIN*",
+                        :stop_sel => "*END*"
+                      }
+                    }
+                  }
+end
+
+Person.create!(:bio => "Born in rural Alberta, where the buffalo roam.")
+
+first_match = Person.search("Alberta").first
+first_match.pg_highlight # => "Born in rural *BEGIN*Alberta*END*, where the buffalo roam."
+```
+
 #### :dmetaphone (Double Metaphone soundalike search)
 
 [Double Metaphone](http://en.wikipedia.org/wiki/Double_Metaphone) is an

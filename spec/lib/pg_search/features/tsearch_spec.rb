@@ -122,4 +122,69 @@ describe PgSearch::Features::TSearch do
       end
     end
   end
+
+  describe "#highlight" do
+    with_model :Model do
+      table do |t|
+        t.string :name
+        t.text :content
+      end
+    end
+
+    context "when options[:highlight] is set" do
+      it "throws an error for PostgreSQL versions < 9.0" do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model),
+        ]
+        options = { highlight: true }
+        config = double(:config, :ignore => [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        connection = double(:connection, :postgresql_version => 80400)
+        mock_model = double(:model, :connection => connection)
+
+        expect {
+          described_class.new(query, options, columns, mock_model, normalizer)
+        }.to raise_error(PgSearch::NotSupportedForPostgresqlVersion)
+      end
+
+      it "returns an expression using the ts_headline() function" do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model),
+        ]
+        options = { highlight: true }
+        config = double(:config, :ignore => [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = described_class.new(query, options, columns, Model, normalizer)
+
+        expect(feature.highlight.to_sql).to eq(
+          %Q{(ts_headline((coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), ''))}
+        )
+      end
+    end
+
+    context "when options[:highlight] includes :start_sel and :stop_sel" do
+      it "allows for custom query delimiters" do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model),
+        ]
+        options = { highlight: { start_sel: "<match>", stop_sel: "</match>" } }
+        config = double(:config, :ignore => [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = described_class.new(query, options, columns, Model, normalizer)
+
+        expect(feature.highlight.to_sql).to eq(
+          %Q{(ts_headline((coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = <match>, StopSel = </match>'))}
+        )
+      end
+    end
+  end
 end

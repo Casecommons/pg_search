@@ -1,3 +1,5 @@
+# rubocop:disable Metrics/ClassLength
+
 require "pg_search/compatibility"
 require "active_support/core_ext/module/delegation"
 
@@ -7,9 +9,17 @@ module PgSearch
       def initialize(*args)
         super
 
-        if options[:prefix] && model.connection.send(:postgresql_version) < 80400
+        pg_version = model.connection.send(:postgresql_version)
+
+        if options[:prefix] && pg_version < 80400
           raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
             Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
+          MESSAGE
+        end
+
+        if options[:highlight] && pg_version < 90000
+          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
+            Sorry, {:using => {:tsearch => {:highlight => true}}} only works in PostgreSQL 9.0 and above.")
           MESSAGE
         end
       end
@@ -22,6 +32,10 @@ module PgSearch
 
       def rank
         arel_wrap(tsearch_rank)
+      end
+
+      def highlight
+        arel_wrap(ts_headline)
       end
 
       private
@@ -101,6 +115,10 @@ module PgSearch
         "ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})"
       end
 
+      def ts_headline
+        "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"
+      end
+
       def dictionary
         Compatibility.build_quoted(options[:dictionary] || :simple)
       end
@@ -128,6 +146,18 @@ module PgSearch
         else
           "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
         end
+      end
+
+      def ts_headline_options
+        return nil unless options[:highlight].is_a?(Hash)
+
+        headline_options = {}
+        headline_options["StartSel"] = options[:highlight][:start_sel]
+        headline_options["StopSel"] = options[:highlight][:stop_sel]
+
+        headline_options.map do |key, value|
+          "#{key} = #{value}" if value
+        end.compact.join(", ")
       end
     end
   end
