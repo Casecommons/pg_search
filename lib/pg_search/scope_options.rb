@@ -13,12 +13,30 @@ module PgSearch
     end
 
     def apply(scope)
-      scope.
-        select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").
-        where(conditions).
-        order("pg_search_rank DESC, #{order_within_rank}").
-        joins(joins).
-        extend(DisableEagerLoading)
+      scope = Compatibility.ensure_scoped(scope)
+      base_scope = scope.select_values.empty?
+
+      if base_scope
+        all_columns = "#{quoted_table_name}.*"
+
+        custom_select = Module.new do
+          define_method :select do |*args, &block|
+            unless self.loaded
+              self.select_values -= [all_columns]
+            end
+
+            super(*args, &block)
+          end
+        end
+      end
+
+      scope = scope.select("(#{rank}) AS pg_search_rank")
+      scope = scope.select(all_columns).extend(custom_select) if base_scope
+      scope = scope.
+                where(conditions).
+                order("pg_search_rank DESC, #{order_within_rank}").
+                joins(joins).
+                extend(DisableEagerLoading)
     end
 
     # workaround for https://github.com/Casecommons/pg_search/issues/14
