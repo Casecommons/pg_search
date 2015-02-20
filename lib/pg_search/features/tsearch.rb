@@ -154,6 +154,7 @@ module PgSearch
         headline_options = {}
         headline_options["StartSel"] = options[:highlight][:start_sel]
         headline_options["StopSel"] = options[:highlight][:stop_sel]
+        headline_options["MaxFragments"] = options[:highlight][:max_fragments]
 
         headline_options.map do |key, value|
           "#{key} = #{value}" if value
