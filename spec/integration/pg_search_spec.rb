@@ -156,6 +156,14 @@ describe "an Active Record model which includes PgSearch" do
         ModelWithPgSearch.create!(:content => 'bar')
 
         results = ModelWithPgSearch.search_content('foo')
+        expect(results.count).to eq 1
+      end
+
+      it "returns the correct count(:all)" do
+        ModelWithPgSearch.create!(:content => 'foo')
+        ModelWithPgSearch.create!(:content => 'bar')
+
+        results = ModelWithPgSearch.search_content('foo')
         expect(results.count(:all)).to eq 1
       end
 
