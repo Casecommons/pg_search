@@ -117,10 +117,11 @@ describe PgSearch do
         expect(results).not_to include(excluded)
       end
 
-      it "uses an unscoped relation of the assocated model" do
+      it "uses an unscoped relation of the associated model" do
         excluded = ModelWithHasMany.create!(:title => 'abcdef', :other_models => [
           AssociatedModelWithHasMany.create!(:title => 'abcdef')
         ])
+
         included = [
           ModelWithHasMany.create!(:title => 'abcdef', :other_models => [
             AssociatedModelWithHasMany.create!(:title => 'foo'),
@@ -128,7 +129,11 @@ describe PgSearch do
           ])
         ]
 
-        results = ModelWithHasMany.limit(1).order("id ASC").with_associated('foo bar')
+        results = ModelWithHasMany
+                  .limit(1)
+                  .order("#{ModelWithHasMany.quoted_table_name}.id ASC")
+                  .with_associated('foo bar')
+
         expect(results.map(&:title)).to match_array(included.map(&:title))
         expect(results).not_to include(excluded)
       end

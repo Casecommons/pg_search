@@ -41,7 +41,8 @@ module PgSearch
 
     def subquery
       model
-        .select("#{primary_key} AS id")
+        .except(:select)
+        .select("#{primary_key} AS pg_search_id")
         .select("#{rank} AS rank")
         .joins(subquery_join)
         .where(conditions)
@@ -105,7 +106,7 @@ module PgSearch
     end
 
     def rank_join
-      "INNER JOIN (#{subquery.to_sql}) pg_search ON #{primary_key} = pg_search.id"
+      "INNER JOIN (#{subquery.to_sql}) pg_search ON #{primary_key} = pg_search.pg_search_id"
     end
   end
 end
