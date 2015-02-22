@@ -100,9 +100,10 @@ describe PgSearch::Multisearch::Rebuilder do
             end
 
           expected_sql = <<-SQL.strip_heredoc
-            INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
+            INSERT INTO "pg_search_documents" (searchable_type, searchable_id, searchable_subclass_type, content, created_at, updated_at)
               SELECT 'Model' AS searchable_type,
                      #{Model.quoted_table_name}.#{Model.primary_key} AS searchable_id,
+                     'Model' AS searchable_subclass_type,
                      (
                        coalesce(#{Model.quoted_table_name}.name::text, '')
                      ) AS content,
@@ -156,9 +157,10 @@ describe PgSearch::Multisearch::Rebuilder do
               end
 
             expected_sql = <<-SQL.strip_heredoc
-              INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
+              INSERT INTO "pg_search_documents" (searchable_type, searchable_id, searchable_subclass_type, content, created_at, updated_at)
                 SELECT 'ModelWithNonStandardPrimaryKey' AS searchable_type,
                        #{ModelWithNonStandardPrimaryKey.quoted_table_name}.non_standard_primary_key AS searchable_id,
+                       'ModelWithNonStandardPrimaryKey' AS searchable_subclass_type,
                        (
                          coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}.name::text, '')
                        ) AS content,

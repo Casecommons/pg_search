@@ -17,5 +17,6 @@ require 'support/with_model'
 DOCUMENTS_SCHEMA = lambda do |t|
   t.belongs_to :searchable, :polymorphic => true
   t.text :content
+  t.string :searchable_subclass_type
   t.timestamps null: false
 end

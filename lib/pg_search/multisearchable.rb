@@ -23,7 +23,7 @@ module PgSearch
         unless_conditions.all? { |condition| !condition.to_proc.call(self) }
 
       if should_have_document
-        pg_search_document ? pg_search_document.save : create_pg_search_document
+        pg_search_document ? pg_search_document.save : create_pg_search_document(:searchable_subclass_type => self.class.name)
       else
         pg_search_document.destroy if pg_search_document
       end
