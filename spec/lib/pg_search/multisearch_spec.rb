@@ -33,13 +33,13 @@ describe PgSearch::Multisearch do
       before do
         connection.execute <<-SQL.strip_heredoc
           INSERT INTO pg_search_documents
-            (searchable_type, searchable_id, content, created_at, updated_at)
+            (searchable_type, searchable_subclass_type, searchable_id, content, created_at, updated_at)
             VALUES
-            ('#{model.name}', 123, 'foo', now(), now());
+            ('#{model.name}', '#{model.name}', 123, 'foo', now(), now());
           INSERT INTO pg_search_documents
-            (searchable_type, searchable_id, content, created_at, updated_at)
+            (searchable_type, searchable_subclass_type, searchable_id, content, created_at, updated_at)
             VALUES
-            ('Bar', 123, 'foo', now(), now());
+            ('Bar', 'Bar', 123, 'foo', now(), now());
         SQL
         expect(PgSearch::Document.count).to eq(2)
       end
@@ -117,9 +117,10 @@ describe PgSearch::Multisearch do
 
         it "should generate the proper SQL code" do
           expected_sql = <<-SQL.strip_heredoc
-            INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
-              SELECT #{connection.quote(model.name)} AS searchable_type,
+            INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, searchable_subclass_type, content, created_at, updated_at)
+              SELECT #{connection.quote(model.base_class.name)} AS searchable_type,
                      #{model.quoted_table_name}.id AS searchable_id,
+                     #{connection.quote(model.name)} AS searchable_subclass_type,
                      (
                        coalesce(#{model.quoted_table_name}.title::text, '')
                      ) AS content,
@@ -144,9 +145,10 @@ describe PgSearch::Multisearch do
 
         it "should generate the proper SQL code" do
           expected_sql = <<-SQL.strip_heredoc
-            INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
-              SELECT #{connection.quote(model.name)} AS searchable_type,
+            INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, searchable_subclass_type, content, created_at, updated_at)
+              SELECT #{connection.quote(model.base_class.name)} AS searchable_type,
                      #{model.quoted_table_name}.id AS searchable_id,
+                     #{connection.quote(model.name)} AS searchable_subclass_type,
                      (
                        coalesce(#{model.quoted_table_name}.title::text, '') || ' ' || coalesce(#{model.quoted_table_name}.content::text, '')
                      ) AS content,

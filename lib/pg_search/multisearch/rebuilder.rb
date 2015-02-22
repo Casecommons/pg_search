@@ -34,9 +34,10 @@ module PgSearch
 
       def rebuild_sql_template
          <<-SQL.strip_heredoc
-          INSERT INTO :documents_table (searchable_type, searchable_id, content, created_at, updated_at)
+          INSERT INTO :documents_table (searchable_type, searchable_id, searchable_subclass_type, content, created_at, updated_at)
             SELECT :base_model_name AS searchable_type,
                    :model_table.#{primary_key} AS searchable_id,
+                   :model_name AS searchable_subclass_type,
                    (
                      :content_expressions
                    ) AS content,
