@@ -230,12 +230,14 @@ describe "an Active Record model which includes PgSearch" do
         expect(returned_record.attributes).to eq({"id" => record.id})
       end
 
-      it "supports #pluck" do
-        record = ModelWithPgSearch.create!(:content => 'foo')
-        other_record = ModelWithPgSearch.create!(:content => 'bar')
+      unless ActiveRecord::VERSION::MAJOR == 3 && ActiveRecord::VERSION::MINOR < 2
+        it "supports #pluck" do
+          record = ModelWithPgSearch.create!(:content => 'foo')
+          other_record = ModelWithPgSearch.create!(:content => 'bar')
 
-        ids = ModelWithPgSearch.search_content('foo').pluck('id')
-        expect(ids).to eq [record.id]
+          ids = ModelWithPgSearch.search_content('foo').pluck('id')
+          expect(ids).to eq [record.id]
+        end
       end
 
       it "returns rows where the column contains all the terms in the query in any order" do
