@@ -240,6 +240,17 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
+      it "supports adding where clauses using the pg_search.rank" do
+        once = ModelWithPgSearch.create!(:content => 'foo bar')
+        twice = ModelWithPgSearch.create!(:content => 'foo foo')
+
+        records = ModelWithPgSearch.search_content('foo')
+                                   .with_pg_search_rank
+                                   .where("pg_search.rank > 0.07")
+
+        expect(records).to eq [twice]
+      end
+
       it "returns rows where the column contains all the terms in the query in any order" do
         included = [ModelWithPgSearch.create!(:content => 'foo bar'),
                     ModelWithPgSearch.create!(:content => 'bar foo')]
