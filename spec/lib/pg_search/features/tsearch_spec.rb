@@ -185,6 +185,25 @@ describe PgSearch::Features::TSearch do
           %Q{(ts_headline((coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = <match>, StopSel = </match>'))}
         )
       end
+
+      it "allows a maximum number of fragments" do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model),
+        ]
+        options = { highlight: { start_sel: "<match>",
+                                 stop_sel: "</match>",
+                                 max_fragments: 2 } }
+        config = double(:config, :ignore => [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = described_class.new(query, options, columns, Model, normalizer)
+
+        expect(feature.highlight.to_sql).to eq(
+          %Q{(ts_headline((coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = <match>, StopSel = </match>, MaxFragments = 2'))}
+        )
+      end
     end
   end
 end

@@ -737,7 +737,7 @@ first_match = Person.search("Alberta").first
 first_match.pg_highlight # => "Born in rural <b>Alberta</b>, where the buffalo roam."
 ```
 
-By default, it will add the delimiters `<b>` and `</b>` around the matched text. You can customize these delimiters with the `:start_sel` and `stop_sel` options.
+By default, it will add the delimiters `<b>` and `</b>` around the matched text. You can customize these delimiters and the number of fragments returned with the `:start_sel`, `stop_sel`, and `max_fragments` options.
 
 ```ruby
 class Person < ActiveRecord::Base
@@ -748,7 +748,8 @@ class Person < ActiveRecord::Base
                     :tsearch => {
                       :highlight => {
                         :start_sel => "*BEGIN*",
-                        :stop_sel => "*END*"
+                        :stop_sel => "*END*",
+                        :max_fragments => 1
                       }
                     }
                   }
