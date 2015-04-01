@@ -15,7 +15,7 @@ require 'support/database'
 require 'support/with_model'
 
 DOCUMENTS_SCHEMA = lambda do |t|
-  t.belongs_to :searchable, :polymorphic => true
+  t.belongs_to :searchable, :polymorphic => true, :index => true
   t.text :content
   t.timestamps null: false
 end
