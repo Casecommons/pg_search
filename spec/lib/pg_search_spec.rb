@@ -78,7 +78,11 @@ describe PgSearch do
       with_model :SuperclassModel do
         table do |t|
           t.text 'content'
-          t.string 'type'
+          t.string 'inherit'
+        end
+
+        model do
+          self.inheritance_column = 'inherit'
         end
       end
 

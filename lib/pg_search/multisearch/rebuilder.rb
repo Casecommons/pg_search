@@ -54,12 +54,12 @@ module PgSearch
 
       def sti_clause
         clause = ""
-        if model.column_names.include? 'type'
+        if model.column_names.include? model.inheritance_column
           clause = "WHERE"
           if model.base_class == model
-            clause = "#{clause} type IS NULL OR"
+            clause = "#{clause} #{model.inheritance_column} IS NULL OR"
           end
-          clause = "#{clause} type = #{model_name}"
+          clause = "#{clause} #{model.inheritance_column} = #{model_name}"
         end
         clause
       end
