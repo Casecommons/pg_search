@@ -58,7 +58,7 @@ Style/BlockEndNewline:
 
 # Offense count: 14
 # Cop supports --auto-correct.
-Style/Blocks:
+Style/BlockDelimiters:
   Enabled: false
 
 # Offense count: 1
@@ -193,10 +193,6 @@ Style/RaiseArgs:
 # Configuration parameters: AllowMultipleReturnValues.
 Style/RedundantReturn:
   Enabled: false
-
-# Offense count: 2
-Style/RegexpLiteral:
-  MaxSlashes: 0
 
 # Offense count: 10
 # Cop supports --auto-correct.
