@@ -1,5 +1,7 @@
 # [pg_search](http://github.com/Casecommons/pg_search/)
 
+[![Join the chat at https://gitter.im/Casecommons/pg_search](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Casecommons/pg_search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://secure.travis-ci.org/Casecommons/pg_search.svg?branch=master)](https://travis-ci.org/Casecommons/pg_search)
 [![Code Climate](https://img.shields.io/codeclimate/github/Casecommons/pg_search.svg?style=flat)](https://codeclimate.com/github/Casecommons/pg_search)
 [![Gem Version](https://img.shields.io/gem/v/pg_search.svg?style=flat)](https://rubygems.org/gems/pg_search)
