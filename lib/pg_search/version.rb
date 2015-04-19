@@ -1,3 +1,3 @@
 module PgSearch
-  VERSION = "0.7.9".freeze
+  VERSION = "1.0.0".freeze
 end

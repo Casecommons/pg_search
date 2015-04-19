@@ -1,8 +1,14 @@
 # pg_search changelog
 
+## 1.0.0
+
+*   Support more `ActiveRecord::Relation` methods, such as `#pluck` and `#select` by moving search-related operations to subquery.
+*   Generate index by default in migration for `pg_search_documents` table.
+*   Start officially using [Semantic Versioning 2.0.0](http://semver.org/spec/v2.0.0.html).
+
 ## 0.7.9
 
-*   Improve support for single table inheritance (STI) models (Ewan McDougall)
+*   Improve support for single table inheritance (STI) models. (Ewan McDougall)
 
 ## 0.7.8
 
