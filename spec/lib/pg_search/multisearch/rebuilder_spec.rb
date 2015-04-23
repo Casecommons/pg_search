@@ -255,6 +255,43 @@ describe PgSearch::Multisearch::Rebuilder do
           end
         end
       end
+
+      context "when multisearchable is dynamic" do
+        context "explicitly via :dynamic => true" do
+          with_model :Model do
+            model do
+              include PgSearch
+              multisearchable :against => :dynamic_method, :dynamic => true
+
+              def dynamic_method
+                'not a column'
+              end
+            end
+          end
+
+          it "calls update_pg_search_document on each record" do
+            record = Model.create!
+
+            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+
+            # stub respond_to? to return false since should_not_receive defines the method
+            original_respond_to = Model.method(:respond_to?)
+            Model.stub(:respond_to?) do |method_name, *args|
+              if method_name == :rebuild_pg_search_documents
+                false
+              else
+                original_respond_to.call(method_name, *args)
+              end
+            end
+            Model.should_not_receive(:rebuild_pg_search_documents)
+
+            rebuilder.rebuild
+
+            record.pg_search_document.should be_present
+            record.pg_search_document.content.should == 'not a column'
+          end
+        end
+      end
     end
   end
 end
