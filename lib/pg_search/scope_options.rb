@@ -40,7 +40,7 @@ module PgSearch
     delegate :connection, :quoted_table_name, :to => :model
 
     def subquery
-      model
+      model.dup
         .except(:select)
         .select("#{primary_key} AS pg_search_id")
         .select("#{rank} AS rank")
