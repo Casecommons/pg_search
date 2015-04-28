@@ -40,8 +40,10 @@ module PgSearch
     delegate :connection, :quoted_table_name, :to => :model
 
     def subquery
-      model.dup
+      model
         .except(:select)
+        .except(:joins)
+        .except(:where)
         .select("#{primary_key} AS pg_search_id")
         .select("#{rank} AS rank")
         .joins(subquery_join)
