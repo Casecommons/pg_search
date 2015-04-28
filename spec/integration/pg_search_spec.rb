@@ -186,6 +186,22 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
+      context "when chained with a second pg_search_scope" do
+        before do
+          ModelWithPgSearch.pg_search_scope :search_title, :against => :title
+        end
+
+        it "should work" do
+          included = ModelWithPgSearch.create!(content: 'foo', title: 'bar')
+          excluded = ModelWithPgSearch.create!(content: 'bar', title: 'foo')
+
+          results = ModelWithPgSearch.search_content('foo').search_title('bar')
+
+          expect(results).to include included
+          expect(results).not_to include excluded
+        end
+      end
+
       it "returns an empty array when a blank query is passed in" do
         ModelWithPgSearch.create!(:content => 'foo')
 
