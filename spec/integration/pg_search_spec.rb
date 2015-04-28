@@ -248,6 +248,71 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
+      context "chained to a cross-table scope and with associated_against" do
+        with_model :House do
+          table do |t|
+            t.references :person
+            t.string :city
+            t.string :street
+          end
+
+          model do
+            belongs_to :person
+          end
+        end
+
+        with_model :Person do
+          table do |t|
+            t.string :name
+          end
+
+          model do
+            include PgSearch
+            has_many :houses
+            pg_search_scope :with_house_in_street, associated_against: {
+              houses: [:street]
+            }
+            scope :with_house_in_city, ->(city) {
+              joins(:houses).where(House.table_name.to_sym => {city: city})
+            }
+          end
+        end
+
+        it "works when the other scope is last" do
+          house_in_duluth_street_a = House.create!(city: "Duluth", street: "Street a")
+          house_in_duluth_street_b = House.create!(city: "Duluth", street: "Street b")
+          house_in_sheboygan_street_c = House.create!(city: "Sheboygan", street: "Street c")
+
+          bob_in_duluth_street_a =
+            Person.create!(name: "Bob", houses: [house_in_duluth_street_a])
+          bob_in_duluth_street_b =
+            Person.create!(name: "Bob", houses: [house_in_duluth_street_b])
+          sally_in_sheboygan_street_c =
+            Person.create!(name: "Sally", houses: [house_in_sheboygan_street_c])
+
+          results = Person.with_house_in_street("Street a").with_house_in_city("Duluth")
+          expect(results).to include bob_in_duluth_street_a
+          expect(results).not_to include [bob_in_duluth_street_b, sally_in_sheboygan_street_c]
+        end
+
+        it "works when the other scope is first" do
+          house_in_duluth_street_a = House.create!(city: "Duluth", street: "Street a")
+          house_in_duluth_street_b = House.create!(city: "Duluth", street: "Street b")
+          house_in_sheboygan_street_c = House.create!(city: "Sheboygan", street: "Street c")
+
+          bob_in_duluth_street_a =
+            Person.create!(name: "Bob", houses: [house_in_duluth_street_a])
+          bob_in_duluth_street_b =
+            Person.create!(name: "Bob", houses: [house_in_duluth_street_b])
+          sally_in_sheboygan_street_c =
+            Person.create!(name: "Sally", houses: [house_in_sheboygan_street_c])
+
+          results = Person.with_house_in_city("Duluth").with_house_in_street("Street a")
+          expect(results).to include bob_in_duluth_street_a
+          expect(results).not_to include [bob_in_duluth_street_b, sally_in_sheboygan_street_c]
+        end
+      end
+
       it "returns an empty array when a blank query is passed in" do
         ModelWithPgSearch.create!(:content => 'foo')
 
