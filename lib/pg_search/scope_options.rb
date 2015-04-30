@@ -41,9 +41,7 @@ module PgSearch
 
     def subquery
       model
-        .except(:select)
-        .except(:joins)
-        .except(:where)
+        .unscoped
         .select("#{primary_key} AS pg_search_id")
         .select("#{rank} AS rank")
         .joins(subquery_join)
