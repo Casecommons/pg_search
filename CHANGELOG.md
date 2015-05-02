@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## 1.0.1
+
+*   Call `.unscoped` on relation used to build subquery, to eliminate unnecessary JOINs. (Markus Doits)  
+
 ## 1.0.0
 
 *   Support more `ActiveRecord::Relation` methods, such as `#pluck` and `#select` by moving search-related operations to subquery.
