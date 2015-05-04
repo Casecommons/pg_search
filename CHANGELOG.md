@@ -1,8 +1,12 @@
 # pg_search changelog
 
+## 1.0.2
+
+*   Don’t use SQL to rebuild search documents when models are multisearchable against dynamic methods and not just columns. Iterate over each record with `find_each` instead.
+
 ## 1.0.1
 
-*   Call `.unscoped` on relation used to build subquery, to eliminate unnecessary JOINs. (Markus Doits)  
+*   Call `.unscoped` on relation used to build subquery, to eliminate unnecessary JOINs. (Markus Doits)
 
 ## 1.0.0
 
