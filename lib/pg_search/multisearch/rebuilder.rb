@@ -13,7 +13,7 @@ module PgSearch
       def rebuild
         if model.respond_to?(:rebuild_pg_search_documents)
           model.rebuild_pg_search_documents
-        elsif model.pg_search_multisearchable_options.key?(:if) || model.pg_search_multisearchable_options.key?(:unless)
+        elsif conditional? || dynamic?
           model.find_each { |record| record.update_pg_search_document }
         else
           model.connection.execute(rebuild_sql)
@@ -23,6 +23,15 @@ module PgSearch
       private
 
       attr_reader :model
+
+      def conditional?
+        model.pg_search_multisearchable_options.key?(:if) || model.pg_search_multisearchable_options.key?(:unless)
+      end
+
+      def dynamic?
+        column_names = model.columns.map(&:name)
+        columns.any? { |column| !column_names.include?(column.to_s) }
+      end
 
       def connection
         model.connection
