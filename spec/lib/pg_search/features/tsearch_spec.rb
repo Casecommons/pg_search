@@ -124,6 +124,23 @@ describe PgSearch::Features::TSearch do
         )
       end
     end
+
+    context "when column is a tsvector_column" do
+      it 'uses the tsvector column' do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:my_tsvector, { tsvector_column: true }, Model),
+        ]
+        options = { }
+        config = double(:config, :ignore => [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = described_class.new(query, options, columns, Model, normalizer)
+        expect(feature.conditions.to_sql).to eq(
+          %Q{((coalesce(#{Model.quoted_table_name}.\"my_tsvector\", '')) @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+        )
+      end
+    end
   end
 
   describe "#highlight" do
