@@ -67,3 +67,5 @@ def load_sql(filename)
 end
 
 load_sql("dmetaphone.sql")
+
+load_sql("tsvector_agg.sql") unless connection.select_value("SELECT 1 FROM pg_catalog.pg_aggregate WHERE aggfnoid = 'tsvector_agg'::REGPROC") == "1"

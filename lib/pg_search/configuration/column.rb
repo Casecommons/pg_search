@@ -5,12 +5,17 @@ require 'digest'
 module PgSearch
   class Configuration
     class Column
-      attr_reader :weight, :name
+      attr_reader :weight, :tsvector_column, :name
 
       def initialize(column_name, weight, model)
         @name = column_name.to_s
         @column_name = column_name.to_s
-        @weight = weight
+        if weight.is_a?(Hash)
+          @weight = weight[:weight]
+          @tsvector_column = weight[:tsvector_column]
+        else
+          @weight = weight
+        end
         @model = model
         @connection = model.connection
       end
@@ -20,7 +25,11 @@ module PgSearch
       end
 
       def to_sql
-        "coalesce(#{expression}::text, '')"
+        if tsvector_column
+          "coalesce(#{expression}, '')"
+        else
+          "coalesce(#{expression}::text, '')"
+        end
       end
 
       private
