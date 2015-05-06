@@ -5,7 +5,7 @@
 [![Gem Version](https://img.shields.io/gem/v/pg_search.svg?style=flat)](https://rubygems.org/gems/pg_search)
 [![Dependency Status](https://img.shields.io/gemnasium/Casecommons/pg_search.svg?style=flat)](https://gemnasium.com/Casecommons/pg_search)
 [![Inline docs](http://inch-ci.org/github/Casecommons/pg_search.svg?branch=master&style=flat)](http://inch-ci.org/github/Casecommons/pg_search)
-[![Join the chat at https://gitter.im/Casecommons/pg_search](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Casecommons/pg_search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/Casecommons/pg_search](https://img.shields.io/badge/gitter-join%20chat-blue.svg)](https://gitter.im/Casecommons/pg_search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## DESCRIPTION
 
