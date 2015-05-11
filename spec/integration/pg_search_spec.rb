@@ -1182,50 +1182,6 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
-    context "on an STI subclass" do
-      with_model :SuperclassModel do
-        table do |t|
-          t.text 'content'
-          t.string 'type'
-        end
-
-        model do
-          include PgSearch
-        end
-      end
-
-      before do
-        SuperclassModel.pg_search_scope :search_content, :against => :content
-
-        class SearchableSubclassModel < SuperclassModel
-        end
-
-        class AnotherSearchableSubclassModel < SuperclassModel
-        end
-      end
-
-      it "returns only results for that subclass" do
-        included = [
-          SearchableSubclassModel.create!(:content => "foo bar")
-        ]
-        excluded = [
-          SearchableSubclassModel.create!(:content => "baz"),
-          SuperclassModel.create!(:content => "foo bar"),
-          SuperclassModel.create!(:content => "baz"),
-          AnotherSearchableSubclassModel.create!(:content => "foo bar"),
-          AnotherSearchableSubclassModel.create!(:content => "baz")
-        ]
-
-        expect(SuperclassModel.count).to eq(6)
-        expect(SearchableSubclassModel.count).to eq(2)
-
-        results = SearchableSubclassModel.search_content("foo bar")
-
-        expect(results).to include(*included)
-        expect(results).not_to include(*excluded)
-      end
-    end
-
     context "when there is a sort only feature" do
       it "excludes that feature from the conditions, but uses it in the sorting" do
         ModelWithPgSearch.pg_search_scope :search_content_ranked_by_dmetaphone,
