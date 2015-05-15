@@ -84,12 +84,14 @@ describe PgSearch do
         end
 
         before do
-          searchable_subclass_model = Class.new(SuperclassModel) do
+          stub_const("SearchableSubclassModel", Class.new(SuperclassModel) {
             include PgSearch
             multisearchable :against => :content
-          end
-          stub_const("SearchableSubclassModel", searchable_subclass_model)
-          stub_const("AnotherSearchableSubclassModel", searchable_subclass_model)
+          })
+          stub_const("AnotherSearchableSubclassModel", Class.new(SuperclassModel) {
+            include PgSearch
+            multisearchable :against => :content
+          })
           stub_const("NonSearchableSubclassModel", Class.new(SuperclassModel))
         end
 
@@ -177,12 +179,14 @@ describe PgSearch do
         end
 
         before do
-          searchable_subclass_model = Class.new(SuperclassModel) do
+          stub_const("SearchableSubclassModel", Class.new(SuperclassModel) {
             include PgSearch
             multisearchable :against => :content
-          end
-          stub_const("SearchableSubclassModel", searchable_subclass_model)
-          stub_const("AnotherSearchableSubclassModel", searchable_subclass_model)
+          })
+          stub_const("AnotherSearchableSubclassModel", Class.new(SuperclassModel) {
+            include PgSearch
+            multisearchable :against => :content
+          })
           stub_const("NonSearchableSubclassModel", Class.new(SuperclassModel))
         end
 
