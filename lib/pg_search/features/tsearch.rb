@@ -4,6 +4,10 @@ require "active_support/core_ext/module/delegation"
 module PgSearch
   module Features
     class TSearch < Feature
+      def self.valid_options
+        super + [:dictionary, :prefix, :negation, :any_word, :normalization, :tsvector_column]
+      end
+
       def initialize(*args)
         super
 
