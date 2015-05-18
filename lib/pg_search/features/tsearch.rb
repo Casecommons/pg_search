@@ -122,10 +122,14 @@ module PgSearch
       end
 
       def column_to_tsvector(search_column)
-        tsvector = Arel::Nodes::NamedFunction.new(
-          "to_tsvector",
-          [dictionary, Arel.sql(normalize(search_column.to_sql))]
-        ).to_sql
+        if search_column.tsvector?
+          tsvector = Arel.sql(normalize(search_column.to_sql_no_cast))
+        else
+          tsvector = Arel::Nodes::NamedFunction.new(
+            "to_tsvector",
+            [dictionary, Arel.sql(normalize(search_column.to_sql))]
+          ).to_sql
+        end
 
         if search_column.weight.nil?
           tsvector
