@@ -14,7 +14,11 @@ module PgSearch
 
     def apply(scope)
       unless scope.instance_variable_get(:@pg_search_scope_applied_count)
-        scope = scope.all.spawn
+        scope = if ::ActiveRecord::VERSION::STRING < "4.0.0"
+                  scope.scoped
+                else
+                  scope.all.spawn
+                end
       end
 
       alias_id = scope.instance_variable_get(:@pg_search_scope_applied_count) || 0

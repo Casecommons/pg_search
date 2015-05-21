@@ -256,7 +256,7 @@ describe "an Active Record model which includes PgSearch" do
           it "does not raise an exception" do
             relation = Person.named('foo').house_search_city('bar')
 
-            expect { relation.load }.to_not raise_error
+            expect { relation.to_a }.to_not raise_error
           end
         end
       end
@@ -269,7 +269,7 @@ describe "an Active Record model which includes PgSearch" do
         it "does not raise an exception" do
           relation = ModelWithPgSearch.search_content('foo').search_title('bar')
 
-          expect { relation.load }.to_not raise_error
+          expect { relation.to_a }.to_not raise_error
         end
       end
 
