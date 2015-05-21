@@ -13,12 +13,12 @@ module PgSearch
     end
 
     def apply(scope)
-      unless scope.instance_variable_get(:@scope_applied_count)
+      unless scope.instance_variable_get(:@pg_search_scope_applied_count)
         scope = scope.all.spawn
       end
 
-      alias_id = scope.instance_variable_get(:@scope_applied_count) || 0
-      scope.instance_variable_set(:@scope_applied_count, alias_id + 1)
+      alias_id = scope.instance_variable_get(:@pg_search_scope_applied_count) || 0
+      scope.instance_variable_set(:@pg_search_scope_applied_count, alias_id + 1)
 
       aka = pg_search_alias scope, alias_id
 
