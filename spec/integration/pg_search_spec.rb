@@ -209,10 +209,10 @@ describe "an Active Record model which includes PgSearch" do
             include PgSearch
             has_many :houses
             pg_search_scope :named, against: [:name]
-            scope :with_house_in_city, -> (city) {
+            scope :with_house_in_city, ->(city) {
               joins(:houses).where(House.table_name.to_sym => {city: city})
             }
-            scope :house_search_city, -> (query) {
+            scope :house_search_city, ->(query) {
               joins(:houses).merge(House.search_city(query))
             }
           end
