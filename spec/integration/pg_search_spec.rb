@@ -194,7 +194,9 @@ describe "an Active Record model which includes PgSearch" do
           end
 
           model do
+            include PgSearch
             belongs_to :person
+            pg_search_scope :search_city, against: [:city]
           end
         end
 
@@ -209,6 +211,9 @@ describe "an Active Record model which includes PgSearch" do
             pg_search_scope :named, against: [:name]
             scope :with_house_in_city, ->(city) {
               joins(:houses).where(House.table_name.to_sym => {city: city})
+            }
+            scope :house_search_city, ->(query) {
+              joins(:houses).merge(House.search_city(query))
             }
           end
         end
@@ -245,6 +250,26 @@ describe "an Active Record model which includes PgSearch" do
           results = Person.with_house_in_city("Duluth").named("Bob")
           expect(results).to include bob_in_duluth
           expect(results).not_to include [bob_in_sheboygan, sally_in_duluth]
+        end
+
+        context "when chaining merged scopes" do
+          it "does not raise an exception" do
+            relation = Person.named('foo').house_search_city('bar')
+
+            expect { relation.to_a }.to_not raise_error
+          end
+        end
+      end
+
+      context "when chaining scopes" do
+        before do
+          ModelWithPgSearch.pg_search_scope :search_title, against: :title
+        end
+
+        it "does not raise an exception" do
+          relation = ModelWithPgSearch.search_content('foo').search_title('bar')
+
+          expect { relation.to_a }.to_not raise_error
         end
       end
 
@@ -307,7 +332,7 @@ describe "an Active Record model which includes PgSearch" do
         twice = ModelWithPgSearch.create!(:content => 'foo foo')
 
         records = ModelWithPgSearch.search_content('foo')
-                  .where("pg_search.rank > 0.07")
+                  .where("pg_search_#{ModelWithPgSearch.table_name}.rank > 0.07")
 
         expect(records).to eq [twice]
       end

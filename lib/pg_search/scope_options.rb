@@ -13,9 +13,22 @@ module PgSearch
     end
 
     def apply(scope)
+      unless scope.instance_variable_get(:@pg_search_scope_applied_count)
+        scope = if ::ActiveRecord::VERSION::STRING < "4.0.0"
+                  scope.scoped
+                else
+                  scope.all.spawn
+                end
+      end
+
+      alias_id = scope.instance_variable_get(:@pg_search_scope_applied_count) || 0
+      scope.instance_variable_set(:@pg_search_scope_applied_count, alias_id + 1)
+
+      aka = pg_search_alias scope, alias_id
+
       scope
-        .joins(rank_join)
-        .order("pg_search.rank DESC, #{order_within_rank}")
+        .joins(rank_join(aka))
+        .order("#{aka}.rank DESC, #{order_within_rank}")
         .extend(DisableEagerLoading)
         .extend(WithPgSearchRank)
     end
@@ -31,7 +44,10 @@ module PgSearch
       def with_pg_search_rank
         scope = self
         scope = scope.select("*") unless scope.select_values.any?
-        scope.select("pg_search.rank AS pg_search_rank")
+        arel_table = scope.instance_variable_get(:@table)
+        aka = "pg_search_#{arel_table.name}"
+
+        scope.select("#{aka}.rank AS pg_search_rank")
       end
     end
 
@@ -105,8 +121,15 @@ module PgSearch
       end
     end
 
-    def rank_join
-      "INNER JOIN (#{subquery.to_sql}) pg_search ON #{primary_key} = pg_search.pg_search_id"
+    def pg_search_alias(scope, n)
+      arel_table = scope.instance_variable_get(:@table)
+      prefix = "pg_search_#{arel_table.name}"
+
+      0 == n ? prefix : "#{prefix}_#{n}"
+    end
+
+    def rank_join(aka)
+      "INNER JOIN (#{subquery.to_sql}) #{aka} ON #{primary_key} = #{aka}.pg_search_id"
     end
   end
 end
