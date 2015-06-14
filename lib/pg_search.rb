@@ -33,16 +33,10 @@ module PgSearch
                        lambda { |query| {:query => query}.merge(options) }
                      end
 
-      method_proc = lambda do |*args|
+      define_singleton_method(name) do |*args|
         config = Configuration.new(options_proc.call(*args), self)
         scope_options = ScopeOptions.new(config)
         scope_options.apply(self)
-      end
-
-      if respond_to?(:define_singleton_method)
-        define_singleton_method name, &method_proc
-      else
-        (class << self; self; end).send :define_method, name, &method_proc
       end
     end
 
