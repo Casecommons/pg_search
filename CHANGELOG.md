@@ -1,5 +1,10 @@
 # pg_search changelog
 
+## 1.0.4
+
+*   Assert valid options for features. (Janko Marohnić)
+*   Enable chaining of pg_search scopes. (Nicolas Buduroi)
+
 ## 1.0.3
 
 *   Support STI models using a custom inheritance column. (Nick Doiron)
