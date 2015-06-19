@@ -44,8 +44,7 @@ module PgSearch
       def with_pg_search_rank
         scope = self
         scope = scope.select("*") unless scope.select_values.any?
-        arel_table = scope.instance_variable_get(:@table)
-        aka = "pg_search_#{arel_table.name}"
+        aka = "pg_search_#{scope.arel_table.name}"
 
         scope.select("#{aka}.rank AS pg_search_rank")
       end
@@ -121,10 +120,8 @@ module PgSearch
       end
     end
 
-    def pg_search_alias(scope, n)
-      arel_table = scope.instance_variable_get(:@table)
-      prefix = "pg_search_#{arel_table.name}"
-
+    def pg_search_alias(scope, n = 0)
+      prefix = "pg_search_#{scope.arel_table.name}"
       0 == n ? prefix : "#{prefix}_#{n}"
     end
 
