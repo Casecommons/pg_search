@@ -1039,19 +1039,36 @@ descending by updated_at, to rank the most recently updated records first.
 pg_search_scope :search_and_break_ties_by_latest_update,
                 :against => [:title, :content],
                 :order_within_rank => "blog_posts.updated_at DESC"
-````
+```
 
 #### PgSearch#pg_search_rank (Reading a record's rank as a Float)
 
 It may be useful or interesting to see the rank of a particular record. This
 can be helpful for debugging why one record outranks another. You could also
 use it to show some sort of relevancy value to end users of an application.
-Just call .pg_search_rank on a record returned by a pg_search_scope.
+
+To retrieve the rank, call `.with_pg_search_rank` on a scope, and then call
+`.pg_search_rank` on a returned record.
+
+```ruby
+shirt_brands = ShirtBrand.search_by_name("Penguin").with_pg_search_rank
+shirt_brands[0].pg_search_rank #=> 0.0759909
+shirt_brands[1].pg_search_rank #=> 0.0607927
+```
+
+#### Search rank and chained scopes
+
+Each PgSearch scope generates a named subquery for the search rank.  If you
+chain multiple scopes then PgSearch will generate a ranking query for each
+scope, so the ranking queries must have unique names.  If you need to reference
+the ranking query (e.g. in a GROUP BY clause) you can regenerate the subquery
+name with the `PgScope::Configuration.alias` method by passing the name of the
+queried table.
 
 ```ruby
 shirt_brands = ShirtBrand.search_by_name("Penguin")
-shirt_brands[0].pg_search_rank #=> 0.0759909
-shirt_brands[1].pg_search_rank #=> 0.0607927
+  .joins(:shirt_sizes)
+  .group_by('shirt_brands.id, #{PgSearch::Configuration.alias('shirt_brands')}.rank')
 ```
 
 ## ATTRIBUTIONS
