@@ -40,13 +40,13 @@ module PgSearch
 
     module PgSearchRankTableAliasing
       def pg_search_rank_table_alias(include_counter = false)
-        prefix = "pg_search_#{arel_table.name}"
+        components = [arel_table.name]
         if include_counter
           count = pg_search_scope_application_count_plus_plus
-          count.zero? ? prefix : "#{prefix}_#{count}"
-        else
-          prefix
+          components << count if count > 0
         end
+
+        Configuration.alias(components)
       end
 
       private
