@@ -15,17 +15,25 @@ module PgSearch
     end
 
     def update_pg_search_document
-      if_conditions = Array(pg_search_multisearchable_options[:if])
-      unless_conditions = Array(pg_search_multisearchable_options[:unless])
+      against_conditions = Array(pg_search_multisearchable_options[:against])
+      against_conditions = attributes.keys if against_conditions.blank?
 
-      should_have_document =
-        if_conditions.all? { |condition| condition.to_proc.call(self) } &&
-        unless_conditions.all? { |condition| !condition.to_proc.call(self) }
+      columns_in_against_option = against_conditions.map &:to_sym
+      columns_which_changed = changed.map &:to_sym
 
-      if should_have_document
-        pg_search_document ? pg_search_document.save : create_pg_search_document
-      else
-        pg_search_document.destroy if pg_search_document
+      if (columns_in_against_option & columns_which_changed).size > 0
+        if_conditions = Array(pg_search_multisearchable_options[:if])
+        unless_conditions = Array(pg_search_multisearchable_options[:unless])
+
+        should_have_document =
+          if_conditions.all? { |condition| condition.to_proc.call(self) } &&
+          unless_conditions.all? { |condition| !condition.to_proc.call(self) }
+
+        if should_have_document
+          pg_search_document ? pg_search_document.save : create_pg_search_document
+        else
+          pg_search_document.destroy if pg_search_document
+        end
       end
     end
   end
