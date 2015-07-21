@@ -10,7 +10,7 @@ module PgSearch
         @time_source = time_source
       end
 
-      def rebuild # rubocop:disable Metrics/AbcSize
+      def rebuild
         if model.respond_to?(:rebuild_pg_search_documents)
           model.rebuild_pg_search_documents
         elsif conditional? || dynamic?
