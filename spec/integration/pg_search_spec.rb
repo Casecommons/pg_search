@@ -509,7 +509,7 @@ describe "an Active Record model which includes PgSearch" do
         in_title = ModelWithPgSearch.create!(:title => 'foo', :content => 'bar')
         in_content = ModelWithPgSearch.create!(:title => 'bar', :content => 'foo')
 
-        results  = ModelWithPgSearch.search_title_and_content('foo')
+        results = ModelWithPgSearch.search_title_and_content('foo')
         expect(results).to match_array([in_title, in_content])
       end
 
