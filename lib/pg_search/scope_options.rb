@@ -13,12 +13,13 @@ module PgSearch
     end
 
     def apply(scope)
-      scope = include_table_aliasing_for_rank(scope)
-      rank_table_alias = scope.pg_search_rank_table_alias(:include_counter)
+      if @config.ignore.include? :rank
+        scope = scope.where(conditions)
+      else
+        scope = apply_ranked(scope)
+      end
 
       scope
-        .joins(rank_join(rank_table_alias))
-        .order("#{rank_table_alias}.rank DESC, #{order_within_rank}")
         .extend(DisableEagerLoading)
         .extend(WithPgSearchRank)
     end
@@ -66,6 +67,15 @@ module PgSearch
     private
 
     delegate :connection, :quoted_table_name, :to => :model
+
+    def apply_ranked(scope)
+      scope = include_table_aliasing_for_rank(scope)
+      rank_table_alias = scope.pg_search_rank_table_alias(:include_counter)
+
+      scope
+        .joins(rank_join(rank_table_alias))
+        .order("#{rank_table_alias}.rank DESC, #{order_within_rank}")
+    end
 
     def subquery
       model
