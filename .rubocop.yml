@@ -22,3 +22,8 @@ Style/AlignParameters:
 
 Style/HashSyntax:
   Enabled: false
+
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    '%w': '[]'
+    '%W': '[]'

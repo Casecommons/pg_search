@@ -10,7 +10,7 @@ describe PgSearch::Configuration::Column do
 
     it "returns the fully-qualified table and column name" do
       column = described_class.new("name", nil, Model)
-      expect(column.full_name).to eq(%{#{Model.quoted_table_name}."name"})
+      expect(column.full_name).to eq(%(#{Model.quoted_table_name}."name"))
     end
   end
 

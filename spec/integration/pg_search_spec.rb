@@ -727,11 +727,11 @@ describe "an Active Record model which includes PgSearch" do
         end
 
         it "returns all results containing any word in their title" do
-          numbers = %w(one two three four).map{|number| ModelWithPgSearch.create!(:title => number)}
+          numbers = %w[one two three four].map{|number| ModelWithPgSearch.create!(:title => number)}
 
           results = ModelWithPgSearch.search_title_with_any_word("one two three four")
 
-          expect(results.map(&:title)).to eq(%w(one two three four))
+          expect(results.map(&:title)).to eq(%w[one two three four])
 
           results = ModelWithPgSearch.search_title_with_all_words("one two three four")
 

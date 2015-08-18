@@ -14,12 +14,6 @@ Style/Documentation:
 Style/NumericLiterals:
   MinDigits: 6
 
-# Offense count: 12
-# Cop supports --auto-correct.
-# Configuration parameters: PreferredDelimiters.
-Style/PercentLiteralDelimiters:
-  Enabled: false
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
