@@ -131,11 +131,11 @@ module PgSearch
           ).to_sql
         end
 
-        if search_column.weight.nil?
-          tsvector
-        else
-          "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
+        if search_column.weight
+          tsvector = "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
         end
+
+        tsvector
       end
     end
   end
