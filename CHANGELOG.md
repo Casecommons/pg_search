@@ -1,5 +1,10 @@
 # pg_search changelog
 
+## 1.0.5
+
+*   Clean up rank table aliasing (Adam Milligan)
+*   Fix issue when using `#with_pg_search_rank` across a join (Reid Lynch)
+
 ## 1.0.4
 
 *   Assert valid options for features. (Janko Marohnić)
