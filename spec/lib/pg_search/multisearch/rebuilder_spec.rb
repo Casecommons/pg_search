@@ -3,6 +3,19 @@ require "spec_helper"
 describe PgSearch::Multisearch::Rebuilder do
   with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
+  describe 'when intialized with a model that is not multisearchable' do
+    with_model :not_multisearchable
+
+    it 'raises an exception' do
+      expect {
+        PgSearch::Multisearch::Rebuilder.new(NotMultisearchable)
+      }.to raise_exception(
+        PgSearch::Multisearch::ModelNotMultisearchable,
+        "NotMultisearchable is not multisearchable. See PgSearch::ClassMethods#multisearchable"
+      )
+    end
+  end
+
   describe "#rebuild" do
     context "when the model defines .rebuild_pg_search_documents" do
       context "and multisearchable is not conditional" do
