@@ -1068,7 +1068,7 @@ queried table.
 ```ruby
 shirt_brands = ShirtBrand.search_by_name("Penguin")
   .joins(:shirt_sizes)
-  .group_by('shirt_brands.id, #{PgSearch::Configuration.alias('shirt_brands')}.rank')
+  .group('shirt_brands.id, #{PgSearch::Configuration.alias('shirt_brands')}.rank')
 ```
 
 ## ATTRIBUTIONS
