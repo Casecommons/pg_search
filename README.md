@@ -7,6 +7,7 @@
 [![Dependency Status](https://img.shields.io/gemnasium/Casecommons/pg_search.svg?style=flat)](https://gemnasium.com/Casecommons/pg_search)
 [![Inline docs](http://inch-ci.org/github/Casecommons/pg_search.svg?branch=master&style=flat)](http://inch-ci.org/github/Casecommons/pg_search)
 [![Join the chat at https://gitter.im/Casecommons/pg_search](https://img.shields.io/badge/gitter-join%20chat-blue.svg)](https://gitter.im/Casecommons/pg_search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Stories in Ready](https://badge.waffle.io/Casecommons/pg_search.svg?label=ready&title=Ready)](https://waffle.io/Casecommons/pg_search)
 
 ## DESCRIPTION
 
