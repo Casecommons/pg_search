@@ -5,34 +5,34 @@ module PgSearch
     class Column
       attr_reader :weight, :name
 
-      def initialize(column_name, weight, model)
-        @name = column_name.to_s
-        @column_name = column_name.to_s
-        @weight = weight
+      def initialize(column, weight, model)
+        column = PlainColumn.new(column) unless column.is_a?(PlainColumn)
+        @column = column
+        @name = @column.name
         @model = model
-        @connection = model.connection
-      end
-
-      def full_name
-        "#{table_name}.#{column_name}"
+        @weight = weight
       end
 
       def to_sql
-        "coalesce(#{expression}::text, '')"
+        "coalesce(#{@column.to_sql(connection, *to_sql_options)}::text, '')"
+      end
+
+      def full_name
+        @column.full_name(connection, *full_name_options)
       end
 
       private
 
-      def table_name
-        @model.quoted_table_name
+      def connection
+        @model.connection
       end
 
-      def column_name
-        @connection.quote_column_name(@column_name)
+      def to_sql_options
+        [@model.table_name]
       end
 
-      def expression
-        full_name
+      def full_name_options
+        [@model.table_name]
       end
     end
   end

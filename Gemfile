@@ -4,6 +4,7 @@ gemspec
 
 gem 'pg', :platform => :ruby
 gem "activerecord-jdbcpostgresql-adapter", ">= 1.3.1", :platform => :jruby
+gem 'activerecord-postgres-hstore'
 
 if ENV['ACTIVE_RECORD_BRANCH']
   gem 'activerecord', :git => 'https://github.com/rails/rails.git', :branch => ENV['ACTIVE_RECORD_BRANCH']

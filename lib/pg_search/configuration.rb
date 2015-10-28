@@ -1,6 +1,8 @@
 require "pg_search/configuration/association"
 require "pg_search/configuration/column"
 require "pg_search/configuration/foreign_column"
+require "pg_search/configuration/plain_column"
+require "pg_search/configuration/hstore_column"
 
 module PgSearch
   class Configuration

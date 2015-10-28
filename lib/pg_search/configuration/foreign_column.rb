@@ -3,25 +3,27 @@ require 'digest'
 module PgSearch
   class Configuration
     class ForeignColumn < Column
-      attr_reader :weight
-
-      def initialize(column_name, weight, model, association)
-        super(column_name, weight, model)
+      def initialize(column, weight, model, association)
+        super(column, weight, model)
         @association = association
       end
 
       def alias
-        Configuration.alias(@association.subselect_alias, @column_name)
+        Configuration.alias(table_alias, @column.name)
       end
 
       private
 
-      def expression
-        "#{@association.subselect_alias}.#{self.alias}"
+      def table_alias
+        @association.subselect_alias
       end
 
-      def table_name
-        @connection.quote_table_name(@association.table_name)
+      def to_sql_options
+        [table_alias, self.alias]
+      end
+
+      def full_name_options
+        [@association.table_name]
       end
     end
   end
