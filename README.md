@@ -503,7 +503,7 @@ end
 
 The currently implemented features are
 
-*   :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html) 
+*   :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html)
     (built-in with 8.3 and later, available as a contrib package for some earlier versions)
 *   :trigram - [Trigram search](http://www.postgresql.org/docs/current/static/pgtrgm.html), which
     requires the trigram contrib package
@@ -614,7 +614,7 @@ Animal.with_name_matching("fish !red !blue") # => [one_fish, two_fish]
 
 PostgreSQL full text search also support multiple dictionaries for stemming.
 You can learn more about how dictionaries work by reading the [PostgreSQL
-documention](http://www.postgresql.org/docs/current/static/textsearch-dictionaries.html). 
+documention](http://www.postgresql.org/docs/current/static/textsearch-dictionaries.html).
 If you use one of the language dictionaries, such as "english",
 then variants of words (e.g. "jumping" and "jumped") will match each other. If
 you don't want stemming, you should pick the "simple" dictionary which does
@@ -837,12 +837,12 @@ Vegetable.roughly_spelled_like("collyflower") # => [cauliflower]
 Vegetable.strictly_spelled_like("collyflower") # => []
 ```
 
-### Limiting Fields When Combining Features 
+### Limiting Fields When Combining Features
 
-Sometimes when doing queries combining different features you 
+Sometimes when doing queries combining different features you
 might want to searching against only some of the fields with certain features.
 For example perhaps you want to only do a trigram search against the shorter fields
-so that you don't need to reduce the threshold excessively. You can specify 
+so that you don't need to reduce the threshold excessively. You can specify
 which fields using the 'only' option:
 
 ```ruby
@@ -861,7 +861,7 @@ class Image < ActiveRecord::Base
 end
 ```
 
-Now you can succesfully retrieve an Image with a file_name: 'image_foo.jpg' 
+Now you can succesfully retrieve an Image with a file_name: 'image_foo.jpg'
 and long_description: 'This description is so long that it would make a trigram search
 fail any reasonable threshold limit' with:
 
@@ -944,7 +944,7 @@ To use this functionality you'll need to do a few things:
     In your `config/application.rb` you should set
 
         config.active_record.schema_format = :sql
-        
+
     Read more about it here: http://guides.rubyonrails.org/migrations.html#types-of-schema-dumps
 
 
@@ -1040,6 +1040,14 @@ descending by updated_at, to rank the most recently updated records first.
 pg_search_scope :search_and_break_ties_by_latest_update,
                 :against => [:title, :content],
                 :order_within_rank => "blog_posts.updated_at DESC"
+```
+
+You can completely omit the tiebreaker by passing `false` value.
+
+```ruby
+pg_search_scope :search_and_ignore_ties_by_latest_update,
+                :against => [:title, :content],
+                :order_within_rank => false
 ```
 
 #### PgSearch#pg_search_rank (Reading a record's rank as a Float)
