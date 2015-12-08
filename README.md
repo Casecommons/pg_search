@@ -240,7 +240,7 @@ receive SQL requests when necessary.
 ```ruby
 PgSearch.multisearch("Bertha").limit(10)
 PgSearch.multisearch("Juggler").where(:searchable_type => "Occupation")
-PgSearch.multisearch("Alamo").page(3).per_page(30)
+PgSearch.multisearch("Alamo").page(3).per(30)
 PgSearch.multisearch("Diagonal").find_each do |document|
   puts document.searchable.updated_at
 end
