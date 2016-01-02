@@ -23,6 +23,7 @@ env:
 
 matrix:
   allow_failures:
+    - rvm: "2.3"
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="4-2-stable"
     - env: ACTIVE_RECORD_BRANCH="4-1-stable"
