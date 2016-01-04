@@ -805,7 +805,9 @@ Website.kinda_spelled_like("Yahoo!") # => [yahooo, yohoo]
 By default, trigram searches find records which have a similarity of at least 0.3
 using pg_trgm's calculations. You may specify a custom threshold if you prefer.
 Higher numbers match more strictly, and thus return fewer results. Lower numbers
-match more permissively, letting in more results.
+match more permissively, letting in more results. Please note that setting a trigram
+threshold will force a table scan as the derived query uses the
+`similarity()` function instead of the `%` operator.
 
 ```ruby
 class Vegetable < ActiveRecord::Base
