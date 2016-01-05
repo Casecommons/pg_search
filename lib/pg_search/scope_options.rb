@@ -21,6 +21,7 @@ module PgSearch
         .order("#{rank_table_alias}.rank DESC, #{order_within_rank}")
         .extend(DisableEagerLoading)
         .extend(WithPgSearchRank)
+        .extend(WithPgSearchHighlight[feature_for(:tsearch)])
     end
 
     # workaround for https://github.com/Casecommons/pg_search/issues/14
@@ -28,6 +29,33 @@ module PgSearch
       def eager_loading?
         return false
       end
+    end
+
+    module WithPgSearchHighlight
+      def self.[](tsearch)
+        Module.new do
+          include WithPgSearchHighlight
+          define_method(:tsearch) { tsearch }
+        end
+      end
+
+      def tsearch
+        raise TypeError.new("You need to instantiate this module with []")
+      end
+
+      def with_pg_search_highlight
+        scope = self
+        scope.select(pg_search_highlight_field)
+      end
+
+      def pg_search_highlight_field
+        "(#{highlight}) AS pg_search_highlight, #{table_name}.*"
+      end
+
+      def highlight
+        tsearch.highlight.to_sql
+      end
+
     end
 
     module WithPgSearchRank

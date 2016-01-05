@@ -618,6 +618,33 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
+      describe "highlighting" do
+        before do
+          ["Strip Down", "Down", "Down and Out", "Won't Let You Down"].each do |name|
+            ModelWithPgSearch.create! :content => name
+          end
+        end
+
+        context "with highlight turned on" do
+          before do
+            ModelWithPgSearch.pg_search_scope :search_content,
+              :against => :content
+          end
+
+          it "adds a #pg_search_highlight method to each returned model record" do
+            result = ModelWithPgSearch.search_content("Strip Down").with_pg_search_highlight.first
+
+            expect(result.pg_search_highlight).to be_a(String)
+          end
+
+          it "returns excerpts of text where search match occurred" do
+            result = ModelWithPgSearch.search_content("Let").with_pg_search_highlight.first
+
+            expect(result.pg_search_highlight).to eq("Won't <b>Let</b> You Down")
+          end
+        end
+      end
+
       describe "ranking" do
         before do
           ["Strip Down", "Down", "Down and Out", "Won't Let You Down"].each do |name|

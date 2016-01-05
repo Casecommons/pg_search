@@ -5,7 +5,7 @@ module PgSearch
   module Features
     class TSearch < Feature
       def self.valid_options
-        super + [:dictionary, :prefix, :negation, :any_word, :normalization, :tsvector_column]
+        super + [:dictionary, :prefix, :negation, :any_word, :normalization, :tsvector_column, :highlight]
       end
 
       def initialize(*args)
@@ -14,6 +14,12 @@ module PgSearch
         if options[:prefix] && model.connection.send(:postgresql_version) < 80400
           raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
             Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
+          MESSAGE
+        end
+
+        if options[:highlight] && model.connection.send(:postgresql_version) < 90000
+          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
+            Sorry, {:using => {:tsearch => {:highlight => true}}} only works in PostgreSQL 9.0 and above.")
           MESSAGE
         end
       end
@@ -28,7 +34,28 @@ module PgSearch
         arel_wrap(tsearch_rank)
       end
 
+      def highlight
+        arel_wrap(ts_headline)
+      end
+
       private
+
+      def ts_headline
+        "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"
+      end
+
+      def ts_headline_options
+        return nil unless options[:highlight].is_a?(Hash)
+
+        headline_options = {}
+        headline_options["StartSel"] = options[:highlight][:start_sel]
+        headline_options["StopSel"] = options[:highlight][:stop_sel]
+        headline_options["MaxFragments"] = options[:highlight][:max_fragments]
+
+        headline_options.map do |key, value|
+          "#{key} = #{value}" if value
+        end.compact.join(", ")
+      end
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
 
