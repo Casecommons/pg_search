@@ -55,7 +55,6 @@ module PgSearch
       def highlight
         tsearch.highlight.to_sql
       end
-
     end
 
     module WithPgSearchRank
