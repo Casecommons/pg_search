@@ -103,7 +103,7 @@ module PgSearch
     end
 
     def subquery_join
-      if config.associations.any? # rubocop:disable Style/GuardClause
+      if config.associations.any?
         config.associations.map do |association|
           association.join(primary_key)
         end.join(' ')
