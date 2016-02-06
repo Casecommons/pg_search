@@ -143,9 +143,59 @@ describe PgSearch::Multisearchable do
 
         it "sets the attributes" do
           allow(record).to receive(:bar).and_return(text)
-          expect_any_instance_of(PgSearch::Document)
-            .to receive(:update).with(content: '', foo: text)
+          expect(record)
+            .to receive(:create_pg_search_document)
+            .with(content: '', foo: text)
           record.save
+        end
+      end
+
+      context "when selectively updating" do
+        let(:multisearchable_options) do
+          {
+            :update_if => lambda do |record|
+              record.bar?
+            end
+          }
+        end
+        let(:text) { "foo bar" }
+
+        it "creates the document" do
+          allow(record).to receive(:bar?).and_return(false)
+          expect(record)
+            .to receive(:create_pg_search_document)
+            .with(content: '')
+          record.save
+        end
+
+        context "the document is created" do
+          before { record.save }
+
+          context "update_if returns false" do
+            before do
+              allow(record).to receive(:bar?).and_return(false)
+            end
+
+            it "does not update the document" do
+              expect_any_instance_of(PgSearch::Document)
+                .to_not receive(:update)
+
+              record.save
+            end
+          end
+
+          context "update_if returns true" do
+            before do
+              allow(record).to receive(:bar?).and_return(true)
+            end
+
+            it "updates the document" do
+              expect_any_instance_of(PgSearch::Document)
+                .to receive(:update)
+
+              record.save
+            end
+          end
         end
       end
     end

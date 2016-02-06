@@ -30,6 +30,11 @@ module PgSearch
       end
     end
 
+    def should_update_pg_search_document?
+      conditions = Array(pg_search_multisearchable_options[:update_if])
+      conditions.all? { |condition| condition.to_proc.call(self) }
+    end
+
     def update_pg_search_document # rubocop:disable Metrics/AbcSize
       if_conditions = Array(pg_search_multisearchable_options[:if])
       unless_conditions = Array(pg_search_multisearchable_options[:unless])
@@ -39,10 +44,17 @@ module PgSearch
         unless_conditions.all? { |condition| !condition.to_proc.call(self) }
 
       if should_have_document
-        (pg_search_document || build_pg_search_document)
-          .update(pg_search_document_attrs)
+        create_or_update_pg_search_document
       else
         pg_search_document.destroy if pg_search_document
+      end
+    end
+
+    def create_or_update_pg_search_document
+      if !pg_search_document
+        create_pg_search_document(pg_search_document_attrs)
+      elsif should_update_pg_search_document?
+        pg_search_document.update(pg_search_document_attrs)
       end
     end
   end
