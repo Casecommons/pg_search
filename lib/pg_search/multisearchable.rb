@@ -30,7 +30,7 @@ module PgSearch
 
       if should_have_document
         (pg_search_document || build_pg_search_document)
-          .update(content: searchable_text)
+          .update_attributes(content: searchable_text)
       else
         pg_search_document.destroy if pg_search_document
       end
