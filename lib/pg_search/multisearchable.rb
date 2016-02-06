@@ -14,6 +14,12 @@ module PgSearch
       end
     end
 
+    def searchable_text
+      Array(pg_search_multisearchable_options[:against])
+        .map { |symbol| send(symbol) }
+        .join(" ")
+    end
+
     def update_pg_search_document # rubocop:disable Metrics/AbcSize
       if_conditions = Array(pg_search_multisearchable_options[:if])
       unless_conditions = Array(pg_search_multisearchable_options[:unless])
@@ -23,7 +29,8 @@ module PgSearch
         unless_conditions.all? { |condition| !condition.to_proc.call(self) }
 
       if should_have_document
-        pg_search_document ? pg_search_document.save : create_pg_search_document
+        (pg_search_document || build_pg_search_document)
+          .update(content: searchable_text)
       else
         pg_search_document.destroy if pg_search_document
       end
