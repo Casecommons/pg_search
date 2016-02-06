@@ -54,7 +54,7 @@ module PgSearch
       if !pg_search_document
         create_pg_search_document(pg_search_document_attrs)
       elsif should_update_pg_search_document?
-        pg_search_document.update(pg_search_document_attrs)
+        pg_search_document.update_attributes(pg_search_document_attrs)
       end
     end
   end

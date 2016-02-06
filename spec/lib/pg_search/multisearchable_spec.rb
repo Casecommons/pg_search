@@ -178,7 +178,7 @@ describe PgSearch::Multisearchable do
 
             it "does not update the document" do
               expect_any_instance_of(PgSearch::Document)
-                .to_not receive(:update)
+                .to_not receive(:update_attributes)
 
               record.save
             end
@@ -191,7 +191,7 @@ describe PgSearch::Multisearchable do
 
             it "updates the document" do
               expect_any_instance_of(PgSearch::Document)
-                .to receive(:update)
+                .to receive(:update_attributes)
 
               record.save
             end
