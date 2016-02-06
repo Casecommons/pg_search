@@ -95,7 +95,7 @@ describe PgSearch::Multisearchable do
       end
     end
 
-    describe "populating the searchable text" do
+    describe "populating the searchable attributes" do
       let(:record) { ModelThatIsMultisearchable.new }
       subject { record }
 
@@ -128,6 +128,24 @@ describe PgSearch::Multisearchable do
         describe '#content' do
           subject { super().pg_search_document.content }
           it { is_expected.to eq("1 2") }
+        end
+      end
+
+      context "with additional_attributes" do
+        let(:multisearchable_options) do
+          {
+            :additional_attributes => lambda do |record|
+              { foo: record.bar }
+            end
+          }
+        end
+        let(:text) { "foo bar" }
+
+        it "sets the attributes" do
+          allow(record).to receive(:bar).and_return(text)
+          expect_any_instance_of(PgSearch::Document)
+            .to receive(:update).with(content: '', foo: text)
+          record.save
         end
       end
     end
