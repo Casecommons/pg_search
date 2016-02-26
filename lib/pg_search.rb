@@ -73,6 +73,9 @@ module PgSearch
     when :pg_search_rank
       raise PgSearchRankNotSelected.new unless respond_to?(:pg_search_rank)
       read_attribute(:pg_search_rank).to_f
+    when :pg_search_highlight
+      raise PgSearchHighlightNotSelected.new unless respond_to?(:pg_search_highlight)
+      read_attribute(:pg_search_highlight)
     else
       super
     end
@@ -82,6 +85,8 @@ module PgSearch
     case symbol
     when :pg_search_rank
       attributes.key?(:pg_search_rank)
+    when :pg_search_highlight
+      attributes.key?(:pg_search_highlight)
     else
       super
     end
@@ -90,9 +95,15 @@ module PgSearch
   class NotSupportedForPostgresqlVersion < StandardError; end
 
   class PgSearchRankNotSelected < StandardError
+    def message
+      "You must chain .with_pg_search_rank after the pg_search_scope to access the pg_search_rank attribute on returned records" # rubocop:disable Metrics/LineLength
+    end
+  end
+
+  class PgSearchHighlightNotSelected < StandardError
     # rubocop:disable Metrics/LineLength
     def message
-      "You must chain .with_pg_search_rank after the pg_search_scope to access the pg_search_rank attribute on returned records"
+      "You must chain .with_pg_search_highlight after the pg_search_scope to access the pg_search_highlight attribute on returned records"
     end
   end
 end

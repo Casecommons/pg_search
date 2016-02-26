@@ -3,19 +3,15 @@ require "active_support/core_ext/module/delegation"
 
 module PgSearch
   module Features
-    class TSearch < Feature
+    class TSearch < Feature # rubocop:disable Metrics/ClassLength
       def self.valid_options
-        super + [:dictionary, :prefix, :negation, :any_word, :normalization, :tsvector_column]
+        super + [:dictionary, :prefix, :negation, :any_word, :normalization, :tsvector_column, :highlight]
       end
 
       def initialize(*args)
         super
-
-        if options[:prefix] && model.connection.send(:postgresql_version) < 80400
-          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
-            Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
-          MESSAGE
-        end
+        checks_for_highlight
+        checks_for_prefix
       end
 
       def conditions
@@ -28,7 +24,46 @@ module PgSearch
         arel_wrap(tsearch_rank)
       end
 
+      def highlight
+        arel_wrap(ts_headline)
+      end
+
       private
+
+      def checks_for_prefix
+        if options[:prefix] && model.connection.send(:postgresql_version) < 80400
+          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
+            Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
+          MESSAGE
+        end
+      end
+
+      def checks_for_highlight
+        if options[:highlight] && model.connection.send(:postgresql_version) < 90000
+          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
+            Sorry, {:using => {:tsearch => {:highlight => true}}} only works in PostgreSQL 9.0 and above.")
+          MESSAGE
+        end
+      end
+
+      def ts_headline
+        "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"
+      end
+
+      def ts_headline_options
+        return nil unless options[:highlight].is_a?(Hash)
+
+        headline_options = map_headline_options
+        headline_options.map{|key, value| "#{key} = #{value}" if value }.compact.join(", ")
+      end
+
+      def map_headline_options
+        {
+          "StartSel" => options[:highlight][:start_sel],
+          "StopSel" => options[:highlight][:stop_sel],
+          "MaxFragments" => options[:highlight][:max_fragments]
+        }
+      end
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
 
