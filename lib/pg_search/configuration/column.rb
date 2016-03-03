@@ -7,32 +7,24 @@ module PgSearch
 
       def initialize(column_name, weight, model)
         @name = column_name.to_s
-        @column_name = column_name.to_s
+
+        if column_name.is_a?(Symbol) || column_name.is_a?(String)
+          column_name = model.arel_table[column_name]
+        end
+
+        @column_name = column_name
         @weight = weight
         @model = model
         @connection = model.connection
       end
 
       def full_name
-        "#{table_name}.#{column_name}"
+        @connection.visitor.accept(Arel::Nodes.build_quoted(@column_name), []).join
       end
 
       def to_sql
-        "coalesce(#{expression}::text, '')"
-      end
-
-      private
-
-      def table_name
-        @model.quoted_table_name
-      end
-
-      def column_name
-        @connection.quote_column_name(@column_name)
-      end
-
-      def expression
-        full_name
+        @connection.visitor.accept(Arel::Nodes::NamedFunction.new('coalesce',
+          [ Arel.sql("#{Arel.sql(self.full_name)}::text"), Arel::Nodes.build_quoted('') ]), []).join
       end
     end
   end
