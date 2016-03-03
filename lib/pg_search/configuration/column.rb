@@ -12,6 +12,8 @@ module PgSearch
           column_name = model.arel_table[column_name]
         end
 
+        
+
         @column_name = column_name
         @weight = weight
         @model = model
@@ -19,7 +21,8 @@ module PgSearch
       end
 
       def full_name
-        @connection.visitor.accept(Arel::Nodes.build_quoted(@column_name), []).join
+        name = @column_name.respond_to?(:call) ? @column_name.call : @column_name
+        @connection.visitor.accept(Arel::Nodes.build_quoted(name), []).join
       end
 
       def to_sql
