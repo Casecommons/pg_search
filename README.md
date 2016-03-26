@@ -244,6 +244,7 @@ PgSearch.multisearch("Alamo").page(3).per(30)
 PgSearch.multisearch("Diagonal").find_each do |document|
   puts document.searchable.updated_at
 end
+PgSearch.multisearch('Moro').reorder('').group(:searchable_type).count(:all)
 ```
 
 #### Configuring multi-search
