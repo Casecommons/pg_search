@@ -131,6 +131,111 @@ describe PgSearch::Multisearchable do
         end
       end
     end
+
+    describe "populating the searchable attributes" do
+      let(:record) { ModelThatIsMultisearchable.new }
+      subject { record }
+
+      before do
+        ModelThatIsMultisearchable.multisearchable(multisearchable_options)
+      end
+
+      context "when searching against a single column" do
+        let(:multisearchable_options) { {:against => :some_content} }
+        let(:text) { "foo bar" }
+        before do
+          allow(record).to receive(:some_content) { text }
+          record.save
+        end
+
+        describe '#content' do
+          subject { super().pg_search_document.content }
+          it { is_expected.to eq(text) }
+        end
+      end
+
+      context "when searching against multiple columns" do
+        let(:multisearchable_options) { {:against => [:attr1, :attr2]} }
+        before do
+          allow(record).to receive(:attr1) { '1' }
+          allow(record).to receive(:attr2) { '2' }
+          record.save
+        end
+
+        describe '#content' do
+          subject { super().pg_search_document.content }
+          it { is_expected.to eq("1 2") }
+        end
+      end
+
+      context "with additional_attributes" do
+        let(:multisearchable_options) do
+          {
+            :additional_attributes => lambda do |record|
+              { foo: record.bar }
+            end
+          }
+        end
+        let(:text) { "foo bar" }
+
+        it "sets the attributes" do
+          allow(record).to receive(:bar).and_return(text)
+          expect(record)
+            .to receive(:create_pg_search_document)
+            .with(content: '', foo: text)
+          record.save
+        end
+      end
+
+      context "when selectively updating" do
+        let(:multisearchable_options) do
+          {
+            :update_if => lambda do |record|
+              record.bar?
+            end
+          }
+        end
+        let(:text) { "foo bar" }
+
+        it "creates the document" do
+          allow(record).to receive(:bar?).and_return(false)
+          expect(record)
+            .to receive(:create_pg_search_document)
+            .with(content: '')
+          record.save
+        end
+
+        context "the document is created" do
+          before { record.save }
+
+          context "update_if returns false" do
+            before do
+              allow(record).to receive(:bar?).and_return(false)
+            end
+
+            it "does not update the document" do
+              expect_any_instance_of(PgSearch::Document)
+                .to_not receive(:update_attributes)
+
+              record.save
+            end
+          end
+
+          context "update_if returns true" do
+            before do
+              allow(record).to receive(:bar?).and_return(true)
+            end
+
+            it "updates the document" do
+              expect_any_instance_of(PgSearch::Document)
+                .to receive(:update_attributes)
+
+              record.save
+            end
+          end
+        end
+      end
+    end
   end
 
   describe "a model which is conditionally multisearchable using a Proc" do
