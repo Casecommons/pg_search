@@ -61,7 +61,12 @@ module PgSearch
         {
           "StartSel" => options[:highlight][:start_sel],
           "StopSel" => options[:highlight][:stop_sel],
-          "MaxFragments" => options[:highlight][:max_fragments]
+          "MaxWords" => options[:highlight][:max_words],
+          "MinWords" => options[:highlight][:min_words],
+          "ShortWord" => options[:highlight][:short_word],
+          "HighlightAll" => options[:highlight][:highlight_all],
+          "MaxFragments" => options[:highlight][:max_fragments],
+          "FragmentDelimiter" => options[:highlight][:fragment_delimiter]
         }
       end
 
