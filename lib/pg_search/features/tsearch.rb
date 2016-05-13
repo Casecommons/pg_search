@@ -53,20 +53,20 @@ module PgSearch
       def ts_headline_options
         return nil unless options[:highlight].is_a?(Hash)
 
-        headline_options = map_headline_options
+        headline_options = map_headline_options(options[:highlight])
         headline_options.map{|key, value| "#{key} = #{value}" if value }.compact.join(", ")
       end
 
-      def map_headline_options
+      def map_headline_options highlight_options
         {
-          "StartSel" => options[:highlight][:start_sel],
-          "StopSel" => options[:highlight][:stop_sel],
-          "MaxWords" => options[:highlight][:max_words],
-          "MinWords" => options[:highlight][:min_words],
-          "ShortWord" => options[:highlight][:short_word],
-          "HighlightAll" => options[:highlight][:highlight_all],
-          "MaxFragments" => options[:highlight][:max_fragments],
-          "FragmentDelimiter" => options[:highlight][:fragment_delimiter]
+          "StartSel" => highlight_options[:start_sel],
+          "StopSel" => highlight_options[:stop_sel],
+          "MaxWords" => highlight_options[:max_words],
+          "MinWords" => highlight_options[:min_words],
+          "ShortWord" => highlight_options[:short_word],
+          "HighlightAll" => highlight_options[:highlight_all],
+          "MaxFragments" => highlight_options[:max_fragments],
+          "FragmentDelimiter" => highlight_options[:fragment_delimiter]
         }
       end
 
