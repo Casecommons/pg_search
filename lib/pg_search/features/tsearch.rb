@@ -50,11 +50,17 @@ module PgSearch
         "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"
       end
 
-      def ts_headline_options
-        return nil unless options[:highlight].is_a?(Hash)
-
-        headline_options = map_headline_options(options[:highlight])
-        headline_options.map{|key, value| "#{key} = #{value}" if value }.compact.join(", ")
+      def ts_headline_options highlight_options_overrides = {}
+        highlight_options = if options[:highlight].is_a?(Hash)
+                              options[:highlight]
+                            else
+                              {}
+                            end
+        highlight_options = highlight_options.merge(highlight_options_overrides)
+        map_headline_options(highlight_options)
+          .map{|key, value| "#{key} = #{value}" if value }
+          .compact
+          .join(", ")
       end
 
       def map_headline_options highlight_options
