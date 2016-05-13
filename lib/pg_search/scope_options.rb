@@ -43,17 +43,17 @@ module PgSearch
         raise TypeError.new("You need to instantiate this module with []")
       end
 
-      def with_pg_search_highlight
+      def with_pg_search_highlight highlight_options_overrides = {}
         scope = self
-        scope.select(pg_search_highlight_field)
+        scope.select(pg_search_highlight_field(highlight_options_overrides))
       end
 
-      def pg_search_highlight_field
-        "(#{highlight}) AS pg_search_highlight, #{table_name}.*"
+      def pg_search_highlight_field highlight_options_overrides
+        "(#{highlight(highlight_options_overrides)}) AS pg_search_highlight, #{table_name}.*"
       end
 
-      def highlight
-        tsearch.highlight.to_sql
+      def highlight highlight_options_overrides
+        tsearch.highlight(highlight_options_overrides).to_sql
       end
     end
 

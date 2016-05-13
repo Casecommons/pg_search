@@ -24,8 +24,8 @@ module PgSearch
         arel_wrap(tsearch_rank)
       end
 
-      def highlight
-        arel_wrap(ts_headline)
+      def highlight highlight_options_overrides
+        arel_wrap(ts_headline(highlight_options_overrides))
       end
 
       private
@@ -46,11 +46,11 @@ module PgSearch
         end
       end
 
-      def ts_headline
-        "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"
+      def ts_headline highlight_options_overrides
+        "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options(highlight_options_overrides)}')"
       end
 
-      def ts_headline_options highlight_options_overrides = {}
+      def ts_headline_options highlight_options_overrides
         highlight_options = if options[:highlight].is_a?(Hash)
                               options[:highlight]
                             else
