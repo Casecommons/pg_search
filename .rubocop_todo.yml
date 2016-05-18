@@ -151,7 +151,7 @@ Style/SpaceInsideParens:
 # Configuration parameters: SupportedStyles.
 # SupportedStyles: use_perl_names, use_english_names
 Style/SpecialGlobalVars:
-  EnforcedStyle: use_perl_names
+  EnforcedStyle: use_english_names
 
 # Offense count: 2
 # Cop supports --auto-correct.

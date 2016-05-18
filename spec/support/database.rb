@@ -30,7 +30,7 @@ rescue *error_classes
     puts "    createdb pg_search_test"
     puts "-" * 80
   end
-  raise $!
+  raise $ERROR_INFO
 end
 
 if ENV["LOGGER"]
@@ -50,7 +50,7 @@ rescue
     else
       share_path = `pg_config --sharedir`.strip
       ActiveRecord::Base.connection.execute File.read(File.join(share_path, 'contrib', "#{name}.sql"))
-      puts $!.message
+      puts $ERROR_INFO.message
     end
   rescue => exception
     at_exit do
