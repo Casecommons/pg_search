@@ -22,7 +22,7 @@ begin
   connection = ActiveRecord::Base.connection
   postgresql_version = connection.send(:postgresql_version)
   connection.execute("SELECT 1")
-rescue *error_classes
+rescue *error_classes => ex
   at_exit do
     puts "-" * 80
     puts "Unable to connect to database.  Please run:"
@@ -30,7 +30,7 @@ rescue *error_classes
     puts "    createdb pg_search_test"
     puts "-" * 80
   end
-  raise $ERROR_INFO
+  raise ex
 end
 
 if ENV["LOGGER"]
@@ -43,14 +43,14 @@ def install_extension_if_missing(name, query, expected_result) # rubocop:disable
   postgresql_version = connection.send(:postgresql_version)
   result = connection.select_value(query)
   raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result.downcase
-rescue
+rescue => ex
   begin
     if postgresql_version >= 90100
       ActiveRecord::Base.connection.execute "CREATE EXTENSION #{name};"
     else
       share_path = `pg_config --sharedir`.strip
       ActiveRecord::Base.connection.execute File.read(File.join(share_path, 'contrib', "#{name}.sql"))
-      puts $ERROR_INFO.message
+      puts ex.message
     end
   rescue => exception
     at_exit do
