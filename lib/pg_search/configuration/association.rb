@@ -28,20 +28,32 @@ module PgSearch
       private
 
       def selects
-        postgresql_version = @model.connection.send(:postgresql_version)
+        if singular_association?
+          columns.map do |column|
+            "#{column.full_name}::text AS #{column.alias}"
+          end.join(", ")
+        else
+          postgresql_version = @model.connection.send(:postgresql_version)
 
-        columns.map do |column|
-          case postgresql_version
-          when 0..90000
-            "array_to_string(array_agg(#{column.full_name}::text), ' ') AS #{column.alias}"
-          else
-            "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
-          end
-        end.join(", ")
+          columns.map do |column|
+            case postgresql_version
+            when 0..90000
+              "array_to_string(array_agg(#{column.full_name}::text), ' ') AS #{column.alias}"
+            else
+              "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
+            end
+          end.join(", ")
+        end
       end
 
       def relation(primary_key)
-        @model.unscoped.joins(@name).select("#{primary_key} AS id, #{selects}").group(primary_key)
+        result = @model.unscoped.joins(@name).select("#{primary_key} AS id, #{selects}")
+        result = result.group(primary_key) unless singular_association?
+        result
+      end
+
+      def singular_association?
+        [:has_one, :belongs_to].include?(@model.reflect_on_association(@name).macro)
       end
     end
   end
