@@ -1,9 +1,14 @@
 # pg_search changelog
 
+## 1.0.6
+*   Add support for highlighting the matching portion of a search result. (Jose Galisteo)
+*   Add `:update_if` option to control when PgSearch::Document gets updated. (Adam Becker)
+*   Add `:additional_attributes` option for adding additional attributes to PgSearch::Document
+
 ## 1.0.5
 
-*   Clean up rank table aliasing (Adam Milligan)
-*   Fix issue when using `#with_pg_search_rank` across a join (Reid Lynch)
+*   Clean up rank table aliasing. (Adam Milligan)
+*   Fix issue when using `#with_pg_search_rank` across a join. (Reid Lynch)
 
 ## 1.0.4
 
