@@ -1,76 +1,156 @@
 require "spec_helper"
 
 describe PgSearch::Configuration::Association do
-  with_model :AssociatedModel do
+  with_model :Avatar do
     table do |t|
-      t.string "title"
+      t.string :url
+      t.references :user
     end
   end
 
-  with_model :Model do
+  with_model :User do
     table do |t|
-      t.string "title"
-      t.belongs_to :another_model
+      t.string :name
+      t.belongs_to :site
     end
 
     model do
       include PgSearch
-      belongs_to :another_model, :class_name => 'AssociatedModel'
+      has_one :avatar, :class_name => "Avatar"
+      belongs_to :site
 
-      pg_search_scope :with_another, :associated_against => {:another_model => :title}
+      pg_search_scope :with_avatar, :associated_against => { :avatar => :url }
+      pg_search_scope :with_site, :associated_against => { :site => :title }
     end
   end
 
-  let(:association) { described_class.new(Model, :another_model, :title) }
+  with_model :Site do
+    table do |t|
+      t.string :title
+    end
 
-  describe "#table_name" do
-    it "returns the table name for the associated model" do
-      expect(association.table_name).to eq AssociatedModel.table_name
+    model do
+      include PgSearch
+      has_many :users, :class_name => "User"
+
+      pg_search_scope :with_users, :associated_against => { :users => :name }
     end
   end
 
-  describe "#join" do
-    let(:expected_sql) do
-      <<-EOS.gsub(/\s+/, ' ').strip
-        LEFT OUTER JOIN
-          (SELECT model_id AS id,
-                  #{column_select} AS #{association.columns.first.alias}
-          FROM \"#{Model.table_name}\"
-          INNER JOIN \"#{association.table_name}\"
-          ON \"#{association.table_name}\".\"id\" = \"#{Model.table_name}\".\"another_model_id\"
-          GROUP BY model_id) #{association.subselect_alias}
-        ON #{association.subselect_alias}.id = model_id
-      EOS
+  context "has_one" do
+    let(:association) { described_class.new(User, :avatar, :url) }
+
+    describe "#table_name" do
+      it "returns the table name for the associated model" do
+        expect(association.table_name).to eq Avatar.table_name
+      end
     end
 
-    context "given postgresql_version 0..90_000" do
+    describe "#join" do
+      let(:expected_sql) do
+        <<-EOS.gsub(/\s+/, ' ').strip
+          LEFT OUTER JOIN
+            (SELECT model_id AS id,
+                    #{column_select} AS #{association.columns.first.alias}
+            FROM \"#{User.table_name}\"
+            INNER JOIN \"#{association.table_name}\"
+            ON \"#{association.table_name}\".\"user_id\" = \"#{User.table_name}\".\"id\") #{association.subselect_alias}
+          ON #{association.subselect_alias}.id = model_id
+        EOS
+      end
       let(:column_select) do
-        "array_to_string(array_agg(\"#{association.table_name}\".\"title\"::text), ' ')"
+        "\"#{association.table_name}\".\"url\"::text"
       end
 
       it "returns the correct SQL join" do
-        allow(Model.connection).to receive(:postgresql_version).and_return(1)
-        expect(association.join("model_id")).to eq(expected_sql)
-      end
-    end
-
-    context "given any other postgresql_version" do
-      let(:column_select) do
-        "string_agg(\"#{association.table_name}\".\"title\"::text, ' ')"
-      end
-
-      it "returns the correct SQL join" do
-        allow(Model.connection).to receive(:postgresql_version).and_return(100_000)
         expect(association.join("model_id")).to eq(expected_sql)
       end
     end
   end
 
-  describe "#subselect_alias" do
-    it "returns a consistent string" do
-      subselect_alias = association.subselect_alias
-      expect(subselect_alias).to be_a String
-      expect(association.subselect_alias).to eq subselect_alias
+  context "belongs_to" do
+    let(:association) { described_class.new(User, :site, :title) }
+
+    describe "#table_name" do
+      it "returns the table name for the associated model" do
+        expect(association.table_name).to eq Site.table_name
+      end
+    end
+
+    describe "#join" do
+      let(:expected_sql) do
+        <<-EOS.gsub(/\s+/, ' ').strip
+          LEFT OUTER JOIN
+            (SELECT model_id AS id,
+                    #{column_select} AS #{association.columns.first.alias}
+            FROM \"#{User.table_name}\"
+            INNER JOIN \"#{association.table_name}\"
+            ON \"#{association.table_name}\".\"id\" = \"#{User.table_name}\".\"site_id\") #{association.subselect_alias}
+          ON #{association.subselect_alias}.id = model_id
+        EOS
+      end
+      let(:column_select) do
+        "\"#{association.table_name}\".\"title\"::text"
+      end
+
+      it "returns the correct SQL join" do
+        expect(association.join("model_id")).to eq(expected_sql)
+      end
+    end
+  end
+
+  context "has_many" do
+    let(:association) { described_class.new(Site, :users, :name) }
+
+    describe "#table_name" do
+      it "returns the table name for the associated model" do
+        expect(association.table_name).to eq User.table_name
+      end
+    end
+
+    describe "#join" do
+      let(:expected_sql) do
+        <<-EOS.gsub(/\s+/, ' ').strip
+          LEFT OUTER JOIN
+            (SELECT model_id AS id,
+                    #{column_select} AS #{association.columns.first.alias}
+            FROM \"#{Site.table_name}\"
+            INNER JOIN \"#{association.table_name}\"
+            ON \"#{association.table_name}\".\"site_id\" = \"#{Site.table_name}\".\"id\"
+            GROUP BY model_id) #{association.subselect_alias}
+          ON #{association.subselect_alias}.id = model_id
+        EOS
+      end
+
+      context "given postgresql_version 0..90_000" do
+        let(:column_select) do
+          "array_to_string(array_agg(\"#{association.table_name}\".\"name\"::text), ' ')"
+        end
+
+        it "returns the correct SQL join" do
+          allow(Site.connection).to receive(:postgresql_version).and_return(1)
+          expect(association.join("model_id")).to eq(expected_sql)
+        end
+      end
+
+      context "given any other postgresql_version" do
+        let(:column_select) do
+          "string_agg(\"#{association.table_name}\".\"name\"::text, ' ')"
+        end
+
+        it "returns the correct SQL join" do
+          allow(Site.connection).to receive(:postgresql_version).and_return(100_000)
+          expect(association.join("model_id")).to eq(expected_sql)
+        end
+      end
+
+      describe "#subselect_alias" do
+        it "returns a consistent string" do
+          subselect_alias = association.subselect_alias
+          expect(subselect_alias).to be_a String
+          expect(association.subselect_alias).to eq subselect_alias
+        end
+      end
     end
   end
 end

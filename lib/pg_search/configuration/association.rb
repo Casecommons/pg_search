@@ -28,6 +28,20 @@ module PgSearch
       private
 
       def selects
+        if singular_association?
+          selects_for_singular_association
+        else
+          selects_for_multiple_association
+        end
+      end
+
+      def selects_for_singular_association
+        columns.map do |column|
+          "#{column.full_name}::text AS #{column.alias}"
+        end.join(", ")
+      end
+
+      def selects_for_multiple_association
         postgresql_version = @model.connection.send(:postgresql_version)
 
         columns.map do |column|
@@ -41,7 +55,13 @@ module PgSearch
       end
 
       def relation(primary_key)
-        @model.unscoped.joins(@name).select("#{primary_key} AS id, #{selects}").group(primary_key)
+        result = @model.unscoped.joins(@name).select("#{primary_key} AS id, #{selects}")
+        result = result.group(primary_key) unless singular_association?
+        result
+      end
+
+      def singular_association?
+        [:has_one, :belongs_to].include?(@model.reflect_on_association(@name).macro)
       end
     end
   end
