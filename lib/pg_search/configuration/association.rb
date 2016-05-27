@@ -29,21 +29,29 @@ module PgSearch
 
       def selects
         if singular_association?
-          columns.map do |column|
-            "#{column.full_name}::text AS #{column.alias}"
-          end.join(", ")
+          selects_for_singular_association
         else
-          postgresql_version = @model.connection.send(:postgresql_version)
-
-          columns.map do |column|
-            case postgresql_version
-            when 0..90000
-              "array_to_string(array_agg(#{column.full_name}::text), ' ') AS #{column.alias}"
-            else
-              "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
-            end
-          end.join(", ")
+          selects_for_multiple_association
         end
+      end
+
+      def selects_for_singular_association
+        columns.map do |column|
+          "#{column.full_name}::text AS #{column.alias}"
+        end.join(", ")
+      end
+
+      def selects_for_multiple_association
+        postgresql_version = @model.connection.send(:postgresql_version)
+
+        columns.map do |column|
+          case postgresql_version
+          when 0..90000
+            "array_to_string(array_agg(#{column.full_name}::text), ' ') AS #{column.alias}"
+          else
+            "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
+          end
+        end.join(", ")
       end
 
       def relation(primary_key)
