@@ -3,11 +3,23 @@ require 'digest'
 module PgSearch
   class Configuration
     class Column
+      COLUMN_REGEX = /.+/
+
       attr_reader :weight, :name
 
       def initialize(column, weight, model)
-        column = PlainColumn.new(column) unless column.is_a?(PlainColumn)
-        @column = column
+        @column =
+          case column
+          when String, Symbol
+            case column.to_s
+            when /(#{COLUMN_REGEX})\s*->\s*'(.+)'/
+              HstoreColumn.new(Regexp.last_match[1], Regexp.last_match[2])
+            when COLUMN_REGEX
+              PlainColumn.new(column)
+            end
+          when PlainColumn
+            column
+          end || raise("Unexpected column - #{column.inspect}")
         @name = @column.name
         @model = model
         @weight = weight

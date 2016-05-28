@@ -145,7 +145,7 @@ describe "an Active Record model which includes PgSearch" do
     context "when passed a hstore column" do
       it "builds a scope" do
         ModelWithPgSearch.pg_search_scope :search_en_description,
-          :against => PgSearch::Configuration::HstoreColumn.new(:description, 'en')
+          :against => "description->'en'"
 
         included = ModelWithPgSearch.create!(description: { en: 'description', de: 'Deskription' })
         excluded = ModelWithPgSearch.create!(description: { de: 'Deskription' })
