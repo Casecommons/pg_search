@@ -646,11 +646,20 @@ describe "an Active Record model which includes PgSearch" do
 
         context "with custom highlighting options" do
           before do
+            ModelWithPgSearch.create! :content => "#{'text ' * 2}Let #{'text ' * 2}Let #{'text ' * 2}"
+
             ModelWithPgSearch.pg_search_scope :search_content,
               :against => :content,
               :using => {
                 :tsearch => {
-                  :highlight => { :start_sel => '<mark>', :stop_sel => '</mark>' }
+                  :highlight => {
+                    :start_sel => '<mark>',
+                    :stop_sel => '</mark>',
+                    :fragment_delimiter => ' … ',
+                    :max_fragments => 2,
+                    :max_words => 2,
+                    :min_words => 1
+                  }
                 }
               }
           end
@@ -658,7 +667,7 @@ describe "an Active Record model which includes PgSearch" do
           it "applies the options to the excerpts" do
             result = ModelWithPgSearch.search_content("Let").with_pg_search_highlight.first
 
-            expect(result.pg_search_highlight).to eq("Won't <mark>Let</mark> You Down")
+            expect(result.pg_search_highlight).to eq("<mark>Let</mark> text…<mark>Let</mark> text")
           end
         end
       end

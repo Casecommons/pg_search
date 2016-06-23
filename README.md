@@ -774,7 +774,7 @@ and uses PostgreSQL's defaults:
 * `:short_word` defaults to `3`
 * `:highlight_all` defaults to `FALSE`
 * `:max_fragments` defaults to `0`
-* `:fragment_delimeter` defaults to ` ... `
+* `:fragment_delimiter` defaults to ` ... `
 
 See the
 [documentation](https://www.postgresql.org/docs/current/static/textsearch-controls.html)

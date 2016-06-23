@@ -59,7 +59,7 @@ module PgSearch
 
       def map_headline_options
         %w[
-          StartSel StopSel MaxFragments MaxWords MinWords ShortWord FragmentDelimeter HighlightAll
+          StartSel StopSel MaxFragments MaxWords MinWords ShortWord FragmentDelimiter HighlightAll
         ].reduce({}) do |hash, name|
           hash.tap do
             key = name.gsub(/([a-z])([A-Z])/, '\1_\2').downcase.to_sym
