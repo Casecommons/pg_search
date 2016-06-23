@@ -60,10 +60,10 @@ module PgSearch
       def map_headline_options
         %w[
           StartSel StopSel MaxFragments MaxWords MinWords ShortWord FragmentDelimeter HighlightAll
-        ].reduce({}) do |hash, option|
+        ].reduce({}) do |hash, name|
           hash.tap do
-            key = option.gsub(/([a-z])([A-Z])/, '\1_\2').downcase.to_sym
-            hash[options] = options[:highlight][key]
+            key = name.gsub(/([a-z])([A-Z])/, '\1_\2').downcase.to_sym
+            hash[name] = options[:highlight][key]
           end
         end
       end

@@ -643,6 +643,24 @@ describe "an Active Record model which includes PgSearch" do
             expect(result.pg_search_highlight).to eq("Won't <b>Let</b> You Down")
           end
         end
+
+        context "with custom highlighting options" do
+          before do
+            ModelWithPgSearch.pg_search_scope :search_content,
+              :against => :content,
+              :using => {
+                :tsearch => {
+                  :highlight => { :start_sel => '<mark>', :stop_sel => '</mark>' }
+                }
+              }
+          end
+
+          it "applies the options to the excerpts" do
+            result = ModelWithPgSearch.search_content("Let").with_pg_search_highlight.first
+
+            expect(result.pg_search_highlight).to eq("Won't <mark>Let</mark> You Down")
+          end
+        end
       end
 
       describe "ranking" do
