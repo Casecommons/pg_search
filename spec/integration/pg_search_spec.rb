@@ -655,7 +655,7 @@ describe "an Active Record model which includes PgSearch" do
                   :highlight => {
                     :start_sel => '<mark>',
                     :stop_sel => '</mark>',
-                    :fragment_delimiter => ' … ',
+                    :fragment_delimiter => '<delim>',
                     :max_fragments => 2,
                     :max_words => 2,
                     :min_words => 1
@@ -667,7 +667,7 @@ describe "an Active Record model which includes PgSearch" do
           it "applies the options to the excerpts" do
             result = ModelWithPgSearch.search_content("Let").with_pg_search_highlight.first
 
-            expect(result.pg_search_highlight).to eq("<mark>Let</mark> text…<mark>Let</mark> text")
+            expect(result.pg_search_highlight).to eq("<mark>Let</mark> text<delim><mark>Let</mark> text")
           end
         end
       end
