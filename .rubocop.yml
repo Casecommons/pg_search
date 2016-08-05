@@ -23,6 +23,9 @@ Style/AlignParameters:
 Style/HashSyntax:
   Enabled: false
 
+Style/NumericPredicate:
+  Enabled: false
+
 Style/PercentLiteralDelimiters:
   PreferredDelimiters:
     '%w': '[]'
