@@ -749,8 +749,10 @@ class Person < ActiveRecord::Base
                   :against => :bio,
                   :using => {
                     :tsearch => {
-                      :start_sel => '<b>',
-                      :stop_sel => '</b>'
+                      :highlight => {
+                        :start_sel => '<b>',
+                        :stop_sel => '</b>'
+                      }
                     }
                   }
 end
