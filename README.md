@@ -18,54 +18,33 @@ Read the blog post introducing PgSearch at http://blog.pivotal.io/labs/labs/pg-s
 
 ## REQUIREMENTS
 
-*   Ruby 1.9.2, 2.0, or later
-*   Active Record 3.1, 3.2, 4.0 or later
+*   Ruby 2.1+
+*   ActiveRecord 4.1+
 *   PostgreSQL
 *   [PostgreSQL contrib packages for certain
     features](https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules)
 
+### Ruby 1.9, 2.0; ActiveRecord 3.1, 3.2, 4.0, 4.1
 
-## INSTALL
+These may work with the current PgSearch, however they are unsupported by their maintainers and thus we do not actively support them.
 
-```bash
-$ gem install pg_search
-```
+### Ruby 1.8.7
 
-### Rails 3.1, 3.2, 4.0 or later, Ruby 1.9.2, 2.0, or later
-
-In Gemfile
-
-```ruby
-gem 'pg_search'
-```
+Use PgSearch ~> 0.6.4 (not supported).
 
 ### Rails 3.0
 
-The newest versions of PgSearch no longer support Rails 3.0. However, the 0.5
-series still works. It's not actively maintained, but submissions are welcome
-for backports and bugfixes.
+Use PgSearch 0.5.x (not supported).
 
-```ruby
-gem 'pg_search', "~> 0.5.7"
-```
+### Rails 2.x
 
-The 0.5 branch lives at
-https://github.com/Casecommons/pg_search/tree/0.5-stable
+Use PgSearch 0.2.x (not supported).
 
-### Rails 2
+## INSTALL
 
-The newest versions of PgSearch no longer support Rails 2. However, the 0.2
-series still works. It's not actively maintained, but submissions are welcome
-for backports and bugfixes.
+Install as usual: `gem install pg_search` or add `gem 'pg_search'` to your Gemfile.
 
-```ruby
-gem 'pg_search', "~> 0.2.0"
-```
-
-The 0.2 branch lives at
-https://github.com/Casecommons/pg_search/tree/0.2-stable
-
-### Other Active Record projects
+### Non-Rails projects
 
 In addition to installing and requiring the gem, you may want to include the
 PgSearch rake tasks in your Rakefile. This isn't necessary for Rails projects,
@@ -74,19 +53,6 @@ which gain the Rake tasks via a Railtie.
 ```ruby
 load "pg_search/tasks.rb"
 ```
-
-### Ruby 1.8.7 or earlier
-
-The newest versions of PgSearch no longer support Ruby 1.8.7. However, the 0.6
-series still works. It's not actively maintained, but submissions are welcome
-for backports and bugfixes.
-
-```ruby
-gem 'pg_search', "~> 0.6.4"
-```
-
-The 0.6 branch lives at
-https://github.com/Casecommons/pg_search/tree/0.6-stable
 
 ## USAGE
 
