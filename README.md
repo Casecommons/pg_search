@@ -263,7 +263,7 @@ like so:
 PgSearch::Multisearch.rebuild(Product, false)
 ```
 
-This is also available as a Rake task, for convenience.
+Rebuild is also available as a Rake task, for convenience.
 
     $ rake pg_search:multisearch:rebuild[BlogPost]
 
