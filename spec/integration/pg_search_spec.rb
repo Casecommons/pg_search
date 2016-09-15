@@ -1222,7 +1222,7 @@ describe "an Active Record model which includes PgSearch" do
           twice = ModelWithPgSearch.create!(:content => 'foo foo')
 
           results = ModelWithPgSearch.search_content_ranked_by_tsearch('foo')
-          expect(results.index(twice)).to be < results.index(once)
+          expect(results.find_index(twice)).to be < results.find_index(once)
         end
       end
 
@@ -1237,7 +1237,7 @@ describe "an Active Record model which includes PgSearch" do
           exact = ModelWithPgSearch.create!(:content => 'abc')
 
           results = ModelWithPgSearch.search_content_ranked_by_trigram('abc')
-          expect(results.index(exact)).to be < results.index(close)
+          expect(results.find_index(exact)).to be < results.find_index(close)
         end
       end
 
@@ -1252,7 +1252,7 @@ describe "an Active Record model which includes PgSearch" do
           twice = ModelWithPgSearch.create!(:content => 'Phoo Fu')
 
           results = ModelWithPgSearch.search_content_ranked_by_dmetaphone('foo')
-          expect(results.index(twice)).to be < results.index(once)
+          expect(results.find_index(twice)).to be < results.find_index(once)
         end
       end
     end
