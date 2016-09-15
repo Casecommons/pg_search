@@ -19,26 +19,10 @@ Read the blog post introducing PgSearch at http://blog.pivotal.io/labs/labs/pg-s
 ## REQUIREMENTS
 
 *   Ruby 2.1+
-*   ActiveRecord 4.1+
+*   ActiveRecord 4.2+
 *   PostgreSQL
 *   [PostgreSQL contrib packages for certain
     features](https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules)
-
-### Ruby 1.9, 2.0; ActiveRecord 3.1, 3.2, 4.0, 4.1
-
-These may work with the current PgSearch, however they are unsupported by their maintainers and thus we do not actively support them.
-
-### Ruby 1.8.7
-
-Use PgSearch ~> 0.6.4 (not supported).
-
-### Rails 3.0
-
-Use PgSearch 0.5.x (not supported).
-
-### Rails 2.x
-
-Use PgSearch 0.2.x (not supported).
 
 ## INSTALL
 
