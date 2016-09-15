@@ -3,7 +3,6 @@ require "active_support/concern"
 require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/string/strip"
 
-require "pg_search/compatibility"
 require "pg_search/configuration"
 require "pg_search/extensions/arel"
 require "pg_search/features"

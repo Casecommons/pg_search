@@ -1,4 +1,3 @@
-require "pg_search/compatibility"
 require "active_support/core_ext/module/delegation"
 
 module PgSearch
@@ -81,15 +80,15 @@ module PgSearch
         # If :prefix is true, then the term will have :* appended to the end.
         # If :negated is true, then the term will have ! prepended to the front.
         terms = [
-          (Compatibility.build_quoted('!') if negated),
-          Compatibility.build_quoted("' "),
+          (Arel::Nodes.build_quoted('!') if negated),
+          Arel::Nodes.build_quoted("' "),
           term_sql,
-          Compatibility.build_quoted(" '"),
-          (Compatibility.build_quoted(":*") if options[:prefix])
+          Arel::Nodes.build_quoted(" '"),
+          (Arel::Nodes.build_quoted(":*") if options[:prefix])
         ].compact
 
         tsquery_sql = terms.inject do |memo, term|
-          Arel::Nodes::InfixOperation.new("||", memo, Compatibility.build_quoted(term))
+          Arel::Nodes::InfixOperation.new("||", memo, Arel::Nodes.build_quoted(term))
         end
 
         Arel::Nodes::NamedFunction.new(
@@ -141,7 +140,7 @@ module PgSearch
       end
 
       def dictionary
-        Compatibility.build_quoted(options[:dictionary] || :simple)
+        Arel::Nodes.build_quoted(options[:dictionary] || :simple)
       end
 
       def arel_wrap(sql_string)
