@@ -38,30 +38,33 @@ if ENV["LOGGER"]
   ActiveRecord::Base.logger = Logger.new(STDOUT)
 end
 
-def install_extension_if_missing(name, query, expected_result) # rubocop:disable Metrics/AbcSize
+def install_extension(name) # rubocop:disable Metrics/AbcSize
   connection = ActiveRecord::Base.connection
   postgresql_version = connection.send(:postgresql_version)
-  result = connection.select_value(query)
+  if postgresql_version >= 90100
+    extension = connection.execute "SELECT * FROM pg_catalog.pg_extension WHERE extname = '#{name}';"
+    return unless extension.none?
+
+    connection.execute "CREATE EXTENSION #{name};"
+  else
+    share_path = `pg_config --sharedir`.strip
+    ActiveRecord::Base.connection.execute File.read(File.join(share_path, 'contrib', "#{name}.sql"))
+    puts $ERROR_INFO.message
+  end
+rescue => exception
+  at_exit do
+    puts "-" * 80
+    puts "Please install the #{name} contrib module"
+    puts "-" * 80
+  end
+  raise exception
+end
+
+def install_extension_if_missing(name, query, expected_result)
+  result = ActiveRecord::Base.connection.select_value(query)
   raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result.downcase
 rescue
-  begin
-    if postgresql_version >= 90100
-      extension = connection.execute "SELECT * FROM pg_catalog.pg_extension WHERE extname = '#{name}';"
-      return unless extension.none?
-      connection.execute "CREATE EXTENSION #{name};"
-    else
-      share_path = `pg_config --sharedir`.strip
-      ActiveRecord::Base.connection.execute File.read(File.join(share_path, 'contrib', "#{name}.sql"))
-      puts $ERROR_INFO.message
-    end
-  rescue => exception
-    at_exit do
-      puts "-" * 80
-      puts "Please install the #{name} contrib module"
-      puts "-" * 80
-    end
-    raise exception
-  end
+  install_extension(name)
 end
 
 install_extension_if_missing("pg_trgm", "SELECT 'abcdef' % 'cdef'", "t")
