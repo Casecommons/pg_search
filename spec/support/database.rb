@@ -46,7 +46,9 @@ def install_extension_if_missing(name, query, expected_result) # rubocop:disable
 rescue
   begin
     if postgresql_version >= 90100
-      ActiveRecord::Base.connection.execute "CREATE EXTENSION #{name};"
+      extension = connection.execute "SELECT * FROM pg_catalog.pg_extension WHERE extname = '#{name}';"
+      return unless extension.none?
+      connection.execute "CREATE EXTENSION #{name};"
     else
       share_path = `pg_config --sharedir`.strip
       ActiveRecord::Base.connection.execute File.read(File.join(share_path, 'contrib', "#{name}.sql"))
