@@ -14,14 +14,11 @@ module PgSearch
 
     def apply(scope)
       scope = include_table_aliasing_for_rank(scope)
-      rank_table_alias = scope.pg_search_rank_table_alias(:include_counter)
-
-      scope
-        .joins(rank_join(rank_table_alias))
-        .order("#{rank_table_alias}.rank DESC, #{order_within_rank}")
-        .extend(DisableEagerLoading)
-        .extend(WithPgSearchRank)
-        .extend(WithPgSearchHighlight[feature_for(:tsearch)])
+      if config.associations.any?
+        apply_with_inner_join(scope)
+      else
+        apply_without_inner_join(scope)
+      end
     end
 
     # workaround for https://github.com/Casecommons/pg_search/issues/14
@@ -65,6 +62,32 @@ module PgSearch
       end
     end
 
+    module WithPgSearchRankNoInnerJoin
+      def self.[](rank_field)
+        Module.new do
+          include WithPgSearchRankNoInnerJoin
+          define_method(:rank_field) { rank_field }
+        end
+      end
+
+      def rank_field
+        raise TypeError.new("You need to instantiate this module with []")
+      end
+
+      def with_pg_search_rank
+        scope = self
+        scope = scope.select("#{table_name}.*") unless scope.select_values.any?
+        scope.select(rank_field)
+      end
+    end
+
+    module WithNoInnerJoin
+      def with_no_inner_join
+        scope = self
+        scope.select("#{table_name}.*") unless scope.select_values.any?
+      end
+    end
+
     module PgSearchRankTableAliasing
       def pg_search_rank_table_alias(include_counter = false)
         components = [arel_table.name]
@@ -93,6 +116,26 @@ module PgSearch
     private
 
     delegate :connection, :quoted_table_name, :to => :model
+
+    def apply_with_inner_join(scope)
+      rank_table_alias = scope.pg_search_rank_table_alias(:include_counter)
+
+      scope
+        .joins(rank_join(rank_table_alias))
+        .order("#{rank_table_alias}.rank DESC, #{order_within_rank}")
+        .extend(DisableEagerLoading)
+        .extend(WithPgSearchRank)
+        .extend(WithPgSearchHighlight[feature_for(:tsearch)])
+    end
+
+    def apply_without_inner_join(scope)
+      scope
+        .where(conditions)
+        .order("#{rank_order}, #{order_within_rank}")
+        .extend(DisableEagerLoading)
+        .extend(WithPgSearchRankNoInnerJoin[rank_field])
+        .extend(WithPgSearchHighlight[feature_for(:tsearch)])
+    end
 
     def subquery
       model
@@ -123,6 +166,10 @@ module PgSearch
 
     def order_within_rank
       config.order_within_rank || "#{primary_key} ASC"
+    end
+
+    def has_associations?
+      config.associations.any?
     end
 
     def primary_key
@@ -168,6 +215,14 @@ module PgSearch
 
     def rank_join(rank_table_alias)
       "INNER JOIN (#{subquery.to_sql}) AS #{rank_table_alias} ON #{primary_key} = #{rank_table_alias}.pg_search_id"
+    end
+
+    def rank_field
+      "#{rank} AS pg_search_rank"
+    end
+
+    def rank_order
+      "#{rank} DESC"
     end
 
     def include_table_aliasing_for_rank(scope)
