@@ -3,8 +3,8 @@ sudo: false
 
 rvm:
   - "2.3.1"
-  - "2.2"
-  - "2.1"
+  - "2.2.5"
+  - "2.1.10"
   - jruby-9.0.5.0
 
 env:
@@ -20,11 +20,11 @@ matrix:
     - env: ACTIVE_RECORD_BRANCH="5-0-stable"
     - env: ACTIVE_RECORD_BRANCH="4-2-stable"
   exclude:
-    - rvm: "2.1"
+    - rvm: "2.1.10"
       env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: "2.1"
+    - rvm: "2.1.10"
       env: ACTIVE_RECORD_BRANCH="5-0-stable"
-    - rvm: "2.1"
+    - rvm: "2.1.10"
       env: ACTIVE_RECORD_VERSION="~> 5.0.0"
     - rvm: jruby-9.0.0.0
       env: ACTIVE_RECORD_BRANCH="master"
