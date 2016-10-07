@@ -344,7 +344,7 @@ describe "an Active Record model which includes PgSearch" do
         twice = ModelWithPgSearch.create!(:content => 'foo foo')
 
         records = ModelWithPgSearch.search_content('foo')
-                  .where("#{PgSearch::Configuration.alias(ModelWithPgSearch.table_name)}.rank > 0.07")
+                      .where_pg_search_rank(' > 0.07')
 
         expect(records).to eq [twice]
       end

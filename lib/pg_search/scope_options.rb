@@ -60,17 +60,26 @@ module PgSearch
         scope = scope.select("#{table_name}.*") unless scope.select_values.any?
         scope.select("#{pg_search_rank_table_alias}.rank AS pg_search_rank")
       end
+
+      def where_pg_search_rank(value)
+        scope = self
+        scope.where("#{PgSearch::Configuration.alias(table_name)}.rank#{value}")
+      end
     end
 
     module WithPgSearchRankNoInnerJoin
-      def self.[](rank_field)
+      def self.[](rank_value)
         Module.new do
           include WithPgSearchRankNoInnerJoin
-          define_method(:rank_field) { rank_field }
+          define_method(:rank_value) { rank_value }
         end
       end
 
       def rank_field
+        "#{rank_value} AS pg_search_rank"
+      end
+
+      def rank_value
         raise TypeError.new("You need to instantiate this module with []")
       end
 
@@ -79,12 +88,10 @@ module PgSearch
         scope = scope.select("#{table_name}.*") unless scope.select_values.any?
         scope.select(rank_field)
       end
-    end
 
-    module WithNoInnerJoin
-      def with_no_inner_join
+      def where_pg_search_rank(value)
         scope = self
-        scope.select("#{table_name}.*") unless scope.select_values.any?
+        scope.where("#{rank_value}#{value}")
       end
     end
 
@@ -133,7 +140,7 @@ module PgSearch
         .where(conditions)
         .order("#{rank_order}, #{order_within_rank}")
         .extend(DisableEagerLoading)
-        .extend(WithPgSearchRankNoInnerJoin[rank_field])
+        .extend(WithPgSearchRankNoInnerJoin[rank])
         .extend(WithPgSearchHighlight[feature_for(:tsearch)])
     end
 
@@ -166,10 +173,6 @@ module PgSearch
 
     def order_within_rank
       config.order_within_rank || "#{primary_key} ASC"
-    end
-
-    def has_associations?
-      config.associations.any?
     end
 
     def primary_key
@@ -215,10 +218,6 @@ module PgSearch
 
     def rank_join(rank_table_alias)
       "INNER JOIN (#{subquery.to_sql}) AS #{rank_table_alias} ON #{primary_key} = #{rank_table_alias}.pg_search_id"
-    end
-
-    def rank_field
-      "#{rank} AS pg_search_rank"
     end
 
     def rank_order
