@@ -128,7 +128,7 @@ describe PgSearch::Configuration::Association do
         end
 
         it "returns the correct SQL join" do
-          allow(Site.connection).to receive(:postgresql_version).and_return(1)
+          allow(Site.connection.raw_connection).to receive(:server_version).and_return(1)
           expect(association.join("model_id")).to eq(expected_sql)
         end
       end
@@ -139,7 +139,7 @@ describe PgSearch::Configuration::Association do
         end
 
         it "returns the correct SQL join" do
-          allow(Site.connection).to receive(:postgresql_version).and_return(100_000)
+          allow(Site.connection.raw_connection).to receive(:server_version).and_return(100_000)
           expect(association.join("model_id")).to eq(expected_sql)
         end
       end

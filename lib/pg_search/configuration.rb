@@ -72,7 +72,7 @@ module PgSearch
     end
 
     def postgresql_version
-      model.connection.send(:postgresql_version)
+      model.connection.raw_connection.server_version
     end
 
     private
