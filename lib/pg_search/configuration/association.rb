@@ -42,7 +42,7 @@ module PgSearch
       end
 
       def selects_for_multiple_association
-        postgresql_version = @model.connection.send(:postgresql_version)
+        postgresql_version = @model.connection.raw_connection.server_version
 
         columns.map do |column|
           case postgresql_version

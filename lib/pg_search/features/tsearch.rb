@@ -30,7 +30,7 @@ module PgSearch
       private
 
       def checks_for_prefix
-        if options[:prefix] && model.connection.send(:postgresql_version) < 80400
+        if options[:prefix] && model.connection.raw_connection.server_version < 80400
           raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
             Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
           MESSAGE
@@ -38,7 +38,7 @@ module PgSearch
       end
 
       def checks_for_highlight
-        if options[:highlight] && model.connection.send(:postgresql_version) < 90000
+        if options[:highlight] && model.connection.raw_connection.server_version < 90000
           raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
             Sorry, {:using => {:tsearch => {:highlight => true}}} only works in PostgreSQL 9.0 and above.")
           MESSAGE
