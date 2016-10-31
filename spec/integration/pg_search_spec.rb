@@ -407,10 +407,10 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       it 'allows pg_search_rank along with a join' do
-        parent1 = ParentModel.create!(id: 98)
-        parent2 = ParentModel.create!(id: 99)
-        loser = ModelWithPgSearch.create!(:content => 'foo', parent_model: parent2)
-        winner = ModelWithPgSearch.create!(:content => 'foo foo', parent_model: parent1)
+        parent_1 = ParentModel.create!(id: 98)
+        parent_2 = ParentModel.create!(id: 99)
+        loser = ModelWithPgSearch.create!(:content => 'foo', parent_model: parent_2)
+        winner = ModelWithPgSearch.create!(:content => 'foo foo', parent_model: parent_1)
 
         results = ModelWithPgSearch.joins(:parent_model).merge(ParentModel.active).search_content("foo").with_pg_search_rank
         expect(results.map(&:id)).to eq [winner.id, loser.id]

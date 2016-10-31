@@ -233,8 +233,8 @@ describe PgSearch::Multisearch::Rebuilder do
           end
 
           it "calls update_pg_search_document on each record" do
-            record1 = Model.create!(:active => true)
-            record2 = Model.create!(:active => false)
+            record_1 = Model.create!(:active => true)
+            record_2 = Model.create!(:active => false)
 
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
 
@@ -251,8 +251,8 @@ describe PgSearch::Multisearch::Rebuilder do
 
             rebuilder.rebuild
 
-            expect(record1.pg_search_document).to be_present
-            expect(record2.pg_search_document).not_to be_present
+            expect(record_1.pg_search_document).to be_present
+            expect(record_2.pg_search_document).not_to be_present
           end
         end
 
@@ -269,8 +269,8 @@ describe PgSearch::Multisearch::Rebuilder do
           end
 
           it "calls update_pg_search_document on each record" do
-            record1 = Model.create!(:inactive => true)
-            record2 = Model.create!(:inactive => false)
+            record_1 = Model.create!(:inactive => true)
+            record_2 = Model.create!(:inactive => false)
 
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
 
@@ -287,8 +287,8 @@ describe PgSearch::Multisearch::Rebuilder do
 
             rebuilder.rebuild
 
-            expect(record1.pg_search_document).not_to be_present
-            expect(record2.pg_search_document).to be_present
+            expect(record_1.pg_search_document).not_to be_present
+            expect(record_2.pg_search_document).to be_present
           end
         end
       end

@@ -30,3 +30,9 @@ Style/PercentLiteralDelimiters:
   PreferredDelimiters:
     '%w': '[]'
     '%W': '[]'
+
+Style/GuardClause:
+  Enabled: false
+
+Style/VariableNumber:
+  EnforcedStyle: snake_case
