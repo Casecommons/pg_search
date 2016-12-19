@@ -1,6 +1,13 @@
 # pg_search changelog
 
+## 2.0.0
+*   Drop support for PostgreSQL < 9.2. 
+*   Drop support for Active Record < 4.2.
+*   Drop support for Ruby < 2.2.
+*   Improve performance of has_one and belongs_to associations. (Peter Postma)
+
 ## 1.0.6
+
 *   Add support for highlighting the matching portion of a search result. (Jose Galisteo)
 *   Add `:update_if` option to control when PgSearch::Document gets updated. (Adam Becker)
 *   Add `:additional_attributes` option for adding additional attributes to PgSearch::Document
