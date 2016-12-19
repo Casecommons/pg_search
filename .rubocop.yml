@@ -36,3 +36,12 @@ Style/GuardClause:
 
 Style/VariableNumber:
   EnforcedStyle: snake_case
+
+Bundler/OrderedGems:
+  Enabled: false
+
+Bundler/DuplicatedGem:
+  Enabled: false
+
+Style/EmptyMethod:
+  EnforcedStyle: expanded
