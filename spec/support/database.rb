@@ -1,5 +1,6 @@
 if defined? JRUBY_VERSION
-  error_classes = []
+  require "activerecord-jdbc-adapter"
+  error_classes = [ActiveRecord::JDBCError]
 else
   require "pg"
   error_classes = [PGError]
