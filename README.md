@@ -20,7 +20,7 @@ Read the blog post introducing PgSearch at http://blog.pivotal.io/labs/labs/pg-s
 
 *   Ruby 2.1+
 *   ActiveRecord 4.2+
-*   PostgreSQL 9.0+
+*   PostgreSQL 9.2+
 *   [PostgreSQL extensions](https://github.com/Casecommons/pg_search/wiki/Installing-PostgreSQL-Extensions) for certain features
 
 ## INSTALL
