@@ -926,7 +926,7 @@ To use this functionality you'll need to do a few things:
                       tsearch: {
                         dictionary: 'english',
                         tsvector_column: 'tsvector_content_tsearch'
-                      }
+                      },
                       trigram: {} # trigram does not use tsvectors
                     }
     ```
