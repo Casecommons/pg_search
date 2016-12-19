@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'activerecord', '>= 4.2'
   s.add_dependency 'activesupport', '>= 4.2'
-  s.add_dependency 'arel'
+  s.add_dependency 'arel', '>= 6'
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'pry'
