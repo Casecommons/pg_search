@@ -11,7 +11,3 @@ if ENV['ACTIVE_RECORD_BRANCH']
 end
 
 gem 'activerecord', ENV['ACTIVE_RECORD_VERSION'] if ENV['ACTIVE_RECORD_VERSION']
-
-group :test do
-  gem "codeclimate-test-reporter", require: nil
-end

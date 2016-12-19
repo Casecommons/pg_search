@@ -9,4 +9,8 @@ RuboCop::RakeTask.new do |t|
   t.options = %w[--display-cop-names]
 end
 
-task :default => %w[spec rubocop]
+task :codeclimate do
+  sh 'bin/codeclimate-test-reporter' if ENV['CODECLIMATE_REPO_TOKEN']
+end
+
+task :default => %w[spec codeclimate rubocop]
