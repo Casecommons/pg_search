@@ -3,7 +3,7 @@
 ## 2.0.0
 *   Drop support for PostgreSQL < 9.2. 
 *   Drop support for Active Record < 4.2.
-*   Drop support for Ruby < 2.2.
+*   Drop support for Ruby < 2.1.
 *   Improve performance of has_one and belongs_to associations. (Peter Postma)
 
 ## 1.0.6
