@@ -1,6 +1,5 @@
 if defined? JRUBY_VERSION
-  require 'activerecord-jdbcpostgresql-adapter'
-  error_classes = [ActiveRecord::JDBCError]
+  error_classes = []
 else
   require "pg"
   error_classes = [PGError]
@@ -20,7 +19,6 @@ begin
                                           :username => database_user,
                                           :min_messages => 'warning')
   connection = ActiveRecord::Base.connection
-  postgresql_version = connection.send(:postgresql_version)
   connection.execute("SELECT 1")
 rescue *error_classes
   at_exit do
@@ -68,9 +66,7 @@ rescue
 end
 
 install_extension_if_missing("pg_trgm", "SELECT 'abcdef' % 'cdef'", "t")
-unless postgresql_version < 90000
-  install_extension_if_missing("unaccent", "SELECT unaccent('foo')", "foo")
-end
+install_extension_if_missing("unaccent", "SELECT unaccent('foo')", "foo")
 install_extension_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "f")
 
 def load_sql(filename)
@@ -79,10 +75,4 @@ def load_sql(filename)
   connection.execute(file_contents)
 end
 
-if postgresql_version < 80400
-  unless connection.select_value("SELECT 1 FROM pg_catalog.pg_aggregate WHERE aggfnoid = 'array_agg'::REGPROC") == "1"
-    load_sql("array_agg.sql")
-  end
-  load_sql("unnest.sql")
-end
 load_sql("dmetaphone.sql")

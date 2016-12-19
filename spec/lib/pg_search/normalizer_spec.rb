@@ -56,27 +56,5 @@ describe PgSearch::Normalizer do
         end
       end
     end
-
-    context "for PostgreSQL versions before 9.0" do
-      context "when config[:ignore] includes :accents" do
-        it "raises a NotSupportedForPostgresqlVersion exception" do
-          config = double("config", :ignore => [:accents], :postgresql_version => 89999)
-
-          normalizer = PgSearch::Normalizer.new(config)
-          expect {
-            normalizer.add_normalization("foo")
-          }.to raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
-        end
-      end
-
-      context "when config[:ignore] does not include :accents" do
-        it "passes the expression through" do
-          config = double("config", :ignore => [], :postgresql_version => 90000)
-
-          normalizer = PgSearch::Normalizer.new(config)
-          expect(normalizer.add_normalization("foo")).to eq("foo")
-        end
-      end
-    end
   end
 end

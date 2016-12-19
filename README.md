@@ -20,7 +20,7 @@ Read the blog post introducing PgSearch at http://blog.pivotal.io/labs/labs/pg-s
 
 *   Ruby 2.1+
 *   ActiveRecord 4.2+
-*   PostgreSQL
+*   PostgreSQL 9.0+
 *   [PostgreSQL contrib packages for certain
     features](https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules)
 
@@ -399,15 +399,6 @@ It is possible to search columns on associated models. Note that if you do
 this, it will be impossible to speed up searches with database indexes.
 However, it is supported as a quick way to try out cross-model searching.
 
-In PostgreSQL 8.3 and earlier, you must install a utility function into your
-database. To generate and run a migration for this, run:
-
-    $ rails g pg_search:migration:associated_against
-    $ rake db:migrate
-
-This migration is safe to run against newer versions of PostgreSQL as well. It
-will essentially do nothing.
-
 You can pass a Hash into the :associated_against option to set up searching
 through associations. The keys are the names of the associations and the value
 works just like an :against option for the other model. Right now, searching
@@ -465,11 +456,10 @@ end
 
 The currently implemented features are
 
-*   :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html) 
-    (built-in with 8.3 and later, available as a contrib package for some earlier versions)
+*   :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html), which is built-in to PostgreSQL
 *   :trigram - [Trigram search](http://www.postgresql.org/docs/current/static/pgtrgm.html), which
     requires the trigram contrib package
-*   :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/9.0/static/fuzzystrmatch.html#AEN124771), which requires the fuzzystrmatch contrib package
+*   :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html#AEN177521), which requires the fuzzystrmatch contrib package
 
 
 #### :tsearch (Full Text Search)
@@ -696,7 +686,7 @@ one_close = Person.create!(:name => 'leigh heinz')
 Person.search('ash hines') # => [exact, one_exact_one_close, one_exact]
 ```
 
-##### :highlight (PostgreSQL 9.0 and newer only)
+##### :highlight
 
 Adding .with_pg_search_highlight after the pg_search_scope you can access to
 `pg_highlight` attribute for each object.
@@ -864,7 +854,7 @@ Image.combined_search('reasonable') # found with tsearch
 Image.combined_search('foo') # found with trigram
 ```
 
-### Ignoring accent marks (PostgreSQL 9.0 and newer only)
+### Ignoring accent marks
 
 Most of the time you will want to ignore accent marks when searching. This
 makes it possible to find words like "piñata" when searching with the query

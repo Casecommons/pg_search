@@ -7,12 +7,6 @@ module PgSearch
         super + [:dictionary, :prefix, :negation, :any_word, :normalization, :tsvector_column, :highlight]
       end
 
-      def initialize(*args)
-        super
-        checks_for_highlight
-        checks_for_prefix
-      end
-
       def conditions
         Arel::Nodes::Grouping.new(
           Arel::Nodes::InfixOperation.new("@@", arel_wrap(tsdocument), arel_wrap(tsquery))
@@ -28,22 +22,6 @@ module PgSearch
       end
 
       private
-
-      def checks_for_prefix
-        if options[:prefix] && model.connection.raw_connection.server_version < 80400
-          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
-            Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
-          MESSAGE
-        end
-      end
-
-      def checks_for_highlight
-        if options[:highlight] && model.connection.raw_connection.server_version < 90000
-          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
-            Sorry, {:using => {:tsearch => {:highlight => true}}} only works in PostgreSQL 9.0 and above.")
-          MESSAGE
-        end
-      end
 
       def ts_headline
         "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"

@@ -42,15 +42,8 @@ module PgSearch
       end
 
       def selects_for_multiple_association
-        postgresql_version = @model.connection.raw_connection.server_version
-
         columns.map do |column|
-          case postgresql_version
-          when 0..90000
-            "array_to_string(array_agg(#{column.full_name}::text), ' ') AS #{column.alias}"
-          else
-            "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
-          end
+          "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
         end.join(", ")
       end
 

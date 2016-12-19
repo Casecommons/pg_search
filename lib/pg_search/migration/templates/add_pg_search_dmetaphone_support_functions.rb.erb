@@ -1,12 +1,6 @@
 class AddPgSearchDmetaphoneSupportFunctions < ActiveRecord::Migration
   def self.up
     say_with_time("Adding support functions for pg_search :dmetaphone") do
-      if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
-        execute <<-'SQL'
-<%= read_sql_file "unnest" %>
-        SQL
-      end
-
       execute <<-'SQL'
 <%= read_sql_file "dmetaphone" %>
       SQL
@@ -18,12 +12,6 @@ class AddPgSearchDmetaphoneSupportFunctions < ActiveRecord::Migration
       execute <<-'SQL'
 <%= read_sql_file "uninstall_dmetaphone" %>
       SQL
-
-      if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
-        execute <<-'SQL'
-<%= read_sql_file "uninstall_unnest" %>
-        SQL
-      end
     end
   end
 end

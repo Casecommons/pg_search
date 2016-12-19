@@ -19,8 +19,8 @@ describe PgSearch::Configuration::Association do
       has_one :avatar, :class_name => "Avatar"
       belongs_to :site
 
-      pg_search_scope :with_avatar, :associated_against => { :avatar => :url }
-      pg_search_scope :with_site, :associated_against => { :site => :title }
+      pg_search_scope :with_avatar, :associated_against => {:avatar => :url}
+      pg_search_scope :with_site, :associated_against => {:site => :title}
     end
   end
 
@@ -33,7 +33,7 @@ describe PgSearch::Configuration::Association do
       include PgSearch
       has_many :users, :class_name => "User"
 
-      pg_search_scope :with_users, :associated_against => { :users => :name }
+      pg_search_scope :with_users, :associated_against => {:users => :name}
     end
   end
 
@@ -113,7 +113,7 @@ describe PgSearch::Configuration::Association do
         <<-EOS.gsub(/\s+/, ' ').strip
           LEFT OUTER JOIN
             (SELECT model_id AS id,
-                    #{column_select} AS #{association.columns.first.alias}
+                    string_agg(\"#{association.table_name}\".\"name\"::text, ' ') AS #{association.columns.first.alias}
             FROM \"#{Site.table_name}\"
             INNER JOIN \"#{association.table_name}\"
             ON \"#{association.table_name}\".\"site_id\" = \"#{Site.table_name}\".\"id\"
@@ -122,26 +122,8 @@ describe PgSearch::Configuration::Association do
         EOS
       end
 
-      context "given postgresql_version 0..90_000" do
-        let(:column_select) do
-          "array_to_string(array_agg(\"#{association.table_name}\".\"name\"::text), ' ')"
-        end
-
-        it "returns the correct SQL join" do
-          allow(Site.connection.raw_connection).to receive(:server_version).and_return(1)
-          expect(association.join("model_id")).to eq(expected_sql)
-        end
-      end
-
-      context "given any other postgresql_version" do
-        let(:column_select) do
-          "string_agg(\"#{association.table_name}\".\"name\"::text, ' ')"
-        end
-
-        it "returns the correct SQL join" do
-          allow(Site.connection.raw_connection).to receive(:server_version).and_return(100_000)
-          expect(association.join("model_id")).to eq(expected_sql)
-        end
+      it "returns the correct SQL join" do
+        expect(association.join("model_id")).to eq(expected_sql)
       end
 
       describe "#subselect_alias" do
