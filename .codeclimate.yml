@@ -4,12 +4,13 @@ engines:
     enabled: true
     config:
       languages:
-      - ruby
+        - ruby
   fixme:
     enabled: true
   rubocop:
     enabled: true
 ratings:
   paths:
-  - "**.rb"
-exclude_paths: []
+    - "**.rb"
+exclude_paths:
+  - "spec/"
