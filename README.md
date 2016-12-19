@@ -21,12 +21,19 @@ Read the blog post introducing PgSearch at http://blog.pivotal.io/labs/labs/pg-s
 *   Ruby 2.1+
 *   ActiveRecord 4.2+
 *   PostgreSQL 9.0+
-*   [PostgreSQL contrib packages for certain
-    features](https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules)
+*   [PostgreSQL contrib packages](https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules) for certain features
 
 ## INSTALL
 
-Install as usual: `gem install pg_search` or add `gem 'pg_search'` to your Gemfile.
+```
+$ gem install pg_search
+```
+
+or add this line to your Gemfile:
+
+```ruby
+gem 'pg_search'
+```
 
 ### Non-Rails projects
 
