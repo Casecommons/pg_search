@@ -23,8 +23,8 @@ module PgSearch
         arel_wrap(tsearch_rank)
       end
 
-      def highlight
-        arel_wrap(ts_headline)
+      def highlight highlight_options_overrides
+        arel_wrap(ts_headline(highlight_options_overrides))
       end
 
       private
@@ -45,22 +45,33 @@ module PgSearch
         end
       end
 
-      def ts_headline
-        "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"
+      def ts_headline highlight_options_overrides
+        "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options(highlight_options_overrides)}')"
       end
 
-      def ts_headline_options
-        return nil unless options[:highlight].is_a?(Hash)
-
-        headline_options = map_headline_options
-        headline_options.map{|key, value| "#{key} = #{value}" if value }.compact.join(", ")
+      def ts_headline_options highlight_options_overrides
+        highlight_options = if options[:highlight].is_a?(Hash)
+                              options[:highlight]
+                            else
+                              {}
+                            end
+        highlight_options = highlight_options.merge(highlight_options_overrides)
+        map_headline_options(highlight_options)
+          .map{|key, value| "#{key} = #{value}" if value }
+          .compact
+          .join(", ")
       end
 
-      def map_headline_options
+      def map_headline_options highlight_options
         {
-          "StartSel" => options[:highlight][:start_sel],
-          "StopSel" => options[:highlight][:stop_sel],
-          "MaxFragments" => options[:highlight][:max_fragments]
+          "StartSel" => highlight_options[:start_sel],
+          "StopSel" => highlight_options[:stop_sel],
+          "MaxWords" => highlight_options[:max_words],
+          "MinWords" => highlight_options[:min_words],
+          "ShortWord" => highlight_options[:short_word],
+          "HighlightAll" => highlight_options[:highlight_all],
+          "MaxFragments" => highlight_options[:max_fragments],
+          "FragmentDelimiter" => highlight_options[:fragment_delimiter]
         }
       end
 
