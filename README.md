@@ -237,7 +237,17 @@ To regenerate the documents for a given class, run:
 PgSearch::Multisearch.rebuild(Product)
 ```
 
-This is also available as a Rake task, for convenience.
+The ```rebuild``` method will delete all the documents for the given class
+before regenerating them. In some situations this may not be desirable,
+such as when you're using single-table inheritance and ```searchable_type```
+is your base class. You can prevent ```rebuild``` from deleting your records
+like so:
+
+```ruby
+PgSearch::Multisearch.rebuild(Product, false)
+```
+
+Rebuild is also available as a Rake task, for convenience.
 
     $ rake pg_search:multisearch:rebuild[BlogPost]
 
