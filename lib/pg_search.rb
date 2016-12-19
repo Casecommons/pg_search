@@ -28,7 +28,7 @@ module PgSearch
                        unless options.respond_to?(:merge)
                          raise ArgumentError, "pg_search_scope expects a Hash or Proc"
                        end
-                       ->(query) { {:query => query}.merge(options) }
+                       ->(query, override_options = {}) { {:query => query}.merge(options).deep_merge(override_options) }
                      end
 
       define_singleton_method(name) do |*args|

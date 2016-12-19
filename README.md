@@ -538,6 +538,23 @@ robin = Superhero.create :name => 'Robin'
 
 Superhero.whose_name_starts_with("Bat") # => [batman, batgirl]
 ```
+
+Note that you can override the prefix option on an especific query like this:
+
+```ruby
+class Superhero < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search,
+                  :against => :name,
+                  :using => {
+                    :tsearch => {:prefix => true}
+                  }
+end
+
+Superhero.create :name => 'Batman'
+Superhero.search("Bat", using: { :tsearch => { :prefix => false }}) # => []
+```
+
 ##### :negation
 
 PostgreSQL's full text search matches all search terms by default. If you want

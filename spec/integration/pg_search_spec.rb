@@ -596,6 +596,15 @@ describe "an Active Record model which includes PgSearch" do
             expect(results).to include(included)
             expect(results).not_to include(excluded)
           end
+
+          context "with an { using: { tsearch: { prefix: false }}} options" do
+            it "returns rows that match the query but not rows that are prefixed by the query" do
+              excluded = ModelWithPgSearch.create!(:title => 'prefix')
+
+              results = ModelWithPgSearch.search_title_with_prefixes("pre", using: { tsearch: { prefix: false }})
+              expect(results).not_to include(excluded)
+            end
+          end
         end
       end
 
