@@ -37,7 +37,7 @@ if ENV["LOGGER"]
   ActiveRecord::Base.logger = Logger.new(STDOUT)
 end
 
-def install_extension(name) # rubocop:disable Metrics/AbcSize
+def install_extension(name)
   connection = ActiveRecord::Base.connection
   extension = connection.execute "SELECT * FROM pg_catalog.pg_extension WHERE extname = '#{name}';"
   return unless extension.none?
