@@ -329,14 +329,12 @@ describe "an Active Record model which includes PgSearch" do
         expect(returned_record.attributes).to eq("id" => record.id)
       end
 
-      unless ActiveRecord::VERSION::MAJOR == 3 && ActiveRecord::VERSION::MINOR < 2
-        it "supports #pluck" do
-          record = ModelWithPgSearch.create!(:content => 'foo')
-          other_record = ModelWithPgSearch.create!(:content => 'bar')
+      it "supports #pluck" do
+        record = ModelWithPgSearch.create!(:content => 'foo')
+        other_record = ModelWithPgSearch.create!(:content => 'bar')
 
-          ids = ModelWithPgSearch.search_content('foo').pluck('id')
-          expect(ids).to eq [record.id]
-        end
+        ids = ModelWithPgSearch.search_content('foo').pluck('id')
+        expect(ids).to eq [record.id]
       end
 
       it "supports adding where clauses using the pg_search.rank" do

@@ -79,6 +79,7 @@ module PgSearch
       private
 
       attr_writer :pg_search_scope_application_count
+
       def pg_search_scope_application_count
         @pg_search_scope_application_count ||= 0
       end
@@ -171,12 +172,9 @@ module PgSearch
     end
 
     def include_table_aliasing_for_rank(scope)
-      if scope.included_modules.include?(PgSearchRankTableAliasing)
-        scope
-      else
-        (::ActiveRecord::VERSION::MAJOR < 4 ? scope.scoped : scope.all.spawn).tap do |new_scope|
-          new_scope.class_eval { include PgSearchRankTableAliasing }
-        end
+      return scope if scope.included_modules.include?(PgSearchRankTableAliasing)
+      scope.all.spawn.tap do |new_scope|
+        new_scope.class_eval { include PgSearchRankTableAliasing }
       end
     end
   end
