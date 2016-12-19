@@ -21,7 +21,7 @@ Read the blog post introducing PgSearch at http://blog.pivotal.io/labs/labs/pg-s
 *   Ruby 2.1+
 *   ActiveRecord 4.2+
 *   PostgreSQL 9.0+
-*   [PostgreSQL contrib packages](https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules) for certain features
+*   [PostgreSQL extensions](https://github.com/Casecommons/pg_search/wiki/Installing-PostgreSQL-Extensions) for certain features
 
 ## INSTALL
 
@@ -465,8 +465,8 @@ The currently implemented features are
 
 *   :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html), which is built-in to PostgreSQL
 *   :trigram - [Trigram search](http://www.postgresql.org/docs/current/static/pgtrgm.html), which
-    requires the trigram contrib package
-*   :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html#AEN177521), which requires the fuzzystrmatch contrib package
+    requires the trigram extension
+*   :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html#AEN177521), which requires the fuzzystrmatch extension
 
 
 #### :tsearch (Full Text Search)
@@ -732,10 +732,10 @@ Currently, this is not a true double-metaphone, as only the first metaphone is
 used for searching.
 
 Double Metaphone support is currently available as part of the [fuzzystrmatch
-contrib package](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html)
+extension](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html)
 that must be installed before this feature can be used. In addition to the
-contrib package, you must install a utility function into your database. To
-generate and run a migration for this, run:
+extension, you must install a utility function into your database. To generate 
+and run a migration for this, run:
 
     $ rails g pg_search:migration:dmetaphone
     $ rake db:migrate
@@ -769,9 +769,9 @@ Trigram search works by counting how many three-letter substrings (or
 Trigram search has some ability to work even with typos and misspellings in
 the query or text.
 
-Trigram support is currently available as part of the [pg_trgm contrib
-package](http://www.postgresql.org/docs/current/static/pgtrgm.html) that must
-be installed before this feature can be used.
+Trigram support is currently available as part of the 
+[pg_trgm extension](http://www.postgresql.org/docs/current/static/pgtrgm.html) that must be installed before this
+feature can be used.
 
 ```ruby
 class Website < ActiveRecord::Base
@@ -868,8 +868,7 @@ makes it possible to find words like "piñata" when searching with the query
 "pinata". If you set a pg_search_scope to ignore accents, it will ignore
 accents in both the searchable text and the query terms.
 
-Ignoring accents uses the [unaccent contrib
-package](http://www.postgresql.org/docs/current/static/unaccent.html) that
+Ignoring accents uses the [unaccent extension](http://www.postgresql.org/docs/current/static/unaccent.html) that
 must be installed before this feature can be used.
 
 ```ruby
@@ -889,8 +888,8 @@ SpanishQuestion.gringo_search("Cüåñtô") # => [how_many]
 ```
 
 Advanced users may wish to add indexes for the expressions that pg_search
-generates. Unfortunately, the unaccent function supplied by this contrib
-package is not indexable (as of PostgreSQL 9.1). Thus, you may want to write
+generates. Unfortunately, the unaccent function supplied by this extension
+is not indexable (as of PostgreSQL 9.1). Thus, you may want to write
 your own wrapper function and use it instead. This can be configured by
 calling the following code, perhaps in an initializer.
 

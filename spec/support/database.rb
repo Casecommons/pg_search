@@ -53,7 +53,7 @@ def install_extension(name) # rubocop:disable Metrics/AbcSize
 rescue => exception
   at_exit do
     puts "-" * 80
-    puts "Please install the #{name} contrib module"
+    puts "Please install the #{name} extension"
     puts "-" * 80
   end
   raise exception
