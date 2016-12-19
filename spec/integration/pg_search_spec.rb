@@ -571,31 +571,23 @@ describe "an Active Record model which includes PgSearch" do
           }
       end
 
-      if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
-        it "is unsupported in PostgreSQL 8.3 and earlier" do
-          expect {
-            ModelWithPgSearch.search_title_with_prefixes("abcd\303\251f")
-          }.to raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
+      context "with :prefix => true" do
+        it "returns rows that match the query and that are prefixed by the query" do
+          included = ModelWithPgSearch.create!(:title => 'prefix')
+          excluded = ModelWithPgSearch.create!(:title => 'postfix')
+
+          results = ModelWithPgSearch.search_title_with_prefixes("pre")
+          expect(results).to eq([included])
+          expect(results).not_to include(excluded)
         end
-      else
-        context "with :prefix => true" do
-          it "returns rows that match the query and that are prefixed by the query" do
-            included = ModelWithPgSearch.create!(:title => 'prefix')
-            excluded = ModelWithPgSearch.create!(:title => 'postfix')
 
-            results = ModelWithPgSearch.search_title_with_prefixes("pre")
-            expect(results).to eq([included])
-            expect(results).not_to include(excluded)
-          end
+        it "returns rows that match the query when the query has a hyphen" do
+          included = ModelWithPgSearch.create!(:title => 'foo-bar')
+          excluded = ModelWithPgSearch.create!(:title => 'foo bar')
 
-          it "returns rows that match the query when the query has a hyphen" do
-            included = ModelWithPgSearch.create!(:title => 'foo-bar')
-            excluded = ModelWithPgSearch.create!(:title => 'foo bar')
-
-            results = ModelWithPgSearch.search_title_with_prefixes("foo-bar")
-            expect(results).to include(included)
-            expect(results).not_to include(excluded)
-          end
+          results = ModelWithPgSearch.search_title_with_prefixes("foo-bar")
+          expect(results).to include(included)
+          expect(results).not_to include(excluded)
         end
       end
 
@@ -1104,22 +1096,14 @@ describe "an Active Record model which includes PgSearch" do
           :ignoring => :accents
       end
 
-      if ActiveRecord::Base.connection.send(:postgresql_version) < 90000
-        it "is unsupported in PostgreSQL 8.x" do
-          expect {
-            ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
-          }.to raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
-        end
-      else
-        it "returns rows that match the query but not its accents" do
-          # \303\241 is a with acute accent
-          # \303\251 is e with acute accent
+      it "returns rows that match the query but not its accents" do
+        # \303\241 is a with acute accent
+        # \303\251 is e with acute accent
 
-          included = ModelWithPgSearch.create!(:title => "\303\241bcdef")
+        included = ModelWithPgSearch.create!(:title => "\303\241bcdef")
 
-          results = ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
-          expect(results).to eq([included])
-        end
+        results = ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
+        expect(results).to eq([included])
       end
     end
 

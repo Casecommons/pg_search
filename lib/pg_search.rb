@@ -90,8 +90,6 @@ module PgSearch
     end
   end
 
-  class NotSupportedForPostgresqlVersion < StandardError; end
-
   class PgSearchRankNotSelected < StandardError
     def message
       "You must chain .with_pg_search_rank after the pg_search_scope to access the pg_search_rank attribute on returned records" # rubocop:disable Metrics/LineLength
