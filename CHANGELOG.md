@@ -1,6 +1,11 @@
 # pg_search changelog
 
+## 2.0.1
+
+*   Remove require for generator that no longer exists. (Joshua Bartlett)
+
 ## 2.0.0
+
 *   Drop support for PostgreSQL < 9.2. 
 *   Drop support for Active Record < 4.2.
 *   Drop support for Ruby < 2.1.
