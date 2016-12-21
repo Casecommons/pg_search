@@ -31,15 +31,18 @@ module PgSearch
         return nil unless options[:highlight].is_a?(Hash)
 
         headline_options = map_headline_options
-        headline_options.map{|key, value| "#{key} = #{value}" if value }.compact.join(", ")
+        headline_options.map{|key, value| "#{key} = #{value}" unless value.nil? }.compact.join(", ")
       end
 
       def map_headline_options
-        {
-          "StartSel" => options[:highlight][:start_sel],
-          "StopSel" => options[:highlight][:stop_sel],
-          "MaxFragments" => options[:highlight][:max_fragments]
-        }
+        %w[
+          StartSel StopSel MaxFragments MaxWords MinWords ShortWord FragmentDelimiter HighlightAll
+        ].reduce({}) do |hash, name|
+          hash.tap do
+            key = name.gsub(/([a-z])([A-Z])/, '\1_\2').downcase.to_sym
+            hash[name] = options[:highlight][key]
+          end
+        end
       end
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
