@@ -329,14 +329,14 @@ describe PgSearch do
       with_model :Model do
         table do |t|
           t.integer 'number'
-          t.belongs_to 'another_model'
+          t.belongs_to 'another_model', index: false
         end
 
         model do
           include PgSearch
-          belongs_to :another_model, :class_name => 'AssociatedModel'
+          belongs_to :another_model, class_name: 'AssociatedModel'
 
-          pg_search_scope :with_associated, :associated_against => {:another_model => :number}
+          pg_search_scope :with_associated, associated_against: {another_model: :number}
         end
       end
 

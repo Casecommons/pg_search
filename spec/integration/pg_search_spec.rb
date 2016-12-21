@@ -1098,7 +1098,7 @@ describe "an Active Record model which includes PgSearch" do
         with_model :AnotherModel do
           table do |t|
             t.string :content_tsvector # the type of the column doesn't matter
-            t.belongs_to :model_with_tsvector
+            t.belongs_to :model_with_tsvector, index: false
           end
         end
 

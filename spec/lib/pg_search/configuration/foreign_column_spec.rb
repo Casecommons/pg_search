@@ -11,12 +11,12 @@ describe PgSearch::Configuration::ForeignColumn do
     with_model :Model do
       table do |t|
         t.string "title"
-        t.belongs_to :another_model
+        t.belongs_to :another_model, index: false
       end
 
       model do
         include PgSearch
-        belongs_to :another_model, :class_name => 'AssociatedModel'
+        belongs_to :another_model, class_name: 'AssociatedModel'
 
         pg_search_scope :with_another, :associated_against => {:another_model => :title}
       end
