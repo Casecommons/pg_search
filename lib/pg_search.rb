@@ -104,5 +104,8 @@ module PgSearch
   end
 end
 
-require "pg_search/document"
+ActiveSupport.on_load(:active_record) do
+  require "pg_search/document"
+end
+
 require "pg_search/railtie" if defined?(Rails)
