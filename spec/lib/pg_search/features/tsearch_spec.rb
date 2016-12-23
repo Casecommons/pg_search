@@ -122,4 +122,31 @@ describe PgSearch::Features::TSearch do
       end
     end
   end
+
+  describe "#highlight" do
+    with_model :Model do
+      table do |t|
+        t.string :name
+        t.text :content
+      end
+    end
+
+    context "when options[:dictionary] is passed" do
+      it 'uses the provided dictionary' do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model),
+        ]
+        options = { dictionary: "spanish", highlight: {start_sel: "<b>", stop_sel: "</b>"} }
+        config = double(:config, :ignore => [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = described_class.new(query, options, columns, Model, normalizer)
+        expect(feature.highlight.to_sql).to eq(
+          %{(ts_headline('#{options[:dictionary]}', (coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('#{options[:dictionary]}', ''' ' || 'query' || ' ''')), 'StartSel = #{options[:highlight][:start_sel]}, StopSel = #{options[:highlight][:stop_sel]}'))}
+        )
+      end
+    end
+  end
 end
