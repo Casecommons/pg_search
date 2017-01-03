@@ -17,6 +17,8 @@ env:
 
 matrix:
   allow_failures:
+    - rvm: "2.4.0"
+      env: ACTIVE_RECORD_VERSION="~> 4.2.0"
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="5-0-stable"
     - env: ACTIVE_RECORD_BRANCH="4-2-stable"
