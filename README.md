@@ -161,6 +161,46 @@ problematic_record.published?     # => true
 PgSearch.multisearch("timestamp") # => Includes problematic_record
 ```
 
+#### More Options 
+
+**Conditionally update pg_search_documents**
+
+You can specify an `:update_if` parameter to conditionally update pg_search documents. For example:
+
+```
+multisearchable(
+    against: [:body],
+    update_if: :body_changed?
+  )
+```
+
+**Specify additional attributes to be saved on the pg_search_documents table**
+
+You can specify `:additional_attributes` to be saved within the pg_search_documents table. For example, perhaps you are indexing a book model and an article model and wanted to include the author_id.
+
+First, we need to add `author_id` to the migration creating our pg_search_documents table.
+
+```
+  create_table :pg_search_documents do |t|
+        t.text :content
+        t.integer :author_id
+        t.belongs_to :searchable, :polymorphic => true, :index => true
+```
+
+Then, we can send in this additional attribute in a lambda
+
+```
+  multisearchable(
+    against: [:title, :body],
+    additional_attributes: -> (article) { { author_id: article.author_id } }
+  )
+```
+
+This allows much faster searches without joins later on by doing something like:
+`PgSearch.multisearch(params['search']).where(author_id: 2)`
+
+*NOTE: You must currently manually call `record.update_pg_search_document` for the additional attribute to be included in the pg_search_documents table*
+
 #### Multi-search associations
 
 Two associations are built automatically. On the original record, there is a
