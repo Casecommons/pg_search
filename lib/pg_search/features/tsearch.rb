@@ -24,7 +24,7 @@ module PgSearch
       private
 
       def ts_headline
-        "ts_headline((#{document}), (#{tsquery}), '#{ts_headline_options}')"
+        "ts_headline(#{dictionary.to_sql}, (#{document}), (#{tsquery}), '#{ts_headline_options}')"
       end
 
       def ts_headline_options
