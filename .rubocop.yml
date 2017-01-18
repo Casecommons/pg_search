@@ -7,15 +7,15 @@ AllCops:
 Style/StringLiterals:
   Enabled: false
 
-AllCops:
-  Exclude:
-    - bin/**/*
-
 Metrics/LineLength:
   Max: 120
 
 Metrics/MethodLength:
   Max: 21
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*
 
 Style/AlignParameters:
   EnforcedStyle: with_fixed_indentation
