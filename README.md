@@ -14,7 +14,7 @@
 PgSearch builds named scopes that take advantage of PostgreSQL's full text
 search.
 
-Read the blog post introducing PgSearch at http://blog.pivotal.io/labs/labs/pg-search
+Read the blog post introducing PgSearch at https://content.pivotal.io/blog/pg-search-how-i-learned-to-stop-worrying-and-love-postgresql-full-text-search
 
 ## REQUIREMENTS
 
