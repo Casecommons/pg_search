@@ -1095,5 +1095,5 @@ Please read our [CONTRIBUTING guide](https://github.com/Casecommons/pg_search/bl
 
 ## LICENSE
 
-Copyright © 2010–2016 [Case Commons, Inc](http://casecommons.org).
+Copyright © 2010–2017 [Case Commons, Inc](http://casecommons.org).
 Licensed under the MIT license, see [LICENSE](/LICENSE) file.
