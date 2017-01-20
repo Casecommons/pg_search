@@ -18,7 +18,16 @@ module PgSearch
       end
 
       def to_sql
-        "coalesce(#{expression}::text, '')"
+        coalesce("#{expression}::text")
+      end
+
+      def to_sql_no_cast
+        coalesce(expression)
+      end
+
+      def tsvector?
+        psql_column = @model.columns_hash[name]
+        psql_column && psql_column.type.eql?(:tsvector)
       end
 
       private
@@ -33,6 +42,10 @@ module PgSearch
 
       def expression
         full_name
+      end
+
+      def coalesce(value)
+        "coalesce(#{value}, '')"
       end
     end
   end
