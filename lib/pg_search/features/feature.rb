@@ -20,10 +20,14 @@ module PgSearch
 
       private
 
-      attr_reader :query, :options, :all_columns, :model, :normalizer
+      attr_reader :query, :all_columns, :model, :normalizer
 
       def document
         columns.map { |column| column.to_sql }.join(" || ' ' || ")
+      end
+
+      def options
+        @options ||= {}
       end
 
       def columns
