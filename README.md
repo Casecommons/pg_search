@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/Casecommons/pg_search.png?label=ready&title=Ready)](https://waffle.io/Casecommons/pg_search)
 # [pg_search](http://github.com/Casecommons/pg_search/)
 
 [![Gem Version](https://img.shields.io/gem/v/pg_search.svg?style=flat)](https://rubygems.org/gems/pg_search)
