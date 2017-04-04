@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "active_support/core_ext/class/attribute"
 
 module PgSearch
@@ -31,6 +32,7 @@ module PgSearch
     end
 
     def should_update_pg_search_document?
+      return false if pg_search_document.destroyed?
       conditions = Array(pg_search_multisearchable_options[:update_if])
       conditions.all? { |condition| condition.to_proc.call(self) }
     end
