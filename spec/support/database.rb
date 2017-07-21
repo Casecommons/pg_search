@@ -3,7 +3,7 @@ if defined? JRUBY_VERSION
   error_classes = [ActiveRecord::JDBCError]
 else
   require "pg"
-  error_classes = [PGError]
+  error_classes = [PG::Error]
 end
 
 error_classes << ActiveRecord::NoDatabaseError if defined? ActiveRecord::NoDatabaseError
