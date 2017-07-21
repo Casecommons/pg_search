@@ -1,28 +1,28 @@
-require "active_support/core_ext/class/attribute"
+require 'active_support/core_ext/class/attribute'
 
 module PgSearch
   module Multisearchable
     def self.included(mod)
       mod.class_eval do
         has_one :pg_search_document,
-          :as => :searchable,
-          :class_name => "PgSearch::Document",
-          :dependent => :delete
+                as: :searchable,
+                class_name: 'PgSearch::Document',
+                dependent: :delete
 
         after_save :update_pg_search_document,
-          :if => -> { PgSearch.multisearch_enabled? }
+                   if: -> { PgSearch.multisearch_enabled? }
       end
     end
 
     def searchable_text
       Array(pg_search_multisearchable_options[:against])
-        .map { |symbol| send(symbol) }
-        .join(" ")
+        .map { |symbol| __send__(symbol) }
+        .join(' ')
     end
 
     def pg_search_document_attrs
       {
-        content: searchable_text
+        content: searchable_text,
       }.tap do |h|
         if (attrs = pg_search_multisearchable_options[:additional_attributes])
           h.merge! attrs.to_proc.call(self)
@@ -45,8 +45,8 @@ module PgSearch
 
       if should_have_document
         create_or_update_pg_search_document
-      else
-        pg_search_document.destroy if pg_search_document
+      elsif pg_search_document
+        pg_search_document.destroy
       end
     end
 

@@ -3,7 +3,7 @@ module PgSearch
     class DMetaphone
       def initialize(query, options, columns, model, normalizer)
         dmetaphone_normalizer = Normalizer.new(normalizer)
-        options = (options || {}).merge(:dictionary => 'simple')
+        options = (options || {}).merge(dictionary: 'simple')
         @tsearch = TSearch.new(query, options, columns, model, dmetaphone_normalizer)
       end
 
@@ -27,12 +27,12 @@ module PgSearch
 
         def add_normalization(original_sql)
           otherwise_normalized_sql = Arel.sql(
-            normalizer_to_wrap.add_normalization(original_sql)
+            normalizer_to_wrap.add_normalization(original_sql),
           )
 
           Arel::Nodes::NamedFunction.new(
-            "pg_search_dmetaphone",
-            [otherwise_normalized_sql]
+            'pg_search_dmetaphone',
+            [otherwise_normalized_sql],
           ).to_sql
         end
 

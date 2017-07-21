@@ -1,39 +1,41 @@
 if defined? JRUBY_VERSION
-  require "activerecord-jdbc-adapter"
+  require 'activerecord-jdbc-adapter'
   error_classes = [ActiveRecord::JDBCError]
 else
-  require "pg"
+  require 'pg'
   error_classes = [PGError]
 end
 
 error_classes << ActiveRecord::NoDatabaseError if defined? ActiveRecord::NoDatabaseError
 
 begin
-  database_user = if ENV["TRAVIS"]
-                    "postgres"
-                  else
-                    ENV["USER"]
-                  end
+  database_user = if ENV['TRAVIS']
+    'postgres'
+  else
+    ENV['USER']
+  end
 
-  ActiveRecord::Base.establish_connection(:adapter => 'postgresql',
-                                          :database => 'pg_search_test',
-                                          :username => database_user,
-                                          :min_messages => 'warning')
+  ActiveRecord::Base.establish_connection(
+    adapter: 'postgresql',
+    database: 'pg_search_test',
+    username: database_user,
+    min_messages: 'warning',
+  )
   connection = ActiveRecord::Base.connection
-  connection.execute("SELECT 1")
+  connection.execute('SELECT 1')
 rescue *error_classes => exception
   at_exit do
-    puts "-" * 80
-    puts "Unable to connect to database.  Please run:"
+    puts '-' * 80
+    puts 'Unable to connect to database.  Please run:'
     puts
-    puts "    createdb pg_search_test"
-    puts "-" * 80
+    puts '    createdb pg_search_test'
+    puts '-' * 80
   end
   raise exception
 end
 
-if ENV["LOGGER"]
-  require "logger"
+if ENV['LOGGER']
+  require 'logger'
   ActiveRecord::Base.logger = Logger.new(STDOUT)
 end
 
@@ -44,23 +46,23 @@ def install_extension(name)
   connection.execute "CREATE EXTENSION #{name};"
 rescue => exception
   at_exit do
-    puts "-" * 80
+    puts '-' * 80
     puts "Please install the #{name} extension"
-    puts "-" * 80
+    puts '-' * 80
   end
   raise exception
 end
 
 def install_extension_if_missing(name, query, expected_result)
   result = ActiveRecord::Base.connection.select_value(query)
-  raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result.downcase
+  raise "Unexpected output for #{query}: #{result.inspect}" unless result.casecmp(expected_result.downcase).zero?
 rescue
   install_extension(name)
 end
 
-install_extension_if_missing("pg_trgm", "SELECT 'abcdef' % 'cdef'", "t")
-install_extension_if_missing("unaccent", "SELECT unaccent('foo')", "foo")
-install_extension_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "f")
+install_extension_if_missing('pg_trgm', "SELECT 'abcdef' % 'cdef'", 't')
+install_extension_if_missing('unaccent', "SELECT unaccent('foo')", 'foo')
+install_extension_if_missing('fuzzystrmatch', "SELECT dmetaphone('foo')", 'f')
 
 def load_sql(filename)
   connection = ActiveRecord::Base.connection
@@ -68,4 +70,4 @@ def load_sql(filename)
   connection.execute(file_contents)
 end
 
-load_sql("dmetaphone.sql")
+load_sql('dmetaphone.sql')

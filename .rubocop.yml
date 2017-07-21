@@ -1,47 +1,17 @@
-inherit_from: .rubocop_todo.yml
+inherit_gem:
+  lint-config-cc:
+    - default.yml
 
 AllCops:
   Exclude:
     - bin/**/*
-
-Style/StringLiterals:
-  Enabled: false
-
-Metrics/LineLength:
-  Max: 120
-
-Metrics/MethodLength:
-  Max: 21
-
-Metrics/BlockLength:
-  Exclude:
-    - spec/**/*
-
-Style/AlignParameters:
-  EnforcedStyle: with_fixed_indentation
-
-Style/HashSyntax:
-  Enabled: false
-
-Style/NumericPredicate:
-  Enabled: false
-
-Style/PercentLiteralDelimiters:
-  PreferredDelimiters:
-    '%w': '[]'
-    '%W': '[]'
-
-Style/GuardClause:
-  Enabled: false
-
-Style/VariableNumber:
-  EnforcedStyle: snake_case
-
-Bundler/OrderedGems:
-  Enabled: false
-
+  TargetRubyVersion: 2.1
 Bundler/DuplicatedGem:
   Enabled: false
-
-Style/EmptyMethod:
-  EnforcedStyle: expanded
+Metrics/LineLength:
+  Exclude:
+    - Gemfile
+Style/OptionHash:
+  Enabled: false
+Style/VariableNumber:
+  EnforcedStyle: snake_case

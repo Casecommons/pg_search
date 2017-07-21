@@ -1,7 +1,7 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe PgSearch::Features::TSearch do
-  describe "#rank" do
+  describe '#rank' do
     with_model :Model do
       table do |t|
         t.string :name
@@ -9,24 +9,24 @@ describe PgSearch::Features::TSearch do
       end
     end
 
-    it "returns an expression using the ts_rank() function" do
-      query = "query"
+    it 'returns an expression using the ts_rank() function' do
+      query = 'query'
       columns = [
         PgSearch::Configuration::Column.new(:name, nil, Model),
         PgSearch::Configuration::Column.new(:content, nil, Model),
       ]
       options = {}
-      config = double(:config, :ignore => [])
+      config = double(:config, ignore: [])
       normalizer = PgSearch::Normalizer.new(config)
 
       feature = described_class.new(query, options, columns, Model, normalizer)
       expect(feature.rank.to_sql).to eq(
-        %{(ts_rank((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 0))}
+        %{(ts_rank((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 0))},
       )
     end
   end
 
-  describe "#conditions" do
+  describe '#conditions' do
     with_model :Model do
       table do |t|
         t.string :name
@@ -34,96 +34,96 @@ describe PgSearch::Features::TSearch do
       end
     end
 
-    it "returns an expression using the @@ infix operator" do
-      query = "query"
+    it 'returns an expression using the @@ infix operator' do
+      query = 'query'
       columns = [
         PgSearch::Configuration::Column.new(:name, nil, Model),
         PgSearch::Configuration::Column.new(:content, nil, Model),
       ]
       options = {}
-      config = double(:config, :ignore => [])
+      config = double(:config, ignore: [])
       normalizer = PgSearch::Normalizer.new(config)
 
       feature = described_class.new(query, options, columns, Model, normalizer)
       expect(feature.conditions.to_sql).to eq(
-        %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+        %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))},
       )
     end
 
-    context "when options[:negation] is true" do
-      it "returns a negated expression when a query is prepended with !" do
-        query = "!query"
+    context 'when options[:negation] is true' do
+      it 'returns a negated expression when a query is prepended with !' do
+        query = '!query'
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model),
         ]
-        options = {:negation => true}
-        config = double(:config, :ignore => [])
+        options = {negation: true}
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.conditions.to_sql).to eq(
-          %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', '!' || ''' ' || 'query' || ' ''')))}
+          %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', '!' || ''' ' || 'query' || ' ''')))},
         )
       end
     end
 
-    context "when options[:negation] is false" do
-      it "does not return a negated expression when a query is prepended with !" do
-        query = "!query"
+    context 'when options[:negation] is false' do
+      it 'does not return a negated expression when a query is prepended with !' do
+        query = '!query'
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model),
         ]
-        options = {:negation => false}
-        config = double(:config, :ignore => [])
+        options = {negation: false}
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.conditions.to_sql).to eq(
-          %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || '!query' || ' ''')))}
+          %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || '!query' || ' ''')))},
         )
       end
     end
 
-    context "when options[:tsvector_column] is a string" do
+    context 'when options[:tsvector_column] is a string' do
       it 'uses the tsvector column' do
-        query = "query"
+        query = 'query'
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model),
         ]
-        options = { tsvector_column: "my_tsvector" }
-        config = double(:config, :ignore => [])
+        options = {tsvector_column: 'my_tsvector'}
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.conditions.to_sql).to eq(
-          %{((#{Model.quoted_table_name}.\"my_tsvector\") @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+          %{((#{Model.quoted_table_name}.\"my_tsvector\") @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))},
         )
       end
     end
 
-    context "when options[:tsvector_column] is an array of strings" do
+    context 'when options[:tsvector_column] is an array of strings' do
       it 'uses the tsvector column' do
-        query = "query"
+        query = 'query'
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model),
         ]
-        options = { tsvector_column: ["tsvector1", "tsvector2"] }
-        config = double(:config, :ignore => [])
+        options = {tsvector_column: %w[tsvector1 tsvector2]}
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.conditions.to_sql).to eq(
-          %{((#{Model.quoted_table_name}.\"tsvector1\" || #{Model.quoted_table_name}.\"tsvector2\") @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+          %{((#{Model.quoted_table_name}.\"tsvector1\" || #{Model.quoted_table_name}.\"tsvector2\") @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))},
         )
       end
     end
   end
 
-  describe "#highlight" do
+  describe '#highlight' do
     with_model :Model do
       table do |t|
         t.string :name
@@ -131,20 +131,20 @@ describe PgSearch::Features::TSearch do
       end
     end
 
-    context "when options[:dictionary] is passed" do
+    context 'when options[:dictionary] is passed' do
       it 'uses the provided dictionary' do
-        query = "query"
+        query = 'query'
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model),
         ]
-        options = { dictionary: "spanish", highlight: {start_sel: "<b>", stop_sel: "</b>"} }
-        config = double(:config, :ignore => [])
+        options = {dictionary: 'spanish', highlight: {start_sel: '<b>', stop_sel: '</b>'}}
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.highlight.to_sql).to eq(
-          %{(ts_headline('#{options[:dictionary]}', (coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('#{options[:dictionary]}', ''' ' || 'query' || ' ''')), 'StartSel = #{options[:highlight][:start_sel]}, StopSel = #{options[:highlight][:stop_sel]}'))}
+          %{(ts_headline('#{options[:dictionary]}', (coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('#{options[:dictionary]}', ''' ' || 'query' || ' ''')), 'StartSel = #{options[:highlight][:start_sel]}, StopSel = #{options[:highlight][:stop_sel]}'))},
         )
       end
     end

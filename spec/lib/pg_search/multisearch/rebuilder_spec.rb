@@ -1,4 +1,4 @@
-require "spec_helper"
+require 'spec_helper'
 
 def has_microsecond_precision?
   (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR >= 1) ||
@@ -6,7 +6,7 @@ def has_microsecond_precision?
 end
 
 describe PgSearch::Multisearch::Rebuilder do
-  with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
+  with_table 'pg_search_documents', {}, &DOCUMENTS_SCHEMA
 
   describe 'when intialized with a model that is not multisearchable' do
     with_model :not_multisearchable
@@ -16,33 +16,32 @@ describe PgSearch::Multisearch::Rebuilder do
         PgSearch::Multisearch::Rebuilder.new(NotMultisearchable)
       }.to raise_exception(
         PgSearch::Multisearch::ModelNotMultisearchable,
-        "NotMultisearchable is not multisearchable. See PgSearch::ClassMethods#multisearchable"
+        'NotMultisearchable is not multisearchable. See PgSearch::ClassMethods#multisearchable',
       )
     end
   end
 
-  describe "#rebuild" do
-    context "when the model defines .rebuild_pg_search_documents" do
-      context "and multisearchable is not conditional" do
+  describe '#rebuild' do
+    context 'when the model defines .rebuild_pg_search_documents' do
+      context 'and multisearchable is not conditional' do
         with_model :Model do
           model do
             include PgSearch
             multisearchable
 
-            def rebuild_pg_search_documents
-            end
+            def rebuild_pg_search_documents; end
           end
         end
 
-        it "should call .rebuild_pg_search_documents" do
+        it 'should call .rebuild_pg_search_documents' do
           rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
           expect(Model).to receive(:rebuild_pg_search_documents)
           rebuilder.rebuild
         end
       end
 
-      context "and multisearchable is conditional" do
-        [:if, :unless].each do |conditional_key|
+      context 'and multisearchable is conditional' do
+        %i[if unless].each do |conditional_key|
           context "via :#{conditional_key}" do
             with_model :Model do
               table do |t|
@@ -53,12 +52,11 @@ describe PgSearch::Multisearch::Rebuilder do
                 include PgSearch
                 multisearchable conditional_key => :active?
 
-                def rebuild_pg_search_documents
-                end
+                def rebuild_pg_search_documents; end
               end
             end
 
-            it "should call .rebuild_pg_search_documents" do
+            it 'should call .rebuild_pg_search_documents' do
               rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
               expect(Model).to receive(:rebuild_pg_search_documents)
               rebuilder.rebuild
@@ -68,9 +66,9 @@ describe PgSearch::Multisearch::Rebuilder do
       end
     end
 
-    context "when the model does not define .rebuild_pg_search_documents" do
-      context "and multisearchable is not conditional" do
-        context "when :against only includes columns" do
+    context 'when the model does not define .rebuild_pg_search_documents' do
+      context 'and multisearchable is not conditional' do
+        context 'when :against only includes columns' do
           with_model :Model do
             table do |t|
               t.string :name
@@ -78,11 +76,11 @@ describe PgSearch::Multisearch::Rebuilder do
 
             model do
               include PgSearch
-              multisearchable :against => :name
+              multisearchable against: :name
             end
           end
 
-          it "should not call :rebuild_pg_search_documents" do
+          it 'should not call :rebuild_pg_search_documents' do
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
 
             # stub respond_to? to return false since should_not_receive defines the method
@@ -99,13 +97,13 @@ describe PgSearch::Multisearch::Rebuilder do
             rebuilder.rebuild
           end
 
-          it "should execute the default SQL" do
-            time = DateTime.parse("2001-01-01")
+          it 'should execute the default SQL' do
+            time = DateTime.parse('2001-01-01')
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, -> { time })
 
             # Handle change in precision of DateTime objects in SQL in Active Record 4.0.1
             # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
-            expected_timestamp = has_microsecond_precision? ? "2001-01-01 00:00:00.000000" : "2001-01-01 00:00:00"
+            expected_timestamp = has_microsecond_precision? ? '2001-01-01 00:00:00.000000' : '2001-01-01 00:00:00'
 
             expected_sql = <<-SQL.strip_heredoc
             INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
@@ -121,7 +119,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             executed_sql = []
 
-            notifier = ActiveSupport::Notifications.subscribe("sql.active_record") do |_name, _start, _finish, _id, payload|
+            notifier = ActiveSupport::Notifications.subscribe('sql.active_record') do |_name, _start, _finish, _id, payload|
               executed_sql << payload[:sql] if payload[:sql].include?(%(INSERT INTO "pg_search_documents"))
             end
 
@@ -132,7 +130,7 @@ describe PgSearch::Multisearch::Rebuilder do
             expect(executed_sql.first.strip).to eq(expected_sql.strip)
           end
 
-          context "for a model with a non-standard primary key" do
+          context 'for a model with a non-standard primary key' do
             with_model :ModelWithNonStandardPrimaryKey do
               table primary_key: :non_standard_primary_key do |t|
                 t.string :name
@@ -140,17 +138,17 @@ describe PgSearch::Multisearch::Rebuilder do
 
               model do
                 include PgSearch
-                multisearchable :against => :name
+                multisearchable against: :name
               end
             end
 
-            it "generates SQL with the correct primary key" do
-              time = DateTime.parse("2001-01-01")
+            it 'generates SQL with the correct primary key' do
+              time = DateTime.parse('2001-01-01')
               rebuilder = PgSearch::Multisearch::Rebuilder.new(ModelWithNonStandardPrimaryKey, -> { time })
 
               # Handle change in precision of DateTime objects in SQL in Active Record 4.0.1
               # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
-              expected_timestamp = has_microsecond_precision? ? "2001-01-01 00:00:00.000000" : "2001-01-01 00:00:00"
+              expected_timestamp = has_microsecond_precision? ? '2001-01-01 00:00:00.000000' : '2001-01-01 00:00:00'
 
               expected_sql = <<-SQL.strip_heredoc
               INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
@@ -166,7 +164,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
               executed_sql = []
 
-              notifier = ActiveSupport::Notifications.subscribe("sql.active_record") do |_name, _start, _finish, _id, payload|
+              notifier = ActiveSupport::Notifications.subscribe('sql.active_record') do |_name, _start, _finish, _id, payload|
                 executed_sql << payload[:sql] if payload[:sql].include?(%(INSERT INTO "pg_search_documents"))
               end
 
@@ -179,7 +177,7 @@ describe PgSearch::Multisearch::Rebuilder do
           end
         end
 
-        context "when :against includes non-column dynamic methods" do
+        context 'when :against includes non-column dynamic methods' do
           with_model :Model do
             table do
             end
@@ -189,12 +187,12 @@ describe PgSearch::Multisearch::Rebuilder do
               multisearchable against: [:foo]
 
               def foo
-                "bar"
+                'bar'
               end
             end
           end
 
-          it "calls update_pg_search_document on each record" do
+          it 'calls update_pg_search_document on each record' do
             record = Model.create!
 
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
@@ -217,8 +215,8 @@ describe PgSearch::Multisearch::Rebuilder do
         end
       end
 
-      context "and multisearchable is conditional" do
-        context "via :if" do
+      context 'and multisearchable is conditional' do
+        context 'via :if' do
           with_model :Model do
             table do |t|
               t.boolean :active
@@ -226,13 +224,13 @@ describe PgSearch::Multisearch::Rebuilder do
 
             model do
               include PgSearch
-              multisearchable :if => :active?
+              multisearchable if: :active?
             end
           end
 
-          it "calls update_pg_search_document on each record" do
-            record_1 = Model.create!(:active => true)
-            record_2 = Model.create!(:active => false)
+          it 'calls update_pg_search_document on each record' do
+            record_1 = Model.create!(active: true)
+            record_2 = Model.create!(active: false)
 
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
 
@@ -254,7 +252,7 @@ describe PgSearch::Multisearch::Rebuilder do
           end
         end
 
-        context "via :unless" do
+        context 'via :unless' do
           with_model :Model do
             table do |t|
               t.boolean :inactive
@@ -262,13 +260,13 @@ describe PgSearch::Multisearch::Rebuilder do
 
             model do
               include PgSearch
-              multisearchable :unless => :inactive?
+              multisearchable unless: :inactive?
             end
           end
 
-          it "calls update_pg_search_document on each record" do
-            record_1 = Model.create!(:inactive => true)
-            record_2 = Model.create!(:inactive => false)
+          it 'calls update_pg_search_document on each record' do
+            record_1 = Model.create!(inactive: true)
+            record_2 = Model.create!(inactive: false)
 
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
 

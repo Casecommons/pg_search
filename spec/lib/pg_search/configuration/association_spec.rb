@@ -1,4 +1,4 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe PgSearch::Configuration::Association do
   with_model :Avatar do
@@ -16,11 +16,11 @@ describe PgSearch::Configuration::Association do
 
     model do
       include PgSearch
-      has_one :avatar, :class_name => "Avatar"
+      has_one :avatar, class_name: 'Avatar'
       belongs_to :site
 
-      pg_search_scope :with_avatar, :associated_against => {:avatar => :url}
-      pg_search_scope :with_site, :associated_against => {:site => :title}
+      pg_search_scope :with_avatar, associated_against: {avatar: :url}
+      pg_search_scope :with_site, associated_against: {site: :title}
     end
   end
 
@@ -31,22 +31,22 @@ describe PgSearch::Configuration::Association do
 
     model do
       include PgSearch
-      has_many :users, :class_name => "User"
+      has_many :users, class_name: 'User'
 
-      pg_search_scope :with_users, :associated_against => {:users => :name}
+      pg_search_scope :with_users, associated_against: {users: :name}
     end
   end
 
-  context "has_one" do
+  context 'has_one' do
     let(:association) { described_class.new(User, :avatar, :url) }
 
-    describe "#table_name" do
-      it "returns the table name for the associated model" do
+    describe '#table_name' do
+      it 'returns the table name for the associated model' do
         expect(association.table_name).to eq Avatar.table_name
       end
     end
 
-    describe "#join" do
+    describe '#join' do
       let(:expected_sql) do
         <<-EOS.gsub(/\s+/, ' ').strip
           LEFT OUTER JOIN
@@ -62,22 +62,22 @@ describe PgSearch::Configuration::Association do
         "\"#{association.table_name}\".\"url\"::text"
       end
 
-      it "returns the correct SQL join" do
-        expect(association.join("model_id")).to eq(expected_sql)
+      it 'returns the correct SQL join' do
+        expect(association.join('model_id')).to eq(expected_sql)
       end
     end
   end
 
-  context "belongs_to" do
+  context 'belongs_to' do
     let(:association) { described_class.new(User, :site, :title) }
 
-    describe "#table_name" do
-      it "returns the table name for the associated model" do
+    describe '#table_name' do
+      it 'returns the table name for the associated model' do
         expect(association.table_name).to eq Site.table_name
       end
     end
 
-    describe "#join" do
+    describe '#join' do
       let(:expected_sql) do
         <<-EOS.gsub(/\s+/, ' ').strip
           LEFT OUTER JOIN
@@ -93,22 +93,22 @@ describe PgSearch::Configuration::Association do
         "\"#{association.table_name}\".\"title\"::text"
       end
 
-      it "returns the correct SQL join" do
-        expect(association.join("model_id")).to eq(expected_sql)
+      it 'returns the correct SQL join' do
+        expect(association.join('model_id')).to eq(expected_sql)
       end
     end
   end
 
-  context "has_many" do
+  context 'has_many' do
     let(:association) { described_class.new(Site, :users, :name) }
 
-    describe "#table_name" do
-      it "returns the table name for the associated model" do
+    describe '#table_name' do
+      it 'returns the table name for the associated model' do
         expect(association.table_name).to eq User.table_name
       end
     end
 
-    describe "#join" do
+    describe '#join' do
       let(:expected_sql) do
         <<-EOS.gsub(/\s+/, ' ').strip
           LEFT OUTER JOIN
@@ -122,12 +122,12 @@ describe PgSearch::Configuration::Association do
         EOS
       end
 
-      it "returns the correct SQL join" do
-        expect(association.join("model_id")).to eq(expected_sql)
+      it 'returns the correct SQL join' do
+        expect(association.join('model_id')).to eq(expected_sql)
       end
 
-      describe "#subselect_alias" do
-        it "returns a consistent string" do
+      describe '#subselect_alias' do
+        it 'returns a consistent string' do
           subselect_alias = association.subselect_alias
           expect(subselect_alias).to be_a String
           expect(association.subselect_alias).to eq subselect_alias

@@ -8,11 +8,11 @@ module PgSearch
       def conditions
         if options[:threshold]
           Arel::Nodes::Grouping.new(
-            similarity.gteq(options[:threshold])
+            similarity.gteq(options[:threshold]),
           )
         else
           Arel::Nodes::Grouping.new(
-            Arel::Nodes::InfixOperation.new("%", normalized_document, normalized_query)
+            Arel::Nodes::InfixOperation.new('%', normalized_document, normalized_query),
           )
         end
       end
@@ -25,11 +25,11 @@ module PgSearch
 
       def similarity
         Arel::Nodes::NamedFunction.new(
-          "similarity",
+          'similarity',
           [
             normalized_document,
-            normalized_query
-          ]
+            normalized_query,
+          ],
         )
       end
 

@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-require "active_support/core_ext/module/delegation"
+require 'active_support/core_ext/module/delegation'
 
 module PgSearch
   class ScopeOptions
@@ -27,7 +27,7 @@ module PgSearch
     # workaround for https://github.com/Casecommons/pg_search/issues/14
     module DisableEagerLoading
       def eager_loading?
-        return false
+        false
       end
     end
 
@@ -40,7 +40,7 @@ module PgSearch
       end
 
       def tsearch
-        raise TypeError.new("You need to instantiate this module with []")
+        raise TypeError, 'You need to instantiate this module with []'
       end
 
       def with_pg_search_highlight
@@ -93,7 +93,7 @@ module PgSearch
 
     private
 
-    delegate :connection, :quoted_table_name, :to => :model
+    delegate :connection, :quoted_table_name, to: :model
 
     def subquery
       model
@@ -115,7 +115,7 @@ module PgSearch
         feature_for(feature_name).conditions
       end
 
-      conditions = conditions.inject do |accumulator, expression|
+      conditions = conditions.reduce do |accumulator, expression|
         Arel::Nodes::Or.new(accumulator, expression)
       end
 
@@ -131,24 +131,24 @@ module PgSearch
     end
 
     def subquery_join
-      if config.associations.any?
-        config.associations.map do |association|
-          association.join(primary_key)
-        end.join(' ')
-      end
+      return unless config.associations.any?
+
+      config.associations.map do |association|
+        association.join(primary_key)
+      end.join(' ')
     end
 
     FEATURE_CLASSES = {
-      :dmetaphone => Features::DMetaphone,
-      :tsearch => Features::TSearch,
-      :trigram => Features::Trigram
-    }
+      dmetaphone: Features::DMetaphone,
+      tsearch: Features::TSearch,
+      trigram: Features::Trigram,
+    }.freeze
 
-    def feature_for(feature_name) # rubocop:disable Metrics/AbcSize
+    def feature_for(feature_name)
       feature_name = feature_name.to_sym
       feature_class = FEATURE_CLASSES[feature_name]
 
-      raise ArgumentError.new("Unknown feature: #{feature_name}") unless feature_class
+      raise ArgumentError, "Unknown feature: #{feature_name}" unless feature_class
 
       normalizer = Normalizer.new(config)
 
@@ -157,13 +157,13 @@ module PgSearch
         feature_options[feature_name],
         config.columns,
         config.model,
-        normalizer
+        normalizer,
       )
     end
 
     def rank
-      (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
-        feature_for($1).rank.to_sql
+      (config.ranking_sql || ':tsearch').gsub(/:(\w*)/) do
+        feature_for(Regexp.last_match(1)).rank.to_sql
       end
     end
 

@@ -1,8 +1,8 @@
 require 'simplecov'
 SimpleCov.start
 
-require "bundler/setup"
-require "pg_search"
+require 'bundler/setup'
+require 'pg_search'
 
 RSpec.configure do |config|
   config.expect_with :rspec do |c|
@@ -19,8 +19,8 @@ end
 require 'support/database'
 require 'support/with_model'
 
-DOCUMENTS_SCHEMA = lambda do |t|
-  t.belongs_to :searchable, :polymorphic => true, :index => true
+DOCUMENTS_SCHEMA = ->(t) do
+  t.belongs_to :searchable, polymorphic: true, index: true
   t.text :content
   t.timestamps null: false
 end

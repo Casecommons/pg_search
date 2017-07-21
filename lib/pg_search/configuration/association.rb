@@ -1,4 +1,4 @@
-require "digest"
+require 'digest'
 
 module PgSearch
   class Configuration
@@ -22,7 +22,7 @@ module PgSearch
       end
 
       def subselect_alias
-        Configuration.alias(table_name, @name, "subselect")
+        Configuration.alias(table_name, @name, 'subselect')
       end
 
       private
@@ -38,13 +38,13 @@ module PgSearch
       def selects_for_singular_association
         columns.map do |column|
           "#{column.full_name}::text AS #{column.alias}"
-        end.join(", ")
+        end.join(', ')
       end
 
       def selects_for_multiple_association
         columns.map do |column|
           "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
-        end.join(", ")
+        end.join(', ')
       end
 
       def relation(primary_key)
@@ -54,7 +54,7 @@ module PgSearch
       end
 
       def singular_association?
-        [:has_one, :belongs_to].include?(@model.reflect_on_association(@name).macro)
+        %i[has_one belongs_to].include?(@model.reflect_on_association(@name).macro)
       end
     end
   end

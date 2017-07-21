@@ -1,10 +1,10 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe PgSearch do
-  describe ".multisearch" do
-    with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
+  describe '.multisearch' do
+    with_table 'pg_search_documents', {}, &DOCUMENTS_SCHEMA
 
-    describe "delegation to PgSearch::Document.search" do
+    describe 'delegation to PgSearch::Document.search' do
       subject { PgSearch.multisearch(query) }
 
       let(:query) { double(:query) }
@@ -16,8 +16,8 @@ describe PgSearch do
       it { is_expected.to eq(relation) }
     end
 
-    context "with PgSearch.multisearch_options set to a Hash" do
-      before { allow(PgSearch).to receive(:multisearch_options).and_return(:using => :dmetaphone) }
+    context 'with PgSearch.multisearch_options set to a Hash' do
+      before { allow(PgSearch).to receive(:multisearch_options).and_return(using: :dmetaphone) }
       subject { PgSearch.multisearch(query).map(&:searchable) }
 
       with_model :MultisearchableModel do
@@ -26,25 +26,25 @@ describe PgSearch do
         end
         model do
           include PgSearch
-          multisearchable :against => :title
+          multisearchable against: :title
         end
       end
 
-      let!(:soundalike_record) { MultisearchableModel.create!(:title => 'foning') }
-      let(:query) { "Phoning" }
+      let!(:soundalike_record) { MultisearchableModel.create!(title: 'foning') }
+      let(:query) { 'Phoning' }
       it { is_expected.to include(soundalike_record) }
     end
 
-    context "with PgSearch.multisearch_options set to a Proc" do
+    context 'with PgSearch.multisearch_options set to a Proc' do
       subject { PgSearch.multisearch(query, soundalike).map(&:searchable) }
 
       before do
         allow(PgSearch).to receive(:multisearch_options) do
-          lambda do |query, soundalike|
+          ->(query, soundalike) do
             if soundalike
-              {:using => :dmetaphone, :query => query}
+              {using: :dmetaphone, query: query}
             else
-              {:query => query}
+              {query: query}
             end
           end
         end
@@ -56,26 +56,26 @@ describe PgSearch do
         end
         model do
           include PgSearch
-          multisearchable :against => :title
+          multisearchable against: :title
         end
       end
 
-      let!(:soundalike_record) { MultisearchableModel.create!(:title => 'foning') }
-      let(:query) { "Phoning" }
+      let!(:soundalike_record) { MultisearchableModel.create!(title: 'foning') }
+      let(:query) { 'Phoning' }
 
-      context "with soundalike true" do
+      context 'with soundalike true' do
         let(:soundalike) { true }
         it { is_expected.to include(soundalike_record) }
       end
 
-      context "with soundalike false" do
+      context 'with soundalike false' do
         let(:soundalike) { false }
         it { is_expected.not_to include(soundalike_record) }
       end
     end
 
-    context "on an STI subclass" do
-      context "with standard type column" do
+    context 'on an STI subclass' do
+      context 'with standard type column' do
         with_model :SuperclassModel do
           table do |t|
             t.text 'content'
@@ -86,51 +86,51 @@ describe PgSearch do
         before do
           searchable_subclass_model = Class.new(SuperclassModel) do
             include PgSearch
-            multisearchable :against => :content
+            multisearchable against: :content
           end
-          stub_const("SearchableSubclassModel", searchable_subclass_model)
-          stub_const("AnotherSearchableSubclassModel", searchable_subclass_model)
-          stub_const("NonSearchableSubclassModel", Class.new(SuperclassModel))
+          stub_const('SearchableSubclassModel', searchable_subclass_model)
+          stub_const('AnotherSearchableSubclassModel', searchable_subclass_model)
+          stub_const('NonSearchableSubclassModel', Class.new(SuperclassModel))
         end
 
-        it "returns only results for that subclass" do
-          included = SearchableSubclassModel.create!(:content => "foo bar")
+        it 'returns only results for that subclass' do
+          included = SearchableSubclassModel.create!(content: 'foo bar')
 
-          SearchableSubclassModel.create!(:content => "baz")
-          SuperclassModel.create!(:content => "foo bar")
-          SuperclassModel.create!(:content => "baz")
-          NonSearchableSubclassModel.create!(:content => "foo bar")
-          NonSearchableSubclassModel.create!(:content => "baz")
+          SearchableSubclassModel.create!(content: 'baz')
+          SuperclassModel.create!(content: 'foo bar')
+          SuperclassModel.create!(content: 'baz')
+          NonSearchableSubclassModel.create!(content: 'foo bar')
+          NonSearchableSubclassModel.create!(content: 'baz')
 
           expect(SuperclassModel.count).to be 6
           expect(SearchableSubclassModel.count).to be 2
 
           expect(PgSearch::Document.count).to be 2
 
-          results = PgSearch.multisearch("foo bar")
+          results = PgSearch.multisearch('foo bar')
 
           expect(results).to eq [included.pg_search_document]
         end
 
-        it "updates an existing STI model does not create a new pg_search document" do
-          model = SearchableSubclassModel.create!(:content => "foo bar")
+        it 'updates an existing STI model does not create a new pg_search document' do
+          model = SearchableSubclassModel.create!(content: 'foo bar')
           expect(SearchableSubclassModel.count).to eq(1)
           # We fetch the model from the database again otherwise
           # the pg_search_document from the cache is used.
           model = SearchableSubclassModel.find(model.id)
-          model.content = "foo"
+          model.content = 'foo'
           model.save!
-          results = PgSearch.multisearch("foo")
+          results = PgSearch.multisearch('foo')
           expect(results.size).to eq(SearchableSubclassModel.count)
         end
 
-        it "reindexing works" do
-          NonSearchableSubclassModel.create!(:content => "foo bar")
-          NonSearchableSubclassModel.create!(:content => "baz")
-          expected = SearchableSubclassModel.create!(:content => "baz")
-          SuperclassModel.create!(:content => "foo bar")
-          SuperclassModel.create!(:content => "baz")
-          SuperclassModel.create!(:content => "baz2")
+        it 'reindexing works' do
+          NonSearchableSubclassModel.create!(content: 'foo bar')
+          NonSearchableSubclassModel.create!(content: 'baz')
+          expected = SearchableSubclassModel.create!(content: 'baz')
+          SuperclassModel.create!(content: 'foo bar')
+          SuperclassModel.create!(content: 'baz')
+          SuperclassModel.create!(content: 'baz2')
 
           expect(SuperclassModel.count).to be 6
           expect(NonSearchableSubclassModel.count).to be 2
@@ -146,20 +146,20 @@ describe PgSearch do
         end
 
         it "reindexing searchable STI doesn't clobber other related STI models" do
-          SearchableSubclassModel.create!(:content => "baz")
-          AnotherSearchableSubclassModel.create!(:content => "baz")
+          SearchableSubclassModel.create!(content: 'baz')
+          AnotherSearchableSubclassModel.create!(content: 'baz')
 
           expect(PgSearch::Document.count).to be 2
           PgSearch::Multisearch.rebuild(SearchableSubclassModel)
           expect(PgSearch::Document.count).to be 2
 
-          classes = PgSearch::Document.all.collect {|d| d.searchable.class }
+          classes = PgSearch::Document.all.map { |d| d.searchable.class }
           expect(classes).to include SearchableSubclassModel
           expect(classes).to include AnotherSearchableSubclassModel
         end
       end
 
-      context "with custom type column" do
+      context 'with custom type column' do
         with_model :SuperclassModel do
           table do |t|
             t.text 'content'
@@ -174,28 +174,28 @@ describe PgSearch do
         before do
           searchable_subclass_model = Class.new(SuperclassModel) do
             include PgSearch
-            multisearchable :against => :content
+            multisearchable against: :content
           end
-          stub_const("SearchableSubclassModel", searchable_subclass_model)
-          stub_const("AnotherSearchableSubclassModel", searchable_subclass_model)
-          stub_const("NonSearchableSubclassModel", Class.new(SuperclassModel))
+          stub_const('SearchableSubclassModel', searchable_subclass_model)
+          stub_const('AnotherSearchableSubclassModel', searchable_subclass_model)
+          stub_const('NonSearchableSubclassModel', Class.new(SuperclassModel))
         end
 
-        it "returns only results for that subclass" do
-          included = SearchableSubclassModel.create!(:content => "foo bar")
+        it 'returns only results for that subclass' do
+          included = SearchableSubclassModel.create!(content: 'foo bar')
 
-          SearchableSubclassModel.create!(:content => "baz")
-          SuperclassModel.create!(:content => "foo bar")
-          SuperclassModel.create!(:content => "baz")
-          NonSearchableSubclassModel.create!(:content => "foo bar")
-          NonSearchableSubclassModel.create!(:content => "baz")
+          SearchableSubclassModel.create!(content: 'baz')
+          SuperclassModel.create!(content: 'foo bar')
+          SuperclassModel.create!(content: 'baz')
+          NonSearchableSubclassModel.create!(content: 'foo bar')
+          NonSearchableSubclassModel.create!(content: 'baz')
 
           expect(SuperclassModel.count).to be 6
           expect(SearchableSubclassModel.count).to be 2
 
           expect(PgSearch::Document.count).to be 2
 
-          results = PgSearch.multisearch("foo bar")
+          results = PgSearch.multisearch('foo bar')
 
           expect(results).to eq [included.pg_search_document]
         end
@@ -203,8 +203,8 @@ describe PgSearch do
     end
   end
 
-  describe ".disable_multisearch" do
-    it "should temporarily disable multisearch" do
+  describe '.disable_multisearch' do
+    it 'should temporarily disable multisearch' do
       @multisearch_enabled_before = PgSearch.multisearch_enabled?
       PgSearch.disable_multisearch do
         @multisearch_enabled_inside = PgSearch.multisearch_enabled?
@@ -216,7 +216,7 @@ describe PgSearch do
       expect(@multisearch_enabled_after).to be(true)
     end
 
-    it "should reenable multisearch after an error" do
+    it 'should reenable multisearch after an error' do
       @multisearch_enabled_before = PgSearch.multisearch_enabled?
       begin
         PgSearch.disable_multisearch do
@@ -233,7 +233,7 @@ describe PgSearch do
       expect(@multisearch_enabled_after).to be(true)
     end
 
-    it "should not disable multisearch on other threads" do
+    it 'should not disable multisearch on other threads' do
       values = Queue.new
       sync = Queue.new
       Thread.new do

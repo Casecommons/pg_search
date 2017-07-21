@@ -12,11 +12,11 @@ module PgSearch
                    sql_expression
                  else
                    Arel.sql(sql_expression)
-                 end
+      end
 
       Arel::Nodes::NamedFunction.new(
         PgSearch.unaccent_function,
-        [sql_node]
+        [sql_node],
       ).to_sql
     end
 

@@ -3,7 +3,7 @@ module PgSearch
     class Rebuilder
       def initialize(model, time_source = Time.method(:now))
         unless model.respond_to?(:pg_search_multisearchable_options)
-          raise ModelNotMultisearchable.new(model)
+          raise ModelNotMultisearchable, model
         end
 
         @model = model
@@ -14,7 +14,7 @@ module PgSearch
         if model.respond_to?(:rebuild_pg_search_documents)
           model.rebuild_pg_search_documents
         elsif conditional? || dynamic?
-          model.find_each { |record| record.update_pg_search_document }
+          model.find_each(&:update_pg_search_document)
         else
           model.connection.execute(rebuild_sql)
         end
@@ -56,15 +56,15 @@ module PgSearch
       end
 
       def rebuild_sql
-        replacements.inject(rebuild_sql_template) do |sql, key|
-          sql.gsub ":#{key}", send(key)
+        replacements.reduce(rebuild_sql_template) do |sql, key|
+          sql.gsub ":#{key}", __send__(key)
         end
       end
 
       def sti_clause
-        clause = ""
+        clause = ''
         if model.column_names.include? model.inheritance_column
-          clause = "WHERE"
+          clause = 'WHERE'
           if model.base_class == model
             clause = "#{clause} #{model.inheritance_column} IS NULL OR"
           end

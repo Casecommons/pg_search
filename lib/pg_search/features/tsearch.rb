@@ -1,15 +1,15 @@
-require "active_support/core_ext/module/delegation"
+require 'active_support/core_ext/module/delegation'
 
 module PgSearch
   module Features
-    class TSearch < Feature # rubocop:disable Metrics/ClassLength
+    class TSearch < Feature
       def self.valid_options
-        super + [:dictionary, :prefix, :negation, :any_word, :normalization, :tsvector_column, :highlight]
+        super + %i[dictionary prefix negation any_word normalization tsvector_column highlight]
       end
 
       def conditions
         Arel::Nodes::Grouping.new(
-          Arel::Nodes::InfixOperation.new("@@", arel_wrap(tsdocument), arel_wrap(tsquery))
+          Arel::Nodes::InfixOperation.new('@@', arel_wrap(tsdocument), arel_wrap(tsquery)),
         )
       end
 
@@ -31,7 +31,7 @@ module PgSearch
         return nil unless options[:highlight].is_a?(Hash)
 
         headline_options = map_headline_options
-        headline_options.map{|key, value| "#{key} = #{value}" unless value.nil? }.compact.join(", ")
+        headline_options.map { |key, value| "#{key} = #{value}" unless value.nil? }.compact.join(', ')
       end
 
       def map_headline_options
@@ -48,12 +48,12 @@ module PgSearch
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
 
       def tsquery_for_term(unsanitized_term) # rubocop:disable Metrics/AbcSize
-        if options[:negation] && unsanitized_term.start_with?("!")
+        if options[:negation] && unsanitized_term.start_with?('!')
           unsanitized_term[0] = ''
           negated = true
         end
 
-        sanitized_term = unsanitized_term.gsub(DISALLOWED_TSQUERY_CHARACTERS, " ")
+        sanitized_term = unsanitized_term.gsub(DISALLOWED_TSQUERY_CHARACTERS, ' ')
 
         term_sql = Arel.sql(normalize(connection.quote(sanitized_term)))
 
@@ -65,22 +65,22 @@ module PgSearch
           Arel::Nodes.build_quoted("' "),
           term_sql,
           Arel::Nodes.build_quoted(" '"),
-          (Arel::Nodes.build_quoted(":*") if options[:prefix])
+          (Arel::Nodes.build_quoted(':*') if options[:prefix]),
         ].compact
 
-        tsquery_sql = terms.inject do |memo, term|
-          Arel::Nodes::InfixOperation.new("||", memo, Arel::Nodes.build_quoted(term))
+        tsquery_sql = terms.reduce do |memo, term|
+          Arel::Nodes::InfixOperation.new('||', memo, Arel::Nodes.build_quoted(term))
         end
 
         Arel::Nodes::NamedFunction.new(
-          "to_tsquery",
-          [dictionary, tsquery_sql]
+          'to_tsquery',
+          [dictionary, tsquery_sql],
         ).to_sql
       end
 
       def tsquery
         return "''" if query.blank?
-        query_terms = query.split(" ").compact
+        query_terms = query.split(' ').compact
         tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
         tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
       end
@@ -138,8 +138,8 @@ module PgSearch
 
       def column_to_tsvector(search_column)
         tsvector = Arel::Nodes::NamedFunction.new(
-          "to_tsvector",
-          [dictionary, Arel.sql(normalize(search_column.to_sql))]
+          'to_tsvector',
+          [dictionary, Arel.sql(normalize(search_column.to_sql))],
         ).to_sql
 
         if search_column.weight.nil?

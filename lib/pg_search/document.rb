@@ -5,7 +5,7 @@ module PgSearch
     include PgSearch
 
     self.table_name = 'pg_search_documents'
-    belongs_to :searchable, :polymorphic => true
+    belongs_to :searchable, polymorphic: true
 
     # The logger might not have loaded yet.
     # https://github.com/Casecommons/pg_search/issues/26
@@ -13,14 +13,14 @@ module PgSearch
       super || Logger.new(STDERR)
     end
 
-    pg_search_scope :search, lambda { |*args|
+    pg_search_scope :search, ->(*args) {
       options = if PgSearch.multisearch_options.respond_to?(:call)
-                  PgSearch.multisearch_options.call(*args)
-                else
-                  {:query => args.first}.merge(PgSearch.multisearch_options)
-                end
+        PgSearch.multisearch_options.call(*args)
+      else
+        {query: args.first}.merge(PgSearch.multisearch_options)
+      end
 
-      {:against => :content}.merge(options)
+      {against: :content}.merge(options)
     }
   end
 end

@@ -1,6 +1,6 @@
-require "pg_search/configuration/association"
-require "pg_search/configuration/column"
-require "pg_search/configuration/foreign_column"
+require 'pg_search/configuration/association'
+require 'pg_search/configuration/column'
+require 'pg_search/configuration/foreign_column'
 
 module PgSearch
   class Configuration
@@ -15,9 +15,9 @@ module PgSearch
 
     class << self
       def alias(*strings)
-        name = Array(strings).compact.join("_")
+        name = Array(strings).compact.join('_')
         # By default, PostgreSQL limits names to 32 characters, so we hash and limit to 32 characters.
-        "pg_search_#{Digest::SHA2.hexdigest(name)}"[0,32]
+        "pg_search_#{Digest::SHA2.hexdigest(name)}"[0, 32]
       end
     end
 
@@ -76,7 +76,7 @@ module PgSearch
     attr_reader :options
 
     def default_options
-      {:using => :tsearch}
+      {using: :tsearch}
     end
 
     VALID_KEYS = %w[
@@ -84,8 +84,8 @@ module PgSearch
     ].map(&:to_sym)
 
     VALID_VALUES = {
-      :ignoring => [:accents]
-    }
+      ignoring: [:accents],
+    }.freeze
 
     def assert_valid_options(options)
       unless options[:against] || options[:associated_against]

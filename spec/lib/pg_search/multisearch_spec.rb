@@ -1,7 +1,7 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe PgSearch::Multisearch do
-  with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
+  with_table 'pg_search_documents', {}, &DOCUMENTS_SCHEMA
 
   with_model :MultisearchableModel do
     table do |t|
@@ -18,18 +18,18 @@ describe PgSearch::Multisearch do
   let(:connection) { model.connection }
   let(:documents) { double(:documents) }
 
-  describe ".rebuild" do
+  describe '.rebuild' do
     before do
-      model.multisearchable :against => :title
+      model.multisearchable against: :title
     end
 
-    it "should operate inside a transaction" do
+    it 'should operate inside a transaction' do
       expect(model).to receive(:transaction).once
 
       PgSearch::Multisearch.rebuild(model)
     end
 
-    describe "cleaning up search documents for this model" do
+    describe 'cleaning up search documents for this model' do
       before do
         connection.execute <<-SQL.strip_heredoc
           INSERT INTO pg_search_documents
@@ -44,34 +44,34 @@ describe PgSearch::Multisearch do
         expect(PgSearch::Document.count).to eq(2)
       end
 
-      context "when clean_up is not passed" do
-        it "should delete the document for the model" do
+      context 'when clean_up is not passed' do
+        it 'should delete the document for the model' do
           PgSearch::Multisearch.rebuild(model)
           expect(PgSearch::Document.count).to eq(1)
-          expect(PgSearch::Document.first.searchable_type).to eq("Bar")
+          expect(PgSearch::Document.first.searchable_type).to eq('Bar')
         end
       end
 
-      context "when clean_up is true" do
+      context 'when clean_up is true' do
         let(:clean_up) { true }
 
-        it "should delete the document for the model" do
+        it 'should delete the document for the model' do
           PgSearch::Multisearch.rebuild(model, clean_up)
           expect(PgSearch::Document.count).to eq(1)
-          expect(PgSearch::Document.first.searchable_type).to eq("Bar")
+          expect(PgSearch::Document.first.searchable_type).to eq('Bar')
         end
       end
 
-      context "when clean_up is false" do
+      context 'when clean_up is false' do
         let(:clean_up) { false }
 
-        it "should not delete the document for the model" do
+        it 'should not delete the document for the model' do
           PgSearch::Multisearch.rebuild(model, clean_up)
           expect(PgSearch::Document.count).to eq(2)
         end
       end
 
-      context "when the model implements .rebuild_pg_search_documents" do
+      context 'when the model implements .rebuild_pg_search_documents' do
         before do
           def model.rebuild_pg_search_documents
             connection.execute <<-SQL.strip_heredoc
@@ -83,39 +83,39 @@ describe PgSearch::Multisearch do
           end
         end
 
-        it "should call .rebuild_pg_search_documents and skip the default behavior" do
+        it 'should call .rebuild_pg_search_documents and skip the default behavior' do
           expect(PgSearch::Multisearch).not_to receive(:rebuild_sql)
           PgSearch::Multisearch.rebuild(model)
 
-          record = PgSearch::Document.find_by_searchable_type_and_searchable_id("Baz", 789)
-          expect(record.content).to eq("baz")
+          record = PgSearch::Document.find_by_searchable_type_and_searchable_id('Baz', 789)
+          expect(record.content).to eq('baz')
         end
       end
     end
 
-    describe "inserting the new documents" do
+    describe 'inserting the new documents' do
       let!(:new_models) { [] }
       before do
-        new_models << model.create!(:title => "Foo", :content => "Bar")
-        new_models << model.create!(:title => "Baz", :content => "Bar")
+        new_models << model.create!(title: 'Foo', content: 'Bar')
+        new_models << model.create!(title: 'Baz', content: 'Bar')
       end
 
-      it "should create new documents for the two models" do
+      it 'should create new documents for the two models' do
         PgSearch::Multisearch.rebuild(model)
         expect(PgSearch::Document.last(2).map(&:searchable).map(&:title)).to match_array(new_models.map(&:title))
       end
     end
 
-    describe "the generated SQL" do
+    describe 'the generated SQL' do
       let(:now) { Time.now }
       before { allow(Time).to receive(:now).and_return(now) }
 
-      context "with one attribute" do
+      context 'with one attribute' do
         before do
-          model.multisearchable :against => [:title]
+          model.multisearchable against: [:title]
         end
 
-        it "should generate the proper SQL code" do
+        it 'should generate the proper SQL code' do
           expected_sql = <<-SQL.strip_heredoc
             INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
               SELECT #{connection.quote(model.name)} AS searchable_type,
@@ -137,12 +137,12 @@ describe PgSearch::Multisearch do
         end
       end
 
-      context "with multiple attributes" do
+      context 'with multiple attributes' do
         before do
-          model.multisearchable :against => [:title, :content]
+          model.multisearchable against: %i[title content]
         end
 
-        it "should generate the proper SQL code" do
+        it 'should generate the proper SQL code' do
           expected_sql = <<-SQL.strip_heredoc
             INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
               SELECT #{connection.quote(model.name)} AS searchable_type,
