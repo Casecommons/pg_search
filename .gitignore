@@ -1,5 +1,4 @@
 *.gem
-.idea/
 .rbx
 .yardoc
 /bin/
@@ -8,4 +7,3 @@
 /tmp/
 Gemfile.lock
 doc
-tags
