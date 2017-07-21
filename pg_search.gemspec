@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pry'
   s.add_development_dependency 'rspec', '>= 3.3'
   s.add_development_dependency 'with_model', '>= 1.2'
-  s.add_development_dependency 'rubocop', '>= 0.36'
+  s.add_development_dependency 'rubocop', '~> 0.47.1'
   s.add_development_dependency 'codeclimate-test-reporter'
   s.add_development_dependency 'simplecov'
 
