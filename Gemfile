@@ -11,4 +11,6 @@ if ENV['ACTIVE_RECORD_BRANCH']
   gem 'arel', git: 'https://github.com/rails/arel.git' if ENV['ACTIVE_RECORD_BRANCH'] == 'master'
 end
 
-gem 'activerecord', ENV['ACTIVE_RECORD_VERSION'] if ENV['ACTIVE_RECORD_VERSION']
+if ENV['ACTIVE_RECORD_VERSION']
+  gem 'activerecord', ENV['ACTIVE_RECORD_VERSION']
+end

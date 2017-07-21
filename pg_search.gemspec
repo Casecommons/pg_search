@@ -18,16 +18,16 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- spec/*`.split("\n")
   s.require_paths = ['lib']
 
+  s.required_ruby_version = '>= 2.1'
+
   s.add_dependency 'activerecord', '>= 4.2'
   s.add_dependency 'activesupport', '>= 4.2'
   s.add_dependency 'arel', '>= 6'
 
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'pry'
-  s.add_development_dependency 'rspec', '>= 3.3'
-  s.add_development_dependency 'with_model', '>= 1.2'
   s.add_development_dependency 'codeclimate-test-reporter'
+  s.add_development_dependency 'pry'
+  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rspec', '>= 3.3'
   s.add_development_dependency 'simplecov'
-
-  s.required_ruby_version = '>= 2.1'
+  s.add_development_dependency 'with_model', '>= 1.2'
 end
