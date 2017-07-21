@@ -283,7 +283,7 @@ describe PgSearch do
           include PgSearch
           belongs_to :another_model, :class_name => 'AssociatedModel'
 
-          pg_search_scope :with_associated, :associated_against => {:another_model => [:title, :author]}
+          pg_search_scope :with_associated, :associated_against => {:another_model => %i[title author]}
         end
       end
 
@@ -454,7 +454,7 @@ describe PgSearch do
 
       model do
         include PgSearch
-        pg_search_scope :search, :against => :title, :using => [:tsearch, :trigram]
+        pg_search_scope :search, :against => :title, :using => %i[tsearch trigram]
       end
     end
 
@@ -495,7 +495,7 @@ describe PgSearch do
 
       model do
         include PgSearch
-        pg_search_scope :search, :against => :title, :using => [:tsearch, :trigram]
+        pg_search_scope :search, :against => :title, :using => %i[tsearch trigram]
       end
     end
 

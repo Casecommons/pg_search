@@ -160,7 +160,7 @@ describe "an Active Record model which includes PgSearch" do
           expect(results.first.attributes.key?('content')).to eq false
 
           expect(results.select { |record| record.title == "bar" }).to eq [included]
-          expect(results.select { |record| record.title != "bar" }).to be_empty
+          expect(results.reject { |record| record.title == "bar" }).to be_empty
         end
       end
 
@@ -177,7 +177,7 @@ describe "an Active Record model which includes PgSearch" do
           expect(results.first.attributes.key?('content')).to eq false
 
           expect(results.select { |record| record.title == "bar" }).to eq [included]
-          expect(results.select { |record| record.title != "bar" }).to be_empty
+          expect(results.reject { |record| record.title == "bar" }).to be_empty
         end
       end
 
@@ -194,7 +194,7 @@ describe "an Active Record model which includes PgSearch" do
           expect(results.first.attributes.key?('content')).to eq false
 
           expect(results.select { |record| record.title == "bar" }).to eq [included]
-          expect(results.select { |record| record.title != "bar" }).to be_empty
+          expect(results.reject { |record| record.title == "bar" }).to be_empty
         end
       end
 
@@ -465,7 +465,7 @@ describe "an Active Record model which includes PgSearch" do
             # WARNING: searching timestamps is not something PostgreSQL
             # full-text search is good at. Use at your own risk.
             pg_search_scope :search_timestamps,
-              :against => [:created_at, :updated_at]
+              :against => %i[created_at updated_at]
           end
         end
 
@@ -481,7 +481,7 @@ describe "an Active Record model which includes PgSearch" do
 
     context "against multiple columns" do
       before do
-        ModelWithPgSearch.pg_search_scope :search_title_and_content, :against => [:title, :content]
+        ModelWithPgSearch.pg_search_scope :search_title_and_content, :against => %i[title content]
       end
 
       it "returns rows whose columns contain all of the terms in the query across columns" do
@@ -520,7 +520,7 @@ describe "an Active Record model which includes PgSearch" do
 
     context "using trigram" do
       before do
-        ModelWithPgSearch.pg_search_scope :with_trigrams, :against => [:title, :content], :using => :trigram
+        ModelWithPgSearch.pg_search_scope :with_trigrams, :against => %i[title content], :using => :trigram
       end
 
       it "returns rows where one searchable column and the query share enough trigrams" do
@@ -537,8 +537,8 @@ describe "an Active Record model which includes PgSearch" do
 
       context "when a threshold is specified" do
         before do
-          ModelWithPgSearch.pg_search_scope :with_strict_trigrams, :against => [:title, :content], :using => {trigram: {threshold: 0.5}}
-          ModelWithPgSearch.pg_search_scope :with_permissive_trigrams, :against => [:title, :content], :using => {trigram: {threshold: 0.1}}
+          ModelWithPgSearch.pg_search_scope :with_strict_trigrams, :against => %i[title content], :using => {trigram: {threshold: 0.5}}
+          ModelWithPgSearch.pg_search_scope :with_permissive_trigrams, :against => %i[title content], :using => {trigram: {threshold: 0.1}}
         end
 
         it "uses the threshold in the trigram expression" do
@@ -839,7 +839,7 @@ describe "an Active Record model which includes PgSearch" do
     context "using dmetaphone" do
       before do
         ModelWithPgSearch.pg_search_scope :with_dmetaphones,
-          :against => [:title, :content],
+          :against => %i[title content],
           :using => :dmetaphone
       end
 
@@ -900,7 +900,7 @@ describe "an Active Record model which includes PgSearch" do
           ]
 
         ModelWithPgSearch.pg_search_scope :complex_search,
-          :against => [:content, :title],
+          :against => %i[content title],
           :ignoring => :accents,
           :using => {
             :tsearch => {:dictionary => 'english'},

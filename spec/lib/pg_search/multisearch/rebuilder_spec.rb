@@ -42,7 +42,7 @@ describe PgSearch::Multisearch::Rebuilder do
       end
 
       context "and multisearchable is conditional" do
-        [:if, :unless].each do |conditional_key|
+        %i[if unless].each do |conditional_key|
           context "via :#{conditional_key}" do
             with_model :Model do
               table do |t|

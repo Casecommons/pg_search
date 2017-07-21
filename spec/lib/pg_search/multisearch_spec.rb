@@ -139,7 +139,7 @@ describe PgSearch::Multisearch do
 
       context "with multiple attributes" do
         before do
-          model.multisearchable :against => [:title, :content]
+          model.multisearchable :against => %i[title content]
         end
 
         it "should generate the proper SQL code" do

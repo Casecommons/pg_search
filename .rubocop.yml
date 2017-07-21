@@ -17,7 +17,7 @@ Metrics/BlockLength:
   Exclude:
     - spec/**/*
 
-Style/AlignParameters:
+Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 
 Style/HashSyntax:

@@ -5,7 +5,7 @@ module PgSearch
   module Features
     class Feature
       def self.valid_options
-        [:only, :sort_only]
+        %i[only sort_only]
       end
 
       delegate :connection, :quoted_table_name, :to => :'@model'

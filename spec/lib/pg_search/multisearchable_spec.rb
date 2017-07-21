@@ -118,7 +118,7 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against multiple columns" do
-        let(:multisearchable_options) { {:against => [:attr1, :attr2]} }
+        let(:multisearchable_options) { {:against => %i[attr1 attr2]} }
         before do
           allow(record).to receive(:attr1) { '1' }
           allow(record).to receive(:attr2) { '2' }
@@ -155,7 +155,7 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against multiple columns" do
-        let(:multisearchable_options) { {:against => [:attr1, :attr2]} }
+        let(:multisearchable_options) { {:against => %i[attr1 attr2]} }
         before do
           allow(record).to receive(:attr1) { '1' }
           allow(record).to receive(:attr2) { '2' }

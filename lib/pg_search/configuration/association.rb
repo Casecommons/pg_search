@@ -54,7 +54,7 @@ module PgSearch
       end
 
       def singular_association?
-        [:has_one, :belongs_to].include?(@model.reflect_on_association(@name).macro)
+        %i[has_one belongs_to].include?(@model.reflect_on_association(@name).macro)
       end
     end
   end

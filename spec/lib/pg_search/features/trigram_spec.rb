@@ -63,10 +63,10 @@ describe PgSearch::Features::Trigram do
         end
       end
       context 'multiple columns' do
-        let(:options) { { only: [:name, :content] } }
+        let(:options) { { only: %i[name content] } }
 
         it 'concatenates when multiples columns are selected' do
-          options = { only: [:name, :content] }
+          options = { only: %i[name content] }
           expect(feature.conditions.to_sql).to eq("((#{coalesced_columns}) % '#{query}')")
         end
       end
