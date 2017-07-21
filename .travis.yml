@@ -2,11 +2,11 @@ language: ruby
 sudo: false
 
 rvm:
-  - "2.4.0"
-  - "2.3.3"
-  - "2.2.6"
+  - "2.4.1"
+  - "2.3.4"
+  - "2.2.7"
   - "2.1.10"
-  - jruby-9.1.6.0
+  - jruby-9.1.9.0
 
 env:
   - ACTIVE_RECORD_BRANCH="master"
@@ -17,7 +17,7 @@ env:
 
 matrix:
   allow_failures:
-    - rvm: "2.4.0"
+    - rvm: "2.4.1"
       env: ACTIVE_RECORD_VERSION="~> 4.2.0"
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="5-0-stable"
@@ -29,11 +29,11 @@ matrix:
       env: ACTIVE_RECORD_BRANCH="5-0-stable"
     - rvm: "2.1.10"
       env: ACTIVE_RECORD_VERSION="~> 5.0.0"
-    - rvm: jruby-9.1.6.0
+    - rvm: jruby-9.1.9.0
       env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: jruby-9.1.6.0
+    - rvm: jruby-9.1.9.0
       env: ACTIVE_RECORD_BRANCH="5-0-stable"
-    - rvm: jruby-9.1.6.0
+    - rvm: jruby-9.1.9.0
       env: ACTIVE_RECORD_VERSION="~> 5.0.0"
 
 before_script:
