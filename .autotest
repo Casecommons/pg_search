@@ -1,5 +1,0 @@
-Autotest.add_hook :initialize do |at|
-  at.add_mapping(%r%^lib/.*\.rb$%, true) { |filename, _|
-    at.files_matching %r%^spec/.*_spec.rb$%
-  }
-end
