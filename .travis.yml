@@ -10,8 +10,10 @@ rvm:
 
 env:
   - ACTIVE_RECORD_BRANCH="master"
+  - ACTIVE_RECORD_BRANCH="5-1-stable"
   - ACTIVE_RECORD_BRANCH="5-0-stable"
   - ACTIVE_RECORD_BRANCH="4-2-stable"
+  - ACTIVE_RECORD_VERSION="~> 5.1.0"
   - ACTIVE_RECORD_VERSION="~> 5.0.0"
   - ACTIVE_RECORD_VERSION="~> 4.2.0"
 
@@ -20,19 +22,28 @@ matrix:
     - rvm: "2.4.1"
       env: ACTIVE_RECORD_VERSION="~> 4.2.0"
     - env: ACTIVE_RECORD_BRANCH="master"
+    - env: ACTIVE_RECORD_BRANCH="5-1-stable"
     - env: ACTIVE_RECORD_BRANCH="5-0-stable"
     - env: ACTIVE_RECORD_BRANCH="4-2-stable"
   exclude:
     - rvm: "2.1.10"
       env: ACTIVE_RECORD_BRANCH="master"
     - rvm: "2.1.10"
+      env: ACTIVE_RECORD_BRANCH="5-1-stable"
+    - rvm: "2.1.10"
       env: ACTIVE_RECORD_BRANCH="5-0-stable"
+    - rvm: "2.1.10"
+      env: ACTIVE_RECORD_VERSION="~> 5.1.0"
     - rvm: "2.1.10"
       env: ACTIVE_RECORD_VERSION="~> 5.0.0"
     - rvm: jruby-9.1.9.0
       env: ACTIVE_RECORD_BRANCH="master"
     - rvm: jruby-9.1.9.0
+      env: ACTIVE_RECORD_BRANCH="5-1-stable"
+    - rvm: jruby-9.1.9.0
       env: ACTIVE_RECORD_BRANCH="5-0-stable"
+    - rvm: jruby-9.1.9.0
+      env: ACTIVE_RECORD_VERSION="~> 5.1.0"
     - rvm: jruby-9.1.9.0
       env: ACTIVE_RECORD_VERSION="~> 5.0.0"
 
