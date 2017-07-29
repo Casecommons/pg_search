@@ -703,12 +703,18 @@ Adding .with_pg_search_highlight after the pg_search_scope you can access to
 class Person < ActiveRecord::Base
   include PgSearch
   pg_search_scope :search,
-                  :against => :bio,
-                  :using => {
-                    :tsearch => {
-                      :highlight => {
-                        :start_sel => '<b>',
-                        :stop_sel => '</b>'
+                  against: :bio,
+                  using: {
+                    tsearch: {
+                      highlight: {
+                        StartSel: '<start>',
+                        StopSel: '<stop>',
+                        MaxWords: 123,
+                        MinWords: 456,
+                        ShortWord: 4,
+                        HighlightAll: true,
+                        MaxFragments: 3,
+                        FragmentDelimiter: '&hellip;'
                       }
                     }
                   }
@@ -722,16 +728,7 @@ first_match.pg_search_highlight # => "Born in rural <b>Alberta</b>, where the bu
 
 The highlight option accepts all [options supported by
 ts_headline](https://www.postgresql.org/docs/current/static/textsearch-controls.html),
-and uses PostgreSQL's defaults:
-
-* `:start_sel` defaults to `<b>`
-* `:stop_sel` defaults to `</b>`
-* `:max_words` defaults to `35`
-* `:min_words` defaults to `15`
-* `:short_word` defaults to `3`
-* `:highlight_all` defaults to `FALSE`
-* `:max_fragments` defaults to `0`
-* `:fragment_delimiter` defaults to ` ... `
+and uses PostgreSQL's defaults.
 
 See the
 [documentation](https://www.postgresql.org/docs/current/static/textsearch-controls.html)

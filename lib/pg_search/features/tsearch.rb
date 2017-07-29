@@ -24,23 +24,40 @@ module PgSearch
       private
 
       def ts_headline
-        "ts_headline(#{dictionary.to_sql}, (#{document}), (#{tsquery}), '#{ts_headline_options}')"
+        Arel::Nodes::NamedFunction.new("ts_headline", [
+          dictionary,
+          arel_wrap(document),
+          arel_wrap(tsquery),
+          Arel::Nodes.build_quoted(ts_headline_options)
+        ]).to_sql
       end
 
       def ts_headline_options
-        return nil unless options[:highlight].is_a?(Hash)
+        return '' unless options[:highlight].is_a?(Hash)
 
         headline_options = map_headline_options
-        headline_options.map{|key, value| "#{key} = #{value}" unless value.nil? }.compact.join(", ")
+        headline_options.map { |key, value| "#{key} = #{value}" unless value.nil? }.compact.join(", ")
       end
 
       def map_headline_options
+        indifferent_options = options.with_indifferent_access
+
         %w[
           StartSel StopSel MaxFragments MaxWords MinWords ShortWord FragmentDelimiter HighlightAll
-        ].reduce({}) do |hash, name|
+        ].reduce({}) do |hash, key|
           hash.tap do
-            key = name.gsub(/([a-z])([A-Z])/, '\1_\2').downcase.to_sym
-            hash[name] = options[:highlight][key]
+            value = indifferent_options[:highlight][key]
+
+            hash[key] = case value
+                        when String
+                          %("#{value.gsub('"', '""')}")
+                        when true
+                          "TRUE"
+                        when false
+                          "FALSE"
+                        else
+                          value
+                        end
           end
         end
       end
@@ -117,7 +134,11 @@ module PgSearch
       end
 
       def tsearch_rank
-        "ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})"
+        Arel::Nodes::NamedFunction.new("ts_rank", [
+          arel_wrap(tsdocument),
+          arel_wrap(tsquery),
+          normalization
+        ]).to_sql
       end
 
       def dictionary
