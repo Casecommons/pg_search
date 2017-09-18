@@ -1,4 +1,6 @@
 require "spec_helper"
+require "active_support/deprecation"
+require "active_support/core_ext/kernel/reporting"
 
 describe PgSearch::Features::TSearch do
   describe "#rank" do
@@ -198,6 +200,36 @@ describe PgSearch::Features::TSearch do
         feature = described_class.new(query, options, columns, Model, normalizer)
 
         expected_sql = %{(ts_headline('simple', (coalesce(#{Model.quoted_table_name}."name"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = TRUE'))}
+
+        expect(feature.highlight.to_sql).to eq(expected_sql)
+      end
+
+      it "passes deprecated options to ts_headline" do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model)
+        ]
+        options = {
+          highlight: {
+            start_sel: '<start class="search">',
+            stop_sel: '<stop>',
+            max_words: 123,
+            min_words: 456,
+            short_word: 4,
+            highlight_all: false,
+            max_fragments: 3,
+            fragment_delimiter: '&hellip;'
+          }
+        }
+
+        config = double(:config, :ignore => [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = silence_warnings do
+          described_class.new(query, options, columns, Model, normalizer)
+        end
+
+        expected_sql = %{(ts_headline('simple', (coalesce(#{Model.quoted_table_name}."name"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = FALSE'))}
 
         expect(feature.highlight.to_sql).to eq(expected_sql)
       end
