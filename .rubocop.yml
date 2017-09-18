@@ -34,7 +34,7 @@ Style/PercentLiteralDelimiters:
 Style/GuardClause:
   Enabled: false
 
-Style/VariableNumber:
+Naming/VariableNumber:
   EnforcedStyle: snake_case
 
 Bundler/OrderedGems:

@@ -48,7 +48,7 @@ describe PgSearch::Configuration::Association do
 
     describe "#join" do
       let(:expected_sql) do
-        <<-EOS.gsub(/\s+/, ' ').strip
+        <<-SQL.gsub(/\s+/, ' ').strip
           LEFT OUTER JOIN
             (SELECT model_id AS id,
                     #{column_select} AS #{association.columns.first.alias}
@@ -56,7 +56,7 @@ describe PgSearch::Configuration::Association do
             INNER JOIN \"#{association.table_name}\"
             ON \"#{association.table_name}\".\"user_id\" = \"#{User.table_name}\".\"id\") #{association.subselect_alias}
           ON #{association.subselect_alias}.id = model_id
-        EOS
+        SQL
       end
       let(:column_select) do
         "\"#{association.table_name}\".\"url\"::text"
@@ -79,7 +79,7 @@ describe PgSearch::Configuration::Association do
 
     describe "#join" do
       let(:expected_sql) do
-        <<-EOS.gsub(/\s+/, ' ').strip
+        <<-SQL.gsub(/\s+/, ' ').strip
           LEFT OUTER JOIN
             (SELECT model_id AS id,
                     #{column_select} AS #{association.columns.first.alias}
@@ -87,7 +87,7 @@ describe PgSearch::Configuration::Association do
             INNER JOIN \"#{association.table_name}\"
             ON \"#{association.table_name}\".\"id\" = \"#{User.table_name}\".\"site_id\") #{association.subselect_alias}
           ON #{association.subselect_alias}.id = model_id
-        EOS
+        SQL
       end
       let(:column_select) do
         "\"#{association.table_name}\".\"title\"::text"
@@ -110,7 +110,7 @@ describe PgSearch::Configuration::Association do
 
     describe "#join" do
       let(:expected_sql) do
-        <<-EOS.gsub(/\s+/, ' ').strip
+        <<-SQL.gsub(/\s+/, ' ').strip
           LEFT OUTER JOIN
             (SELECT model_id AS id,
                     string_agg(\"#{association.table_name}\".\"name\"::text, ' ') AS #{association.columns.first.alias}
@@ -119,7 +119,7 @@ describe PgSearch::Configuration::Association do
             ON \"#{association.table_name}\".\"site_id\" = \"#{Site.table_name}\".\"id\"
             GROUP BY model_id) #{association.subselect_alias}
           ON #{association.subselect_alias}.id = model_id
-        EOS
+        SQL
       end
 
       it "returns the correct SQL join" do

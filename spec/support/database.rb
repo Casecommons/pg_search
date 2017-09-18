@@ -42,7 +42,7 @@ def install_extension(name)
   extension = connection.execute "SELECT * FROM pg_catalog.pg_extension WHERE extname = '#{name}';"
   return unless extension.none?
   connection.execute "CREATE EXTENSION #{name};"
-rescue => exception
+rescue => exception # rubocop:disable Lint/RescueWithoutErrorClass
   at_exit do
     puts "-" * 80
     puts "Please install the #{name} extension"
@@ -54,7 +54,7 @@ end
 def install_extension_if_missing(name, query, expected_result)
   result = ActiveRecord::Base.connection.select_value(query)
   raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result.downcase
-rescue
+rescue # rubocop:disable Lint/RescueWithoutErrorClass
   install_extension(name)
 end
 
