@@ -1,4 +1,5 @@
 require "active_support/core_ext/module/delegation"
+require 'active_support/deprecation'
 
 module PgSearch
   module Features
@@ -35,11 +36,14 @@ module PgSearch
       def ts_headline_options
         return '' unless options[:highlight].is_a?(Hash)
 
-        headline_options = map_headline_options
-        headline_options.map { |key, value| "#{key} = #{value}" unless value.nil? }.compact.join(", ")
+        headline_options
+          .merge(deprecated_headline_options)
+          .map { |key, value| "#{key} = #{value}" unless value.nil? }
+          .compact
+          .join(", ")
       end
 
-      def map_headline_options
+      def headline_options
         indifferent_options = options.with_indifferent_access
 
         %w[
@@ -48,17 +52,44 @@ module PgSearch
           hash.tap do
             value = indifferent_options[:highlight][key]
 
-            hash[key] = case value
-                        when String
-                          %("#{value.gsub('"', '""')}")
-                        when true
-                          "TRUE"
-                        when false
-                          "FALSE"
-                        else
-                          value
-                        end
+            hash[key] = ts_headline_option_value(value)
           end
+        end
+      end
+
+      def deprecated_headline_options
+        indifferent_options = options.with_indifferent_access
+
+        %w[
+          start_sel stop_sel max_fragments max_words min_words short_word fragment_delimiter highlight_all
+        ].reduce({}) do |hash, deprecated_key|
+          hash.tap do
+            value = indifferent_options[:highlight][deprecated_key]
+
+            unless value.nil?
+              key = deprecated_key.camelize
+
+              ActiveSupport::Deprecation.warn(
+                "pg_search 3.0 will no longer accept :#{deprecated_key} as an argument to :ts_headline, " \
+                "use :#{key} instead."
+              )
+
+              hash[key] = ts_headline_option_value(value)
+            end
+          end
+        end
+      end
+
+      def ts_headline_option_value(value)
+        case value
+        when String
+          %("#{value.gsub('"', '""')}")
+        when true
+          "TRUE"
+        when false
+          "FALSE"
+        else
+          value
         end
       end
 
