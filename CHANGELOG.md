@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## 2.1.1
+
+*   Support snake_case ts_headline options again (with deprecation warning)
+
 ## 2.1.0
 
 *   Allow ts_headline options to be passed to :highlight (Ian Heisters)
