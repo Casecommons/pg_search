@@ -1,10 +1,5 @@
 require "spec_helper"
 
-def has_microsecond_precision?
-  (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR >= 1) ||
-    (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 0 && ActiveRecord::VERSION::TINY >= 1)
-end
-
 describe PgSearch::Multisearch::Rebuilder do
   with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
@@ -100,12 +95,8 @@ describe PgSearch::Multisearch::Rebuilder do
           end
 
           it "should execute the default SQL" do
-            time = DateTime.parse("2001-01-01")
+            time = Time.utc(2001, 1, 1, 0, 0, 0)
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, -> { time })
-
-            # Handle change in precision of DateTime objects in SQL in Active Record 4.0.1
-            # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
-            expected_timestamp = has_microsecond_precision? ? "2001-01-01 00:00:00.000000" : "2001-01-01 00:00:00"
 
             expected_sql = <<-SQL.strip_heredoc
             INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
@@ -114,8 +105,8 @@ describe PgSearch::Multisearch::Rebuilder do
                      (
                        coalesce(#{Model.quoted_table_name}.name::text, '')
                      ) AS content,
-                     '#{expected_timestamp}' AS created_at,
-                     '#{expected_timestamp}' AS updated_at
+                     '2001-01-01 00:00:00' AS created_at,
+                     '2001-01-01 00:00:00' AS updated_at
               FROM #{Model.quoted_table_name}
             SQL
 
@@ -145,12 +136,8 @@ describe PgSearch::Multisearch::Rebuilder do
             end
 
             it "generates SQL with the correct primary key" do
-              time = DateTime.parse("2001-01-01")
+              time = Time.utc(2001, 1, 1, 0, 0, 0)
               rebuilder = PgSearch::Multisearch::Rebuilder.new(ModelWithNonStandardPrimaryKey, -> { time })
-
-              # Handle change in precision of DateTime objects in SQL in Active Record 4.0.1
-              # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
-              expected_timestamp = has_microsecond_precision? ? "2001-01-01 00:00:00.000000" : "2001-01-01 00:00:00"
 
               expected_sql = <<-SQL.strip_heredoc
               INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
@@ -159,8 +146,8 @@ describe PgSearch::Multisearch::Rebuilder do
                        (
                          coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}.name::text, '')
                        ) AS content,
-                       '#{expected_timestamp}' AS created_at,
-                       '#{expected_timestamp}' AS updated_at
+                       '2001-01-01 00:00:00' AS created_at,
+                       '2001-01-01 00:00:00' AS updated_at
                 FROM #{ModelWithNonStandardPrimaryKey.quoted_table_name}
               SQL
 
