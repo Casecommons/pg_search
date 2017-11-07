@@ -3,9 +3,7 @@ require "active_support/concern"
 require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/string/strip"
 
-require "pg_search/compatibility"
 require "pg_search/configuration"
-require "pg_search/extensions/arel"
 require "pg_search/features"
 require "pg_search/multisearch"
 require "pg_search/multisearchable"
@@ -73,6 +71,9 @@ module PgSearch
     when :pg_search_rank
       raise PgSearchRankNotSelected.new unless respond_to?(:pg_search_rank)
       read_attribute(:pg_search_rank).to_f
+    when :pg_search_highlight
+      raise PgSearchHighlightNotSelected.new unless respond_to?(:pg_search_highlight)
+      read_attribute(:pg_search_highlight)
     else
       super
     end
@@ -82,20 +83,29 @@ module PgSearch
     case symbol
     when :pg_search_rank
       attributes.key?(:pg_search_rank)
+    when :pg_search_highlight
+      attributes.key?(:pg_search_highlight)
     else
       super
     end
   end
 
-  class NotSupportedForPostgresqlVersion < StandardError; end
-
   class PgSearchRankNotSelected < StandardError
+    def message
+      "You must chain .with_pg_search_rank after the pg_search_scope to access the pg_search_rank attribute on returned records" # rubocop:disable Metrics/LineLength
+    end
+  end
+
+  class PgSearchHighlightNotSelected < StandardError
     # rubocop:disable Metrics/LineLength
     def message
-      "You must chain .with_pg_search_rank after the pg_search_scope to access the pg_search_rank attribute on returned records"
+      "You must chain .with_pg_search_highlight after the pg_search_scope to access the pg_search_highlight attribute on returned records"
     end
   end
 end
 
-require "pg_search/document"
+ActiveSupport.on_load(:active_record) do
+  require "pg_search/document"
+end
+
 require "pg_search/railtie" if defined?(Rails)

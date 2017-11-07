@@ -160,7 +160,7 @@ describe "an Active Record model which includes PgSearch" do
           expect(results.first.attributes.key?('content')).to eq false
 
           expect(results.select { |record| record.title == "bar" }).to eq [included]
-          expect(results.select { |record| record.title != "bar" }).to be_empty
+          expect(results.reject { |record| record.title == "bar" }).to be_empty
         end
       end
 
@@ -177,7 +177,7 @@ describe "an Active Record model which includes PgSearch" do
           expect(results.first.attributes.key?('content')).to eq false
 
           expect(results.select { |record| record.title == "bar" }).to eq [included]
-          expect(results.select { |record| record.title != "bar" }).to be_empty
+          expect(results.reject { |record| record.title == "bar" }).to be_empty
         end
       end
 
@@ -194,7 +194,7 @@ describe "an Active Record model which includes PgSearch" do
           expect(results.first.attributes.key?('content')).to eq false
 
           expect(results.select { |record| record.title == "bar" }).to eq [included]
-          expect(results.select { |record| record.title != "bar" }).to be_empty
+          expect(results.reject { |record| record.title == "bar" }).to be_empty
         end
       end
 
@@ -329,14 +329,12 @@ describe "an Active Record model which includes PgSearch" do
         expect(returned_record.attributes).to eq("id" => record.id)
       end
 
-      unless ActiveRecord::VERSION::MAJOR == 3 && ActiveRecord::VERSION::MINOR < 2
-        it "supports #pluck" do
-          record = ModelWithPgSearch.create!(:content => 'foo')
-          other_record = ModelWithPgSearch.create!(:content => 'bar')
+      it "supports #pluck" do
+        record = ModelWithPgSearch.create!(:content => 'foo')
+        other_record = ModelWithPgSearch.create!(:content => 'bar')
 
-          ids = ModelWithPgSearch.search_content('foo').pluck('id')
-          expect(ids).to eq [record.id]
-        end
+        ids = ModelWithPgSearch.search_content('foo').pluck('id')
+        expect(ids).to eq [record.id]
       end
 
       it "supports adding where clauses using the pg_search.rank" do
@@ -407,10 +405,10 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       it 'allows pg_search_rank along with a join' do
-        parent1 = ParentModel.create!(id: 98)
-        parent2 = ParentModel.create!(id: 99)
-        loser = ModelWithPgSearch.create!(:content => 'foo', parent_model: parent2)
-        winner = ModelWithPgSearch.create!(:content => 'foo foo', parent_model: parent1)
+        parent_1 = ParentModel.create!(id: 98)
+        parent_2 = ParentModel.create!(id: 99)
+        loser = ModelWithPgSearch.create!(:content => 'foo', parent_model: parent_2)
+        winner = ModelWithPgSearch.create!(:content => 'foo foo', parent_model: parent_1)
 
         results = ModelWithPgSearch.joins(:parent_model).merge(ParentModel.active).search_content("foo").with_pg_search_rank
         expect(results.map(&:id)).to eq [winner.id, loser.id]
@@ -467,7 +465,7 @@ describe "an Active Record model which includes PgSearch" do
             # WARNING: searching timestamps is not something PostgreSQL
             # full-text search is good at. Use at your own risk.
             pg_search_scope :search_timestamps,
-              :against => [:created_at, :updated_at]
+              :against => %i[created_at updated_at]
           end
         end
 
@@ -483,7 +481,7 @@ describe "an Active Record model which includes PgSearch" do
 
     context "against multiple columns" do
       before do
-        ModelWithPgSearch.pg_search_scope :search_title_and_content, :against => [:title, :content]
+        ModelWithPgSearch.pg_search_scope :search_title_and_content, :against => %i[title content]
       end
 
       it "returns rows whose columns contain all of the terms in the query across columns" do
@@ -522,7 +520,7 @@ describe "an Active Record model which includes PgSearch" do
 
     context "using trigram" do
       before do
-        ModelWithPgSearch.pg_search_scope :with_trigrams, :against => [:title, :content], :using => :trigram
+        ModelWithPgSearch.pg_search_scope :with_trigrams, :against => %i[title content], :using => :trigram
       end
 
       it "returns rows where one searchable column and the query share enough trigrams" do
@@ -539,8 +537,8 @@ describe "an Active Record model which includes PgSearch" do
 
       context "when a threshold is specified" do
         before do
-          ModelWithPgSearch.pg_search_scope :with_strict_trigrams, :against => [:title, :content], :using => {trigram: {threshold: 0.5}}
-          ModelWithPgSearch.pg_search_scope :with_permissive_trigrams, :against => [:title, :content], :using => {trigram: {threshold: 0.1}}
+          ModelWithPgSearch.pg_search_scope :with_strict_trigrams, :against => %i[title content], :using => {trigram: {threshold: 0.5}}
+          ModelWithPgSearch.pg_search_scope :with_permissive_trigrams, :against => %i[title content], :using => {trigram: {threshold: 0.1}}
         end
 
         it "uses the threshold in the trigram expression" do
@@ -571,31 +569,23 @@ describe "an Active Record model which includes PgSearch" do
           }
       end
 
-      if ActiveRecord::Base.connection.send(:postgresql_version) < 80400
-        it "is unsupported in PostgreSQL 8.3 and earlier" do
-          expect {
-            ModelWithPgSearch.search_title_with_prefixes("abcd\303\251f")
-          }.to raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
+      context "with :prefix => true" do
+        it "returns rows that match the query and that are prefixed by the query" do
+          included = ModelWithPgSearch.create!(:title => 'prefix')
+          excluded = ModelWithPgSearch.create!(:title => 'postfix')
+
+          results = ModelWithPgSearch.search_title_with_prefixes("pre")
+          expect(results).to eq([included])
+          expect(results).not_to include(excluded)
         end
-      else
-        context "with :prefix => true" do
-          it "returns rows that match the query and that are prefixed by the query" do
-            included = ModelWithPgSearch.create!(:title => 'prefix')
-            excluded = ModelWithPgSearch.create!(:title => 'postfix')
 
-            results = ModelWithPgSearch.search_title_with_prefixes("pre")
-            expect(results).to eq([included])
-            expect(results).not_to include(excluded)
-          end
+        it "returns rows that match the query when the query has a hyphen" do
+          included = ModelWithPgSearch.create!(:title => 'foo-bar')
+          excluded = ModelWithPgSearch.create!(:title => 'foo bar')
 
-          it "returns rows that match the query when the query has a hyphen" do
-            included = ModelWithPgSearch.create!(:title => 'foo-bar')
-            excluded = ModelWithPgSearch.create!(:title => 'foo bar')
-
-            results = ModelWithPgSearch.search_title_with_prefixes("foo-bar")
-            expect(results).to include(included)
-            expect(results).not_to include(excluded)
-          end
+          results = ModelWithPgSearch.search_title_with_prefixes("foo-bar")
+          expect(results).to include(included)
+          expect(results).not_to include(excluded)
         end
       end
 
@@ -615,6 +605,60 @@ describe "an Active Record model which includes PgSearch" do
 
           results = ModelWithPgSearch.search_content_with_english("jump")
           expect(results).to match_array(included)
+        end
+      end
+
+      describe "highlighting" do
+        before do
+          ["Strip Down", "Down", "Down and Out", "Won't Let You Down"].each do |name|
+            ModelWithPgSearch.create! :content => name
+          end
+        end
+
+        context "with highlight turned on" do
+          before do
+            ModelWithPgSearch.pg_search_scope :search_content,
+              :against => :content
+          end
+
+          it "adds a #pg_search_highlight method to each returned model record" do
+            result = ModelWithPgSearch.search_content("Strip Down").with_pg_search_highlight.first
+
+            expect(result.pg_search_highlight).to be_a(String)
+          end
+
+          it "returns excerpts of text where search match occurred" do
+            result = ModelWithPgSearch.search_content("Let").with_pg_search_highlight.first
+
+            expect(result.pg_search_highlight).to eq("Won't <b>Let</b> You Down")
+          end
+        end
+
+        context "with custom highlighting options" do
+          before do
+            ModelWithPgSearch.create! :content => "#{'text ' * 2}Let #{'text ' * 2}Let #{'text ' * 2}"
+
+            ModelWithPgSearch.pg_search_scope :search_content,
+              :against => :content,
+              :using => {
+                :tsearch => {
+                  :highlight => {
+                    :StartSel => '<mark class="highlight">',
+                    :StopSel => '</mark>',
+                    :FragmentDelimiter => '<delim class="my_delim">',
+                    :MaxFragments => 2,
+                    :MaxWords => 2,
+                    :MinWords => 1
+                  }
+                }
+              }
+          end
+
+          it "applies the options to the excerpts" do
+            result = ModelWithPgSearch.search_content("Let").with_pg_search_highlight.first
+
+            expect(result.pg_search_highlight).to eq(%(<mark class="highlight">Let</mark> text<delim class="my_delim"><mark class="highlight">Let</mark> text))
+          end
         end
       end
 
@@ -727,7 +771,7 @@ describe "an Active Record model which includes PgSearch" do
         end
 
         it "returns all results containing any word in their title" do
-          numbers = %w[one two three four].map{|number| ModelWithPgSearch.create!(:title => number)}
+          numbers = %w[one two three four].map { |number| ModelWithPgSearch.create!(:title => number) }
 
           results = ModelWithPgSearch.search_title_with_any_word("one two three four")
 
@@ -795,7 +839,7 @@ describe "an Active Record model which includes PgSearch" do
     context "using dmetaphone" do
       before do
         ModelWithPgSearch.pg_search_scope :with_dmetaphones,
-          :against => [:title, :content],
+          :against => %i[title content],
           :using => :dmetaphone
       end
 
@@ -856,7 +900,7 @@ describe "an Active Record model which includes PgSearch" do
           ]
 
         ModelWithPgSearch.pg_search_scope :complex_search,
-          :against => [:content, :title],
+          :against => %i[content title],
           :ignoring => :accents,
           :using => {
             :tsearch => {:dictionary => 'english'},
@@ -967,7 +1011,7 @@ describe "an Active Record model which includes PgSearch" do
         unexpected.comments.create(body: 'commentwo')
 
         Post.pg_search_scope :search_by_content_with_tsvector,
-          :associated_against => { comments: [:body] },
+          :associated_against => {comments: [:body]},
           :using => {
             :tsearch => {
               :tsvector_column => 'content_tsvector',
@@ -1054,7 +1098,7 @@ describe "an Active Record model which includes PgSearch" do
         with_model :AnotherModel do
           table do |t|
             t.string :content_tsvector # the type of the column doesn't matter
-            t.belongs_to :model_with_tsvector
+            t.belongs_to :model_with_tsvector, index: false
           end
         end
 
@@ -1077,22 +1121,14 @@ describe "an Active Record model which includes PgSearch" do
           :ignoring => :accents
       end
 
-      if ActiveRecord::Base.connection.send(:postgresql_version) < 90000
-        it "is unsupported in PostgreSQL 8.x" do
-          expect {
-            ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
-          }.to raise_exception(PgSearch::NotSupportedForPostgresqlVersion)
-        end
-      else
-        it "returns rows that match the query but not its accents" do
-          # \303\241 is a with acute accent
-          # \303\251 is e with acute accent
+      it "returns rows that match the query but not its accents" do
+        # \303\241 is a with acute accent
+        # \303\251 is e with acute accent
 
-          included = ModelWithPgSearch.create!(:title => "\303\241bcdef")
+        included = ModelWithPgSearch.create!(:title => "\303\241bcdef")
 
-          results = ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
-          expect(results).to eq([included])
-        end
+        results = ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
+        expect(results).to eq([included])
       end
     end
 
@@ -1126,8 +1162,8 @@ describe "an Active Record model which includes PgSearch" do
 
         multiplied_result =
           ModelWithPgSearch.search_content_with_importance_as_rank_multiplier("foo")
-          .with_pg_search_rank
-          .first
+            .with_pg_search_rank
+            .first
 
         multiplied_rank = multiplied_result.pg_search_rank
 
@@ -1195,7 +1231,7 @@ describe "an Active Record model which includes PgSearch" do
           twice = ModelWithPgSearch.create!(:content => 'foo foo')
 
           results = ModelWithPgSearch.search_content_ranked_by_tsearch('foo')
-          expect(results.index(twice)).to be < results.index(once)
+          expect(results.find_index(twice)).to be < results.find_index(once)
         end
       end
 
@@ -1210,7 +1246,7 @@ describe "an Active Record model which includes PgSearch" do
           exact = ModelWithPgSearch.create!(:content => 'abc')
 
           results = ModelWithPgSearch.search_content_ranked_by_trigram('abc')
-          expect(results.index(exact)).to be < results.index(close)
+          expect(results.find_index(exact)).to be < results.find_index(close)
         end
       end
 
@@ -1225,7 +1261,7 @@ describe "an Active Record model which includes PgSearch" do
           twice = ModelWithPgSearch.create!(:content => 'Phoo Fu')
 
           results = ModelWithPgSearch.search_content_ranked_by_dmetaphone('foo')
-          expect(results.index(twice)).to be < results.index(once)
+          expect(results.find_index(twice)).to be < results.find_index(once)
         end
       end
     end
@@ -1235,8 +1271,8 @@ describe "an Active Record model which includes PgSearch" do
         ModelWithPgSearch.pg_search_scope :search_content_ranked_by_dmetaphone,
           :against => :content,
           :using => {
-            :tsearch => { :any_word => true, :prefix => true },
-            :dmetaphone => { :any_word => true, :prefix => true, :sort_only => true }
+            :tsearch => {:any_word => true, :prefix => true},
+            :dmetaphone => {:any_word => true, :prefix => true, :sort_only => true}
           },
           :ranked_by => ":tsearch + (0.5 * :dmetaphone)"
 

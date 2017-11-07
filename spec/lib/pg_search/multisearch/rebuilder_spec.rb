@@ -1,5 +1,10 @@
 require "spec_helper"
 
+def has_microsecond_precision?
+  (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR >= 1) ||
+    (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 0 && ActiveRecord::VERSION::TINY >= 1)
+end
+
 describe PgSearch::Multisearch::Rebuilder do
   with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
@@ -37,7 +42,7 @@ describe PgSearch::Multisearch::Rebuilder do
       end
 
       context "and multisearchable is conditional" do
-        [:if, :unless].each do |conditional_key|
+        %i[if unless].each do |conditional_key|
           context "via :#{conditional_key}" do
             with_model :Model do
               table do |t|
@@ -95,23 +100,12 @@ describe PgSearch::Multisearch::Rebuilder do
           end
 
           it "should execute the default SQL" do
-            time = DateTime.parse("2001-01-01")
-            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, ->{ time } )
+            time = Time.utc(2001, 1, 1, 0, 0, 0)
+            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, -> { time })
 
-            # Handle change in precision of DateTime objects in SQL in Active Record 4.0.1
+            # Handle change in precision of Time objects in SQL in Active Record 4.0.1
             # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
-            version_4_0_1_or_newer = (
-            (ActiveRecord::VERSION::MAJOR > 4) ||
-              (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR >= 1) ||
-              (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 0 && ActiveRecord::VERSION::TINY >= 1)
-            )
-
-            expected_timestamp =
-              if version_4_0_1_or_newer
-                "2001-01-01 00:00:00.000000"
-              else
-                "2001-01-01 00:00:00"
-              end
+            expected_timestamp = has_microsecond_precision? ? "2001-01-01 00:00:00.000000" : "2001-01-01 00:00:00"
 
             expected_sql = <<-SQL.strip_heredoc
             INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
@@ -151,23 +145,12 @@ describe PgSearch::Multisearch::Rebuilder do
             end
 
             it "generates SQL with the correct primary key" do
-              time = DateTime.parse("2001-01-01")
-              rebuilder = PgSearch::Multisearch::Rebuilder.new(ModelWithNonStandardPrimaryKey, ->{ time } )
+              time = Time.utc(2001, 1, 1, 0, 0, 0)
+              rebuilder = PgSearch::Multisearch::Rebuilder.new(ModelWithNonStandardPrimaryKey, -> { time })
 
-              # Handle change in precision of DateTime objects in SQL in Active Record 4.0.1
+              # Handle change in precision of Time objects in SQL in Active Record 4.0.1
               # https://github.com/rails/rails/commit/17f5d8e062909f1fcae25351834d8e89967b645e
-              version_4_0_1_or_newer = (
-              (ActiveRecord::VERSION::MAJOR > 4) ||
-                (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR >= 1) ||
-                (ActiveRecord::VERSION::MAJOR == 4 && ActiveRecord::VERSION::MINOR == 0 && ActiveRecord::VERSION::TINY >= 1)
-              )
-
-              expected_timestamp =
-                if version_4_0_1_or_newer
-                  "2001-01-01 00:00:00.000000"
-                else
-                  "2001-01-01 00:00:00"
-                end
+              expected_timestamp = has_microsecond_precision? ? "2001-01-01 00:00:00.000000" : "2001-01-01 00:00:00"
 
               expected_sql = <<-SQL.strip_heredoc
               INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
@@ -248,8 +231,8 @@ describe PgSearch::Multisearch::Rebuilder do
           end
 
           it "calls update_pg_search_document on each record" do
-            record1 = Model.create!(:active => true)
-            record2 = Model.create!(:active => false)
+            record_1 = Model.create!(:active => true)
+            record_2 = Model.create!(:active => false)
 
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
 
@@ -266,8 +249,8 @@ describe PgSearch::Multisearch::Rebuilder do
 
             rebuilder.rebuild
 
-            expect(record1.pg_search_document).to be_present
-            expect(record2.pg_search_document).not_to be_present
+            expect(record_1.pg_search_document).to be_present
+            expect(record_2.pg_search_document).not_to be_present
           end
         end
 
@@ -284,8 +267,8 @@ describe PgSearch::Multisearch::Rebuilder do
           end
 
           it "calls update_pg_search_document on each record" do
-            record1 = Model.create!(:inactive => true)
-            record2 = Model.create!(:inactive => false)
+            record_1 = Model.create!(:inactive => true)
+            record_2 = Model.create!(:inactive => false)
 
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
 
@@ -302,8 +285,8 @@ describe PgSearch::Multisearch::Rebuilder do
 
             rebuilder.rebuild
 
-            expect(record1.pg_search_document).not_to be_present
-            expect(record2.pg_search_document).to be_present
+            expect(record_1.pg_search_document).not_to be_present
+            expect(record_2.pg_search_document).to be_present
           end
         end
       end

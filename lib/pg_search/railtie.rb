@@ -7,7 +7,6 @@ module PgSearch
     generators do
       require "pg_search/migration/multisearch_generator"
       require "pg_search/migration/dmetaphone_generator"
-      require "pg_search/migration/associated_against_generator"
     end
   end
 end

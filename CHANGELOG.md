@@ -1,9 +1,36 @@
 # pg_search changelog
 
+## 2.1.1
+
+*   Support snake_case ts_headline options again (with deprecation warning)
+
+## 2.1.0
+
+*   Allow ts_headline options to be passed to :highlight (Ian Heisters)
+*   Wait to load PgSearch::Document until after Active Record has loaded (Logan Leger)
+*   Add Rails version to generated migrations (Erik Eide)
+
+## 2.0.1
+
+*   Remove require for generator that no longer exists. (Joshua Bartlett)
+
+## 2.0.0
+
+*   Drop support for PostgreSQL < 9.2.
+*   Drop support for Active Record < 4.2.
+*   Drop support for Ruby < 2.1.
+*   Improve performance of has_one and belongs_to associations. (Peter Postma)
+
+## 1.0.6
+
+*   Add support for highlighting the matching portion of a search result. (Jose Galisteo)
+*   Add `:update_if` option to control when PgSearch::Document gets updated. (Adam Becker)
+*   Add `:additional_attributes` option for adding additional attributes to PgSearch::Document
+
 ## 1.0.5
 
-*   Clean up rank table aliasing (Adam Milligan)
-*   Fix issue when using `#with_pg_search_rank` across a join (Reid Lynch)
+*   Clean up rank table aliasing. (Adam Milligan)
+*   Fix issue when using `#with_pg_search_rank` across a join. (Reid Lynch)
 
 ## 1.0.4
 

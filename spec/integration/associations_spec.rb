@@ -12,7 +12,7 @@ describe PgSearch do
       with_model :ModelWithoutAgainst do
         table do |t|
           t.string "title"
-          t.belongs_to :another_model
+          t.belongs_to :another_model, :index => false
         end
 
         model do
@@ -49,7 +49,7 @@ describe PgSearch do
       with_model :ModelWithBelongsTo do
         table do |t|
           t.string 'title'
-          t.belongs_to 'another_model'
+          t.belongs_to 'another_model', index: false
         end
 
         model do
@@ -79,7 +79,7 @@ describe PgSearch do
       with_model :AssociatedModelWithHasMany do
         table do |t|
           t.string 'title'
-          t.belongs_to 'ModelWithHasMany'
+          t.belongs_to 'ModelWithHasMany', index: false
         end
       end
 
@@ -144,22 +144,20 @@ describe PgSearch do
         with_model :FirstAssociatedModel do
           table do |t|
             t.string 'title'
-            t.belongs_to 'ModelWithManyAssociations'
+            t.belongs_to 'ModelWithManyAssociations', index: false
           end
-          model {}
         end
 
         with_model :SecondAssociatedModel do
           table do |t|
             t.string 'title'
           end
-          model {}
         end
 
         with_model :ModelWithManyAssociations do
           table do |t|
             t.string 'title'
-            t.belongs_to 'model_of_second_type'
+            t.belongs_to 'model_of_second_type', index: false
           end
 
           model do
@@ -211,10 +209,9 @@ describe PgSearch do
         with_model :DoublyAssociatedModel do
           table do |t|
             t.string 'title'
-            t.belongs_to 'ModelWithDoubleAssociation'
-            t.belongs_to 'ModelWithDoubleAssociation_again'
+            t.belongs_to 'ModelWithDoubleAssociation', index: false
+            t.belongs_to 'ModelWithDoubleAssociation_again', index: false
           end
-          model {}
         end
 
         with_model :ModelWithDoubleAssociation do
@@ -279,14 +276,14 @@ describe PgSearch do
 
       with_model :ModelWithAssociation do
         table do |t|
-          t.belongs_to 'another_model'
+          t.belongs_to 'another_model', index: false
         end
 
         model do
           include PgSearch
           belongs_to :another_model, :class_name => 'AssociatedModel'
 
-          pg_search_scope :with_associated, :associated_against => {:another_model => [:title, :author]}
+          pg_search_scope :with_associated, :associated_against => {:another_model => %i[title author]}
         end
       end
 
@@ -332,14 +329,14 @@ describe PgSearch do
       with_model :Model do
         table do |t|
           t.integer 'number'
-          t.belongs_to 'another_model'
+          t.belongs_to 'another_model', index: false
         end
 
         model do
           include PgSearch
-          belongs_to :another_model, :class_name => 'AssociatedModel'
+          belongs_to :another_model, class_name: 'AssociatedModel'
 
-          pg_search_scope :with_associated, :associated_against => {:another_model => :number}
+          pg_search_scope :with_associated, associated_against: {another_model: :number}
         end
       end
 
@@ -406,7 +403,7 @@ describe PgSearch do
     with_model :AssociatedModel do
       table do |t|
         t.string :content
-        t.belongs_to :model_with_association
+        t.belongs_to :model_with_association, index: false
       end
 
       model do
@@ -457,7 +454,7 @@ describe PgSearch do
 
       model do
         include PgSearch
-        pg_search_scope :search, :against => :title, :using => [:tsearch, :trigram]
+        pg_search_scope :search, :against => :title, :using => %i[tsearch trigram]
       end
     end
 
@@ -498,7 +495,7 @@ describe PgSearch do
 
       model do
         include PgSearch
-        pg_search_scope :search, :against => :title, :using => [:tsearch, :trigram]
+        pg_search_scope :search, :against => :title, :using => %i[tsearch trigram]
       end
     end
 

@@ -7,23 +7,41 @@ AllCops:
 Style/StringLiterals:
   Enabled: false
 
-AllCops:
-  Exclude:
-    - bin/**/*
-
 Metrics/LineLength:
   Max: 120
 
 Metrics/MethodLength:
   Max: 21
 
-Style/AlignParameters:
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*
+
+Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 
 Style/HashSyntax:
+  Enabled: false
+
+Style/NumericPredicate:
   Enabled: false
 
 Style/PercentLiteralDelimiters:
   PreferredDelimiters:
     '%w': '[]'
     '%W': '[]'
+
+Style/GuardClause:
+  Enabled: false
+
+Naming/VariableNumber:
+  EnforcedStyle: snake_case
+
+Bundler/OrderedGems:
+  Enabled: false
+
+Bundler/DuplicatedGem:
+  Enabled: false
+
+Style/EmptyMethod:
+  EnforcedStyle: expanded

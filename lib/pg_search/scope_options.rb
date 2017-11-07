@@ -1,5 +1,3 @@
-# encoding: UTF-8
-
 require "active_support/core_ext/module/delegation"
 
 module PgSearch
@@ -23,12 +21,39 @@ module PgSearch
         .order(order)
         .extend(DisableEagerLoading)
         .extend(WithPgSearchRank)
+        .extend(WithPgSearchHighlight[feature_for(:tsearch)])
     end
 
     # workaround for https://github.com/Casecommons/pg_search/issues/14
     module DisableEagerLoading
       def eager_loading?
         return false
+      end
+    end
+
+    module WithPgSearchHighlight
+      def self.[](tsearch)
+        Module.new do
+          include WithPgSearchHighlight
+          define_method(:tsearch) { tsearch }
+        end
+      end
+
+      def tsearch
+        raise TypeError.new("You need to instantiate this module with []")
+      end
+
+      def with_pg_search_highlight
+        scope = self
+        scope.select(pg_search_highlight_field)
+      end
+
+      def pg_search_highlight_field
+        "(#{highlight}) AS pg_search_highlight, #{table_name}.*"
+      end
+
+      def highlight
+        tsearch.highlight.to_sql
       end
     end
 
@@ -54,6 +79,7 @@ module PgSearch
       private
 
       attr_writer :pg_search_scope_application_count
+
       def pg_search_scope_application_count
         @pg_search_scope_application_count ||= 0
       end
@@ -106,7 +132,7 @@ module PgSearch
     end
 
     def subquery_join
-      if config.associations.any? # rubocop:disable Style/GuardClause
+      if config.associations.any?
         config.associations.map do |association|
           association.join(primary_key)
         end.join(' ')
@@ -147,12 +173,9 @@ module PgSearch
     end
 
     def include_table_aliasing_for_rank(scope)
-      if scope.included_modules.include?(PgSearchRankTableAliasing)
-        scope
-      else
-        (::ActiveRecord::VERSION::MAJOR < 4 ? scope.scoped : scope.all.spawn).tap do |new_scope|
-          new_scope.class_eval { include PgSearchRankTableAliasing }
-        end
+      return scope if scope.included_modules.include?(PgSearchRankTableAliasing)
+      scope.all.spawn.tap do |new_scope|
+        new_scope.class_eval { include PgSearchRankTableAliasing }
       end
     end
   end

@@ -1,21 +1,11 @@
-require "pg_search/compatibility"
 require "active_support/core_ext/module/delegation"
+require 'active_support/deprecation'
 
 module PgSearch
   module Features
-    class TSearch < Feature
+    class TSearch < Feature # rubocop:disable Metrics/ClassLength
       def self.valid_options
-        super + [:dictionary, :prefix, :negation, :any_word, :normalization, :tsvector_column]
-      end
-
-      def initialize(*args)
-        super
-
-        if options[:prefix] && model.connection.send(:postgresql_version) < 80400 # rubocop:disable Style/GuardClause
-          raise PgSearch::NotSupportedForPostgresqlVersion.new(<<-MESSAGE.strip_heredoc)
-            Sorry, {:using => {:tsearch => {:prefix => true}}} only works in PostgreSQL 8.4 and above.")
-          MESSAGE
-        end
+        super + %i[dictionary prefix negation any_word normalization tsvector_column highlight]
       end
 
       def conditions
@@ -28,7 +18,80 @@ module PgSearch
         arel_wrap(tsearch_rank)
       end
 
+      def highlight
+        arel_wrap(ts_headline)
+      end
+
       private
+
+      def ts_headline
+        Arel::Nodes::NamedFunction.new("ts_headline", [
+          dictionary,
+          arel_wrap(document),
+          arel_wrap(tsquery),
+          Arel::Nodes.build_quoted(ts_headline_options)
+        ]).to_sql
+      end
+
+      def ts_headline_options
+        return '' unless options[:highlight].is_a?(Hash)
+
+        headline_options
+          .merge(deprecated_headline_options)
+          .map { |key, value| "#{key} = #{value}" unless value.nil? }
+          .compact
+          .join(", ")
+      end
+
+      def headline_options
+        indifferent_options = options.with_indifferent_access
+
+        %w[
+          StartSel StopSel MaxFragments MaxWords MinWords ShortWord FragmentDelimiter HighlightAll
+        ].reduce({}) do |hash, key|
+          hash.tap do
+            value = indifferent_options[:highlight][key]
+
+            hash[key] = ts_headline_option_value(value)
+          end
+        end
+      end
+
+      def deprecated_headline_options
+        indifferent_options = options.with_indifferent_access
+
+        %w[
+          start_sel stop_sel max_fragments max_words min_words short_word fragment_delimiter highlight_all
+        ].reduce({}) do |hash, deprecated_key|
+          hash.tap do
+            value = indifferent_options[:highlight][deprecated_key]
+
+            unless value.nil?
+              key = deprecated_key.camelize
+
+              ActiveSupport::Deprecation.warn(
+                "pg_search 3.0 will no longer accept :#{deprecated_key} as an argument to :ts_headline, " \
+                "use :#{key} instead."
+              )
+
+              hash[key] = ts_headline_option_value(value)
+            end
+          end
+        end
+      end
+
+      def ts_headline_option_value(value)
+        case value
+        when String
+          %("#{value.gsub('"', '""')}")
+        when true
+          "TRUE"
+        when false
+          "FALSE"
+        else
+          value
+        end
+      end
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
 
@@ -46,15 +109,15 @@ module PgSearch
         # If :prefix is true, then the term will have :* appended to the end.
         # If :negated is true, then the term will have ! prepended to the front.
         terms = [
-          (Compatibility.build_quoted('!') if negated),
-          Compatibility.build_quoted("' "),
+          (Arel::Nodes.build_quoted('!') if negated),
+          Arel::Nodes.build_quoted("' "),
           term_sql,
-          Compatibility.build_quoted(" '"),
-          (Compatibility.build_quoted(":*") if options[:prefix])
+          Arel::Nodes.build_quoted(" '"),
+          (Arel::Nodes.build_quoted(":*") if options[:prefix])
         ].compact
 
         tsquery_sql = terms.inject do |memo, term|
-          Arel::Nodes::InfixOperation.new("||", memo, Compatibility.build_quoted(term))
+          Arel::Nodes::InfixOperation.new("||", memo, Arel::Nodes.build_quoted(term))
         end
 
         Arel::Nodes::NamedFunction.new(
@@ -102,11 +165,15 @@ module PgSearch
       end
 
       def tsearch_rank
-        "ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})"
+        Arel::Nodes::NamedFunction.new("ts_rank", [
+          arel_wrap(tsdocument),
+          arel_wrap(tsquery),
+          normalization
+        ]).to_sql
       end
 
       def dictionary
-        Compatibility.build_quoted(options[:dictionary] || :simple)
+        Arel::Nodes.build_quoted(options[:dictionary] || :simple)
       end
 
       def arel_wrap(sql_string)

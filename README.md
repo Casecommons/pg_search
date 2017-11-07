@@ -7,65 +7,35 @@
 [![Dependency Status](https://img.shields.io/gemnasium/Casecommons/pg_search.svg?style=flat)](https://gemnasium.com/Casecommons/pg_search)
 [![Inline docs](http://inch-ci.org/github/Casecommons/pg_search.svg?branch=master&style=flat)](http://inch-ci.org/github/Casecommons/pg_search)
 [![Join the chat at https://gitter.im/Casecommons/pg_search](https://img.shields.io/badge/gitter-join%20chat-blue.svg)](https://gitter.im/Casecommons/pg_search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Stories in Ready](https://badge.waffle.io/Casecommons/pg_search.svg?label=ready&title=Ready)](https://waffle.io/Casecommons/pg_search)
+[![Stories in Ready](https://img.shields.io/waffle/label/Casecommons/pg_search/in%20progress.svg)](https://waffle.io/Casecommons/pg_search)
 
 ## DESCRIPTION
 
 PgSearch builds named scopes that take advantage of PostgreSQL's full text
 search.
 
-Read the blog post introducing PgSearch at http://blog.pivotal.io/labs/labs/pg-search
+Read the blog post introducing PgSearch at https://content.pivotal.io/blog/pg-search-how-i-learned-to-stop-worrying-and-love-postgresql-full-text-search
 
 ## REQUIREMENTS
 
-*   Ruby 1.9.2, 2.0, or later
-*   Active Record 3.1, 3.2, 4.0 or later
-*   PostgreSQL
-*   [PostgreSQL contrib packages for certain
-    features](https://github.com/Casecommons/pg_search/wiki/Installing-Postgres-Contrib-Modules)
-
+*   Ruby 2.1+
+*   ActiveRecord 4.2+
+*   PostgreSQL 9.2+
+*   [PostgreSQL extensions](https://github.com/Casecommons/pg_search/wiki/Installing-PostgreSQL-Extensions) for certain features
 
 ## INSTALL
 
-```bash
+```
 $ gem install pg_search
 ```
 
-### Rails 3.1, 3.2, 4.0 or later, Ruby 1.9.2, 2.0, or later
-
-In Gemfile
+or add this line to your Gemfile:
 
 ```ruby
 gem 'pg_search'
 ```
 
-### Rails 3.0
-
-The newest versions of PgSearch no longer support Rails 3.0. However, the 0.5
-series still works. It's not actively maintained, but submissions are welcome
-for backports and bugfixes.
-
-```ruby
-gem 'pg_search', "~> 0.5.7"
-```
-
-The 0.5 branch lives at
-https://github.com/Casecommons/pg_search/tree/0.5-stable
-
-### Rails 2
-
-The newest versions of PgSearch no longer support Rails 2. However, the 0.2
-series still works. It's not actively maintained, but submissions are welcome
-for backports and bugfixes.
-
-```ruby
-gem 'pg_search', "~> 0.2.0"
-```
-
-The 0.2 branch lives at
-https://github.com/Casecommons/pg_search/tree/0.2-stable
-
-### Other Active Record projects
+### Non-Rails projects
 
 In addition to installing and requiring the gem, you may want to include the
 PgSearch rake tasks in your Rakefile. This isn't necessary for Rails projects,
@@ -74,19 +44,6 @@ which gain the Rake tasks via a Railtie.
 ```ruby
 load "pg_search/tasks.rb"
 ```
-
-### Ruby 1.8.7 or earlier
-
-The newest versions of PgSearch no longer support Ruby 1.8.7. However, the 0.6
-series still works. It's not actively maintained, but submissions are welcome
-for backports and bugfixes.
-
-```ruby
-gem 'pg_search', "~> 0.6.4"
-```
-
-The 0.6 branch lives at
-https://github.com/Casecommons/pg_search/tree/0.6-stable
 
 ## USAGE
 
@@ -240,10 +197,12 @@ receive SQL requests when necessary.
 ```ruby
 PgSearch.multisearch("Bertha").limit(10)
 PgSearch.multisearch("Juggler").where(:searchable_type => "Occupation")
-PgSearch.multisearch("Alamo").page(3).per_page(30)
+PgSearch.multisearch("Alamo").page(3).per(30)
 PgSearch.multisearch("Diagonal").find_each do |document|
   puts document.searchable.updated_at
 end
+PgSearch.multisearch("Moro").reorder("").group(:searchable_type).count(:all)
+PgSearch.multisearch("Square").includes(:searchable)
 ```
 
 #### Configuring multi-search
@@ -285,7 +244,17 @@ To regenerate the documents for a given class, run:
 PgSearch::Multisearch.rebuild(Product)
 ```
 
-This is also available as a Rake task, for convenience.
+The ```rebuild``` method will delete all the documents for the given class
+before regenerating them. In some situations this may not be desirable,
+such as when you're using single-table inheritance and ```searchable_type```
+is your base class. You can prevent ```rebuild``` from deleting your records
+like so:
+
+```ruby
+PgSearch::Multisearch.rebuild(Product, false)
+```
+
+Rebuild is also available as a Rake task, for convenience.
 
     $ rake pg_search:multisearch:rebuild[BlogPost]
 
@@ -437,15 +406,6 @@ It is possible to search columns on associated models. Note that if you do
 this, it will be impossible to speed up searches with database indexes.
 However, it is supported as a quick way to try out cross-model searching.
 
-In PostgreSQL 8.3 and earlier, you must install a utility function into your
-database. To generate and run a migration for this, run:
-
-    $ rails g pg_search:migration:associated_against
-    $ rake db:migrate
-
-This migration is safe to run against newer versions of PostgreSQL as well. It
-will essentially do nothing.
-
 You can pass a Hash into the :associated_against option to set up searching
 through associations. The keys are the names of the associations and the value
 works just like an :against option for the other model. Right now, searching
@@ -503,11 +463,10 @@ end
 
 The currently implemented features are
 
-*   :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html)
-    (built-in with 8.3 and later, available as a contrib package for some earlier versions)
+*   :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html), which is built-in to PostgreSQL
 *   :trigram - [Trigram search](http://www.postgresql.org/docs/current/static/pgtrgm.html), which
-    requires the trigram contrib package
-*   :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/9.0/static/fuzzystrmatch.html#AEN124771), which requires the fuzzystrmatch contrib package
+    requires the trigram extension
+*   :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html#AEN177521), which requires the fuzzystrmatch extension
 
 
 #### :tsearch (Full Text Search)
@@ -734,6 +693,47 @@ one_close = Person.create!(:name => 'leigh heinz')
 Person.search('ash hines') # => [exact, one_exact_one_close, one_exact]
 ```
 
+##### :highlight
+
+Adding .with_pg_search_highlight after the pg_search_scope you can access to
+`pg_highlight` attribute for each object.
+
+
+```ruby
+class Person < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :search,
+                  against: :bio,
+                  using: {
+                    tsearch: {
+                      highlight: {
+                        StartSel: '<start>',
+                        StopSel: '<stop>',
+                        MaxWords: 123,
+                        MinWords: 456,
+                        ShortWord: 4,
+                        HighlightAll: true,
+                        MaxFragments: 3,
+                        FragmentDelimiter: '&hellip;'
+                      }
+                    }
+                  }
+end
+
+Person.create!(:bio => "Born in rural Alberta, where the buffalo roam.")
+
+first_match = Person.search("Alberta").with_pg_search_highlight.first
+first_match.pg_search_highlight # => "Born in rural <b>Alberta</b>, where the buffalo roam."
+```
+
+The highlight option accepts all [options supported by
+ts_headline](https://www.postgresql.org/docs/current/static/textsearch-controls.html),
+and uses PostgreSQL's defaults.
+
+See the
+[documentation](https://www.postgresql.org/docs/current/static/textsearch-controls.html)
+for details on the meaning of each option.
+
 #### :dmetaphone (Double Metaphone soundalike search)
 
 [Double Metaphone](http://en.wikipedia.org/wiki/Double_Metaphone) is an
@@ -743,10 +743,10 @@ Currently, this is not a true double-metaphone, as only the first metaphone is
 used for searching.
 
 Double Metaphone support is currently available as part of the [fuzzystrmatch
-contrib package](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html)
+extension](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html)
 that must be installed before this feature can be used. In addition to the
-contrib package, you must install a utility function into your database. To
-generate and run a migration for this, run:
+extension, you must install a utility function into your database. To generate 
+and run a migration for this, run:
 
     $ rails g pg_search:migration:dmetaphone
     $ rake db:migrate
@@ -780,9 +780,9 @@ Trigram search works by counting how many three-letter substrings (or
 Trigram search has some ability to work even with typos and misspellings in
 the query or text.
 
-Trigram support is currently available as part of the [pg_trgm contrib
-package](http://www.postgresql.org/docs/current/static/pgtrgm.html) that must
-be installed before this feature can be used.
+Trigram support is currently available as part of the 
+[pg_trgm extension](http://www.postgresql.org/docs/current/static/pgtrgm.html) that must be installed before this
+feature can be used.
 
 ```ruby
 class Website < ActiveRecord::Base
@@ -805,7 +805,9 @@ Website.kinda_spelled_like("Yahoo!") # => [yahooo, yohoo]
 By default, trigram searches find records which have a similarity of at least 0.3
 using pg_trgm's calculations. You may specify a custom threshold if you prefer.
 Higher numbers match more strictly, and thus return fewer results. Lower numbers
-match more permissively, letting in more results.
+match more permissively, letting in more results. Please note that setting a trigram
+threshold will force a table scan as the derived query uses the
+`similarity()` function instead of the `%` operator.
 
 ```ruby
 class Vegetable < ActiveRecord::Base
@@ -870,15 +872,14 @@ Image.combined_search('reasonable') # found with tsearch
 Image.combined_search('foo') # found with trigram
 ```
 
-### Ignoring accent marks (PostgreSQL 9.0 and newer only)
+### Ignoring accent marks
 
 Most of the time you will want to ignore accent marks when searching. This
 makes it possible to find words like "piñata" when searching with the query
 "pinata". If you set a pg_search_scope to ignore accents, it will ignore
 accents in both the searchable text and the query terms.
 
-Ignoring accents uses the [unaccent contrib
-package](http://www.postgresql.org/docs/current/static/unaccent.html) that
+Ignoring accents uses the [unaccent extension](http://www.postgresql.org/docs/current/static/unaccent.html) that
 must be installed before this feature can be used.
 
 ```ruby
@@ -898,8 +899,8 @@ SpanishQuestion.gringo_search("Cüåñtô") # => [how_many]
 ```
 
 Advanced users may wish to add indexes for the expressions that pg_search
-generates. Unfortunately, the unaccent function supplied by this contrib
-package is not indexable (as of PostgreSQL 9.1). Thus, you may want to write
+generates. Unfortunately, the unaccent function supplied by this extension
+is not indexable (as of PostgreSQL 9.1). Thus, you may want to write
 your own wrapper function and use it instead. This can be configured by
 calling the following code, perhaps in an initializer.
 
@@ -936,7 +937,7 @@ To use this functionality you'll need to do a few things:
                       tsearch: {
                         dictionary: 'english',
                         tsvector_column: 'tsvector_content_tsearch'
-                      }
+                      },
                       trigram: {} # trigram does not use tsvectors
                     }
     ```
@@ -1077,7 +1078,7 @@ queried table.
 ```ruby
 shirt_brands = ShirtBrand.search_by_name("Penguin")
   .joins(:shirt_sizes)
-  .group('shirt_brands.id, #{PgSearch::Configuration.alias('shirt_brands')}.rank')
+  .group("shirt_brands.id, #{PgSearch::Configuration.alias('shirt_brands')}.rank")
 ```
 
 ## ATTRIBUTIONS
@@ -1099,4 +1100,5 @@ Please read our [CONTRIBUTING guide](https://github.com/Casecommons/pg_search/bl
 
 ## LICENSE
 
-MIT
+Copyright © 2010–2017 [Case Commons, Inc](http://casecommons.org).
+Licensed under the MIT license, see [LICENSE](/LICENSE) file.
