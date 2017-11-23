@@ -35,6 +35,15 @@ matrix:
     - rvm: "2.1.10"
       env: ACTIVE_RECORD_VERSION="~> 5.0.0"
     - rvm: jruby-9.1.14.0
+      env: ACTIVE_RECORD_BRANCH="master"
+    - rvm: jruby-9.1.14.0
+      env: ACTIVE_RECORD_BRANCH="5-1-stable"
+    - rvm: jruby-9.1.14.0
+      env: ACTIVE_RECORD_BRANCH="5-0-stable"
+    - rvm: jruby-9.1.14.0
+      env: ACTIVE_RECORD_VERSION="~> 5.1.0"
+    - rvm: jruby-9.1.14.0
+      env: ACTIVE_RECORD_VERSION="~> 5.0.0"
 
 before_script:
   - "psql -c 'create database pg_search_test;' -U postgres >/dev/null"
