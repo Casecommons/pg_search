@@ -13,12 +13,14 @@ env:
   - ACTIVE_RECORD_BRANCH="5-1-stable"
   - ACTIVE_RECORD_BRANCH="5-0-stable"
   - ACTIVE_RECORD_BRANCH="4-2-stable"
+  - ACTIVE_RECORD_VERSION="~> 5.2.0.beta2"
   - ACTIVE_RECORD_VERSION="~> 5.1.0"
   - ACTIVE_RECORD_VERSION="~> 5.0.0"
   - ACTIVE_RECORD_VERSION="~> 4.2.9"
 
 matrix:
   allow_failures:
+    - env: ACTIVE_RECORD_VERSION="~> 5.2.0.beta2"
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="5-1-stable"
     - env: ACTIVE_RECORD_BRANCH="5-0-stable"
@@ -41,6 +43,8 @@ matrix:
       env: ACTIVE_RECORD_BRANCH="5-1-stable"
     - rvm: jruby-9.1.14.0
       env: ACTIVE_RECORD_BRANCH="5-0-stable"
+    - rvm: jruby-9.1.14.0
+      env: ACTIVE_RECORD_VERSION="~> 5.2.0.beta2"
     - rvm: jruby-9.1.14.0
       env: ACTIVE_RECORD_VERSION="~> 5.1.0"
     - rvm: jruby-9.1.14.0
