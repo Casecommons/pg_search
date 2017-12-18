@@ -1,6 +1,16 @@
 require "spec_helper"
 
+module ClearSearchableCache
+  refine PgSearch::Document.singleton_class do
+    def clear_searchable_cache
+      reflect_on_association(:searchable).clear_association_scope_cache
+    end
+  end
+end
+
 describe PgSearch do
+  using ClearSearchableCache
+
   describe ".multisearch" do
     with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
@@ -18,7 +28,10 @@ describe PgSearch do
 
     context "with PgSearch.multisearch_options set to a Hash" do
       before { allow(PgSearch).to receive(:multisearch_options).and_return(:using => :dmetaphone) }
-      subject { PgSearch.multisearch(query).map(&:searchable) }
+      subject do
+        PgSearch::Document.clear_searchable_cache
+        PgSearch.multisearch(query).map(&:searchable)
+      end
 
       with_model :MultisearchableModel do
         table do |t|
@@ -36,7 +49,10 @@ describe PgSearch do
     end
 
     context "with PgSearch.multisearch_options set to a Proc" do
-      subject { PgSearch.multisearch(query, soundalike).map(&:searchable) }
+      subject do
+        PgSearch::Document.clear_searchable_cache
+        PgSearch.multisearch(query, soundalike).map(&:searchable)
+      end
 
       before do
         allow(PgSearch).to receive(:multisearch_options) do
@@ -140,6 +156,7 @@ describe PgSearch do
 
           PgSearch::Multisearch.rebuild(SearchableSubclassModel)
 
+          PgSearch::Document.clear_searchable_cache
           expect(PgSearch::Document.count).to be 1
           expect(PgSearch::Document.first.searchable.class).to be SearchableSubclassModel
           expect(PgSearch::Document.first.searchable).to eq expected
@@ -153,6 +170,7 @@ describe PgSearch do
           PgSearch::Multisearch.rebuild(SearchableSubclassModel)
           expect(PgSearch::Document.count).to be 2
 
+          PgSearch::Document.clear_searchable_cache
           classes = PgSearch::Document.all.collect {|d| d.searchable.class }
           expect(classes).to include SearchableSubclassModel
           expect(classes).to include AnotherSearchableSubclassModel
