@@ -1,16 +1,18 @@
 require "spec_helper"
 
-module ClearSearchableCache
-  refine PgSearch::Document.singleton_class do
+# For AR 5 and greater, the association reflection's cache needs be cleared
+# because we're stubbing the related constants.
+class << PgSearch::Document
+  if ActiveRecord::VERSION::MAJOR >= 5
     def clear_searchable_cache
       reflect_on_association(:searchable).clear_association_scope_cache
     end
+  else
+    def clear_searchable_cache; end
   end
 end
 
 describe PgSearch do
-  using ClearSearchableCache
-
   describe ".multisearch" do
     with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
