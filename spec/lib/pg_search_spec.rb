@@ -8,7 +8,8 @@ class << PgSearch::Document
       reflect_on_association(:searchable).clear_association_scope_cache
     end
   else
-    def clear_searchable_cache; end
+    def clear_searchable_cache
+    end
   end
 end
 
@@ -243,7 +244,7 @@ describe PgSearch do
           @multisearch_enabled_inside = PgSearch.multisearch_enabled?
           raise
         end
-      rescue # rubocop:disable Lint/RescueWithoutErrorClass
+      rescue # rubocop:disable Style/RescueStandardError
       end
 
       @multisearch_enabled_after = PgSearch.multisearch_enabled?

@@ -45,3 +45,8 @@ Bundler/DuplicatedGem:
 
 Style/EmptyMethod:
   EnforcedStyle: expanded
+
+# Waiting on false positives to go away with:
+# https://github.com/bbatsov/rubocop/pull/5230
+Style/FormatStringToken:
+  Enabled: false
