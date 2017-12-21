@@ -1132,6 +1132,19 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
+    context "ignoring rank" do
+      before do
+        ModelWithPgSearch.pg_search_scope :search_title_without_rank,
+          :against => :title,
+          :ignoring => :rank
+      end
+
+      it "does not use ts_rank in the query" do
+        sql = ModelWithPgSearch.search_title_without_rank("foobar").to_sql
+        expect(sql).to_not include "ts_rank"
+      end
+    end
+
     context "when passed a :ranked_by expression" do
       before do
         ModelWithPgSearch.pg_search_scope :search_content_with_default_rank,

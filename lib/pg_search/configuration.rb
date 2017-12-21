@@ -84,7 +84,7 @@ module PgSearch
     ].map(&:to_sym)
 
     VALID_VALUES = {
-      :ignoring => [:accents]
+      :ignoring => [:accents, :rank]
     }
 
     def assert_valid_options(options)
