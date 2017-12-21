@@ -45,3 +45,6 @@ Bundler/DuplicatedGem:
 
 Style/EmptyMethod:
   EnforcedStyle: expanded
+
+Style/FormatStringToken:
+  Enabled: false
