@@ -37,9 +37,7 @@ module PgSearch
     end
 
     def multisearchable(options = {})
-      # rubocop:disable Style/MixinUsage
-      include PgSearch::Multisearchable
-      # rubocop:enable Style/MixinUsage
+      include PgSearch::Multisearchable # rubocop:disable Style/MixinUsage
       class_attribute :pg_search_multisearchable_options
       self.pg_search_multisearchable_options = options
     end
