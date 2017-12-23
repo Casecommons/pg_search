@@ -244,7 +244,7 @@ describe PgSearch do
           @multisearch_enabled_inside = PgSearch.multisearch_enabled?
           raise
         end
-      rescue # rubocop:disable Style/RescueStandardError
+      rescue StandardError
       end
 
       @multisearch_enabled_after = PgSearch.multisearch_enabled?

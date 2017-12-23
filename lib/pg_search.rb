@@ -22,13 +22,12 @@ module PgSearch
 
   module ClassMethods
     def pg_search_scope(name, options)
-      options_proc =
-        if options.respond_to?(:call)
-          options
-        else
-          raise ArgumentError, "pg_search_scope expects a Hash or Proc" unless options.respond_to?(:merge)
-          ->(query) { {:query => query}.merge(options) }
-        end
+      options_proc = if options.respond_to?(:call)
+                       options
+                     else
+                       raise ArgumentError, "pg_search_scope expects a Hash or Proc" unless options.respond_to?(:merge)
+                       ->(query) { {:query => query}.merge(options) }
+                     end
 
       define_singleton_method(name) do |*args|
         config = Configuration.new(options_proc.call(*args), self)
@@ -91,15 +90,15 @@ module PgSearch
 
   class PgSearchRankNotSelected < StandardError
     def message
-      "You must chain .with_pg_search_rank after the pg_search_scope to access " \
-        "the pg_search_rank attribute on returned records"
+      "You must chain .with_pg_search_rank after the pg_search_scope " \
+      "to access the pg_search_rank attribute on returned records"
     end
   end
 
   class PgSearchHighlightNotSelected < StandardError
     def message
-      "You must chain .with_pg_search_highlight after the pg_search_scope to access " \
-        "the pg_search_highlight attribute on returned records"
+      "You must chain .with_pg_search_highlight after the pg_search_scope " \
+      "to access the pg_search_highlight attribute on returned records"
     end
   end
 end
