@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## 2.1.2
+
+*   Silence warnings in Rails 5.2.0.beta2 (Kevin Deisz)
+
 ## 2.1.1
 
 *   Support snake_case ts_headline options again (with deprecation warning)
