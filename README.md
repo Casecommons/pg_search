@@ -383,13 +383,13 @@ value if you wanted.
 ```ruby
 class Person < ActiveRecord::Base
   include PgSearch
-  pg_search_scope :search_by_name, lambda do |name_part, query|
+  pg_search_scope :search_by_name, lambda { |name_part, query|
     raise ArgumentError unless [:first, :last].include?(name_part)
     {
       :against => name_part,
       :query => query
     }
-  end
+  }
 end
 
 person_1 = Person.create!(:first_name => "Grant", :last_name => "Hill")
