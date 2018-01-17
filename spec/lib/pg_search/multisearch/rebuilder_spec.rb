@@ -112,7 +112,7 @@ describe PgSearch::Multisearch::Rebuilder do
               SELECT 'Model' AS searchable_type,
                      #{Model.quoted_table_name}.#{Model.primary_key} AS searchable_id,
                      (
-                       coalesce(#{Model.quoted_table_name}.name::text, '')
+                       coalesce(#{Model.quoted_table_name}."name"::text, '')
                      ) AS content,
                      '#{expected_timestamp}' AS created_at,
                      '#{expected_timestamp}' AS updated_at
@@ -130,6 +130,25 @@ describe PgSearch::Multisearch::Rebuilder do
 
             expect(executed_sql.length).to eq(1)
             expect(executed_sql.first.strip).to eq(expected_sql.strip)
+          end
+
+          context "for a model with a camel case column" do
+            with_model :ModelWithCamelCaseColumn do
+              table do |t|
+                t.string :camelName
+              end
+
+              model do
+                include PgSearch
+                multisearchable :against => :name
+              end
+            end
+
+            it "creates search document without PG error" do
+              time = Time.utc(2001, 1, 1, 0, 0, 0)
+              rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, -> { time })
+              rebuilder.rebuild
+            end
           end
 
           context "for a model with a non-standard primary key" do
@@ -157,7 +176,7 @@ describe PgSearch::Multisearch::Rebuilder do
                 SELECT 'ModelWithNonStandardPrimaryKey' AS searchable_type,
                        #{ModelWithNonStandardPrimaryKey.quoted_table_name}.non_standard_primary_key AS searchable_id,
                        (
-                         coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}.name::text, '')
+                         coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}."name"::text, '')
                        ) AS content,
                        '#{expected_timestamp}' AS created_at,
                        '#{expected_timestamp}' AS updated_at

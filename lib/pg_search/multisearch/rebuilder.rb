@@ -74,7 +74,9 @@ module PgSearch
       end
 
       def content_expressions
-        columns.map { |column| %{coalesce(:model_table.#{column}::text, '')} }.join(" || ' ' || ")
+        columns.map do |column|
+          %{coalesce(:model_table.#{connection.quote_column_name(column)}::text, '')}
+        end.join(" || ' ' || ")
       end
 
       def columns
