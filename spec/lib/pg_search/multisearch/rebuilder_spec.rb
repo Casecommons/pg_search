@@ -112,7 +112,7 @@ describe PgSearch::Multisearch::Rebuilder do
               SELECT 'Model' AS searchable_type,
                      #{Model.quoted_table_name}.#{Model.primary_key} AS searchable_id,
                      (
-                       coalesce(#{Model.quoted_table_name}.name::text, '')
+                       coalesce(#{Model.quoted_table_name}."name"::text, '')
                      ) AS content,
                      '#{expected_timestamp}' AS created_at,
                      '#{expected_timestamp}' AS updated_at
@@ -157,7 +157,7 @@ describe PgSearch::Multisearch::Rebuilder do
                 SELECT 'ModelWithNonStandardPrimaryKey' AS searchable_type,
                        #{ModelWithNonStandardPrimaryKey.quoted_table_name}.non_standard_primary_key AS searchable_id,
                        (
-                         coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}.name::text, '')
+                         coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}."name"::text, '')
                        ) AS content,
                        '#{expected_timestamp}' AS created_at,
                        '#{expected_timestamp}' AS updated_at

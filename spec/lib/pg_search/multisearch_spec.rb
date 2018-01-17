@@ -121,7 +121,7 @@ describe PgSearch::Multisearch do
               SELECT #{connection.quote(model.name)} AS searchable_type,
                      #{model.quoted_table_name}.id AS searchable_id,
                      (
-                       coalesce(#{model.quoted_table_name}.title::text, '')
+                       coalesce(#{model.quoted_table_name}."title"::text, '')
                      ) AS content,
                      #{connection.quote(connection.quoted_date(now))} AS created_at,
                      #{connection.quote(connection.quoted_date(now))} AS updated_at
@@ -148,7 +148,7 @@ describe PgSearch::Multisearch do
               SELECT #{connection.quote(model.name)} AS searchable_type,
                      #{model.quoted_table_name}.id AS searchable_id,
                      (
-                       coalesce(#{model.quoted_table_name}.title::text, '') || ' ' || coalesce(#{model.quoted_table_name}.content::text, '')
+                       coalesce(#{model.quoted_table_name}."title"::text, '') || ' ' || coalesce(#{model.quoted_table_name}."content"::text, '')
                      ) AS content,
                      #{connection.quote(connection.quoted_date(now))} AS created_at,
                      #{connection.quote(connection.quoted_date(now))} AS updated_at
