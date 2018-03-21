@@ -14,7 +14,7 @@ describe PgSearch::Features::TSearch do
       query = "query"
       columns = [
         PgSearch::Configuration::Column.new(:name, nil, Model),
-        PgSearch::Configuration::Column.new(:content, nil, Model),
+        PgSearch::Configuration::Column.new(:content, nil, Model)
       ]
       options = {}
       config = double(:config, :ignore => [])
@@ -39,7 +39,7 @@ describe PgSearch::Features::TSearch do
       query = "query"
       columns = [
         PgSearch::Configuration::Column.new(:name, nil, Model),
-        PgSearch::Configuration::Column.new(:content, nil, Model),
+        PgSearch::Configuration::Column.new(:content, nil, Model)
       ]
       options = {}
       config = double(:config, :ignore => [])
@@ -56,7 +56,7 @@ describe PgSearch::Features::TSearch do
         query = "!query"
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
-          PgSearch::Configuration::Column.new(:content, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
         options = {:negation => true}
         config = double(:config, :ignore => [])
@@ -74,7 +74,7 @@ describe PgSearch::Features::TSearch do
         query = "!query"
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
-          PgSearch::Configuration::Column.new(:content, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
         options = {:negation => false}
         config = double(:config, :ignore => [])
@@ -92,7 +92,7 @@ describe PgSearch::Features::TSearch do
         query = "query"
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
-          PgSearch::Configuration::Column.new(:content, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
         options = {tsvector_column: "my_tsvector"}
         config = double(:config, :ignore => [])
@@ -110,7 +110,7 @@ describe PgSearch::Features::TSearch do
         query = "query"
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
-          PgSearch::Configuration::Column.new(:content, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
         options = {tsvector_column: ["tsvector1", "tsvector2"]}
         config = double(:config, :ignore => [])
@@ -153,7 +153,7 @@ describe PgSearch::Features::TSearch do
         query = "query"
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
-          PgSearch::Configuration::Column.new(:content, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
         options = {
           dictionary: "spanish",
