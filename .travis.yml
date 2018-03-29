@@ -1,6 +1,7 @@
 language: ruby
 sudo: false
 bundler_args: --binstubs
+before_install: gem install bundler
 
 rvm:
   - "2.5.1"
