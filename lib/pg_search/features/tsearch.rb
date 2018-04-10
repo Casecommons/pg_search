@@ -7,7 +7,7 @@ module PgSearch
   module Features
     class TSearch < Feature # rubocop:disable Metrics/ClassLength
       def self.valid_options
-        super + %i[dictionary prefix negation any_word normalization tsvector_column highlight]
+        super + %i[dictionary prefix negation any_word normalization tsvector_column ts_rank_function highlight]
       end
 
       def conditions
@@ -168,8 +168,12 @@ module PgSearch
         options[:normalization] || 0
       end
 
+      def ts_rank_function
+        options[:ts_rank_function] || "ts_rank"
+      end
+
       def tsearch_rank
-        Arel::Nodes::NamedFunction.new("ts_rank", [
+        Arel::Nodes::NamedFunction.new(ts_rank_function, [
           arel_wrap(tsdocument),
           arel_wrap(tsquery),
           normalization

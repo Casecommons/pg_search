@@ -27,6 +27,22 @@ describe PgSearch::Features::TSearch do
         %{(ts_rank((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 0))}
       )
     end
+
+    it "supports an expression using the ts_rank_cd() function" do
+      query = "query"
+      columns = [
+        PgSearch::Configuration::Column.new(:name, nil, Model),
+        PgSearch::Configuration::Column.new(:content, nil, Model)
+      ]
+      options = { ts_rank_function: 'ts_rank_cd' }
+      config = instance_double("PgSearch::Configuration", :config, ignore: [])
+      normalizer = PgSearch::Normalizer.new(config)
+
+      feature = described_class.new(query, options, columns, Model, normalizer)
+      expect(feature.rank.to_sql).to eq(
+        %{(ts_rank_cd((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 0))}
+      )
+    end
   end
 
   describe "#conditions" do
