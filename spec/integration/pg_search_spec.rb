@@ -1130,6 +1130,15 @@ describe "an Active Record model which includes PgSearch" do
         results = ModelWithPgSearch.search_title_without_accents("abcd\303\251f")
         expect(results).to eq([included])
       end
+
+      context "when the query includes accents" do
+        it "does not create an erroneous tsquery expression" do
+          included = ModelWithPgSearch.create!(:title => "Weird L‘Content")
+
+          results = ModelWithPgSearch.search_title_without_accents("L‘Content")
+          expect(results).to eq([included])
+        end
+      end
     end
 
     context "when passed a :ranked_by expression" do
