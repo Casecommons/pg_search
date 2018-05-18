@@ -93,7 +93,7 @@ module PgSearch
         end
       end
 
-      DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/
+      DISALLOWED_TSQUERY_CHARACTERS = /['?\\:‘’]/
 
       def tsquery_for_term(unsanitized_term) # rubocop:disable Metrics/AbcSize
         if options[:negation] && unsanitized_term.start_with?("!")
