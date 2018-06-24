@@ -428,7 +428,7 @@ describe "an Active Record model which includes PgSearch" do
         included = [
           ModelWithPgSearch.create!(:content => 'foo bar'),
           ModelWithPgSearch.create!(:content => 'bar foo'),
-          ModelWithPgSearch.create!(:content => 'bar foo baz'),
+          ModelWithPgSearch.create!(:content => 'bar foo baz')
         ]
         excluded = [
           ModelWithPgSearch.create!(:content => 'foo'),

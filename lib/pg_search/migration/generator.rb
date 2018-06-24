@@ -8,7 +8,7 @@ module PgSearch
 
       def self.inherited(subclass)
         super
-        subclass.source_root File.expand_path('../templates', __FILE__)
+        subclass.source_root File.expand_path('templates', __dir__)
       end
 
       def create_migration
@@ -20,7 +20,7 @@ module PgSearch
       private
 
       def read_sql_file(filename)
-        sql_directory = File.expand_path('../../../../sql', __FILE__)
+        sql_directory = File.expand_path('../../../sql', __dir__)
         source_path = File.join(sql_directory, "#{filename}.sql")
         File.read(source_path).strip
       end

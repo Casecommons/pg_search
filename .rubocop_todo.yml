@@ -138,16 +138,6 @@ Style/SymbolProc:
     - 'lib/pg_search/features/feature.rb'
     - 'lib/pg_search/multisearch/rebuilder.rb'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleForMultiline, SupportedStylesForMultiline.
-# SupportedStylesForMultiline: comma, consistent_comma, no_comma
-Style/TrailingCommaInLiteral:
-  Exclude:
-    - 'spec/integration/pg_search_spec.rb'
-    - 'spec/lib/pg_search/features/dmetaphone_spec.rb'
-    - 'spec/lib/pg_search/features/tsearch_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Style/UnneededPercentQ:

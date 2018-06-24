@@ -1,6 +1,7 @@
 inherit_from: .rubocop_todo.yml
 
 AllCops:
+  TargetRubyVersion: 2.2
   Exclude:
     - bin/**/*
 
@@ -45,3 +46,8 @@ Bundler/DuplicatedGem:
 
 Style/EmptyMethod:
   EnforcedStyle: expanded
+
+# Waiting on false positives to go away with:
+# https://github.com/bbatsov/rubocop/pull/5230
+Style/FormatStringToken:
+  Enabled: false

@@ -131,7 +131,7 @@ describe PgSearch do
 
         results = ModelWithHasMany
                   .limit(1)
-                  .order("#{ModelWithHasMany.quoted_table_name}.id ASC")
+                  .order(Arel.sql("#{ModelWithHasMany.quoted_table_name}.id ASC"))
                   .with_associated('foo bar')
 
         expect(results.map(&:title)).to match_array(included.map(&:title))

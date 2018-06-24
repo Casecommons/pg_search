@@ -13,7 +13,7 @@ describe PgSearch::Features::DMetaphone do
       query = "query"
       columns = [
         PgSearch::Configuration::Column.new(:name, nil, Model),
-        PgSearch::Configuration::Column.new(:content, nil, Model),
+        PgSearch::Configuration::Column.new(:content, nil, Model)
       ]
       options = {}
       config = double(:config, :ignore => [])
@@ -38,7 +38,7 @@ describe PgSearch::Features::DMetaphone do
       query = "query"
       columns = [
         PgSearch::Configuration::Column.new(:name, nil, Model),
-        PgSearch::Configuration::Column.new(:content, nil, Model),
+        PgSearch::Configuration::Column.new(:content, nil, Model)
       ]
       options = {}
       config = double(:config, :ignore => [])
