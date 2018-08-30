@@ -42,10 +42,12 @@ matrix:
       env: ACTIVE_RECORD_VERSION="~> 5.0.0"
 
 before_script:
+  - "psql --version"
   - "psql -c 'create database pg_search_test;' -U postgres >/dev/null"
 
 script: "bin/rake"
 
 addons:
+  postgresql: "9.6"
   code_climate:
     repo_token: 0a0e3e45118bc447e677d52c21d056a5471c4921d54f96ed7b2550d9fc5043ea
