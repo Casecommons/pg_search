@@ -4,17 +4,14 @@ bundler_args: --binstubs
 before_install: gem install bundler
 
 rvm:
-  - "2.5.1"
-  - "2.4.4"
-  - "2.3.7"
-  - "2.2.10"
-  - jruby-9.1.14.0
+  - "2.5.3"
+  - "2.4.5"
+  - "2.3.8"
+  - "jruby-9.2.0.0"
 
 env:
   - ACTIVE_RECORD_BRANCH="master"
-  - ACTIVE_RECORD_BRANCH="5-1-stable"
-  - ACTIVE_RECORD_BRANCH="5-0-stable"
-  - ACTIVE_RECORD_BRANCH="4-2-stable"
+  - ACTIVE_RECORD_BRANCH="5-2-stable"
   - ACTIVE_RECORD_VERSION="~> 5.2.0"
   - ACTIVE_RECORD_VERSION="~> 5.1.0"
   - ACTIVE_RECORD_VERSION="~> 5.0.0"
@@ -23,23 +20,12 @@ env:
 matrix:
   allow_failures:
     - env: ACTIVE_RECORD_BRANCH="master"
-    - env: ACTIVE_RECORD_BRANCH="5-1-stable"
-    - env: ACTIVE_RECORD_BRANCH="5-0-stable"
-    - env: ACTIVE_RECORD_BRANCH="4-2-stable"
-    - rvm: jruby-9.1.14.0
+    - env: ACTIVE_RECORD_BRANCH="5-2-stable"
   exclude:
-    - rvm: jruby-9.1.14.0
+    - rvm: 2.3.8
       env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: jruby-9.1.14.0
-      env: ACTIVE_RECORD_BRANCH="5-1-stable"
-    - rvm: jruby-9.1.14.0
-      env: ACTIVE_RECORD_BRANCH="5-0-stable"
-    - rvm: jruby-9.1.14.0
-      env: ACTIVE_RECORD_VERSION="~> 5.2.0"
-    - rvm: jruby-9.1.14.0
-      env: ACTIVE_RECORD_VERSION="~> 5.1.0"
-    - rvm: jruby-9.1.14.0
-      env: ACTIVE_RECORD_VERSION="~> 5.0.0"
+    - rvm: jruby-9.2.0.0
+      env: ACTIVE_RECORD_VERSION="~> 4.2.9"
 
 before_script:
   - "psql --version"
