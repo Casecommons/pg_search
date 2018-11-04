@@ -24,9 +24,10 @@ module PgSearch
     def pg_search_scope(name, options)
       options_proc = if options.respond_to?(:call)
                        options
-                     else
-                       raise ArgumentError, "pg_search_scope expects a Hash or Proc" unless options.respond_to?(:merge)
+                     elsif options.respond_to?(:merge)
                        ->(query) { {:query => query}.merge(options) }
+                     else
+                       raise ArgumentError, 'pg_search_scope expects a Hash or Proc'
                      end
 
       define_singleton_method(name) do |*args|
@@ -68,9 +69,11 @@ module PgSearch
     case symbol
     when :pg_search_rank
       raise PgSearchRankNotSelected.new unless respond_to?(:pg_search_rank)
+
       read_attribute(:pg_search_rank).to_f
     when :pg_search_highlight
       raise PgSearchHighlightNotSelected.new unless respond_to?(:pg_search_highlight)
+
       read_attribute(:pg_search_highlight)
     else
       super

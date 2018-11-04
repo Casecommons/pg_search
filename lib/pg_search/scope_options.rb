@@ -171,6 +171,7 @@ module PgSearch
 
     def include_table_aliasing_for_rank(scope)
       return scope if scope.included_modules.include?(PgSearchRankTableAliasing)
+
       scope.all.spawn.tap do |new_scope|
         new_scope.class_eval { include PgSearchRankTableAliasing }
       end

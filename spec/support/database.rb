@@ -41,6 +41,7 @@ def install_extension(name)
   connection = ActiveRecord::Base.connection
   extension = connection.execute "SELECT * FROM pg_catalog.pg_extension WHERE extname = '#{name}';"
   return unless extension.none?
+
   connection.execute "CREATE EXTENSION #{name};"
 rescue StandardError => exception
   at_exit do

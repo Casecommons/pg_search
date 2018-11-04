@@ -27,6 +27,7 @@ module PgSearch
 
     def regular_columns
       return [] unless options[:against]
+
       Array(options[:against]).map do |column_name, weight|
         Column.new(column_name, weight, model)
       end
@@ -34,6 +35,7 @@ module PgSearch
 
     def associations
       return [] unless options[:associated_against]
+
       options[:associated_against].map do |association, column_names|
         Association.new(model, association, column_names)
       end.flatten
