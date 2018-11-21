@@ -2,7 +2,8 @@
 
 [![Gem Version](https://img.shields.io/gem/v/pg_search.svg?style=flat)](https://rubygems.org/gems/pg_search)
 [![Build Status](https://secure.travis-ci.org/Casecommons/pg_search.svg?branch=master)](https://travis-ci.org/Casecommons/pg_search)
-[![Maintainability](https://api.codeclimate.com/v1/badges/ae1a7c021e473e9b2486/maintainability)](https://codeclimate.com/github/Casecommons/pg_search/maintainability)[![Test Coverage](https://codeclimate.com/github/Casecommons/pg_search/badges/coverage.svg)](https://codeclimate.com/github/Casecommons/pg_search/coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/ae1a7c021e473e9b2486/maintainability)](https://codeclimate.com/github/Casecommons/pg_search/maintainability)
+[![Test Coverage](https://codeclimate.com/github/Casecommons/pg_search/badges/coverage.svg)](https://codeclimate.com/github/Casecommons/pg_search/coverage)
 [![Inline docs](http://inch-ci.org/github/Casecommons/pg_search.svg?branch=master&style=flat)](http://inch-ci.org/github/Casecommons/pg_search)
 [![Join the chat at https://gitter.im/Casecommons/pg_search](https://img.shields.io/badge/gitter-join%20chat-blue.svg)](https://gitter.im/Casecommons/pg_search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Stories in Ready](https://img.shields.io/waffle/label/Casecommons/pg_search/in%20progress.svg)](https://waffle.io/Casecommons/pg_search)
