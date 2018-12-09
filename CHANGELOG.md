@@ -1,5 +1,12 @@
 # pg_search changelog
 
+## 2.1.3
+
+*   Remove support for unsupported Ruby 2.1
+*   Disallow left/right single quotation marks in tsquery (Fabian Schwahn) (#382)
+*   Do not attempt to save an already-destroy PgSearch::Document (Oleg Dashevskii, Vokhmin Aleksei V) (#353)
+*   Quote column name when rebuilding (Jed Levin) (#379)
+
 ## 2.1.2
 
 *   Silence warnings in Rails 5.2.0.beta2 (Kevin Deisz)
