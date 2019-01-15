@@ -5,6 +5,7 @@ else
   require "pg"
   error_classes = [PG::Error]
 end
+require 'activerecord-postgres-hstore' if ActiveRecord::VERSION::MAJOR < 4
 
 error_classes << ActiveRecord::NoDatabaseError if defined? ActiveRecord::NoDatabaseError
 
@@ -62,6 +63,7 @@ end
 install_extension_if_missing("pg_trgm", "SELECT 'abcdef' % 'cdef'", "t")
 install_extension_if_missing("unaccent", "SELECT unaccent('foo')", "foo")
 install_extension_if_missing("fuzzystrmatch", "SELECT dmetaphone('foo')", "f")
+install_extension_if_missing("hstore", "SELECT 'a=>1,a=>2'::hstore", '"a"=>"1"')
 
 def load_sql(filename)
   connection = ActiveRecord::Base.connection

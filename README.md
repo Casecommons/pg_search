@@ -327,16 +327,18 @@ end
 You can use pg_search_scope to build a search scope. The first parameter is a
 scope name, and the second parameter is an options hash. The only required
 option is :against, which tells pg_search_scope which column or columns to
-search against.
+search against. The column can be either a plain column name (`:title`) or
+a hstore column with an applied index (`"description->'en'"`).
 
 #### Searching against one column
 
-To search against a column, pass a symbol as the :against option.
+To search against a column, pass a symbol or a string as the :against option.
 
 ```ruby
 class BlogPost < ActiveRecord::Base
   include PgSearch
   pg_search_scope :search_by_title, :against => :title
+  pg_search_scope :search_by_title, :against => "description->'en'"
 end
 ```
 
