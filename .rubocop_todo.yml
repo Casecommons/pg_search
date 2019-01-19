@@ -12,15 +12,6 @@ Style/Documentation:
 
 # Offense count: 2
 # Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-# IgnoredMethods: respond_to, define_method
-Style/SymbolProc:
-  Exclude:
-    - 'lib/pg_search/features/feature.rb'
-    - 'lib/pg_search/multisearch/rebuilder.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
 Style/UnneededPercentQ:
   Exclude:
     - 'pg_search.gemspec'
