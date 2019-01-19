@@ -24,5 +24,3 @@ module PgSearch
     end
   end
 end
-
-

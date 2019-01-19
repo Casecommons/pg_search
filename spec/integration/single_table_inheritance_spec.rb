@@ -84,4 +84,3 @@ describe "a pg_search_scope on an STI subclass" do
     end
   end
 end
-
