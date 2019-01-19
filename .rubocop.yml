@@ -47,3 +47,5 @@ Bundler/DuplicatedGem:
 Style/EmptyMethod:
   EnforcedStyle: expanded
   
+Layout/IndentArray:
+  EnforcedStyle: consistent
