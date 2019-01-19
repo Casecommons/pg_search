@@ -23,7 +23,9 @@ matrix:
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="5-2-stable"
   exclude:
-    - rvm: 2.3.8
+    - rvm: "2.3.8"
+      env: ACTIVE_RECORD_BRANCH="master"
+    - rvm: "2.4.5"
       env: ACTIVE_RECORD_BRANCH="master"
     - rvm: jruby-9.2.0.0
       env: ACTIVE_RECORD_VERSION="~> 4.2.9"
