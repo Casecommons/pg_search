@@ -163,7 +163,7 @@ module PgSearch
 
     def rank
       (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
-        feature_for($1).rank.to_sql
+        feature_for(Regexp.last_match(1)).rank.to_sql
       end
     end
 
