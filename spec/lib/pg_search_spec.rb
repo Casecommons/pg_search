@@ -176,7 +176,7 @@ describe PgSearch do
           expect(PgSearch::Document.count).to be 2
 
           PgSearch::Document.clear_searchable_cache
-          classes = PgSearch::Document.all.collect {|d| d.searchable.class }
+          classes = PgSearch::Document.all.collect { |d| d.searchable.class }
           expect(classes).to include SearchableSubclassModel
           expect(classes).to include AnotherSearchableSubclassModel
         end
