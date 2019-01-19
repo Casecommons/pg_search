@@ -89,7 +89,7 @@ module PgSearch
 
     VALID_VALUES = {
       :ignoring => [:accents]
-    }
+    }.freeze
 
     def assert_valid_options(options)
       unless options[:against] || options[:associated_against]

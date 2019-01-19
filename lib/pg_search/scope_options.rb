@@ -142,7 +142,7 @@ module PgSearch
       :dmetaphone => Features::DMetaphone,
       :tsearch => Features::TSearch,
       :trigram => Features::Trigram
-    }
+    }.freeze
 
     def feature_for(feature_name) # rubocop:disable Metrics/AbcSize
       feature_name = feature_name.to_sym

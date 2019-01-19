@@ -10,13 +10,6 @@
 Style/Documentation:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/MutableConstant:
-  Exclude:
-    - 'lib/pg_search/configuration.rb'
-    - 'lib/pg_search/scope_options.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/PerlBackrefs:
