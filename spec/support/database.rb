@@ -56,7 +56,7 @@ end
 
 def install_extension_if_missing(name, query, expected_result)
   result = ActiveRecord::Base.connection.select_value(query)
-  raise "Unexpected output for #{query}: #{result.inspect}" unless result.downcase == expected_result.downcase
+  raise "Unexpected output for #{query}: #{result.inspect}" unless result.casecmp(expected_result).zero?
 rescue StandardError
   install_extension(name)
 end
