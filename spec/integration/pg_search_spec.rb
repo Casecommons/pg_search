@@ -132,7 +132,7 @@ describe "an Active Record model which includes PgSearch" do
 
         context "dynamically" do
           it "raises an exception when invoked" do
-            ModelWithPgSearch.pg_search_scope :with_unknown_ignoring, ->(*){ {} }
+            ModelWithPgSearch.pg_search_scope :with_unknown_ignoring, ->(*) { {} }
 
             expect {
               ModelWithPgSearch.with_unknown_ignoring("foo")
