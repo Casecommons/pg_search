@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 # For AR 5 and greater, the association reflection's cache needs be cleared

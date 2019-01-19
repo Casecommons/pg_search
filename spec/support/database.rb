@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 if defined? JRUBY_VERSION
   require "activerecord-jdbc-adapter"
   error_classes = [ActiveRecord::JDBCError]

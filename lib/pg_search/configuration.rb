@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pg_search/configuration/association"
 require "pg_search/configuration/column"
 require "pg_search/configuration/foreign_column"

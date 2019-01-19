@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pg_search/migration/generator'
 
 module PgSearch

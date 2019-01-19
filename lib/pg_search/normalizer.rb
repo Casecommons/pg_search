@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PgSearch
   class Normalizer
     def initialize(config)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PgSearch
   module Features
     class DMetaphone

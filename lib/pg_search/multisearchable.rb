@@ -50,7 +50,7 @@ module PgSearch
       if should_have_document
         create_or_update_pg_search_document
       else
-        pg_search_document.destroy if pg_search_document
+        pg_search_document&.destroy
       end
     end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PgSearch
   module Multisearch
     class Rebuilder
