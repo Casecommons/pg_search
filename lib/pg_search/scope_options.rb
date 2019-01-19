@@ -40,7 +40,7 @@ module PgSearch
       end
 
       def tsearch
-        raise TypeError.new("You need to instantiate this module with []")
+        raise TypeError, "You need to instantiate this module with []"
       end
 
       def with_pg_search_highlight
@@ -144,11 +144,11 @@ module PgSearch
       :trigram => Features::Trigram
     }.freeze
 
-    def feature_for(feature_name) # rubocop:disable Metrics/AbcSize
+    def feature_for(feature_name)
       feature_name = feature_name.to_sym
       feature_class = FEATURE_CLASSES[feature_name]
 
-      raise ArgumentError.new("Unknown feature: #{feature_name}") unless feature_class
+      raise ArgumentError, "Unknown feature: #{feature_name}" unless feature_class
 
       normalizer = Normalizer.new(config)
 

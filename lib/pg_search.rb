@@ -70,11 +70,11 @@ module PgSearch
   def method_missing(symbol, *args)
     case symbol
     when :pg_search_rank
-      raise PgSearchRankNotSelected.new unless respond_to?(:pg_search_rank)
+      raise PgSearchRankNotSelected unless respond_to?(:pg_search_rank)
 
       read_attribute(:pg_search_rank).to_f
     when :pg_search_highlight
-      raise PgSearchHighlightNotSelected.new unless respond_to?(:pg_search_highlight)
+      raise PgSearchHighlightNotSelected unless respond_to?(:pg_search_highlight)
 
       read_attribute(:pg_search_highlight)
     else

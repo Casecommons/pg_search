@@ -10,16 +10,6 @@
 Style/Documentation:
   Enabled: false
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: compact, exploded
-Style/RaiseArgs:
-  Exclude:
-    - 'lib/pg_search.rb'
-    - 'lib/pg_search/multisearch/rebuilder.rb'
-    - 'lib/pg_search/scope_options.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AllowMultipleReturnValues.

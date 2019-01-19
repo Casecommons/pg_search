@@ -4,7 +4,7 @@ module PgSearch
   module Multisearch
     class Rebuilder
       def initialize(model, time_source = Time.method(:now))
-        raise ModelNotMultisearchable.new(model) unless model.respond_to?(:pg_search_multisearchable_options)
+        raise ModelNotMultisearchable, model unless model.respond_to?(:pg_search_multisearchable_options)
 
         @model = model
         @time_source = time_source
