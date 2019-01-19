@@ -27,7 +27,7 @@ module PgSearch
     # workaround for https://github.com/Casecommons/pg_search/issues/14
     module DisableEagerLoading
       def eager_loading?
-        return false
+        false
       end
     end
 
