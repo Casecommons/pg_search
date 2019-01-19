@@ -344,7 +344,7 @@ describe "an Active Record model which includes PgSearch" do
         twice = ModelWithPgSearch.create!(:content => 'foo foo')
 
         records = ModelWithPgSearch.search_content('foo')
-                  .where("#{PgSearch::Configuration.alias(ModelWithPgSearch.table_name)}.rank > 0.07")
+                                   .where("#{PgSearch::Configuration.alias(ModelWithPgSearch.table_name)}.rank > 0.07")
 
         expect(records).to eq [twice]
       end
@@ -1173,8 +1173,8 @@ describe "an Active Record model which includes PgSearch" do
 
         multiplied_result =
           ModelWithPgSearch.search_content_with_importance_as_rank_multiplier("foo")
-            .with_pg_search_rank
-            .first
+                           .with_pg_search_rank
+                           .first
 
         multiplied_rank = multiplied_result.pg_search_rank
 
