@@ -21,7 +21,7 @@ describe PgSearch do
           include PgSearch
           belongs_to :another_model, :class_name => 'AssociatedModel'
 
-          pg_search_scope :with_another, :associated_against => {:another_model => :title}
+          pg_search_scope :with_another, :associated_against => { :another_model => :title }
         end
       end
 
@@ -58,7 +58,7 @@ describe PgSearch do
           include PgSearch
           belongs_to :another_model, :class_name => 'AssociatedModel'
 
-          pg_search_scope :with_associated, :against => :title, :associated_against => {:another_model => :title}
+          pg_search_scope :with_associated, :against => :title, :associated_against => { :another_model => :title }
         end
       end
 
@@ -94,7 +94,7 @@ describe PgSearch do
           include PgSearch
           has_many :other_models, :class_name => 'AssociatedModelWithHasMany', :foreign_key => 'ModelWithHasMany_id'
 
-          pg_search_scope :with_associated, :against => [:title], :associated_against => {:other_models => :title}
+          pg_search_scope :with_associated, :against => [:title], :associated_against => { :other_models => :title }
         end
       end
 
@@ -174,7 +174,7 @@ describe PgSearch do
 
             pg_search_scope :with_associated,
               :against => :title,
-              :associated_against => {:models_of_first_type => :title, :model_of_second_type => :title}
+              :associated_against => { :models_of_first_type => :title, :model_of_second_type => :title }
           end
         end
 
@@ -233,7 +233,7 @@ describe PgSearch do
               :foreign_key => 'ModelWithDoubleAssociation_again_id'
 
             pg_search_scope :with_associated, :against => :title,
-                                              :associated_against => {:things => :title, :thingamabobs => :title}
+                                              :associated_against => { :things => :title, :thingamabobs => :title }
           end
         end
 
@@ -285,7 +285,7 @@ describe PgSearch do
           include PgSearch
           belongs_to :another_model, :class_name => 'AssociatedModel'
 
-          pg_search_scope :with_associated, :associated_against => {:another_model => %i[title author]}
+          pg_search_scope :with_associated, :associated_against => { :another_model => %i[title author] }
         end
       end
 
@@ -338,7 +338,7 @@ describe PgSearch do
           include PgSearch
           belongs_to :another_model, class_name: 'AssociatedModel'
 
-          pg_search_scope :with_associated, associated_against: {another_model: :number}
+          pg_search_scope :with_associated, associated_against: { another_model: :number }
         end
       end
 

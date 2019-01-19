@@ -27,7 +27,7 @@ module PgSearch
       options_proc = if options.respond_to?(:call)
                        options
                      elsif options.respond_to?(:merge)
-                       ->(query) { {:query => query}.merge(options) }
+                       ->(query) { { :query => query }.merge(options) }
                      else
                        raise ArgumentError, 'pg_search_scope expects a Hash or Proc'
                      end

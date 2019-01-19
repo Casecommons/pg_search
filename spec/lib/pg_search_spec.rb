@@ -63,9 +63,9 @@ describe PgSearch do
         allow(PgSearch).to receive(:multisearch_options) do
           lambda do |query, soundalike|
             if soundalike
-              {:using => :dmetaphone, :query => query}
+              { :using => :dmetaphone, :query => query }
             else
-              {:query => query}
+              { :query => query }
             end
           end
         end

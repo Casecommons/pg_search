@@ -67,7 +67,7 @@ describe "an Active Record model which includes PgSearch" do
       context "dynamically" do
         it "raises an exception when invoked" do
           ModelWithPgSearch.pg_search_scope :with_unknown_option,
-            ->(*) { {:against => :content, :foo => :bar} }
+            ->(*) { { :against => :content, :foo => :bar } }
 
           expect {
             ModelWithPgSearch.with_unknown_option("foo")
@@ -90,7 +90,7 @@ describe "an Active Record model which includes PgSearch" do
       context "dynamically" do
         it "raises an exception when invoked" do
           ModelWithPgSearch.pg_search_scope :with_unknown_using,
-            ->(*) { {:against => :content, :using => :foo} }
+            ->(*) { { :against => :content, :using => :foo } }
 
           expect {
             ModelWithPgSearch.with_unknown_using("foo")
@@ -113,7 +113,7 @@ describe "an Active Record model which includes PgSearch" do
       context "dynamically" do
         it "raises an exception when invoked" do
           ModelWithPgSearch.pg_search_scope :with_unknown_ignoring,
-            ->(*) { {:against => :content, :ignoring => :foo} }
+            ->(*) { { :against => :content, :ignoring => :foo } }
 
           expect {
             ModelWithPgSearch.with_unknown_ignoring("foo")
@@ -224,7 +224,7 @@ describe "an Active Record model which includes PgSearch" do
             has_many :houses
             pg_search_scope :named, against: [:name]
             scope :with_house_in_city, lambda { |city|
-              joins(:houses).where(House.table_name.to_sym => {city: city})
+              joins(:houses).where(House.table_name.to_sym => { city: city })
             }
             scope :house_search_city, lambda { |query|
               joins(:houses).merge(House.search_city(query))
@@ -539,8 +539,8 @@ describe "an Active Record model which includes PgSearch" do
 
       context "when a threshold is specified" do
         before do
-          ModelWithPgSearch.pg_search_scope :with_strict_trigrams, :against => %i[title content], :using => {trigram: {threshold: 0.5}}
-          ModelWithPgSearch.pg_search_scope :with_permissive_trigrams, :against => %i[title content], :using => {trigram: {threshold: 0.1}}
+          ModelWithPgSearch.pg_search_scope :with_strict_trigrams, :against => %i[title content], :using => { trigram: { threshold: 0.5 } }
+          ModelWithPgSearch.pg_search_scope :with_permissive_trigrams, :against => %i[title content], :using => { trigram: { threshold: 0.1 } }
         end
 
         it "uses the threshold in the trigram expression" do
@@ -567,7 +567,7 @@ describe "an Active Record model which includes PgSearch" do
         ModelWithPgSearch.pg_search_scope :search_title_with_prefixes,
           :against => :title,
           :using => {
-            :tsearch => {:prefix => true}
+            :tsearch => { :prefix => true }
           }
       end
 
@@ -596,7 +596,7 @@ describe "an Active Record model which includes PgSearch" do
           ModelWithPgSearch.pg_search_scope :search_content_with_english,
             :against => :content,
             :using => {
-              :tsearch => {:dictionary => :english}
+              :tsearch => { :dictionary => :english }
             }
         end
 
@@ -684,7 +684,7 @@ describe "an Active Record model which includes PgSearch" do
             ModelWithPgSearch.pg_search_scope :search_content_with_normalization,
               :against => :content,
               :using => {
-                :tsearch => {:normalization => 2}
+                :tsearch => { :normalization => 2 }
               }
           end
 
@@ -731,7 +731,7 @@ describe "an Active Record model which includes PgSearch" do
       context "against columns ranked with a hash" do
         before do
           ModelWithPgSearch.pg_search_scope :search_weighted_by_hash,
-            :against => {:content => 'B', :title => 'A'}
+            :against => { :content => 'B', :title => 'A' }
         end
 
         it "returns results sorted by weighted rank" do
@@ -765,7 +765,7 @@ describe "an Active Record model which includes PgSearch" do
           ModelWithPgSearch.pg_search_scope :search_title_with_any_word,
             :against => :title,
             :using => {
-              :tsearch => {:any_word => true}
+              :tsearch => { :any_word => true }
             }
 
           ModelWithPgSearch.pg_search_scope :search_title_with_all_words,
@@ -790,7 +790,7 @@ describe "an Active Record model which includes PgSearch" do
           ModelWithPgSearch.pg_search_scope :search_with_negation,
             :against => :title,
             :using => {
-              :tsearch => {:negation => true}
+              :tsearch => { :negation => true }
             }
         end
 
@@ -882,7 +882,7 @@ describe "an Active Record model which includes PgSearch" do
         ModelWithPgSearch.pg_search_scope :with_tsearch,
           :against => :title,
           :using => [
-            [:tsearch, {:dictionary => 'english'}]
+            [:tsearch, { :dictionary => 'english' }]
           ]
 
         ModelWithPgSearch.pg_search_scope :with_trigram,
@@ -897,7 +897,7 @@ describe "an Active Record model which includes PgSearch" do
         ModelWithPgSearch.pg_search_scope :with_tsearch_and_trigram,
           :against => :title,
           :using => [
-            [:tsearch, {:dictionary => 'english'}],
+            [:tsearch, { :dictionary => 'english' }],
             :trigram
           ]
 
@@ -905,7 +905,7 @@ describe "an Active Record model which includes PgSearch" do
           :against => %i[content title],
           :ignoring => :accents,
           :using => {
-            :tsearch => {:dictionary => 'english'},
+            :tsearch => { :dictionary => 'english' },
             :dmetaphone => {},
             :trigram => {}
           }
@@ -951,8 +951,8 @@ describe "an Active Record model which includes PgSearch" do
 
       context "with feature-specific configuration" do
         before do
-          @tsearch_config = tsearch_config = {:dictionary => 'english'}
-          @trigram_config = trigram_config = {:foo => 'bar'}
+          @tsearch_config = tsearch_config = { :dictionary => 'english' }
+          @trigram_config = trigram_config = { :foo => 'bar' }
 
           ModelWithPgSearch.pg_search_scope :with_tsearch_and_trigram_using_hash,
             :against => :title,
@@ -1013,7 +1013,7 @@ describe "an Active Record model which includes PgSearch" do
         unexpected.comments.create(body: 'commentwo')
 
         Post.pg_search_scope :search_by_content_with_tsvector,
-          :associated_against => {comments: [:body]},
+          :associated_against => { comments: [:body] },
           :using => {
             :tsearch => {
               :tsvector_column => 'content_tsvector',
@@ -1282,8 +1282,8 @@ describe "an Active Record model which includes PgSearch" do
         ModelWithPgSearch.pg_search_scope :search_content_ranked_by_dmetaphone,
           :against => :content,
           :using => {
-            :tsearch => {:any_word => true, :prefix => true},
-            :dmetaphone => {:any_word => true, :prefix => true, :sort_only => true}
+            :tsearch => { :any_word => true, :prefix => true },
+            :dmetaphone => { :any_word => true, :prefix => true, :sort_only => true }
           },
           :ranked_by => ":tsearch + (0.5 * :dmetaphone)"
 

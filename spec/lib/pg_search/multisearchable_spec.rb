@@ -145,7 +145,7 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against a single column" do
-        let(:multisearchable_options) { {:against => :some_content} }
+        let(:multisearchable_options) { { :against => :some_content } }
         let(:text) { "foo bar" }
         before do
           allow(record).to receive(:some_content) { text }
@@ -159,7 +159,7 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against multiple columns" do
-        let(:multisearchable_options) { {:against => %i[attr1 attr2]} }
+        let(:multisearchable_options) { { :against => %i[attr1 attr2] } }
         before do
           allow(record).to receive(:attr1) { '1' }
           allow(record).to receive(:attr2) { '2' }
@@ -182,7 +182,7 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against a single column" do
-        let(:multisearchable_options) { {:against => :some_content} }
+        let(:multisearchable_options) { { :against => :some_content } }
         let(:text) { "foo bar" }
         before do
           allow(record).to receive(:some_content) { text }
@@ -196,7 +196,7 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against multiple columns" do
-        let(:multisearchable_options) { {:against => %i[attr1 attr2]} }
+        let(:multisearchable_options) { { :against => %i[attr1 attr2] } }
         before do
           allow(record).to receive(:attr1) { '1' }
           allow(record).to receive(:attr2) { '2' }

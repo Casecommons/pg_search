@@ -6,24 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 94
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces.
-# SupportedStyles: space, no_space, compact
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceInsideHashLiteralBraces:
-  Exclude:
-    - 'lib/pg_search.rb'
-    - 'lib/pg_search/configuration.rb'
-    - 'lib/pg_search/document.rb'
-    - 'spec/integration/associations_spec.rb'
-    - 'spec/integration/pg_search_spec.rb'
-    - 'spec/lib/pg_search/configuration/association_spec.rb'
-    - 'spec/lib/pg_search/configuration/foreign_column_spec.rb'
-    - 'spec/lib/pg_search/features/tsearch_spec.rb'
-    - 'spec/lib/pg_search/multisearchable_spec.rb'
-    - 'spec/lib/pg_search_spec.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
