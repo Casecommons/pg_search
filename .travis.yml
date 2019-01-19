@@ -4,6 +4,7 @@ bundler_args: --binstubs
 before_install: gem install bundler
 
 rvm:
+  - "2.6.0"
   - "2.5.3"
   - "2.4.5"
   - "2.3.8"
