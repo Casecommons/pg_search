@@ -17,7 +17,7 @@ Read the blog post introducing PgSearch at https://content.pivotal.io/blog/pg-se
 
 ## REQUIREMENTS
 
-*   Ruby 2.2+
+*   Ruby 2.3+
 *   ActiveRecord 4.2+
 *   PostgreSQL 9.2+
 *   [PostgreSQL extensions](https://github.com/Casecommons/pg_search/wiki/Installing-PostgreSQL-Extensions) for certain features
