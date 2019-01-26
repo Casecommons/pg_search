@@ -1,8 +1,14 @@
 # pg_search changelog
 
+## 2.1.4
+
+* Drop support for Ruby < 2.3
+* Use update instead of deprecated update_attributes
+* Remove explicit arel dependency to better support Active Record 6 beta
+
 ## 2.1.3
 
-* Remove support for unsupported Ruby 2.1
+* Drop support for Ruby < 2.2
 * Disallow left/right single quotation marks in tsquery (Fabian Schwahn) (#382)
 * Do not attempt to save an already-destroy PgSearch::Document (Oleg Dashevskii, Vokhmin Aleksei V) (#353)
 * Quote column name when rebuilding (Jed Levin) (#379)
