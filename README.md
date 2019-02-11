@@ -940,13 +940,6 @@ To use this functionality you'll need to do a few things:
                       trigram: {} # trigram does not use tsvectors
                     }
     ```
-*   You cannot dump a `tsvector` column to `schema.rb`. Instead, you need to switch to using the native PostgreSQL SQL format schema dump.
-    In your `config/application.rb` you should set
-
-        config.active_record.schema_format = :sql
-        
-    Read more about it here: http://guides.rubyonrails.org/migrations.html#types-of-schema-dumps
-
 
 Please note that the :against column is only used when the tsvector_column is
 not present for the search type.
