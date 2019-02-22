@@ -167,7 +167,7 @@ PgSearch.multisearch("timestamp") # => Includes problematic_record
 
 You can specify an `:update_if` parameter to conditionally update pg_search documents. For example:
 
-```
+```ruby
 multisearchable(
     against: [:body],
     update_if: :body_changed?
@@ -180,7 +180,7 @@ You can specify `:additional_attributes` to be saved within the pg_search_docume
 
 First, we need to add `author_id` to the migration creating our pg_search_documents table.
 
-```
+```ruby
   create_table :pg_search_documents do |t|
         t.text :content
         t.integer :author_id
@@ -189,7 +189,7 @@ First, we need to add `author_id` to the migration creating our pg_search_docume
 
 Then, we can send in this additional attribute in a lambda
 
-```
+```ruby
   multisearchable(
     against: [:title, :body],
     additional_attributes: -> (article) { { author_id: article.author_id } }
