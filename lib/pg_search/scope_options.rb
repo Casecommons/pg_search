@@ -69,7 +69,7 @@ module PgSearch
       def pg_search_rank_table_alias(include_counter = false)
         components = [arel_table.name]
         if include_counter
-          count = pg_search_scope_application_count_plus_plus
+          count = increment_counter
           components << count if count > 0
         end
 
@@ -78,16 +78,10 @@ module PgSearch
 
       private
 
-      attr_writer :pg_search_scope_application_count
-
-      def pg_search_scope_application_count
-        @pg_search_scope_application_count ||= 0
-      end
-
-      def pg_search_scope_application_count_plus_plus
-        count = pg_search_scope_application_count
-        self.pg_search_scope_application_count = pg_search_scope_application_count + 1
-        count
+      def increment_counter
+        @counter ||= 0
+      ensure
+        @counter += 1
       end
     end
 
