@@ -101,19 +101,10 @@ module PgSearch
     end
 
     def conditions
-      conditions = config.features.reject do |_feature_name, feature_options|
-        feature_options && feature_options[:sort_only]
-      end
-
-      conditions.map! do |feature_name, _feature_options|
-        feature_for(feature_name).conditions
-      end
-
-      conditions = conditions.inject do |accumulator, expression|
-        Arel::Nodes::Or.new(accumulator, expression)
-      end
-
-      conditions.to_sql
+      config.features
+            .reject { |_feature_name, feature_options| feature_options && feature_options[:sort_only] }
+            .map { |feature_name, _feature_options| feature_for(feature_name).conditions }
+            .inject { |accumulator, expression| Arel::Nodes::Or.new(accumulator, expression) }
     end
 
     def order_within_rank
