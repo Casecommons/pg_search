@@ -1,27 +1,22 @@
 # frozen_string_literal: true
 
-if defined? JRUBY_VERSION
+case RUBY_PLATFORM
+when "java"
   require "activerecord-jdbc-adapter"
-  error_classes = [ActiveRecord::JDBCError, ActiveRecord::NoDatabaseError]
+  ERROR_CLASS = ActiveRecord::JDBCError
 else
   require "pg"
-  error_classes = [PG::Error, ActiveRecord::NoDatabaseError]
+  ERROR_CLASS = PG::Error
 end
 
 begin
-  database_user = if ENV["TRAVIS"]
-                    "postgres"
-                  else
-                    ENV["USER"]
-                  end
-
   ActiveRecord::Base.establish_connection(adapter: 'postgresql',
                                           database: 'pg_search_test',
-                                          username: database_user,
+                                          username: (ENV["TRAVIS"] ? "postgres" : ENV["USER"]),
                                           min_messages: 'warning')
   connection = ActiveRecord::Base.connection
   connection.execute("SELECT 1")
-rescue *error_classes => exception
+rescue ERROR_CLASS, ActiveRecord::NoDatabaseError => exception
   at_exit do
     puts "-" * 80
     puts "Unable to connect to database.  Please run:"
