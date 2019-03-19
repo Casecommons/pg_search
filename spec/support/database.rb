@@ -2,13 +2,11 @@
 
 if defined? JRUBY_VERSION
   require "activerecord-jdbc-adapter"
-  error_classes = [ActiveRecord::JDBCError]
+  error_classes = [ActiveRecord::JDBCError, ActiveRecord::NoDatabaseError]
 else
   require "pg"
-  error_classes = [PG::Error]
+  error_classes = [PG::Error, ActiveRecord::NoDatabaseError]
 end
-
-error_classes << ActiveRecord::NoDatabaseError if defined? ActiveRecord::NoDatabaseError
 
 begin
   database_user = if ENV["TRAVIS"]
