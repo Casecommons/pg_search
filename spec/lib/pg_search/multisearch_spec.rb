@@ -22,7 +22,7 @@ describe PgSearch::Multisearch do
 
   describe ".rebuild" do
     before do
-      model.multisearchable :against => :title
+      model.multisearchable against: :title
     end
 
     it "should operate inside a transaction" do
@@ -98,8 +98,8 @@ describe PgSearch::Multisearch do
     describe "inserting the new documents" do
       let!(:new_models) { [] }
       before do
-        new_models << model.create!(:title => "Foo", :content => "Bar")
-        new_models << model.create!(:title => "Baz", :content => "Bar")
+        new_models << model.create!(title: "Foo", content: "Bar")
+        new_models << model.create!(title: "Baz", content: "Bar")
       end
 
       it "should create new documents for the two models" do
@@ -114,7 +114,7 @@ describe PgSearch::Multisearch do
 
       context "with one attribute" do
         before do
-          model.multisearchable :against => [:title]
+          model.multisearchable against: [:title]
         end
 
         it "should generate the proper SQL code" do
@@ -141,7 +141,7 @@ describe PgSearch::Multisearch do
 
       context "with multiple attributes" do
         before do
-          model.multisearchable :against => %i[title content]
+          model.multisearchable against: %i[title content]
         end
 
         it "should generate the proper SQL code" do

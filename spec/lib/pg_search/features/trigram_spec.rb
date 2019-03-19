@@ -14,7 +14,7 @@ describe PgSearch::Features::Trigram do
     ]
   }
   let(:normalizer) { PgSearch::Normalizer.new(config) }
-  let(:config) { OpenStruct.new(:ignore => []) }
+  let(:config) { OpenStruct.new(ignore: []) }
 
   let(:coalesced_columns) do
     <<-SQL.strip_heredoc.chomp

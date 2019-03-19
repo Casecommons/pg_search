@@ -87,7 +87,7 @@ module PgSearch
 
     private
 
-    delegate :connection, :quoted_table_name, :to => :model
+    delegate :connection, :quoted_table_name, to: :model
 
     def subquery
       model
@@ -124,9 +124,9 @@ module PgSearch
     end
 
     FEATURE_CLASSES = {
-      :dmetaphone => Features::DMetaphone,
-      :tsearch => Features::TSearch,
-      :trigram => Features::Trigram
+      dmetaphone: Features::DMetaphone,
+      tsearch: Features::TSearch,
+      trigram: Features::Trigram
     }.freeze
 
     def feature_for(feature_name)

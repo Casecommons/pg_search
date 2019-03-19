@@ -80,7 +80,7 @@ module PgSearch
     attr_reader :options
 
     def default_options
-      { :using => :tsearch }
+      { using: :tsearch }
     end
 
     VALID_KEYS = %w[
@@ -88,7 +88,7 @@ module PgSearch
     ].map(&:to_sym)
 
     VALID_VALUES = {
-      :ignoring => [:accents]
+      ignoring: [:accents]
     }.freeze
 
     def assert_valid_options(options)

@@ -12,7 +12,7 @@ describe "a pg_search_scope on an STI subclass" do
 
       model do
         include PgSearch
-        pg_search_scope :search_content, :against => :content
+        pg_search_scope :search_content, against: :content
       end
     end
 
@@ -23,14 +23,14 @@ describe "a pg_search_scope on an STI subclass" do
 
     it "returns only results for that subclass" do
       included = [
-        SearchableSubclassModel.create!(:content => "foo bar")
+        SearchableSubclassModel.create!(content: "foo bar")
       ]
       excluded = [
-        SearchableSubclassModel.create!(:content => "baz"),
-        SuperclassModel.create!(:content => "foo bar"),
-        SuperclassModel.create!(:content => "baz"),
-        AnotherSearchableSubclassModel.create!(:content => "foo bar"),
-        AnotherSearchableSubclassModel.create!(:content => "baz")
+        SearchableSubclassModel.create!(content: "baz"),
+        SuperclassModel.create!(content: "foo bar"),
+        SuperclassModel.create!(content: "baz"),
+        AnotherSearchableSubclassModel.create!(content: "foo bar"),
+        AnotherSearchableSubclassModel.create!(content: "baz")
       ]
 
       expect(SuperclassModel.count).to eq(6)
@@ -53,7 +53,7 @@ describe "a pg_search_scope on an STI subclass" do
       model do
         include PgSearch
         self.inheritance_column = 'custom_type'
-        pg_search_scope :search_content, :against => :content
+        pg_search_scope :search_content, against: :content
       end
     end
 
@@ -64,14 +64,14 @@ describe "a pg_search_scope on an STI subclass" do
 
     it "returns only results for that subclass" do
       included = [
-        SearchableSubclassModel.create!(:content => "foo bar")
+        SearchableSubclassModel.create!(content: "foo bar")
       ]
       excluded = [
-        SearchableSubclassModel.create!(:content => "baz"),
-        SuperclassModel.create!(:content => "foo bar"),
-        SuperclassModel.create!(:content => "baz"),
-        AnotherSearchableSubclassModel.create!(:content => "foo bar"),
-        AnotherSearchableSubclassModel.create!(:content => "baz")
+        SearchableSubclassModel.create!(content: "baz"),
+        SuperclassModel.create!(content: "foo bar"),
+        SuperclassModel.create!(content: "baz"),
+        AnotherSearchableSubclassModel.create!(content: "foo bar"),
+        AnotherSearchableSubclassModel.create!(content: "baz")
       ]
 
       expect(SuperclassModel.count).to eq(6)

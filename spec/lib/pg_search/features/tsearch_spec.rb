@@ -19,7 +19,7 @@ describe PgSearch::Features::TSearch do
         PgSearch::Configuration::Column.new(:content, nil, Model)
       ]
       options = {}
-      config = double(:config, :ignore => [])
+      config = double(:config, ignore: [])
       normalizer = PgSearch::Normalizer.new(config)
 
       feature = described_class.new(query, options, columns, Model, normalizer)
@@ -44,7 +44,7 @@ describe PgSearch::Features::TSearch do
         PgSearch::Configuration::Column.new(:content, nil, Model)
       ]
       options = {}
-      config = double(:config, :ignore => [])
+      config = double(:config, ignore: [])
       normalizer = PgSearch::Normalizer.new(config)
 
       feature = described_class.new(query, options, columns, Model, normalizer)
@@ -60,8 +60,8 @@ describe PgSearch::Features::TSearch do
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
-        options = { :negation => true }
-        config = double(:config, :ignore => [])
+        options = { negation: true }
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
@@ -78,8 +78,8 @@ describe PgSearch::Features::TSearch do
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
-        options = { :negation => false }
-        config = double(:config, :ignore => [])
+        options = { negation: false }
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
@@ -97,7 +97,7 @@ describe PgSearch::Features::TSearch do
           PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
         options = { tsvector_column: "my_tsvector" }
-        config = double(:config, :ignore => [])
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
@@ -115,7 +115,7 @@ describe PgSearch::Features::TSearch do
           PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
         options = { tsvector_column: ["tsvector1", "tsvector2"] }
-        config = double(:config, :ignore => [])
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
@@ -141,7 +141,7 @@ describe PgSearch::Features::TSearch do
       ]
       options = {}
 
-      config = double(:config, :ignore => [])
+      config = double(:config, ignore: [])
       normalizer = PgSearch::Normalizer.new(config)
 
       feature = described_class.new(query, options, columns, Model, normalizer)
@@ -165,7 +165,7 @@ describe PgSearch::Features::TSearch do
           }
         }
 
-        config = double(:config, :ignore => [])
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
@@ -195,7 +195,7 @@ describe PgSearch::Features::TSearch do
           }
         }
 
-        config = double(:config, :ignore => [])
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)
@@ -223,7 +223,7 @@ describe PgSearch::Features::TSearch do
           }
         }
 
-        config = double(:config, :ignore => [])
+        config = double(:config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
         feature = described_class.new(query, options, columns, Model, normalizer)

@@ -20,9 +20,6 @@ Metrics/BlockLength:
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 
-Style/HashSyntax:
-  Enabled: false
-
 Style/NumericPredicate:
   Enabled: false
 

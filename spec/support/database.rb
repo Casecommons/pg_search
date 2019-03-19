@@ -17,10 +17,10 @@ begin
                     ENV["USER"]
                   end
 
-  ActiveRecord::Base.establish_connection(:adapter => 'postgresql',
-                                          :database => 'pg_search_test',
-                                          :username => database_user,
-                                          :min_messages => 'warning')
+  ActiveRecord::Base.establish_connection(adapter: 'postgresql',
+                                          database: 'pg_search_test',
+                                          username: database_user,
+                                          min_messages: 'warning')
   connection = ActiveRecord::Base.connection
   connection.execute("SELECT 1")
 rescue *error_classes => exception

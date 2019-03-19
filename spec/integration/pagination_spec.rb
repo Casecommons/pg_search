@@ -11,7 +11,7 @@ describe "pagination" do
 
       model do
         include PgSearch
-        pg_search_scope :search_name, :against => :name
+        pg_search_scope :search_name, against: :name
 
         def self.page(page_number)
           offset = (page_number - 1) * 2
@@ -21,18 +21,18 @@ describe "pagination" do
     end
 
     it "is chainable before a search scope" do
-      better = PaginatedModel.create!(:name => "foo foo bar")
-      best = PaginatedModel.create!(:name => "foo foo foo")
-      good = PaginatedModel.create!(:name => "foo bar bar")
+      better = PaginatedModel.create!(name: "foo foo bar")
+      best = PaginatedModel.create!(name: "foo foo foo")
+      good = PaginatedModel.create!(name: "foo bar bar")
 
       expect(PaginatedModel.page(1).search_name("foo")).to eq([best, better])
       expect(PaginatedModel.page(2).search_name("foo")).to eq([good])
     end
 
     it "is chainable after a search scope" do
-      better = PaginatedModel.create!(:name => "foo foo bar")
-      best = PaginatedModel.create!(:name => "foo foo foo")
-      good = PaginatedModel.create!(:name => "foo bar bar")
+      better = PaginatedModel.create!(name: "foo foo bar")
+      best = PaginatedModel.create!(name: "foo foo foo")
+      good = PaginatedModel.create!(name: "foo bar bar")
 
       expect(PaginatedModel.search_name("foo").page(1)).to eq([best, better])
       expect(PaginatedModel.search_name("foo").page(2)).to eq([good])

@@ -32,7 +32,7 @@ describe PgSearch do
     end
 
     context "with PgSearch.multisearch_options set to a Hash" do
-      before { allow(PgSearch).to receive(:multisearch_options).and_return(:using => :dmetaphone) }
+      before { allow(PgSearch).to receive(:multisearch_options).and_return(using: :dmetaphone) }
       subject do
         PgSearch::Document.clear_searchable_cache
         PgSearch.multisearch(query).map(&:searchable)
@@ -44,11 +44,11 @@ describe PgSearch do
         end
         model do
           include PgSearch
-          multisearchable :against => :title
+          multisearchable against: :title
         end
       end
 
-      let!(:soundalike_record) { MultisearchableModel.create!(:title => 'foning') }
+      let!(:soundalike_record) { MultisearchableModel.create!(title: 'foning') }
       let(:query) { "Phoning" }
       it { is_expected.to include(soundalike_record) }
     end
@@ -63,9 +63,9 @@ describe PgSearch do
         allow(PgSearch).to receive(:multisearch_options) do
           lambda do |query, soundalike|
             if soundalike
-              { :using => :dmetaphone, :query => query }
+              { using: :dmetaphone, query: query }
             else
-              { :query => query }
+              { query: query }
             end
           end
         end
@@ -77,11 +77,11 @@ describe PgSearch do
         end
         model do
           include PgSearch
-          multisearchable :against => :title
+          multisearchable against: :title
         end
       end
 
-      let!(:soundalike_record) { MultisearchableModel.create!(:title => 'foning') }
+      let!(:soundalike_record) { MultisearchableModel.create!(title: 'foning') }
       let(:query) { "Phoning" }
 
       context "with soundalike true" do
@@ -107,7 +107,7 @@ describe PgSearch do
         before do
           searchable_subclass_model = Class.new(SuperclassModel) do
             include PgSearch
-            multisearchable :against => :content
+            multisearchable against: :content
           end
           stub_const("SearchableSubclassModel", searchable_subclass_model)
           stub_const("AnotherSearchableSubclassModel", searchable_subclass_model)
@@ -115,13 +115,13 @@ describe PgSearch do
         end
 
         it "returns only results for that subclass" do
-          included = SearchableSubclassModel.create!(:content => "foo bar")
+          included = SearchableSubclassModel.create!(content: "foo bar")
 
-          SearchableSubclassModel.create!(:content => "baz")
-          SuperclassModel.create!(:content => "foo bar")
-          SuperclassModel.create!(:content => "baz")
-          NonSearchableSubclassModel.create!(:content => "foo bar")
-          NonSearchableSubclassModel.create!(:content => "baz")
+          SearchableSubclassModel.create!(content: "baz")
+          SuperclassModel.create!(content: "foo bar")
+          SuperclassModel.create!(content: "baz")
+          NonSearchableSubclassModel.create!(content: "foo bar")
+          NonSearchableSubclassModel.create!(content: "baz")
 
           expect(SuperclassModel.count).to be 6
           expect(SearchableSubclassModel.count).to be 2
@@ -134,7 +134,7 @@ describe PgSearch do
         end
 
         it "updates an existing STI model does not create a new pg_search document" do
-          model = SearchableSubclassModel.create!(:content => "foo bar")
+          model = SearchableSubclassModel.create!(content: "foo bar")
           expect(SearchableSubclassModel.count).to eq(1)
           # We fetch the model from the database again otherwise
           # the pg_search_document from the cache is used.
@@ -146,12 +146,12 @@ describe PgSearch do
         end
 
         it "reindexing works" do
-          NonSearchableSubclassModel.create!(:content => "foo bar")
-          NonSearchableSubclassModel.create!(:content => "baz")
-          expected = SearchableSubclassModel.create!(:content => "baz")
-          SuperclassModel.create!(:content => "foo bar")
-          SuperclassModel.create!(:content => "baz")
-          SuperclassModel.create!(:content => "baz2")
+          NonSearchableSubclassModel.create!(content: "foo bar")
+          NonSearchableSubclassModel.create!(content: "baz")
+          expected = SearchableSubclassModel.create!(content: "baz")
+          SuperclassModel.create!(content: "foo bar")
+          SuperclassModel.create!(content: "baz")
+          SuperclassModel.create!(content: "baz2")
 
           expect(SuperclassModel.count).to be 6
           expect(NonSearchableSubclassModel.count).to be 2
@@ -168,8 +168,8 @@ describe PgSearch do
         end
 
         it "reindexing searchable STI doesn't clobber other related STI models" do
-          SearchableSubclassModel.create!(:content => "baz")
-          AnotherSearchableSubclassModel.create!(:content => "baz")
+          SearchableSubclassModel.create!(content: "baz")
+          AnotherSearchableSubclassModel.create!(content: "baz")
 
           expect(PgSearch::Document.count).to be 2
           PgSearch::Multisearch.rebuild(SearchableSubclassModel)
@@ -197,7 +197,7 @@ describe PgSearch do
         before do
           searchable_subclass_model = Class.new(SuperclassModel) do
             include PgSearch
-            multisearchable :against => :content
+            multisearchable against: :content
           end
           stub_const("SearchableSubclassModel", searchable_subclass_model)
           stub_const("AnotherSearchableSubclassModel", searchable_subclass_model)
@@ -205,13 +205,13 @@ describe PgSearch do
         end
 
         it "returns only results for that subclass" do
-          included = SearchableSubclassModel.create!(:content => "foo bar")
+          included = SearchableSubclassModel.create!(content: "foo bar")
 
-          SearchableSubclassModel.create!(:content => "baz")
-          SuperclassModel.create!(:content => "foo bar")
-          SuperclassModel.create!(:content => "baz")
-          NonSearchableSubclassModel.create!(:content => "foo bar")
-          NonSearchableSubclassModel.create!(:content => "baz")
+          SearchableSubclassModel.create!(content: "baz")
+          SuperclassModel.create!(content: "foo bar")
+          SuperclassModel.create!(content: "baz")
+          NonSearchableSubclassModel.create!(content: "foo bar")
+          NonSearchableSubclassModel.create!(content: "baz")
 
           expect(SuperclassModel.count).to be 6
           expect(SearchableSubclassModel.count).to be 2

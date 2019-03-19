@@ -5,7 +5,7 @@ module PgSearch
     class DMetaphone
       def initialize(query, options, columns, model, normalizer)
         dmetaphone_normalizer = Normalizer.new(normalizer)
-        options = (options || {}).merge(:dictionary => 'simple')
+        options = (options || {}).merge(dictionary: 'simple')
         @tsearch = TSearch.new(query, options, columns, model, dmetaphone_normalizer)
       end
 

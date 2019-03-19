@@ -11,4 +11,4 @@ RuboCop::RakeTask.new do |t|
   t.options = %w[--display-cop-names]
 end
 
-task :default => %w[spec rubocop]
+task default: %w[spec rubocop]

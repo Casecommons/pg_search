@@ -18,11 +18,11 @@ describe PgSearch::Configuration::Association do
 
     model do
       include PgSearch
-      has_one :avatar, :class_name => "Avatar"
+      has_one :avatar, class_name: "Avatar"
       belongs_to :site
 
-      pg_search_scope :with_avatar, :associated_against => { :avatar => :url }
-      pg_search_scope :with_site, :associated_against => { :site => :title }
+      pg_search_scope :with_avatar, associated_against: { avatar: :url }
+      pg_search_scope :with_site, associated_against: { site: :title }
     end
   end
 
@@ -33,9 +33,9 @@ describe PgSearch::Configuration::Association do
 
     model do
       include PgSearch
-      has_many :users, :class_name => "User"
+      has_many :users, class_name: "User"
 
-      pg_search_scope :with_users, :associated_against => { :users => :name }
+      pg_search_scope :with_users, associated_against: { users: :name }
     end
   end
 

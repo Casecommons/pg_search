@@ -7,7 +7,7 @@ describe PgSearch::Normalizer do
     context "when config[:ignore] includes :accents" do
       context "when passed an Arel node" do
         it "wraps the expression in unaccent()" do
-          config = double("config", :ignore => [:accents])
+          config = double("config", ignore: [:accents])
           node = Arel::Nodes::NamedFunction.new("foo", [Arel::Nodes.build_quoted("bar")])
 
           normalizer = PgSearch::Normalizer.new(config)
@@ -19,7 +19,7 @@ describe PgSearch::Normalizer do
             allow(PgSearch).to receive(:unaccent_function).and_return("my_unaccent")
             node = Arel::Nodes::NamedFunction.new("foo", [Arel::Nodes.build_quoted("bar")])
 
-            config = double("config", :ignore => [:accents])
+            config = double("config", ignore: [:accents])
 
             normalizer = PgSearch::Normalizer.new(config)
             expect(normalizer.add_normalization(node)).to eq("my_unaccent(foo('bar'))")
@@ -29,7 +29,7 @@ describe PgSearch::Normalizer do
 
       context "when passed a String" do
         it "wraps the expression in unaccent()" do
-          config = double("config", :ignore => [:accents])
+          config = double("config", ignore: [:accents])
 
           normalizer = PgSearch::Normalizer.new(config)
           expect(normalizer.add_normalization("foo")).to eq("unaccent(foo)")
@@ -39,7 +39,7 @@ describe PgSearch::Normalizer do
           it "wraps the expression in that function" do
             allow(PgSearch).to receive(:unaccent_function).and_return("my_unaccent")
 
-            config = double("config", :ignore => [:accents])
+            config = double("config", ignore: [:accents])
 
             normalizer = PgSearch::Normalizer.new(config)
             expect(normalizer.add_normalization("foo")).to eq("my_unaccent(foo)")
@@ -50,7 +50,7 @@ describe PgSearch::Normalizer do
 
     context "when config[:ignore] does not include :accents" do
       it "passes the expression through" do
-        config = double("config", :ignore => [])
+        config = double("config", ignore: [])
 
         normalizer = PgSearch::Normalizer.new(config)
         expect(normalizer.add_normalization("foo")).to eq("foo")

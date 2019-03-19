@@ -80,7 +80,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             model do
               include PgSearch
-              multisearchable :against => :name
+              multisearchable against: :name
             end
           end
 
@@ -142,7 +142,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
               model do
                 include PgSearch
-                multisearchable :against => :name
+                multisearchable against: :name
               end
             end
 
@@ -161,7 +161,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
               model do
                 include PgSearch
-                multisearchable :against => :name
+                multisearchable against: :name
               end
             end
 
@@ -247,13 +247,13 @@ describe PgSearch::Multisearch::Rebuilder do
 
             model do
               include PgSearch
-              multisearchable :if => :active?
+              multisearchable if: :active?
             end
           end
 
           it "calls update_pg_search_document on each record" do
-            record_1 = Model.create!(:active => true)
-            record_2 = Model.create!(:active => false)
+            record_1 = Model.create!(active: true)
+            record_2 = Model.create!(active: false)
 
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
 
@@ -283,13 +283,13 @@ describe PgSearch::Multisearch::Rebuilder do
 
             model do
               include PgSearch
-              multisearchable :unless => :inactive?
+              multisearchable unless: :inactive?
             end
           end
 
           it "calls update_pg_search_document on each record" do
-            record_1 = Model.create!(:inactive => true)
-            record_2 = Model.create!(:inactive => false)
+            record_1 = Model.create!(inactive: true)
+            record_2 = Model.create!(inactive: false)
 
             rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
 
