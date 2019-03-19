@@ -10,7 +10,7 @@ end
 describe PgSearch::Multisearch::Rebuilder do
   with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
 
-  describe 'when intialized with a model that is not multisearchable' do
+  describe 'when initialized with a model that is not multisearchable' do
     with_model :not_multisearchable
 
     it 'raises an exception' do
