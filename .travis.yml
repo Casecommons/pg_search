@@ -4,11 +4,11 @@ bundler_args: --binstubs
 cache: bundler
 
 rvm:
-  - "2.6.0"
-  - "2.5.3"
-  - "2.4.5"
-  - "2.3.8"
-  - "jruby-9.2.5.0"
+  - 2.6.2
+  - 2.5.5
+  - 2.4.5
+  - 2.3.8
+  - jruby-9.2.6.0
 
 env:
   global:
@@ -28,15 +28,15 @@ matrix:
     - env: ACTIVE_RECORD_BRANCH="5-2-stable"
     - env: ACTIVE_RECORD_VERSION="~> 6.0.0.beta1"
   exclude:
-    - rvm: "2.3.8"
+    - rvm: 2.3.8
       env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: "2.4.5"
+    - rvm: 2.4.5
       env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: jruby-9.2.5.0
+    - rvm: jruby-9.2.6.0
       env: ACTIVE_RECORD_VERSION="~> 4.2.9"
-    - rvm: "2.3.8"
+    - rvm: 2.3.8
       env: ACTIVE_RECORD_VERSION="~> 6.0.0.beta1"
-    - rvm: "2.4.5"
+    - rvm: 2.4.5
       env: ACTIVE_RECORD_VERSION="~> 6.0.0.beta1"
 
 before_script:
@@ -46,7 +46,7 @@ before_script:
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 
-script: "bin/rake"
+script: bin/rake
 
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
