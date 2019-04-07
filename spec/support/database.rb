@@ -16,7 +16,7 @@ begin
                                           min_messages: 'warning')
   connection = ActiveRecord::Base.connection
   connection.execute("SELECT 1")
-rescue ERROR_CLASS, ActiveRecord::NoDatabaseError => exception
+rescue ERROR_CLASS, ActiveRecord::NoDatabaseError => e
   at_exit do
     puts "-" * 80
     puts "Unable to connect to database.  Please run:"
@@ -24,7 +24,7 @@ rescue ERROR_CLASS, ActiveRecord::NoDatabaseError => exception
     puts "    createdb pg_search_test"
     puts "-" * 80
   end
-  raise exception
+  raise e
 end
 
 if ENV["LOGGER"]
@@ -38,13 +38,13 @@ def install_extension(name)
   return unless extension.none?
 
   connection.execute "CREATE EXTENSION #{name};"
-rescue StandardError => exception
+rescue StandardError => e
   at_exit do
     puts "-" * 80
     puts "Please install the #{name} extension"
     puts "-" * 80
   end
-  raise exception
+  raise e
 end
 
 def install_extension_if_missing(name, query, expected_result)
