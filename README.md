@@ -1109,7 +1109,7 @@ shirt_brands = ShirtBrand.search_by_name("Penguin")
 
 PgSearch would not have been possible without inspiration from texticle (now renamed
 [textacular](https://github.com/textacular/textacular)). Thanks to [Aaron
-Patterson](http://tenderlovemaking.com/) for the original version!
+Patterson](http://tenderlovemaking.com/) for the original version and to Casebook PBC (https://www.casebook.net) for gifting the community with it!
 
 ## CONTRIBUTIONS AND FEEDBACK
 
@@ -1118,11 +1118,11 @@ project](https://www.pivotaltracker.com/projects/228645) where we manage new
 feature ideas and bugs.
 
 We also have a [Google Group](http://groups.google.com/group/casecommons-dev)
-for discussing pg_search and other Case Commons open source projects.
+for discussing pg_search and other Casebook PBC open source projects.
 
 Please read our [CONTRIBUTING guide](https://github.com/Casecommons/pg_search/blob/master/CONTRIBUTING.md).
 
 ## LICENSE
 
-Copyright © 2010–2017 [Case Commons, Inc](http://casecommons.org).
+Copyright © 2010–2019 [Casebook PBC](http://www.casebook.net).
 Licensed under the MIT license, see [LICENSE](/LICENSE) file.
