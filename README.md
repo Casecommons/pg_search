@@ -5,8 +5,7 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/ae1a7c021e473e9b2486/maintainability)](https://codeclimate.com/github/nertzy/pg_search/maintainability)
 [![Test Coverage](https://codeclimate.com/github/nertzy/pg_search/badges/coverage.svg)](https://codeclimate.com/github/nertzy/pg_search/coverage)
 [![Inline docs](http://inch-ci.org/github/nertzy/pg_search.svg?branch=master&style=flat)](http://inch-ci.org/github/nertzy/pg_search)
-[![Join the chat at https://gitter.im/nertzy/pg_search](https://img.shields.io/badge/gitter-join%20chat-blue.svg)](https://gitter.im/nertzy/pg_search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Stories in Ready](https://img.shields.io/waffle/label/nertzy/pg_search/in%20progress.svg)](https://waffle.io/nertzy/pg_search)
+[![Join the chat at https://gitter.im/Casecommons/pg_search](https://img.shields.io/badge/gitter-join%20chat-blue.svg)](https://gitter.im/Casecommons/pg_search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## DESCRIPTION
 
