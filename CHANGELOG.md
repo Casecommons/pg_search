@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## 2.1.6
+
+* Update link to GitHub repoistory to new location
+
 ## 2.1.5
 
 * Drop support for Ruby < 2.4
