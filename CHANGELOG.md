@@ -1,8 +1,12 @@
 # pg_search changelog
 
+## 2.1.7
+
+* Restore link to GitHub repository to original location
+
 ## 2.1.6
 
-* Update link to GitHub repoistory to new location
+* Update link to GitHub repository to new location
 
 ## 2.1.5
 
