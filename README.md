@@ -1,10 +1,10 @@
-# [pg_search](http://github.com/nertzy/pg_search/)
+# [pg_search](http://github.com/Casecommons/pg_search/)
 
 [![Gem Version](https://img.shields.io/gem/v/pg_search.svg?style=flat)](https://rubygems.org/gems/pg_search)
-[![Build Status](https://secure.travis-ci.org/nertzy/pg_search.svg?branch=master)](https://travis-ci.org/nertzy/pg_search)
-[![Maintainability](https://api.codeclimate.com/v1/badges/ae1a7c021e473e9b2486/maintainability)](https://codeclimate.com/github/nertzy/pg_search/maintainability)
-[![Test Coverage](https://codeclimate.com/github/nertzy/pg_search/badges/coverage.svg)](https://codeclimate.com/github/nertzy/pg_search/coverage)
-[![Inline docs](http://inch-ci.org/github/nertzy/pg_search.svg?branch=master&style=flat)](http://inch-ci.org/github/nertzy/pg_search)
+[![Build Status](https://secure.travis-ci.org/Casecommons/pg_search.svg?branch=master)](https://travis-ci.org/Casecommons/pg_search)
+[![Maintainability](https://api.codeclimate.com/v1/badges/ae1a7c021e473e9b2486/maintainability)](https://codeclimate.com/github/Casecommons/pg_search/maintainability)
+[![Test Coverage](https://codeclimate.com/github/Casecommons/pg_search/badges/coverage.svg)](https://codeclimate.com/github/Casecommons/pg_search/coverage)
+[![Inline docs](http://inch-ci.org/github/Casecommons/pg_search.svg?branch=master&style=flat)](http://inch-ci.org/github/Casecommons/pg_search)
 [![Join the chat at https://gitter.im/Casecommons/pg_search](https://img.shields.io/badge/gitter-join%20chat-blue.svg)](https://gitter.im/Casecommons/pg_search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## DESCRIPTION
@@ -1119,7 +1119,7 @@ feature ideas and bugs.
 We also have a [Google Group](http://groups.google.com/group/casecommons-dev)
 for discussing pg_search and other Casebook PBC open source projects.
 
-Please read our [CONTRIBUTING guide](https://github.com/nertzy/pg_search/blob/master/CONTRIBUTING.md).
+Please read our [CONTRIBUTING guide](https://github.com/Casecommons/pg_search/blob/master/CONTRIBUTING.md).
 
 ## LICENSE
 
