@@ -112,9 +112,9 @@ module PgSearch
         # If :negated is true, then the term will have ! prepended to the front.
         terms = [
           (Arel::Nodes.build_quoted('!') if negated),
-          Arel::Nodes.build_quoted("' "),
+          Arel::Nodes.build_quoted("'"),
           term_sql,
-          Arel::Nodes.build_quoted(" '"),
+          Arel::Nodes.build_quoted("'"),
           (Arel::Nodes.build_quoted(":*") if options[:prefix])
         ].compact
 
