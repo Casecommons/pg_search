@@ -7,12 +7,12 @@ module PgSearch
     def self.included(mod)
       mod.class_eval do
         has_one :pg_search_document,
-          as: :searchable,
-          class_name: "PgSearch::Document",
-          dependent: :delete
+                as: :searchable,
+                class_name: "PgSearch::Document",
+                dependent: :delete
 
         after_save :update_pg_search_document,
-          if: -> { PgSearch.multisearch_enabled? }
+                   if: -> { PgSearch.multisearch_enabled? }
       end
     end
 

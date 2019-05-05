@@ -166,15 +166,15 @@ describe PgSearch do
             include PgSearch
 
             has_many :models_of_first_type,
-              class_name: 'FirstAssociatedModel',
-              foreign_key: 'ModelWithManyAssociations_id'
+                     class_name: 'FirstAssociatedModel',
+                     foreign_key: 'ModelWithManyAssociations_id'
 
             belongs_to :model_of_second_type,
-              class_name: 'SecondAssociatedModel'
+                       class_name: 'SecondAssociatedModel'
 
             pg_search_scope :with_associated,
-              against: :title,
-              associated_against: { models_of_first_type: :title, model_of_second_type: :title }
+                            against: :title,
+                            associated_against: { models_of_first_type: :title, model_of_second_type: :title }
           end
         end
 
@@ -225,12 +225,12 @@ describe PgSearch do
             include PgSearch
 
             has_many :things,
-              class_name: 'DoublyAssociatedModel',
-              foreign_key: 'ModelWithDoubleAssociation_id'
+                     class_name: 'DoublyAssociatedModel',
+                     foreign_key: 'ModelWithDoubleAssociation_id'
 
             has_many :thingamabobs,
-              class_name: 'DoublyAssociatedModel',
-              foreign_key: 'ModelWithDoubleAssociation_again_id'
+                     class_name: 'DoublyAssociatedModel',
+                     foreign_key: 'ModelWithDoubleAssociation_again_id'
 
             pg_search_scope :with_associated, against: :title,
                                               associated_against: { things: :title, thingamabobs: :title }

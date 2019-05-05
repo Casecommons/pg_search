@@ -38,12 +38,12 @@ describe "an Active Record model which includes PgSearch" do
     context "when passed a lambda" do
       it "builds a dynamic scope" do
         ModelWithPgSearch.pg_search_scope :search_title_or_content,
-          lambda { |query, pick_content|
-            {
-              query: query.gsub("-remove-", ""),
-              against: pick_content ? :content : :title
-            }
-          }
+                                          lambda { |query, pick_content|
+                                            {
+                                              query: query.gsub("-remove-", ""),
+                                              against: pick_content ? :content : :title
+                                            }
+                                          }
 
         included = ModelWithPgSearch.create!(title: 'foo', content: 'bar')
         excluded = ModelWithPgSearch.create!(title: 'bar', content: 'foo')
@@ -56,8 +56,8 @@ describe "an Active Record model which includes PgSearch" do
     context "when an unknown option is passed in" do
       it "raises an exception when invoked" do
         ModelWithPgSearch.pg_search_scope :with_unknown_option,
-          against: :content,
-          foo: :bar
+                                          against: :content,
+                                          foo: :bar
 
         expect {
           ModelWithPgSearch.with_unknown_option("foo")
@@ -67,7 +67,7 @@ describe "an Active Record model which includes PgSearch" do
       context "dynamically" do
         it "raises an exception when invoked" do
           ModelWithPgSearch.pg_search_scope :with_unknown_option,
-            ->(*) { { against: :content, foo: :bar } }
+                                            ->(*) { { against: :content, foo: :bar } }
 
           expect {
             ModelWithPgSearch.with_unknown_option("foo")
@@ -79,8 +79,8 @@ describe "an Active Record model which includes PgSearch" do
     context "when an unknown :using is passed" do
       it "raises an exception when invoked" do
         ModelWithPgSearch.pg_search_scope :with_unknown_using,
-          against: :content,
-          using: :foo
+                                          against: :content,
+                                          using: :foo
 
         expect {
           ModelWithPgSearch.with_unknown_using("foo")
@@ -90,7 +90,7 @@ describe "an Active Record model which includes PgSearch" do
       context "dynamically" do
         it "raises an exception when invoked" do
           ModelWithPgSearch.pg_search_scope :with_unknown_using,
-            ->(*) { { against: :content, using: :foo } }
+                                            ->(*) { { against: :content, using: :foo } }
 
           expect {
             ModelWithPgSearch.with_unknown_using("foo")
@@ -102,8 +102,8 @@ describe "an Active Record model which includes PgSearch" do
     context "when an unknown :ignoring is passed" do
       it "raises an exception when invoked" do
         ModelWithPgSearch.pg_search_scope :with_unknown_ignoring,
-          against: :content,
-          ignoring: :foo
+                                          against: :content,
+                                          ignoring: :foo
 
         expect {
           ModelWithPgSearch.with_unknown_ignoring("foo")
@@ -113,7 +113,7 @@ describe "an Active Record model which includes PgSearch" do
       context "dynamically" do
         it "raises an exception when invoked" do
           ModelWithPgSearch.pg_search_scope :with_unknown_ignoring,
-            ->(*) { { against: :content, ignoring: :foo } }
+                                            ->(*) { { against: :content, ignoring: :foo } }
 
           expect {
             ModelWithPgSearch.with_unknown_ignoring("foo")
@@ -467,7 +467,7 @@ describe "an Active Record model which includes PgSearch" do
             # WARNING: searching timestamps is not something PostgreSQL
             # full-text search is good at. Use at your own risk.
             pg_search_scope :search_timestamps,
-              against: %i[created_at updated_at]
+                            against: %i[created_at updated_at]
           end
         end
 
@@ -565,10 +565,10 @@ describe "an Active Record model which includes PgSearch" do
     context "using tsearch" do
       before do
         ModelWithPgSearch.pg_search_scope :search_title_with_prefixes,
-          against: :title,
-          using: {
-            tsearch: { prefix: true }
-          }
+                                          against: :title,
+                                          using: {
+                                            tsearch: { prefix: true }
+                                          }
       end
 
       context "with prefix: true" do
@@ -594,10 +594,10 @@ describe "an Active Record model which includes PgSearch" do
       context "with the english dictionary" do
         before do
           ModelWithPgSearch.pg_search_scope :search_content_with_english,
-            against: :content,
-            using: {
-              tsearch: { dictionary: :english }
-            }
+                                            against: :content,
+                                            using: {
+                                              tsearch: { dictionary: :english }
+                                            }
         end
 
         it "returns rows that match the query when stemmed by the english dictionary" do
@@ -620,7 +620,7 @@ describe "an Active Record model which includes PgSearch" do
         context "with highlight turned on" do
           before do
             ModelWithPgSearch.pg_search_scope :search_content,
-              against: :content
+                                              against: :content
           end
 
           it "adds a #pg_search_highlight method to each returned model record" do
@@ -641,19 +641,19 @@ describe "an Active Record model which includes PgSearch" do
             ModelWithPgSearch.create! content: "#{'text ' * 2}Let #{'text ' * 2}Let #{'text ' * 2}"
 
             ModelWithPgSearch.pg_search_scope :search_content,
-              against: :content,
-              using: {
-                tsearch: {
-                  highlight: {
-                    StartSel: '<mark class="highlight">',
-                    StopSel: '</mark>',
-                    FragmentDelimiter: '<delim class="my_delim">',
-                    MaxFragments: 2,
-                    MaxWords: 2,
-                    MinWords: 1
-                  }
-                }
-              }
+                                              against: :content,
+                                              using: {
+                                                tsearch: {
+                                                  highlight: {
+                                                    StartSel: '<mark class="highlight">',
+                                                    StopSel: '</mark>',
+                                                    FragmentDelimiter: '<delim class="my_delim">',
+                                                    MaxFragments: 2,
+                                                    MaxWords: 2,
+                                                    MinWords: 1
+                                                  }
+                                                }
+                                              }
           end
 
           it "applies the options to the excerpts" do
@@ -682,10 +682,10 @@ describe "an Active Record model which includes PgSearch" do
         context "with a normalization specified" do
           before do
             ModelWithPgSearch.pg_search_scope :search_content_with_normalization,
-              against: :content,
-              using: {
-                tsearch: { normalization: 2 }
-              }
+                                              against: :content,
+                                              using: {
+                                                tsearch: { normalization: 2 }
+                                              }
           end
 
           it "ranks the results for documents with less text higher" do
@@ -699,8 +699,8 @@ describe "an Active Record model which includes PgSearch" do
         context "with no normalization" do
           before do
             ModelWithPgSearch.pg_search_scope :search_content_without_normalization,
-              against: :content,
-              using: :tsearch
+                                              against: :content,
+                                              using: :tsearch
           end
 
           it "ranks the results equally" do
@@ -715,7 +715,7 @@ describe "an Active Record model which includes PgSearch" do
       context "against columns ranked with arrays" do
         before do
           ModelWithPgSearch.pg_search_scope :search_weighted_by_array_of_arrays,
-            against: [[:content, 'B'], [:title, 'A']]
+                                            against: [[:content, 'B'], [:title, 'A']]
         end
 
         it "returns results sorted by weighted rank" do
@@ -731,7 +731,7 @@ describe "an Active Record model which includes PgSearch" do
       context "against columns ranked with a hash" do
         before do
           ModelWithPgSearch.pg_search_scope :search_weighted_by_hash,
-            against: { content: 'B', title: 'A' }
+                                            against: { content: 'B', title: 'A' }
         end
 
         it "returns results sorted by weighted rank" do
@@ -747,7 +747,7 @@ describe "an Active Record model which includes PgSearch" do
       context "against columns of which only some are ranked" do
         before do
           ModelWithPgSearch.pg_search_scope :search_weighted,
-            against: [:content, [:title, 'A']]
+                                            against: [:content, [:title, 'A']]
         end
 
         it "returns results sorted by weighted rank using an implied low rank for unranked columns" do
@@ -763,13 +763,13 @@ describe "an Active Record model which includes PgSearch" do
       context "searching any_word option" do
         before do
           ModelWithPgSearch.pg_search_scope :search_title_with_any_word,
-            against: :title,
-            using: {
-              tsearch: { any_word: true }
-            }
+                                            against: :title,
+                                            using: {
+                                              tsearch: { any_word: true }
+                                            }
 
           ModelWithPgSearch.pg_search_scope :search_title_with_all_words,
-            against: :title
+                                            against: :title
         end
 
         it "returns all results containing any word in their title" do
@@ -788,10 +788,10 @@ describe "an Active Record model which includes PgSearch" do
       context "with :negation" do
         before do
           ModelWithPgSearch.pg_search_scope :search_with_negation,
-            against: :title,
-            using: {
-              tsearch: { negation: true }
-            }
+                                            against: :title,
+                                            using: {
+                                              tsearch: { negation: true }
+                                            }
         end
 
         it "doesn't return results that contain terms prepended with '!'" do
@@ -815,10 +815,10 @@ describe "an Active Record model which includes PgSearch" do
       context "without :negation" do
         before do
           ModelWithPgSearch.pg_search_scope :search_without_negation,
-            against: :title,
-            using: {
-              tsearch: {}
-            }
+                                            against: :title,
+                                            using: {
+                                              tsearch: {}
+                                            }
         end
 
         it "return results that contain terms prepended with '!'" do
@@ -841,8 +841,8 @@ describe "an Active Record model which includes PgSearch" do
     context "using dmetaphone" do
       before do
         ModelWithPgSearch.pg_search_scope :with_dmetaphones,
-          against: %i[title content],
-          using: :dmetaphone
+                                          against: %i[title content],
+                                          using: :dmetaphone
       end
 
       it "returns rows where one searchable column and the query share enough dmetaphones" do
@@ -880,35 +880,35 @@ describe "an Active Record model which includes PgSearch" do
     context "using multiple features" do
       before do
         ModelWithPgSearch.pg_search_scope :with_tsearch,
-          against: :title,
-          using: [
-            [:tsearch, { dictionary: 'english' }]
-          ]
+                                          against: :title,
+                                          using: [
+                                            [:tsearch, { dictionary: 'english' }]
+                                          ]
 
         ModelWithPgSearch.pg_search_scope :with_trigram,
-          against: :title,
-          using: :trigram
+                                          against: :title,
+                                          using: :trigram
 
         ModelWithPgSearch.pg_search_scope :with_trigram_and_ignoring_accents,
-          against: :title,
-          ignoring: :accents,
-          using: :trigram
+                                          against: :title,
+                                          ignoring: :accents,
+                                          using: :trigram
 
         ModelWithPgSearch.pg_search_scope :with_tsearch_and_trigram,
-          against: :title,
-          using: [
-            [:tsearch, { dictionary: 'english' }],
-            :trigram
-          ]
+                                          against: :title,
+                                          using: [
+                                            [:tsearch, { dictionary: 'english' }],
+                                            :trigram
+                                          ]
 
         ModelWithPgSearch.pg_search_scope :complex_search,
-          against: %i[content title],
-          ignoring: :accents,
-          using: {
-            tsearch: { dictionary: 'english' },
-            dmetaphone: {},
-            trigram: {}
-          }
+                                          against: %i[content title],
+                                          ignoring: :accents,
+                                          using: {
+                                            tsearch: { dictionary: 'english' },
+                                            dmetaphone: {},
+                                            trigram: {}
+                                          }
       end
 
       it "returns rows that match using any of the features" do
@@ -955,11 +955,11 @@ describe "an Active Record model which includes PgSearch" do
           @trigram_config = trigram_config = { foo: 'bar' }
 
           ModelWithPgSearch.pg_search_scope :with_tsearch_and_trigram_using_hash,
-            against: :title,
-            using: {
-              tsearch: tsearch_config,
-              trigram: trigram_config
-            }
+                                            against: :title,
+                                            using: {
+                                              tsearch: tsearch_config,
+                                              trigram: trigram_config
+                                            }
         end
 
         it "should pass the custom configuration down to the specified feature" do
@@ -1013,13 +1013,13 @@ describe "an Active Record model which includes PgSearch" do
         unexpected.comments.create(body: 'commentwo')
 
         Post.pg_search_scope :search_by_content_with_tsvector,
-          associated_against: { comments: [:body] },
-          using: {
-            tsearch: {
-              tsvector_column: 'content_tsvector',
-              dictionary: 'english'
-            }
-          }
+                             associated_against: { comments: [:body] },
+                             using: {
+                               tsearch: {
+                                 tsvector_column: 'content_tsvector',
+                                 dictionary: 'english'
+                               }
+                             }
       end
 
       it "should find by the tsvector column" do
@@ -1041,13 +1041,13 @@ describe "an Active Record model which includes PgSearch" do
           include PgSearch
 
           pg_search_scope :search_by_multiple_tsvector_columns,
-            against: ['content', 'message'],
-            using: {
-              tsearch: {
-                tsvector_column: ['content_tsvector', 'message_tsvector'],
-                dictionary: 'english'
-              }
-            }
+                          against: ['content', 'message'],
+                          using: {
+                            tsearch: {
+                              tsvector_column: ['content_tsvector', 'message_tsvector'],
+                              dictionary: 'english'
+                            }
+                          }
         end
       end
 
@@ -1079,13 +1079,13 @@ describe "an Active Record model which includes PgSearch" do
         SQL
 
         ModelWithTsvector.pg_search_scope :search_by_content_with_tsvector,
-          against: :content,
-          using: {
-            tsearch: {
-              tsvector_column: 'content_tsvector',
-              dictionary: 'english'
-            }
-          }
+                                          against: :content,
+                                          using: {
+                                            tsearch: {
+                                              tsvector_column: 'content_tsvector',
+                                              dictionary: 'english'
+                                            }
+                                          }
       end
 
       it "should not use to_tsvector in the query" do
@@ -1119,8 +1119,8 @@ describe "an Active Record model which includes PgSearch" do
     context "ignoring accents" do
       before do
         ModelWithPgSearch.pg_search_scope :search_title_without_accents,
-          against: :title,
-          ignoring: :accents
+                                          against: :title,
+                                          ignoring: :accents
       end
 
       it "returns rows that match the query but not its accents" do
@@ -1146,15 +1146,15 @@ describe "an Active Record model which includes PgSearch" do
     context "when passed a :ranked_by expression" do
       before do
         ModelWithPgSearch.pg_search_scope :search_content_with_default_rank,
-          against: :content
+                                          against: :content
 
         ModelWithPgSearch.pg_search_scope :search_content_with_importance_as_rank,
-          against: :content,
-          ranked_by: "importance"
+                                          against: :content,
+                                          ranked_by: "importance"
 
         ModelWithPgSearch.pg_search_scope :search_content_with_importance_as_rank_multiplier,
-          against: :content,
-          ranked_by: ":tsearch * importance"
+                                          against: :content,
+                                          ranked_by: ":tsearch * importance"
       end
 
       it "should return records with a rank attribute equal to the :ranked_by expression" do
@@ -1197,8 +1197,8 @@ describe "an Active Record model which includes PgSearch" do
           let(:scope_name) { :"search_content_ranked_by_#{feature}" }
           before do
             ModelWithPgSearch.pg_search_scope scope_name,
-              against: :content,
-              ranked_by: ":#{feature}"
+                                              against: :content,
+                                              ranked_by: ":#{feature}"
 
             ModelWithPgSearch.create!(content: 'foo')
           end
@@ -1234,9 +1234,9 @@ describe "an Active Record model which includes PgSearch" do
       context "using the tsearch ranking algorithm" do
         it "sorts results by the tsearch rank" do
           ModelWithPgSearch.pg_search_scope :search_content_ranked_by_tsearch,
-            using: :tsearch,
-            against: :content,
-            ranked_by: ":tsearch"
+                                            using: :tsearch,
+                                            against: :content,
+                                            ranked_by: ":tsearch"
 
           once = ModelWithPgSearch.create!(content: 'foo bar')
           twice = ModelWithPgSearch.create!(content: 'foo foo')
@@ -1249,9 +1249,9 @@ describe "an Active Record model which includes PgSearch" do
       context "using the trigram ranking algorithm" do
         it "sorts results by the trigram rank" do
           ModelWithPgSearch.pg_search_scope :search_content_ranked_by_trigram,
-            using: :trigram,
-            against: :content,
-            ranked_by: ":trigram"
+                                            using: :trigram,
+                                            against: :content,
+                                            ranked_by: ":trigram"
 
           close = ModelWithPgSearch.create!(content: 'abcdef')
           exact = ModelWithPgSearch.create!(content: 'abc')
@@ -1264,9 +1264,9 @@ describe "an Active Record model which includes PgSearch" do
       context "using the dmetaphone ranking algorithm" do
         it "sorts results by the dmetaphone rank" do
           ModelWithPgSearch.pg_search_scope :search_content_ranked_by_dmetaphone,
-            using: :dmetaphone,
-            against: :content,
-            ranked_by: ":dmetaphone"
+                                            using: :dmetaphone,
+                                            against: :content,
+                                            ranked_by: ":dmetaphone"
 
           once = ModelWithPgSearch.create!(content: 'Phoo Bar')
           twice = ModelWithPgSearch.create!(content: 'Phoo Fu')
@@ -1280,12 +1280,12 @@ describe "an Active Record model which includes PgSearch" do
     context "when there is a sort only feature" do
       it "excludes that feature from the conditions, but uses it in the sorting" do
         ModelWithPgSearch.pg_search_scope :search_content_ranked_by_dmetaphone,
-          against: :content,
-          using: {
-            tsearch: { any_word: true, prefix: true },
-            dmetaphone: { any_word: true, prefix: true, sort_only: true }
-          },
-          ranked_by: ":tsearch + (0.5 * :dmetaphone)"
+                                          against: :content,
+                                          using: {
+                                            tsearch: { any_word: true, prefix: true },
+                                            dmetaphone: { any_word: true, prefix: true, sort_only: true }
+                                          },
+                                          ranked_by: ":tsearch + (0.5 * :dmetaphone)"
 
         exact = ModelWithPgSearch.create!(content: "ash hines")
         one_exact_one_close = ModelWithPgSearch.create!(content: "ash heinz")
