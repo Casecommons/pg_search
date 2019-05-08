@@ -32,13 +32,13 @@ describe PgSearch::Features::Trigram do
   describe 'conditions' do
     it 'escapes the search document and query' do
       config.ignore = []
-      expect(feature.conditions.to_sql).to eq("((#{coalesced_columns}) % '#{query}')")
+      expect(feature.conditions.to_sql).to eq("('#{query}' % (#{coalesced_columns}))")
     end
 
     context 'ignoring accents' do
       it 'escapes the search document and query, but not the accent function' do
         config.ignore = [:accents]
-        expect(feature.conditions.to_sql).to eq("((unaccent(#{coalesced_columns})) % unaccent('#{query}'))")
+        expect(feature.conditions.to_sql).to eq("(unaccent('#{query}') % (unaccent(#{coalesced_columns})))")
       end
     end
 
@@ -49,7 +49,7 @@ describe PgSearch::Features::Trigram do
 
       it 'uses a minimum similarity expression instead of the "%" operator' do
         expect(feature.conditions.to_sql).to eq(
-          "(similarity((#{coalesced_columns}), '#{query}') >= 0.5)"
+          "(similarity('#{query}', (#{coalesced_columns})) >= 0.5)"
         )
       end
     end
@@ -61,7 +61,7 @@ describe PgSearch::Features::Trigram do
         it 'only searches against the select column' do
           options = { only: :name }
           coalesced_column = "coalesce(#{Model.quoted_table_name}.\"name\"::text, '')"
-          expect(feature.conditions.to_sql).to eq("((#{coalesced_column}) % '#{query}')")
+          expect(feature.conditions.to_sql).to eq("('#{query}' % (#{coalesced_column}))")
         end
       end
       context 'multiple columns' do
@@ -69,7 +69,7 @@ describe PgSearch::Features::Trigram do
 
         it 'concatenates when multiples columns are selected' do
           options = { only: %i[name content] }
-          expect(feature.conditions.to_sql).to eq("((#{coalesced_columns}) % '#{query}')")
+          expect(feature.conditions.to_sql).to eq("('#{query}' % (#{coalesced_columns}))")
         end
       end
     end
@@ -77,7 +77,7 @@ describe PgSearch::Features::Trigram do
 
   describe '#rank' do
     it 'returns an expression using the similarity() function' do
-      expect(feature.rank.to_sql).to eq("(similarity((#{coalesced_columns}), '#{query}'))")
+      expect(feature.rank.to_sql).to eq("(similarity('#{query}', (#{coalesced_columns})))")
     end
   end
 end

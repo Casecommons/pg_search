@@ -14,7 +14,7 @@ module PgSearch
           )
         else
           Arel::Nodes::Grouping.new(
-            Arel::Nodes::InfixOperation.new("%", normalized_document, normalized_query)
+            Arel::Nodes::InfixOperation.new("%", normalized_query, normalized_document)
           )
         end
       end
@@ -29,8 +29,8 @@ module PgSearch
         Arel::Nodes::NamedFunction.new(
           "similarity",
           [
-            normalized_document,
-            normalized_query
+            normalized_query,
+            normalized_document
           ]
         )
       end
