@@ -877,6 +877,37 @@ Vegetable.roughly_spelled_like("collyflower") # => [cauliflower]
 Vegetable.strictly_spelled_like("collyflower") # => []
 ```
 
+##### :word_similarity
+
+Allows you to match words in longer strings.
+By default, trigram searches use `%` or `similarity()` as a similarity value.
+Set `word_similarity` to `true` to opt for `<%` and `word_similarity` instead.
+This causes the trigram search to use the similarity of the query term 
+and the word with greatest similarity.
+
+```ruby
+class Sentence < ActiveRecord::Base
+  include PgSearch
+
+  pg_search_scope :similarity_like,
+                  against: :words,
+                  using: {
+                    trigram: {
+                      word_similarity: true
+                    }
+                  }
+
+  pg_search_scope :word_similarity_like,
+                  against: :words,
+                  using: [:trigram]
+end
+
+sentence = Sentence.create! name: "Those are two words."
+
+Sentence.similarity_like("word") # => []
+Sentence.word_similarity_like("word") # => [sentence]
+```
+
 ### Limiting Fields When Combining Features 
 
 Sometimes when doing queries combining different features you 
