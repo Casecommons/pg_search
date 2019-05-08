@@ -4,7 +4,7 @@ module PgSearch
   module Features
     class Trigram < Feature
       def self.valid_options
-        super + [:threshold]
+        super + %i[threshold word_similarity]
       end
 
       def conditions
@@ -14,7 +14,11 @@ module PgSearch
           )
         else
           Arel::Nodes::Grouping.new(
-            Arel::Nodes::InfixOperation.new("%", normalized_query, normalized_document)
+            Arel::Nodes::InfixOperation.new(
+              infix_operator,
+              normalized_query,
+              normalized_document
+            )
           )
         end
       end
@@ -25,9 +29,29 @@ module PgSearch
 
       private
 
+      def word_similarity?
+        options[:word_similarity]
+      end
+
+      def similarity_function
+        if word_similarity?
+          'word_similarity'
+        else
+          'similarity'
+        end
+      end
+
+      def infix_operator
+        if word_similarity?
+          '<%'
+        else
+          '%'
+        end
+      end
+
       def similarity
         Arel::Nodes::NamedFunction.new(
-          "similarity",
+          similarity_function,
           [
             normalized_query,
             normalized_document
