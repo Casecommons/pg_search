@@ -19,16 +19,8 @@ module PgSearch
       scope
         .joins(rank_join(rank_table_alias))
         .order(Arel.sql("#{rank_table_alias}.rank DESC, #{order_within_rank}"))
-        .extend(DisableEagerLoading)
         .extend(WithPgSearchRank)
         .extend(WithPgSearchHighlight[feature_for(:tsearch)])
-    end
-
-    # workaround for https://github.com/Casecommons/pg_search/issues/14
-    module DisableEagerLoading
-      def eager_loading?
-        false
-      end
     end
 
     module WithPgSearchHighlight
