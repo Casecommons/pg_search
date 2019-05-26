@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## 2.2.0
+
+* Add word_similarity option to trigram search (Severin Räz)
+
 ## 2.1.7
 
 * Restore link to GitHub repository to original location
