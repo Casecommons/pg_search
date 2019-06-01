@@ -235,4 +235,50 @@ describe PgSearch::Features::TSearch do
       end
     end
   end
+  describe 'advanced' do
+    with_model :Model do
+      table do |t|
+        t.string :name
+        t.text :content
+      end
+    end
+
+    context "when options[:advanced] is true" do
+
+      it "does not wrap the query in quotes or join query terms using logical operators" do
+        query = "advanced query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model)
+        ]
+        options = { advanced: true }
+        config = double(:config, ignore: [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = described_class.new(query, options, columns, Model, normalizer)
+        expect(feature.conditions.to_sql).to eq(
+          %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', 'advanced query')))}
+        )
+      end
+
+    end
+
+    context "when options[:advanced] is false" do
+      it "wraps the query in quotes and joins the terms using logical operators" do
+        query = "advanced query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model)
+        ]
+        options = { advanced: false }
+        config = double(:config, ignore: [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = described_class.new(query, options, columns, Model, normalizer)
+        expect(feature.conditions.to_sql).to eq(
+          %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || 'advanced' || ' ''') && to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+        )
+      end
+    end
+  end
 end
