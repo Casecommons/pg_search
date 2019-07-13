@@ -1,5 +1,10 @@
 # pg_search changelog
 
+## 2.3.0
+
+* Extract `PgSearch::Model` module
+* Deprecate `include PgSearch`. Use `include PgSearch::Model` instead.
+
 ## 2.2.0
 
 * Add word_similarity option to trigram search (Severin Räz)
