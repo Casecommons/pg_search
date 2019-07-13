@@ -11,7 +11,7 @@ describe "a pg_search_scope on an STI subclass" do
       end
 
       model do
-        include PgSearch
+        include PgSearch::Model
         pg_search_scope :search_content, against: :content
       end
     end
@@ -51,7 +51,7 @@ describe "a pg_search_scope on an STI subclass" do
       end
 
       model do
-        include PgSearch
+        include PgSearch::Model
         self.inheritance_column = 'custom_type'
         pg_search_scope :search_content, against: :content
       end

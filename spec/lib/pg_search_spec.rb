@@ -43,7 +43,7 @@ describe PgSearch do
           t.string :title
         end
         model do
-          include PgSearch
+          include PgSearch::Model
           multisearchable against: :title
         end
       end
@@ -76,7 +76,7 @@ describe PgSearch do
           t.string :title
         end
         model do
-          include PgSearch
+          include PgSearch::Model
           multisearchable against: :title
         end
       end
@@ -106,7 +106,7 @@ describe PgSearch do
 
         before do
           searchable_subclass_model = Class.new(SuperclassModel) do
-            include PgSearch
+            include PgSearch::Model
             multisearchable against: :content
           end
           stub_const("SearchableSubclassModel", searchable_subclass_model)
@@ -196,7 +196,7 @@ describe PgSearch do
 
         before do
           searchable_subclass_model = Class.new(SuperclassModel) do
-            include PgSearch
+            include PgSearch::Model
             multisearchable against: :content
           end
           stub_const("SearchableSubclassModel", searchable_subclass_model)

@@ -49,7 +49,7 @@ To add PgSearch to an Active Record model, simply include the PgSearch module.
 
 ```ruby
 class Shape < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
 end
 ```    
 
@@ -87,12 +87,12 @@ multisearchable in its class definition.
 
 ```ruby
 class EpicPoem < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   multisearchable against: [:title, :author]
 end
 
 class Flower < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   multisearchable against: :color
 end
 ```
@@ -112,13 +112,13 @@ particular record should be included.
 
 ```ruby
 class Convertible < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   multisearchable against: [:make, :model],
                   if: :available_in_red?
 end
 
 class Jalopy < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   multisearchable against: [:make, :model],
                   if: lambda { |record| record.model_year > 1970 }
 end
@@ -132,7 +132,7 @@ timestamp.
 
 ```ruby
 class AntipatternExample
-  include PgSearch
+  include PgSearch::Model
   multisearchable against: [:contents],
                   if: :published?
 
@@ -374,7 +374,7 @@ To search against a column, pass a symbol as the :against option.
 
 ```ruby
 class BlogPost < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :search_by_title, against: :title
 end
 ```
@@ -394,7 +394,7 @@ Just pass an Array if you'd like to search more than one column.
 
 ```ruby
 class Person < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :search_by_full_name, against: [:first_name, :last_name]
 end
 ```
@@ -421,7 +421,7 @@ value if you wanted.
 
 ```ruby
 class Person < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :search_by_name, lambda { |name_part, query|
     raise ArgumentError unless [:first, :last].include?(name_part)
     {
@@ -459,7 +459,7 @@ class Cheese < ActiveRecord::Base
 end
 
 class Salami < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
 
   belongs_to :cracker
   has_many :cheeses, through: :cracker
@@ -494,7 +494,7 @@ search techniques.
 
 ```ruby
 class Beer < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :search_name, against: :name, using: [:tsearch, :trigram, :dmetaphone]
 end
 ```
@@ -520,7 +520,7 @@ subtitle, and finally the content.
 
 ```ruby
 class NewsArticle < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :search_full_text, against: {
     title: 'A',
     subtitle: 'B',
@@ -535,7 +535,7 @@ weight. If you omit the weight, a default will be used.
 
 ```ruby
 class NewsArticle < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :search_full_text, against: [
     [:title, 'A'],
     [:subtitle, 'B'],
@@ -544,7 +544,7 @@ class NewsArticle < ActiveRecord::Base
 end
 
 class NewsArticle < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :search_full_text, against: [
     [:title, 'A'],
     {subtitle: 'B'},
@@ -562,7 +562,7 @@ shown in the following example.
 
 ```ruby
 class Superhero < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :whose_name_starts_with,
                   against: :name,
                   using: {
@@ -591,7 +591,7 @@ term that you were trying to exclude.
 
 ```ruby
 class Animal < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :with_name_matching,
                   against: :name,
                   using: {
@@ -620,7 +620,7 @@ dictionary will be used.
 
 ```ruby
 class BoringTweet < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :kinda_matching,
                   against: :text,
                   using: {
@@ -664,7 +664,7 @@ their numbers together.
 
 ```ruby
 class BigLongDocument < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :regular_search,
                   against: :text
 
@@ -688,7 +688,7 @@ models containing any word in the search terms.
 
 ```ruby
 class Number < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :search_any_word,
                   against: :text,
                   using: {
@@ -714,7 +714,7 @@ but will not include it in the query's WHERE condition.
 
 ```ruby
 class Person < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :search,
                   against: :name,
                   using: {
@@ -739,7 +739,7 @@ Adding .with_pg_search_highlight after the pg_search_scope you can access to
 
 ```ruby
 class Person < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :search,
                   against: :bio,
                   using: {
@@ -793,7 +793,7 @@ The following example shows how to use :dmetaphone.
 
 ```ruby
 class Word < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :that_sounds_like,
                   against: :spelling,
                   using: :dmetaphone
@@ -824,7 +824,7 @@ feature can be used.
 
 ```ruby
 class Website < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :kinda_spelled_like,
                   against: :name,
                   using: :trigram
@@ -849,7 +849,7 @@ threshold will force a table scan as the derived query uses the
 
 ```ruby
 class Vegetable < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
 
   pg_search_scope :strictly_spelled_like,
                   against: :name,
@@ -887,7 +887,7 @@ and the word with greatest similarity.
 
 ```ruby
 class Sentence < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
 
   pg_search_scope :similarity_like,
                   against: :words,
@@ -918,7 +918,7 @@ which fields using the 'only' option:
 
 ```ruby
 class Image < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
 
   pg_search_scope :combined_search,
                   against: [:file_name, :short_description, :long_description]
@@ -953,7 +953,7 @@ must be installed before this feature can be used.
 
 ```ruby
 class SpanishQuestion < ActiveRecord::Base
-  include PgSearch
+  include PgSearch::Model
   pg_search_scope :gringo_search,
                   against: :word,
                   ignoring: :accents

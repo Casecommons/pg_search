@@ -10,7 +10,7 @@ describe "pagination" do
       end
 
       model do
-        include PgSearch
+        include PgSearch::Model
         pg_search_scope :search_name, against: :name
 
         def self.page(page_number)

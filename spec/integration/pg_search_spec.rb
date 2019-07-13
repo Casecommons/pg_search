@@ -12,7 +12,7 @@ describe "an Active Record model which includes PgSearch" do
     end
 
     model do
-      include PgSearch
+      include PgSearch::Model
       belongs_to :parent_model
     end
   end
@@ -22,7 +22,7 @@ describe "an Active Record model which includes PgSearch" do
     end
 
     model do
-      include PgSearch
+      include PgSearch::Model
       has_many :models_with_pg_search
       scope :active, -> { where(active: true) }
     end
@@ -208,7 +208,7 @@ describe "an Active Record model which includes PgSearch" do
           end
 
           model do
-            include PgSearch
+            include PgSearch::Model
             belongs_to :person
             pg_search_scope :search_city, against: [:city]
           end
@@ -220,7 +220,7 @@ describe "an Active Record model which includes PgSearch" do
           end
 
           model do
-            include PgSearch
+            include PgSearch::Model
             has_many :houses
             pg_search_scope :named, against: [:name]
             scope :with_house_in_city, lambda { |city|
@@ -462,7 +462,7 @@ describe "an Active Record model which includes PgSearch" do
           end
 
           model do
-            include PgSearch
+            include PgSearch::Model
 
             # WARNING: searching timestamps is not something PostgreSQL
             # full-text search is good at. Use at your own risk.
@@ -995,7 +995,7 @@ describe "an Active Record model which includes PgSearch" do
         end
 
         model do
-          include PgSearch
+          include PgSearch::Model
           has_many :comments
         end
       end
@@ -1038,7 +1038,7 @@ describe "an Active Record model which includes PgSearch" do
     context 'using multiple tsvector columns' do
       with_model :ModelWithTsvector do
         model do
-          include PgSearch
+          include PgSearch::Model
 
           pg_search_scope :search_by_multiple_tsvector_columns,
                           against: ['content', 'message'],
@@ -1066,7 +1066,7 @@ describe "an Active Record model which includes PgSearch" do
           t.tsvector 'content_tsvector'
         end
 
-        model { include PgSearch }
+        model { include PgSearch::Model }
       end
 
       let!(:expected) { ModelWithTsvector.create!(content: 'tiling is grouty') }

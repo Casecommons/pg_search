@@ -12,7 +12,7 @@ describe PgSearch::Multisearch do
       t.timestamps null: false
     end
     model do
-      include PgSearch
+      include PgSearch::Model
     end
   end
 

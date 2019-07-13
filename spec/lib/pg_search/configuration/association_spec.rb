@@ -17,7 +17,7 @@ describe PgSearch::Configuration::Association do
     end
 
     model do
-      include PgSearch
+      include PgSearch::Model
       has_one :avatar, class_name: "Avatar"
       belongs_to :site
 
@@ -32,7 +32,7 @@ describe PgSearch::Configuration::Association do
     end
 
     model do
-      include PgSearch
+      include PgSearch::Model
       has_many :users, class_name: "User"
 
       pg_search_scope :with_users, associated_against: { users: :name }
