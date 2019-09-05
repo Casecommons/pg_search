@@ -7,7 +7,7 @@ module PgSearch
   module Features
     class TSearch < Feature # rubocop:disable Metrics/ClassLength
       def self.valid_options
-        super + %i[dictionary prefix negation any_word normalization tsvector_column highlight]
+        super + %i[dictionary prefix negation any_word followed_by normalization tsvector_column highlight]
       end
 
       def conditions
@@ -133,7 +133,15 @@ module PgSearch
 
         query_terms = query.split(" ").compact
         tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
-        tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
+        join_op =
+          if options[:any_word]
+            ' || '
+          elsif options[:followed_by]
+            ' <-> '
+          else
+            ' && '
+          end
+        tsquery_terms.join(join_op)
       end
 
       def tsdocument

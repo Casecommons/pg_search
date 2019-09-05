@@ -785,6 +785,28 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
+      context "searching followed_by option" do
+        before do
+          ModelWithPgSearch.pg_search_scope :search_title_with_followed_by,
+                                            against: :title,
+                                            using: {
+                                              tsearch: { followed_by: true }
+                                            }
+        end
+
+        it "returns all results containing word followed by another word in their title" do
+          numbers = %w[one two three four].each_cons(2) { |word_sequence| ModelWithPgSearch.create!(title: word_sequence.join(' ')) }
+
+          results = ModelWithPgSearch.search_title_with_followed_by("one two")
+
+          expect(results.map(&:title)).to eq(["one two"])
+
+          results = ModelWithPgSearch.search_title_with_followed_by("one three")
+
+          expect(results.map(&:title)).to eq([])
+        end
+      end
+
       context "with :negation" do
         before do
           ModelWithPgSearch.pg_search_scope :search_with_negation,
