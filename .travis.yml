@@ -3,10 +3,10 @@ bundler_args: --binstubs
 cache: bundler
 
 rvm:
-  - 2.6.3
-  - 2.5.5
-  - 2.4.6
-  - jruby-9.2.7.0
+  - 2.6.4
+  - 2.5.6
+  - 2.4.7
+  - jruby-9.2.8.0
 
 env:
   global:
@@ -26,11 +26,11 @@ matrix:
     - env: ACTIVE_RECORD_BRANCH="5-2-stable"
     - env: ACTIVE_RECORD_VERSION="~> 6.0.0.beta1"
   exclude:
-    - rvm: 2.4.6
+    - rvm: 2.4.7
       env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: jruby-9.2.7.0
+    - rvm: jruby-9.2.8.0
       env: ACTIVE_RECORD_VERSION="~> 4.2.9"
-    - rvm: 2.4.5
+    - rvm: 2.4.7
       env: ACTIVE_RECORD_VERSION="~> 6.0.0.beta1"
 
 before_script:
@@ -44,6 +44,9 @@ script: bin/rake
 
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+
+jdk:
+  - openjdk8
 
 addons:
   postgresql: "9.6"
