@@ -14,7 +14,7 @@ env:
   matrix:
     - ACTIVE_RECORD_BRANCH="master"
     - ACTIVE_RECORD_BRANCH="5-2-stable"
-    - ACTIVE_RECORD_VERSION="~> 6.0.0.beta1"
+    - ACTIVE_RECORD_VERSION="~> 6.0.0"
     - ACTIVE_RECORD_VERSION="~> 5.2.0"
     - ACTIVE_RECORD_VERSION="~> 5.1.0"
     - ACTIVE_RECORD_VERSION="~> 5.0.0"
@@ -24,14 +24,14 @@ matrix:
   allow_failures:
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="5-2-stable"
-    - env: ACTIVE_RECORD_VERSION="~> 6.0.0.beta1"
+    - env: ACTIVE_RECORD_VERSION="~> 6.0.0"
   exclude:
     - rvm: 2.4.7
       env: ACTIVE_RECORD_BRANCH="master"
     - rvm: jruby-9.2.8.0
       env: ACTIVE_RECORD_VERSION="~> 4.2.9"
     - rvm: 2.4.7
-      env: ACTIVE_RECORD_VERSION="~> 6.0.0.beta1"
+      env: ACTIVE_RECORD_VERSION="~> 6.0.0"
 
 before_script:
   - psql --version
