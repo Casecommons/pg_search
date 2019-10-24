@@ -718,7 +718,7 @@ class Person < ActiveRecord::Base
   pg_search_scope :search,
                   against: :name,
                   using: {
-                    tsearch: {any_word: true}
+                    tsearch: {any_word: true},
                     dmetaphone: {any_word: true, sort_only: true}
                   }
 end
