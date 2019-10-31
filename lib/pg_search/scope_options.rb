@@ -88,6 +88,7 @@ module PgSearch
         .select("#{rank} AS rank")
         .joins(subquery_join)
         .where(conditions)
+        .where(config.subquery_condition)
         .limit(nil)
         .offset(nil)
     end

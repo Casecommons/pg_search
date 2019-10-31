@@ -59,6 +59,10 @@ module PgSearch
       options[:ranked_by]
     end
 
+    def subquery_condition
+      options[:subquery_condition]
+    end
+
     def features
       Array(options[:using])
     end
@@ -84,7 +88,7 @@ module PgSearch
     end
 
     VALID_KEYS = %w[
-      against ranked_by ignoring using query associated_against order_within_rank
+      against ranked_by ignoring using query associated_against order_within_rank subquery_condition
     ].map(&:to_sym)
 
     VALID_VALUES = {

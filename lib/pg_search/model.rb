@@ -15,7 +15,14 @@ module PgSearch
                        end
 
         define_singleton_method(name) do |*args|
-          config = Configuration.new(options_proc.call(*args), self)
+          custom_options = {}
+          if args.first.kind_of?(Array)
+            custom_options = options_proc.call(args[0][0])
+            custom_options = custom_options.merge(args[0][1])
+          else
+            custom_options = options_proc.call(*args)
+          end
+          config = Configuration.new(custom_options, self)
           scope_options = ScopeOptions.new(config)
           scope_options.apply(self)
         end
