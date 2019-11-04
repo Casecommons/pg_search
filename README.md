@@ -181,9 +181,11 @@ First, we need to add `author_id` to the migration creating our pg_search_docume
 
 ```ruby
   create_table :pg_search_documents do |t|
-        t.text :content
-        t.integer :author_id
-        t.belongs_to :searchable, polymorphic: true, index: true
+    t.text :content
+    t.references :author, index: true
+    t.belongs_to :searchable, polymorphic: true, index: true
+    t.timestamps null: false
+  end
 ```
 
 Then, we can send in this additional attribute in a lambda
@@ -196,7 +198,10 @@ Then, we can send in this additional attribute in a lambda
 ```
 
 This allows much faster searches without joins later on by doing something like:
-`PgSearch.multisearch(params['search']).where(author_id: 2)`
+
+```ruby
+PgSearch.multisearch(params['search']).where(author_id: 2)
+```
 
 *NOTE: You must currently manually call `record.update_pg_search_document` for the additional attribute to be included in the pg_search_documents table*
 
