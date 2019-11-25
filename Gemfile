@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'pg', '>= 0.21.0', '< 1.0.0', platform: :ruby
+gem 'pg', '>= 0.21.0', platform: :ruby
 gem "activerecord-jdbcpostgresql-adapter", ">= 1.3.1", platform: :jruby
 
 if ENV['ACTIVE_RECORD_BRANCH']
