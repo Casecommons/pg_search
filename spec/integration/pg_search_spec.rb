@@ -928,9 +928,9 @@ describe "an Active Record model which includes PgSearch" do
         expect(ModelWithPgSearch.with_tsearch_and_trigram(trigram_query)).to eq([record])
         expect(ModelWithPgSearch.complex_search(trigram_query)).to include(record)
 
-        # # matches accent
-        # # \303\266 is o with diaeresis
-        # # \303\272 is u with acute accent
+        # matches accent
+        # \303\266 is o with diaeresis
+        # \303\272 is u with acute accent
         accent_query = "gr\303\266\303\272ty"
         expect(ModelWithPgSearch.with_trigram(accent_query)).not_to include(record)
         expect(ModelWithPgSearch.with_trigram_and_ignoring_accents(accent_query)).to include(record)
