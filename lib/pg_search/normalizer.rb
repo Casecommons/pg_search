@@ -40,7 +40,7 @@ module PgSearch
     def ignore_white_spaces(sql_node)
       Arel::Nodes::NamedFunction.new(
         PgSearch.replace_function,
-        [sql_node, Arel.sql("' ', ''")]
+        [sql_node, Arel.sql("'\s', ''")]
       )
     end
   end
