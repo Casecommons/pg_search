@@ -88,7 +88,7 @@ module PgSearch
     ].map(&:to_sym)
 
     VALID_VALUES = {
-      ignoring: [:accents]
+      ignoring: %i[accents white_spaces]
     }.freeze
 
     def assert_valid_options(options)
