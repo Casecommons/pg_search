@@ -31,6 +31,9 @@ module PgSearch
   mattr_accessor :unaccent_function
   self.unaccent_function = "unaccent"
 
+  mattr_accessor :replace_function
+  self.replace_function = "replace"
+
   class << self
     def multisearch(*args)
       PgSearch::Document.search(*args)
