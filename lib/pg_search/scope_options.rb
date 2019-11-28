@@ -131,11 +131,23 @@ module PgSearch
 
       feature_class.new(
         config.query,
-        feature_options[feature_name],
+        options_for(feature_name),
         config.columns,
         config.model,
         normalizer
       )
+    end
+
+    def options_for(feature_name)
+      if ignore_white_spaces?
+        { ignore_white_spaces: true }.merge(feature_options[feature_name] || {})
+      else
+        feature_options[feature_name]
+      end
+    end
+
+    def ignore_white_spaces?
+      config.ignore.include?(:white_spaces)
     end
 
     def rank

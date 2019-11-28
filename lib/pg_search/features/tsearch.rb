@@ -131,9 +131,16 @@ module PgSearch
       def tsquery
         return "''" if query.blank?
 
-        query_terms = query.split(" ").compact
         tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
         tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
+      end
+
+      def query_terms
+        if options[:ignore_white_spaces]
+          [query]
+        else
+          query.split(" ").compact
+        end
       end
 
       def tsdocument

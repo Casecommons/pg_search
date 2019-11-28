@@ -7,7 +7,7 @@ module PgSearch
   module Features
     class Feature
       def self.valid_options
-        %i[only sort_only]
+        %i[only sort_only ignore_white_spaces]
       end
 
       delegate :connection, :quoted_table_name, to: :'@model'
