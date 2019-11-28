@@ -894,6 +894,11 @@ describe "an Active Record model which includes PgSearch" do
                                           ignoring: :accents,
                                           using: :trigram
 
+        ModelWithPgSearch.pg_search_scope :with_trigram_and_ignoring_white_spaces,
+                                          against: :title,
+                                          ignoring: :white_spaces,
+                                          using: :trigram
+
         ModelWithPgSearch.pg_search_scope :with_tsearch_and_trigram,
                                           against: :title,
                                           using: [
@@ -918,16 +923,18 @@ describe "an Active Record model which includes PgSearch" do
         trigram_query = "ling is grouty"
         expect(ModelWithPgSearch.with_trigram(trigram_query)).to include(record)
         expect(ModelWithPgSearch.with_trigram_and_ignoring_accents(trigram_query)).to include(record)
+        expect(ModelWithPgSearch.with_trigram_and_ignoring_white_spaces(trigram_query)).to include(record)
         expect(ModelWithPgSearch.with_tsearch(trigram_query)).not_to include(record)
         expect(ModelWithPgSearch.with_tsearch_and_trigram(trigram_query)).to eq([record])
         expect(ModelWithPgSearch.complex_search(trigram_query)).to include(record)
 
-        # matches accent
-        # \303\266 is o with diaeresis
-        # \303\272 is u with acute accent
+        # # matches accent
+        # # \303\266 is o with diaeresis
+        # # \303\272 is u with acute accent
         accent_query = "gr\303\266\303\272ty"
         expect(ModelWithPgSearch.with_trigram(accent_query)).not_to include(record)
         expect(ModelWithPgSearch.with_trigram_and_ignoring_accents(accent_query)).to include(record)
+        expect(ModelWithPgSearch.with_trigram_and_ignoring_white_spaces(accent_query)).not_to include(record)
         expect(ModelWithPgSearch.with_tsearch(accent_query)).not_to include(record)
         expect(ModelWithPgSearch.with_tsearch_and_trigram(accent_query).count(:all)).to eq(0)
         expect(ModelWithPgSearch.complex_search(accent_query)).to include(record)
@@ -937,6 +944,7 @@ describe "an Active Record model which includes PgSearch" do
         expect(ModelWithPgSearch.with_tsearch(tsearch_query)).to include(record)
         expect(ModelWithPgSearch.with_trigram(tsearch_query)).not_to include(record)
         expect(ModelWithPgSearch.with_trigram_and_ignoring_accents(tsearch_query)).not_to include(record)
+        expect(ModelWithPgSearch.with_trigram_and_ignoring_white_spaces(tsearch_query)).not_to include(record)
         expect(ModelWithPgSearch.with_tsearch_and_trigram(tsearch_query)).to eq([record])
         expect(ModelWithPgSearch.complex_search(tsearch_query)).to include(record)
 
@@ -945,6 +953,7 @@ describe "an Active Record model which includes PgSearch" do
         expect(ModelWithPgSearch.with_tsearch(dmetaphone_query)).not_to include(record)
         expect(ModelWithPgSearch.with_trigram(dmetaphone_query)).not_to include(record)
         expect(ModelWithPgSearch.with_trigram_and_ignoring_accents(dmetaphone_query)).not_to include(record)
+        expect(ModelWithPgSearch.with_trigram_and_ignoring_white_spaces(dmetaphone_query)).not_to include(record)
         expect(ModelWithPgSearch.with_tsearch_and_trigram(dmetaphone_query)).not_to include(record)
         expect(ModelWithPgSearch.complex_search(dmetaphone_query)).to include(record)
       end
@@ -1140,6 +1149,21 @@ describe "an Active Record model which includes PgSearch" do
           results = ModelWithPgSearch.search_title_without_accents("L‘Content")
           expect(results).to eq([included])
         end
+      end
+    end
+
+    context "ignoring white spaces" do
+      before do
+        ModelWithPgSearch.pg_search_scope :search_title_without_white_spaces,
+                                          against: :title,
+                                          ignoring: :white_spaces
+      end
+
+      it "returns rows that match the query but not its white spaces" do
+        included = ModelWithPgSearch.create!(title: "abc def")
+
+        results = ModelWithPgSearch.search_title_without_white_spaces("ab cdef")
+        expect(results).to eq([included])
       end
     end
 
