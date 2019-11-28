@@ -19,7 +19,7 @@ Metrics/BlockLength:
   Exclude:
     - spec/**/*
 
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   EnforcedStyle: with_fixed_indentation
 
 Style/NumericPredicate:
@@ -44,8 +44,8 @@ Bundler/DuplicatedGem:
 
 Style/EmptyMethod:
   EnforcedStyle: expanded
-  
-Layout/IndentFirstArrayElement:
+
+Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
 Style/Documentation:
