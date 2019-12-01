@@ -24,11 +24,11 @@ matrix:
     - env: ACTIVE_RECORD_BRANCH="6-0-stable"
     - env: ACTIVE_RECORD_VERSION="~> 6.0.0"
   exclude:
-    - rvm: 2.4.7
+    - rvm: 2.4.9
       env: ACTIVE_RECORD_BRANCH="master"
-    - rvm: 2.4.7
+    - rvm: 2.4.9
       env: ACTIVE_RECORD_VERSION="~> 6.0.0"
-    - rvm: 2.4.7
+    - rvm: 2.4.9
     - env: ACTIVE_RECORD_BRANCH="6-0-stable"
 
 before_script:
