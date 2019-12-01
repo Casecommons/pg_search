@@ -1143,14 +1143,10 @@ Patterson](http://tenderlovemaking.com/) for the original version and to Caseboo
 
 ## CONTRIBUTIONS AND FEEDBACK
 
-Welcomed! Feel free to join and contribute to our [public Pivotal Tracker
-project](https://www.pivotaltracker.com/projects/228645) where we manage new
-feature ideas and bugs.
+Please read our [CONTRIBUTING guide](https://github.com/Casecommons/pg_search/blob/master/CONTRIBUTING.md).
 
 We also have a [Google Group](http://groups.google.com/group/casecommons-dev)
 for discussing pg_search and other Casebook PBC open source projects.
-
-Please read our [CONTRIBUTING guide](https://github.com/Casecommons/pg_search/blob/master/CONTRIBUTING.md).
 
 ## LICENSE
 
