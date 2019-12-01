@@ -4,7 +4,7 @@ inherit_from:
 Metrics/LineLength:
   Enabled: false
 
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Enabled: false
 
 Lint/UselessAssignment:
