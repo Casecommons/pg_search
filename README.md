@@ -175,9 +175,9 @@ multisearchable(
 
 **Specify additional attributes to be saved on the pg_search_documents table**
 
-You can specify `:additional_attributes` to be saved within the pg_search_documents table. For example, perhaps you are indexing a book model and an article model and wanted to include the author_id.
+You can specify `:additional_attributes` to be saved within the `pg_search_documents` table. For example, perhaps you are indexing a book model and an article model and wanted to include the author_id.
 
-First, we need to add `author_id` to the migration creating our pg_search_documents table.
+First, we need to add a reference to author to the migration creating our `pg_search_documents` table.
 
 ```ruby
   create_table :pg_search_documents do |t|
