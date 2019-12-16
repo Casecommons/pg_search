@@ -175,15 +175,17 @@ multisearchable(
 
 **Specify additional attributes to be saved on the pg_search_documents table**
 
-You can specify `:additional_attributes` to be saved within the pg_search_documents table. For example, perhaps you are indexing a book model and an article model and wanted to include the author_id.
+You can specify `:additional_attributes` to be saved within the `pg_search_documents` table. For example, perhaps you are indexing a book model and an article model and wanted to include the author_id.
 
-First, we need to add `author_id` to the migration creating our pg_search_documents table.
+First, we need to add a reference to author to the migration creating our `pg_search_documents` table.
 
 ```ruby
   create_table :pg_search_documents do |t|
-        t.text :content
-        t.integer :author_id
-        t.belongs_to :searchable, polymorphic: true, index: true
+    t.text :content
+    t.references :author, index: true
+    t.belongs_to :searchable, polymorphic: true, index: true
+    t.timestamps null: false
+  end
 ```
 
 Then, we can send in this additional attribute in a lambda
@@ -196,7 +198,10 @@ Then, we can send in this additional attribute in a lambda
 ```
 
 This allows much faster searches without joins later on by doing something like:
-`PgSearch.multisearch(params['search']).where(author_id: 2)`
+
+```ruby
+PgSearch.multisearch(params['search']).where(author_id: 2)
+```
 
 *NOTE: You must currently manually call `record.update_pg_search_document` for the additional attribute to be included in the pg_search_documents table*
 
