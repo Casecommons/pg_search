@@ -9,7 +9,7 @@ AllCops:
 Style/StringLiterals:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
 
 Metrics/MethodLength:
