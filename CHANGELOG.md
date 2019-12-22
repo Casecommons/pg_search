@@ -1,5 +1,10 @@
 # pg_search changelog
 
+## 2.3.1
+
+* Drop support for Active Record < 5.2
+* Do not load railtie unless Rails::Railtie is defined, to avoid problem when loading alongside Action Mailer (Adam Schwartz)
+
 ## 2.3.0
 
 * Extract `PgSearch::Model` module
