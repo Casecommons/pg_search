@@ -3,7 +3,7 @@
 require "spec_helper"
 
 describe PgSearch::Multisearch::Rebuilder do
-  with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
+  with_table "pg_search_documents", &DOCUMENTS_SCHEMA
 
   describe 'when initialized with a model that is not multisearchable' do
     with_model :not_multisearchable

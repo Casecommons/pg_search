@@ -3,7 +3,7 @@
 require "spec_helper"
 
 describe PgSearch::Multisearch do
-  with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
+  with_table "pg_search_documents", &DOCUMENTS_SCHEMA
 
   with_model :MultisearchableModel do
     table do |t|

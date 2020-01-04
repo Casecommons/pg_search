@@ -17,7 +17,7 @@ end
 
 describe PgSearch do
   describe ".multisearch" do
-    with_table "pg_search_documents", {}, &DOCUMENTS_SCHEMA
+    with_table "pg_search_documents", &DOCUMENTS_SCHEMA
 
     describe "delegation to PgSearch::Document.search" do
       subject { PgSearch.multisearch(query) }
