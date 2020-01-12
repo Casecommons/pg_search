@@ -223,6 +223,31 @@ describe PgSearch::Multisearch::Rebuilder do
             expect(record.pg_search_document).to be_present
           end
         end
+
+        context "when only addicional_attributes is set" do
+          with_model :Model do
+            table do |t|
+              t.string :name
+            end
+
+            model do
+              include PgSearch::Model
+              multisearchable against: :name,
+                              additional_attributes: ->(obj) { { additional_attribute_column: "#{obj.class}::#{obj.id}" } }
+            end
+          end
+
+          it "calls update_pg_search_document on each record" do
+            record_1 = Model.create!(name: "record_1")
+            record_2 = Model.create!(name: "record_2")
+
+            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+            rebuilder.rebuild
+
+            expect(record_1.reload.pg_search_document.additional_attribute_column).to eq("Model::#{record_1.id}")
+            expect(record_2.reload.pg_search_document.additional_attribute_column).to eq("Model::#{record_2.id}")
+          end
+        end
       end
 
       context "and multisearchable is conditional" do

@@ -25,4 +25,7 @@ DOCUMENTS_SCHEMA = lambda do |t|
   t.belongs_to :searchable, polymorphic: true, index: true
   t.text :content
   t.timestamps null: false
+
+  # Used to test additional_attributes setup
+  t.text :additional_attribute_column
 end
