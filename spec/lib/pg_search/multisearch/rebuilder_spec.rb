@@ -224,7 +224,7 @@ describe PgSearch::Multisearch::Rebuilder do
           end
         end
 
-        context "when only addicional_attributes is set" do
+        context "when only additional_attributes is set" do
           with_model :Model do
             table do |t|
               t.string :name
