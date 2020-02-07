@@ -51,7 +51,7 @@ To add PgSearch to an Active Record model, simply include the PgSearch module.
 class Shape < ActiveRecord::Base
   include PgSearch::Model
 end
-```    
+```
 
 ### Multi-search vs. search scopes
 
@@ -160,7 +160,7 @@ problematic_record.published?     # => true
 PgSearch.multisearch("timestamp") # => Includes problematic_record
 ```
 
-#### More Options 
+#### More Options
 
 **Conditionally update pg_search_documents**
 
@@ -616,7 +616,7 @@ Animal.with_name_matching("fish !red !blue") # => [one_fish, two_fish]
 
 PostgreSQL full text search also support multiple dictionaries for stemming.
 You can learn more about how dictionaries work by reading the [PostgreSQL
-documention](http://www.postgresql.org/docs/current/static/textsearch-dictionaries.html). 
+documention](http://www.postgresql.org/docs/current/static/textsearch-dictionaries.html).
 If you use one of the language dictionaries, such as "english",
 then variants of words (e.g. "jumping" and "jumped") will match each other. If
 you don't want stemming, you should pick the "simple" dictionary which does
@@ -777,6 +777,30 @@ See the
 [documentation](https://www.postgresql.org/docs/current/static/textsearch-controls.html)
 for details on the meaning of each option.
 
+##### :advanced
+
+Setting this attribute to true will allow you to pass advanced search queries directly to postgres, without pg_search doing any processing on the terms.
+
+```ruby
+class Number < ActiveRecord::Base
+  include PgSearch
+  pg_search_scope :advanced_search,
+                  against: :text,
+                  using: {
+                    tsearch: {advanced: true}
+                  }
+end
+
+one = Number.create! text: 'one two three'
+one = Number.create! text: 'one three two'
+
+Number.advanced_search('one<->two') # => ['one two three']
+```
+
+See the
+[documentation](https://www.postgresql.org/docs/current/static/functions-textsearch.html)
+for details on the meaning of each option.
+
 #### :dmetaphone (Double Metaphone soundalike search)
 
 [Double Metaphone](http://en.wikipedia.org/wiki/Double_Metaphone) is an
@@ -788,7 +812,7 @@ used for searching.
 Double Metaphone support is currently available as part of the [fuzzystrmatch
 extension](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html)
 that must be installed before this feature can be used. In addition to the
-extension, you must install a utility function into your database. To generate 
+extension, you must install a utility function into your database. To generate
 and run a migration for this, run:
 
     $ rails g pg_search:migration:dmetaphone
@@ -823,7 +847,7 @@ Trigram search works by counting how many three-letter substrings (or
 Trigram search has some ability to work even with typos and misspellings in
 the query or text.
 
-Trigram support is currently available as part of the 
+Trigram support is currently available as part of the
 [pg_trgm extension](http://www.postgresql.org/docs/current/static/pgtrgm.html) that must be installed before this
 feature can be used.
 
@@ -887,7 +911,7 @@ Vegetable.strictly_spelled_like("collyflower") # => []
 Allows you to match words in longer strings.
 By default, trigram searches use `%` or `similarity()` as a similarity value.
 Set `word_similarity` to `true` to opt for `<%` and `word_similarity` instead.
-This causes the trigram search to use the similarity of the query term 
+This causes the trigram search to use the similarity of the query term
 and the word with greatest similarity.
 
 ```ruby
@@ -913,12 +937,12 @@ Sentence.similarity_like("word") # => []
 Sentence.word_similarity_like("word") # => [sentence]
 ```
 
-### Limiting Fields When Combining Features 
+### Limiting Fields When Combining Features
 
-Sometimes when doing queries combining different features you 
+Sometimes when doing queries combining different features you
 might want to searching against only some of the fields with certain features.
 For example perhaps you want to only do a trigram search against the shorter fields
-so that you don't need to reduce the threshold excessively. You can specify 
+so that you don't need to reduce the threshold excessively. You can specify
 which fields using the 'only' option:
 
 ```ruby
@@ -937,7 +961,7 @@ class Image < ActiveRecord::Base
 end
 ```
 
-Now you can succesfully retrieve an Image with a file_name: 'image_foo.jpg' 
+Now you can succesfully retrieve an Image with a file_name: 'image_foo.jpg'
 and long_description: 'This description is so long that it would make a trigram search
 fail any reasonable threshold limit' with:
 

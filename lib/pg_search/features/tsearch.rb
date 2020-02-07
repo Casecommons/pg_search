@@ -7,7 +7,7 @@ module PgSearch
   module Features
     class TSearch < Feature # rubocop:disable Metrics/ClassLength
       def self.valid_options
-        super + %i[dictionary prefix negation any_word normalization tsvector_column highlight]
+        super + %i[advanced dictionary prefix negation any_word normalization tsvector_column highlight]
       end
 
       def conditions
@@ -110,13 +110,19 @@ module PgSearch
         # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
         # If :prefix is true, then the term will have :* appended to the end.
         # If :negated is true, then the term will have ! prepended to the front.
-        terms = [
-          (Arel::Nodes.build_quoted('!') if negated),
-          Arel::Nodes.build_quoted("' "),
-          term_sql,
-          Arel::Nodes.build_quoted(" '"),
-          (Arel::Nodes.build_quoted(":*") if options[:prefix])
-        ].compact
+        terms = \
+          if options[:advanced]
+            [
+              term_sql,
+            ]
+          else
+            [ (Arel::Nodes.build_quoted('!') if negated),
+              Arel::Nodes.build_quoted("' ") ,
+              term_sql,
+              Arel::Nodes.build_quoted(" '"),
+              (Arel::Nodes.build_quoted(":*") if options[:prefix])
+            ].compact
+          end
 
         tsquery_sql = terms.inject do |memo, term|
           Arel::Nodes::InfixOperation.new("||", memo, Arel::Nodes.build_quoted(term))
@@ -131,9 +137,13 @@ module PgSearch
       def tsquery
         return "''" if query.blank?
 
-        query_terms = query.split(" ").compact
-        tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
-        tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
+        if options[:advanced]
+          tsquery_for_term(query)
+        else
+          query_terms = query.split(" ").compact
+          tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
+          tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
+        end
       end
 
       def tsdocument
