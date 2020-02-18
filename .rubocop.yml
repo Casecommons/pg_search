@@ -13,7 +13,7 @@ Layout/LineLength:
   Max: 120
 
 Metrics/MethodLength:
-  Max: 21
+  Max: 15
 
 Metrics/BlockLength:
   Exclude:
@@ -44,7 +44,7 @@ Bundler/DuplicatedGem:
 
 Style/EmptyMethod:
   EnforcedStyle: expanded
-  
+
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 

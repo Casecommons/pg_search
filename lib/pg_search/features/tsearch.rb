@@ -59,7 +59,7 @@ module PgSearch
         end
       end
 
-      def deprecated_headline_options
+      def deprecated_headline_options # rubocop:disable Metrics/MethodLength
         indifferent_options = options.with_indifferent_access
 
         %w[
@@ -97,7 +97,7 @@ module PgSearch
 
       DISALLOWED_TSQUERY_CHARACTERS = /['?\\:‘’]/.freeze
 
-      def tsquery_for_term(unsanitized_term) # rubocop:disable Metrics/AbcSize
+      def tsquery_for_term(unsanitized_term)
         if options[:negation] && unsanitized_term.start_with?("!")
           unsanitized_term[0] = ''
           negated = true
@@ -107,25 +107,26 @@ module PgSearch
 
         term_sql = Arel.sql(normalize(connection.quote(sanitized_term)))
 
-        # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
-        # If :prefix is true, then the term will have :* appended to the end.
-        # If :negated is true, then the term will have ! prepended to the front.
+        tsquery = tsquery_expression(term_sql, negated: negated, prefix: options[:prefix])
+
+        Arel::Nodes::NamedFunction.new("to_tsquery", [dictionary, tsquery]).to_sql
+      end
+
+      # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
+      # If :prefix is true, then the term will have :* appended to the end.
+      # If :negated is true, then the term will have ! prepended to the front.
+      def tsquery_expression(term_sql, negated:, prefix:)
         terms = [
           (Arel::Nodes.build_quoted('!') if negated),
           Arel::Nodes.build_quoted("' "),
           term_sql,
           Arel::Nodes.build_quoted(" '"),
-          (Arel::Nodes.build_quoted(":*") if options[:prefix])
+          (Arel::Nodes.build_quoted(":*") if prefix)
         ].compact
 
-        tsquery_sql = terms.inject do |memo, term|
+        terms.inject do |memo, term|
           Arel::Nodes::InfixOperation.new("||", memo, Arel::Nodes.build_quoted(term))
         end
-
-        Arel::Nodes::NamedFunction.new(
-          "to_tsquery",
-          [dictionary, tsquery_sql]
-        ).to_sql
       end
 
       def tsquery
