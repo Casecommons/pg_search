@@ -6,18 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 59
-# Configuration parameters: Prefixes.
-# Prefixes: when, with, without
-
-# Offense count: 4
-RSpec/DescribeClass:
-  Exclude:
-    - 'spec/integration/deprecation_spec.rb'
-    - 'spec/integration/pagination_spec.rb'
-    - 'spec/integration/pg_search_spec.rb'
-    - 'spec/integration/single_table_inheritance_spec.rb'
-
 # Offense count: 45
 # Cop supports --auto-correct.
 # Configuration parameters: SkipBlocks, EnforcedStyle.
