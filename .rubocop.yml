@@ -54,3 +54,12 @@ Style/Documentation:
 Style/WordArray:
   EnforcedStyle: percent
   MinSize: 3
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
