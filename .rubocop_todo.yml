@@ -9,15 +9,6 @@
 # Offense count: 59
 # Configuration parameters: Prefixes.
 # Prefixes: when, with, without
-RSpec/ContextWording:
-  Exclude:
-    - 'spec/integration/associations_spec.rb'
-    - 'spec/integration/pg_search_spec.rb'
-    - 'spec/lib/pg_search/configuration/association_spec.rb'
-    - 'spec/lib/pg_search/features/trigram_spec.rb'
-    - 'spec/lib/pg_search/multisearch/rebuilder_spec.rb'
-    - 'spec/lib/pg_search/multisearchable_spec.rb'
-    - 'spec/lib/pg_search_spec.rb'
 
 # Offense count: 4
 RSpec/DescribeClass:

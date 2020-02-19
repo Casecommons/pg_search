@@ -3,7 +3,7 @@
 require "spec_helper"
 
 describe PgSearch do
-  context "joining to another table" do
+  context "when joining to another table" do
     context "without an :against" do
       with_model :AssociatedModel do
         table do |t|
@@ -41,7 +41,7 @@ describe PgSearch do
       end
     end
 
-    context "through a belongs_to association" do
+    context "via a belongs_to association" do
       with_model :AssociatedModel do
         table do |t|
           t.string 'title'
@@ -77,7 +77,7 @@ describe PgSearch do
       end
     end
 
-    context "through a has_many association" do
+    context "via a has_many association" do
       with_model :AssociatedModelWithHasMany do
         table do |t|
           t.string 'title'
@@ -141,8 +141,8 @@ describe PgSearch do
       end
     end
 
-    context "across multiple associations" do
-      context "on different tables" do
+    context "when across multiple associations" do
+      context "when on different tables" do
         with_model :FirstAssociatedModel do
           table do |t|
             t.string 'title'
@@ -207,7 +207,7 @@ describe PgSearch do
         end
       end
 
-      context "on the same table" do
+      context "when on the same table" do
         with_model :DoublyAssociatedModel do
           table do |t|
             t.string 'title'
@@ -268,7 +268,7 @@ describe PgSearch do
       end
     end
 
-    context "against multiple attributes on one association" do
+    context "when against multiple attributes on one association" do
       with_model :AssociatedModel do
         table do |t|
           t.string 'title'
@@ -321,7 +321,7 @@ describe PgSearch do
       end
     end
 
-    context "against non-text columns" do
+    context "when against non-text columns" do
       with_model :AssociatedModel do
         table do |t|
           t.integer 'number'
@@ -395,7 +395,7 @@ describe PgSearch do
     end
   end
 
-  context "merging a pg_search_scope into another model's scope" do
+  context "when merging a pg_search_scope into another model's scope" do
     with_model :ModelWithAssociation do
       model do
         has_many :associated_models
@@ -441,7 +441,7 @@ describe PgSearch do
     end
   end
 
-  context "chained onto a has_many association" do
+  context "when chained onto a has_many association" do
     with_model :Company do
       model do
         has_many :positions
@@ -482,7 +482,7 @@ describe PgSearch do
     end
   end
 
-  context "chained onto a has_many association" do
+  context "when chained onto a has_many association" do
     with_model :Company do
       model do
         has_many :positions

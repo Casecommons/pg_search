@@ -35,7 +35,7 @@ describe PgSearch::Features::Trigram do
       expect(feature.conditions.to_sql).to eq("('#{query}' % (#{coalesced_columns}))")
     end
 
-    context 'searching by word_similarity' do
+    context 'when searching by word_similarity' do
       let(:options) do
         { word_similarity: true }
       end
@@ -46,7 +46,7 @@ describe PgSearch::Features::Trigram do
       end
     end
 
-    context 'ignoring accents' do
+    context 'when ignoring accents' do
       it 'escapes the search document and query, but not the accent function' do
         config.ignore = [:accents]
         expect(feature.conditions.to_sql).to eq("(unaccent('#{query}') % (unaccent(#{coalesced_columns})))")
@@ -54,7 +54,7 @@ describe PgSearch::Features::Trigram do
     end
 
     context 'when a threshold is specified' do
-      context 'searching by similarity' do
+      context 'when searching by similarity' do
         let(:options) do
           { threshold: 0.5 }
         end
@@ -66,7 +66,7 @@ describe PgSearch::Features::Trigram do
         end
       end
 
-      context 'searching by word_similarity' do
+      context 'when searching by word_similarity' do
         let(:options) do
           { threshold: 0.5, word_similarity: true }
         end
@@ -79,8 +79,8 @@ describe PgSearch::Features::Trigram do
       end
     end
 
-    context 'only certain columns are selected' do
-      context 'one column' do
+    context 'when only certain columns are selected' do
+      context 'with one column' do
         let(:options) { { only: :name } }
 
         it 'only searches against the select column' do
@@ -88,7 +88,7 @@ describe PgSearch::Features::Trigram do
           expect(feature.conditions.to_sql).to eq("('#{query}' % (#{coalesced_column}))")
         end
       end
-      context 'multiple columns' do
+      context 'with multiple columns' do
         let(:options) { { only: %i[name content] } }
 
         it 'concatenates when multiples columns are selected' do

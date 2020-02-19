@@ -95,7 +95,7 @@ describe PgSearch do
       end
     end
 
-    context "on an STI subclass" do
+    context "when on an STI subclass" do
       context "with standard type column" do
         with_model :SuperclassModel do
           table do |t|

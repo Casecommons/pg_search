@@ -39,7 +39,7 @@ describe PgSearch::Configuration::Association do
     end
   end
 
-  context "has_one" do
+  context "with has_one" do
     let(:association) { described_class.new(User, :avatar, :url) }
 
     describe "#table_name" do
@@ -70,7 +70,7 @@ describe PgSearch::Configuration::Association do
     end
   end
 
-  context "belongs_to" do
+  context "with belongs_to" do
     let(:association) { described_class.new(User, :site, :title) }
 
     describe "#table_name" do
@@ -101,7 +101,7 @@ describe PgSearch::Configuration::Association do
     end
   end
 
-  context "has_many" do
+  context "with has_many" do
     let(:association) { described_class.new(Site, :users, :name) }
 
     describe "#table_name" do

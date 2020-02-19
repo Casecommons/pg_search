@@ -20,7 +20,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
   describe "#rebuild" do
     context "when the model defines .rebuild_pg_search_documents" do
-      context "and multisearchable is not conditional" do
+      context "when multisearchable is not conditional" do
         with_model :Model do
           model do
             include PgSearch::Model
@@ -38,7 +38,7 @@ describe PgSearch::Multisearch::Rebuilder do
         end
       end
 
-      context "and multisearchable is conditional" do
+      context "when multisearchable is conditional" do
         %i[if unless].each do |conditional_key|
           context "via :#{conditional_key}" do
             with_model :Model do
@@ -66,7 +66,7 @@ describe PgSearch::Multisearch::Rebuilder do
     end
 
     context "when the model does not define .rebuild_pg_search_documents" do
-      context "and multisearchable is not conditional" do
+      context "when multisearchable is not conditional" do
         context "when :against only includes columns" do
           with_model :Model do
             table do |t|
@@ -125,7 +125,7 @@ describe PgSearch::Multisearch::Rebuilder do
             expect(executed_sql.first.strip).to eq(expected_sql.strip)
           end
 
-          context "for a model with a camel case column" do
+          context "with a model with a camel case column" do
             with_model :ModelWithCamelCaseColumn do
               table do |t|
                 t.string :camelName
@@ -144,7 +144,7 @@ describe PgSearch::Multisearch::Rebuilder do
             end
           end
 
-          context "for a model with a non-standard primary key" do
+          context "with a model with a non-standard primary key" do
             with_model :ModelWithNonStandardPrimaryKey do
               table primary_key: :non_standard_primary_key do |t|
                 t.string :name
@@ -252,7 +252,7 @@ describe PgSearch::Multisearch::Rebuilder do
         end
       end
 
-      context "and multisearchable is conditional" do
+      context "when multisearchable is conditional" do
         context "via :if" do
           with_model :Model do
             table do |t|

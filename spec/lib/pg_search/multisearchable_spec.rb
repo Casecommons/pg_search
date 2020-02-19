@@ -246,10 +246,10 @@ describe PgSearch::Multisearchable do
           record.save
         end
 
-        context "the document is created" do
+        context "when the document is created" do
           before { record.save }
 
-          context "update_if returns false" do
+          context "when update_if returns false" do
             before do
               allow(record).to receive(:bar?).and_return(false)
             end
@@ -261,7 +261,7 @@ describe PgSearch::Multisearchable do
             end
           end
 
-          context "update_if returns true" do
+          context "when update_if returns true" do
             before do
               allow(record).to receive(:bar?).and_return(true)
             end

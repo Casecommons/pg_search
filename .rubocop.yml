@@ -76,3 +76,11 @@ Rails/ApplicationRecord:
 
 Rails/TimeZone:
   Enabled: false
+
+RSpec/ContextWording:
+  Prefixes:
+    - using
+    - via
+    - when
+    - with
+    - without
