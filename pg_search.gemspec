@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rubocop', '>= 0.80.0'
   s.add_development_dependency 'rubocop-performance'
   s.add_development_dependency 'rubocop-rails'
+  s.add_development_dependency 'rubocop-rspec'
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'warning'
   s.add_development_dependency 'with_model', '>= 1.2'
