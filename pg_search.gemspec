@@ -3,7 +3,7 @@
 $LOAD_PATH.push File.expand_path('lib', __dir__)
 require 'pg_search/version'
 
-Gem::Specification.new do |s|
+Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
   s.name        = 'pg_search'
   s.version     = PgSearch::VERSION
   s.platform    = Gem::Platform::RUBY
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rubocop', '>= 0.80.0'
   s.add_development_dependency 'rubocop-performance'
   s.add_development_dependency 'rubocop-rails'
+  s.add_development_dependency 'rubocop-rake'
   s.add_development_dependency 'rubocop-rspec'
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'warning'
