@@ -5,6 +5,7 @@ require:
   - rubocop-rails
   - rubocop-rake
   - rubocop-rspec
+  - rubocop-rubycw
 
 AllCops:
   TargetRubyVersion: 2.4

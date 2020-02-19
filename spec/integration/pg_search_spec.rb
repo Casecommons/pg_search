@@ -46,7 +46,7 @@ describe "an Active Record model which includes PgSearch" do
                                           }
 
         included = ModelWithPgSearch.create!(title: 'foo', content: 'bar')
-        excluded = ModelWithPgSearch.create!(title: 'bar', content: 'foo')
+        _excluded = ModelWithPgSearch.create!(title: 'bar', content: 'foo')
 
         expect(ModelWithPgSearch.search_title_or_content('fo-remove-o', false)).to eq([included])
         expect(ModelWithPgSearch.search_title_or_content('b-remove-ar', true)).to eq([included])
@@ -321,7 +321,7 @@ describe "an Active Record model which includes PgSearch" do
 
       it "supports #select" do
         record = ModelWithPgSearch.create!(content: 'foo')
-        other_record = ModelWithPgSearch.create!(content: 'bar')
+        _other_record = ModelWithPgSearch.create!(content: 'bar')
 
         records_with_only_id = ModelWithPgSearch.search_content('foo').select('id')
         expect(records_with_only_id.length).to eq 1
@@ -333,14 +333,14 @@ describe "an Active Record model which includes PgSearch" do
 
       it "supports #pluck" do
         record = ModelWithPgSearch.create!(content: 'foo')
-        other_record = ModelWithPgSearch.create!(content: 'bar')
+        _other_record = ModelWithPgSearch.create!(content: 'bar')
 
         ids = ModelWithPgSearch.search_content('foo').pluck('id')
         expect(ids).to eq [record.id]
       end
 
       it "supports adding where clauses using the pg_search.rank" do
-        once = ModelWithPgSearch.create!(content: 'foo bar')
+        _once = ModelWithPgSearch.create!(content: 'foo bar')
         twice = ModelWithPgSearch.create!(content: 'foo foo')
 
         records = ModelWithPgSearch.search_content('foo')
@@ -390,8 +390,8 @@ describe "an Active Record model which includes PgSearch" do
 
       it "returns rows that match the query exactly and not those that match the query when stemmed by the default english dictionary" do
         included = ModelWithPgSearch.create!(content: "jumped")
-        excluded = [ModelWithPgSearch.create!(content: "jump"),
-                    ModelWithPgSearch.create!(content: "jumping")]
+        _excluded = [ModelWithPgSearch.create!(content: "jump"),
+                     ModelWithPgSearch.create!(content: "jumping")]
 
         results = ModelWithPgSearch.search_content("jumped")
         expect(results).to eq([included])
@@ -773,7 +773,7 @@ describe "an Active Record model which includes PgSearch" do
         end
 
         it "returns all results containing any word in their title" do
-          numbers = %w[one two three four].map { |number| ModelWithPgSearch.create!(title: number) }
+          %w[one two three four].each { |number| ModelWithPgSearch.create!(title: number) }
 
           results = ModelWithPgSearch.search_title_with_any_word("one two three four")
 
@@ -847,31 +847,28 @@ describe "an Active Record model which includes PgSearch" do
 
       it "returns rows where one searchable column and the query share enough dmetaphones" do
         included = ModelWithPgSearch.create!(title: 'Geoff', content: nil)
-        excluded = ModelWithPgSearch.create!(title: 'Bob', content: nil)
+        _excluded = ModelWithPgSearch.create!(title: 'Bob', content: nil)
         results = ModelWithPgSearch.with_dmetaphones('Jeff')
         expect(results).to eq([included])
       end
 
       it "returns rows where multiple searchable columns and the query share enough dmetaphones" do
         included = ModelWithPgSearch.create!(title: 'Geoff', content: 'George')
-        excluded = ModelWithPgSearch.create!(title: 'Bob', content: 'Jones')
+        _excluded = ModelWithPgSearch.create!(title: 'Bob', content: 'Jones')
         results = ModelWithPgSearch.with_dmetaphones('Jeff Jorge')
         expect(results).to eq([included])
       end
 
       it "returns rows that match dmetaphones that are English stopwords" do
         included = ModelWithPgSearch.create!(title: 'White', content: nil)
-        excluded = ModelWithPgSearch.create!(title: 'Black', content: nil)
+        _excluded = ModelWithPgSearch.create!(title: 'Black', content: nil)
         results = ModelWithPgSearch.with_dmetaphones('Wight')
         expect(results).to eq([included])
       end
 
       it "can handle terms that do not have a dmetaphone equivalent" do
-        term_with_blank_metaphone = "w"
-
         included = ModelWithPgSearch.create!(title: 'White', content: nil)
-        excluded = ModelWithPgSearch.create!(title: 'Black', content: nil)
-
+        _excluded = ModelWithPgSearch.create!(title: 'Black', content: nil)
         results = ModelWithPgSearch.with_dmetaphones('Wight W')
         expect(results).to eq([included])
       end
@@ -1290,7 +1287,7 @@ describe "an Active Record model which includes PgSearch" do
         exact = ModelWithPgSearch.create!(content: "ash hines")
         one_exact_one_close = ModelWithPgSearch.create!(content: "ash heinz")
         one_exact = ModelWithPgSearch.create!(content: "ash smith")
-        one_close = ModelWithPgSearch.create!(content: "leigh heinz")
+        _one_close = ModelWithPgSearch.create!(content: "leigh heinz")
 
         results = ModelWithPgSearch.search_content_ranked_by_dmetaphone("ash hines")
         expect(results).to eq [exact, one_exact_one_close, one_exact]
