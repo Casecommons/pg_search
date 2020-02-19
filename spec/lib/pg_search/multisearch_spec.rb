@@ -89,7 +89,7 @@ describe PgSearch::Multisearch do
           expect(PgSearch::Multisearch).not_to receive(:rebuild_sql)
           PgSearch::Multisearch.rebuild(model)
 
-          record = PgSearch::Document.find_by_searchable_type_and_searchable_id("Baz", 789)
+          record = PgSearch::Document.find_by(searchable_type: "Baz", searchable_id: 789)
           expect(record.content).to eq("baz")
         end
       end

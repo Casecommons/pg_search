@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "active_support/core_ext/module/delegation"
+
 module PgSearch
   module Features
     class DMetaphone
@@ -9,13 +11,9 @@ module PgSearch
         @tsearch = TSearch.new(query, options, columns, model, dmetaphone_normalizer)
       end
 
-      def conditions
-        tsearch.conditions
-      end
+      delegate :conditions, to: :tsearch
 
-      def rank
-        tsearch.rank
-      end
+      delegate :rank, to: :tsearch
 
       private
 

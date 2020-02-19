@@ -1,4 +1,6 @@
-require: rubocop-performance
+require:
+  - rubocop-performance
+  - rubocop-rails
 
 AllCops:
   TargetRubyVersion: 2.4
@@ -63,3 +65,9 @@ Style/HashTransformKeys:
 
 Style/HashTransformValues:
   Enabled: true
+
+Rails/ApplicationRecord:
+  Enabled: false
+
+Rails/TimeZone:
+  Enabled: false
