@@ -84,6 +84,7 @@ describe PgSearch::Features::Trigram do
         let(:options) { { only: :name } }
 
         it 'only searches against the select column' do
+          options = { only: :name }
           coalesced_column = "coalesce(#{Model.quoted_table_name}.\"name\"::text, '')"
           expect(feature.conditions.to_sql).to eq("('#{query}' % (#{coalesced_column}))")
         end
@@ -92,6 +93,7 @@ describe PgSearch::Features::Trigram do
         let(:options) { { only: %i[name content] } }
 
         it 'concatenates when multiples columns are selected' do
+          options = { only: %i[name content] }
           expect(feature.conditions.to_sql).to eq("('#{query}' % (#{coalesced_columns}))")
         end
       end
