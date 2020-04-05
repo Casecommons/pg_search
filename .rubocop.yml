@@ -83,3 +83,9 @@ RSpec/ContextWording:
     - when
     - with
     - without
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
