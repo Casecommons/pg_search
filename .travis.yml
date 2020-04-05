@@ -3,11 +3,11 @@ bundler_args: --binstubs
 cache: bundler
 
 rvm:
-  - 2.7.0
-  - 2.6.5
-  - 2.5.7
-  - 2.4.9
-  - jruby-9.2.8.0
+  - 2.7.1
+  - 2.6.6
+  - 2.5.8
+  - 2.4.10
+  - jruby-9.2.11.1
 
 env:
   global:
