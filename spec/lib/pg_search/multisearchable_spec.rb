@@ -156,6 +156,7 @@ describe PgSearch::Multisearchable do
 
         describe '#content' do
           subject { super().pg_search_document.content }
+
           it { is_expected.to eq(text) }
         end
       end
@@ -171,6 +172,7 @@ describe PgSearch::Multisearchable do
 
         describe '#content' do
           subject { super().pg_search_document.content }
+
           it { is_expected.to eq("1 2") }
         end
       end
@@ -196,6 +198,7 @@ describe PgSearch::Multisearchable do
 
         describe '#content' do
           subject { super().pg_search_document.content }
+
           it { is_expected.to eq(text) }
         end
       end
@@ -211,6 +214,7 @@ describe PgSearch::Multisearchable do
 
         describe '#content' do
           subject { super().pg_search_document.content }
+
           it { is_expected.to eq("1 2") }
         end
       end
