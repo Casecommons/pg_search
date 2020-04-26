@@ -167,8 +167,8 @@ describe PgSearch::Multisearchable do
         let(:multisearchable_options) { { against: %i[attr1 attr2] } }
 
         before do
-          allow(record).to receive(:attr1) { '1' }
-          allow(record).to receive(:attr2) { '2' }
+          allow(record).to receive(:attr1).and_return('1')
+          allow(record).to receive(:attr2).and_return('2')
           record.save
         end
 
@@ -209,8 +209,8 @@ describe PgSearch::Multisearchable do
         let(:multisearchable_options) { { against: %i[attr1 attr2] } }
 
         before do
-          allow(record).to receive(:attr1) { '1' }
-          allow(record).to receive(:attr2) { '2' }
+          allow(record).to receive(:attr1).and_return('1')
+          allow(record).to receive(:attr2).and_return('2')
           record.save
         end
 

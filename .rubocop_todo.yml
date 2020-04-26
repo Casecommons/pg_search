@@ -31,14 +31,6 @@ RSpec/MultipleExpectations:
 RSpec/NestedGroups:
   Max: 10
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: and_return, block
-RSpec/ReturnFromStub:
-  Exclude:
-    - 'spec/lib/pg_search/multisearchable_spec.rb'
-
 # Offense count: 22
 # Configuration parameters: IgnoreNameless, IgnoreSymbolicNames.
 RSpec/VerifiedDoubles:
