@@ -152,7 +152,9 @@ describe PgSearch::Multisearchable do
         let(:text) { "foo bar" }
 
         before do
-          allow(record).to receive(:some_content) { text }
+          without_partial_double_verification do
+            allow(record).to receive(:some_content) { text }
+          end
           record.save
         end
 
@@ -167,8 +169,11 @@ describe PgSearch::Multisearchable do
         let(:multisearchable_options) { { against: %i[attr1 attr2] } }
 
         before do
-          allow(record).to receive(:attr1).and_return('1')
-          allow(record).to receive(:attr2).and_return('2')
+          without_partial_double_verification do
+            allow(record).to receive(:attr1).and_return('1')
+            allow(record).to receive(:attr2).and_return('2')
+          end
+
           record.save
         end
 
@@ -194,7 +199,9 @@ describe PgSearch::Multisearchable do
         let(:text) { "foo bar" }
 
         before do
-          allow(record).to receive(:some_content) { text }
+          without_partial_double_verification do
+            allow(record).to receive(:some_content) { text }
+          end
           record.save
         end
 
@@ -209,8 +216,10 @@ describe PgSearch::Multisearchable do
         let(:multisearchable_options) { { against: %i[attr1 attr2] } }
 
         before do
-          allow(record).to receive(:attr1).and_return('1')
-          allow(record).to receive(:attr2).and_return('2')
+          without_partial_double_verification do
+            allow(record).to receive(:attr1).and_return('1')
+            allow(record).to receive(:attr2).and_return('2')
+          end
           record.save
         end
 
@@ -232,12 +241,14 @@ describe PgSearch::Multisearchable do
         let(:text) { "foo bar" }
 
         it "sets the attributes" do
-          allow(record).to receive(:bar).and_return(text)
-          allow(record).to receive(:create_pg_search_document)
-          record.save
-          expect(record)
-            .to have_received(:create_pg_search_document)
-            .with(content: '', foo: text)
+          without_partial_double_verification do
+            allow(record).to receive(:bar).and_return(text)
+            allow(record).to receive(:create_pg_search_document)
+            record.save
+            expect(record)
+              .to have_received(:create_pg_search_document)
+              .with(content: '', foo: text)
+          end
         end
       end
 
@@ -252,12 +263,14 @@ describe PgSearch::Multisearchable do
         let(:text) { "foo bar" }
 
         it "creates the document" do
-          allow(record).to receive(:bar?).and_return(false)
-          allow(record).to receive(:create_pg_search_document)
-          record.save
-          expect(record)
-            .to have_received(:create_pg_search_document)
-            .with(content: '')
+          without_partial_double_verification do
+            allow(record).to receive(:bar?).and_return(false)
+            allow(record).to receive(:create_pg_search_document)
+            record.save
+            expect(record)
+              .to have_received(:create_pg_search_document)
+              .with(content: '')
+          end
         end
 
         context "when the document is created" do
@@ -265,19 +278,25 @@ describe PgSearch::Multisearchable do
 
           context "when update_if returns false" do
             before do
-              allow(record).to receive(:bar?).and_return(false)
+              without_partial_double_verification do
+                allow(record).to receive(:bar?).and_return(false)
+              end
             end
 
             it "does not update the document" do
-              allow(record.pg_search_document).to receive(:update)
-              record.save
-              expect(record.pg_search_document).not_to have_received(:update)
+              without_partial_double_verification do
+                allow(record.pg_search_document).to receive(:update)
+                record.save
+                expect(record.pg_search_document).not_to have_received(:update)
+              end
             end
           end
 
           context "when update_if returns true" do
             before do
-              allow(record).to receive(:bar?).and_return(true)
+              without_partial_double_verification do
+                allow(record).to receive(:bar?).and_return(true)
+              end
             end
 
             it "updates the document" do

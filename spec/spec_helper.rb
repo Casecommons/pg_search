@@ -11,12 +11,14 @@ require "bundler/setup"
 require "pg_search"
 
 RSpec.configure do |config|
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
+  config.expect_with :rspec do |expects|
+    expects.syntax = :expect
   end
 
-  config.mock_with :rspec do |c|
-    c.syntax = :expect
+  config.mock_with :rspec do |mocks|
+    mocks.syntax = :expect
+    mocks.verify_doubled_constant_names = true
+    mocks.verify_partial_doubles = true
   end
 
   config.example_status_persistence_file_path = 'tmp/examples.txt'

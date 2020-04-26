@@ -451,7 +451,7 @@ describe "an Active Record model which includes PgSearch" do
 
       it "accepts non-string queries and calls #to_s on them" do
         foo = ModelWithPgSearch.create!(content: "foo")
-        not_a_string = double(to_s: "foo")
+        not_a_string = instance_double("Object", to_s: "foo")
         expect(ModelWithPgSearch.search_content(not_a_string)).to eq([foo])
       end
 
@@ -960,13 +960,20 @@ describe "an Active Record model which includes PgSearch" do
         end
 
         it "passes the custom configuration down to the specified feature" do
-          stub_feature = double(
+          tsearch_feature = instance_double(
+            "PgSearch::Features::TSearch",
             conditions: Arel::Nodes::Grouping.new(Arel.sql("1 = 1")),
             rank: Arel::Nodes::Grouping.new(Arel.sql("1.0"))
           )
 
-          allow(PgSearch::Features::TSearch).to receive(:new).with(anything, tsearch_config, anything, anything, anything).and_return(stub_feature)
-          allow(PgSearch::Features::Trigram).to receive(:new).with(anything, trigram_config, anything, anything, anything).and_return(stub_feature)
+          trigram_feature = instance_double(
+            "PgSearch::Features::Trigram",
+            conditions: Arel::Nodes::Grouping.new(Arel.sql("1 = 1")),
+            rank: Arel::Nodes::Grouping.new(Arel.sql("1.0"))
+          )
+
+          allow(PgSearch::Features::TSearch).to receive(:new).with(anything, tsearch_config, anything, anything, anything).and_return(tsearch_feature)
+          allow(PgSearch::Features::Trigram).to receive(:new).with(anything, trigram_config, anything, anything, anything).and_return(trigram_feature)
 
           ModelWithPgSearch.with_tsearch_and_trigram_using_hash("foo")
 

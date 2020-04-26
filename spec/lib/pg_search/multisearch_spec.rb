@@ -18,7 +18,6 @@ describe PgSearch::Multisearch do
 
   let(:model) { MultisearchableModel }
   let(:connection) { model.connection }
-  let(:documents) { double(:documents) }
 
   describe ".rebuild" do
     before do
@@ -86,13 +85,15 @@ describe PgSearch::Multisearch do
           end
         end
 
-        it "calls .rebuild_pg_search_documents and skip the default behavior" do
-          allow(described_class).to receive(:rebuild_sql)
-          described_class.rebuild(model)
+        it "calls .rebuild_pg_search_documents and skips the default behavior" do
+          without_partial_double_verification do
+            allow(model).to receive(:rebuild_sql)
+            described_class.rebuild(model)
 
-          record = PgSearch::Document.find_by(searchable_type: "Baz", searchable_id: 789)
-          expect(described_class).not_to have_received(:rebuild_sql)
-          expect(record.content).to eq("baz")
+            record = PgSearch::Document.find_by(searchable_type: "Baz", searchable_id: 789)
+            expect(model).not_to have_received(:rebuild_sql)
+            expect(record.content).to eq("baz")
+          end
         end
       end
     end

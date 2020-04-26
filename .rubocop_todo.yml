@@ -30,14 +30,3 @@ RSpec/MultipleExpectations:
 # Offense count: 168
 RSpec/NestedGroups:
   Max: 10
-
-# Offense count: 22
-# Configuration parameters: IgnoreNameless, IgnoreSymbolicNames.
-RSpec/VerifiedDoubles:
-  Exclude:
-    - 'spec/integration/pg_search_spec.rb'
-    - 'spec/lib/pg_search/features/dmetaphone_spec.rb'
-    - 'spec/lib/pg_search/features/tsearch_spec.rb'
-    - 'spec/lib/pg_search/multisearch_spec.rb'
-    - 'spec/lib/pg_search/normalizer_spec.rb'
-    - 'spec/lib/pg_search_spec.rb'

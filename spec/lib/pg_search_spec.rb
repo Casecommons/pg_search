@@ -22,8 +22,8 @@ describe PgSearch do
     describe "delegation to PgSearch::Document.search" do
       subject { described_class.multisearch(query) }
 
-      let(:query) { double(:query) }
-      let(:relation) { double(:relation) }
+      let(:query) { instance_double("String", "query") }
+      let(:relation) { instance_double("ActiveRecord::Relation", "relation") }
 
       before do
         allow(PgSearch::Document).to receive(:search).with(query).and_return(relation)
