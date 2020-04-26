@@ -965,10 +965,13 @@ describe "an Active Record model which includes PgSearch" do
             rank: Arel::Nodes::Grouping.new(Arel.sql("1.0"))
           )
 
-          allow(PgSearch::Features::TSearch).to receive(:new).with(anything, tsearch_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
-          allow(PgSearch::Features::Trigram).to receive(:new).with(anything, trigram_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
+          allow(PgSearch::Features::TSearch).to receive(:new).with(anything, tsearch_config, anything, anything, anything).and_return(stub_feature)
+          allow(PgSearch::Features::Trigram).to receive(:new).with(anything, trigram_config, anything, anything, anything).and_return(stub_feature)
 
           ModelWithPgSearch.with_tsearch_and_trigram_using_hash("foo")
+
+          expect(PgSearch::Features::TSearch).to have_received(:new).with(anything, tsearch_config, anything, anything, anything).at_least(:once)
+          expect(PgSearch::Features::Trigram).to have_received(:new).with(anything, trigram_config, anything, anything, anything).at_least(:once)
         end
       end
     end
