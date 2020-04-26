@@ -26,7 +26,7 @@ describe PgSearch do
       let(:relation) { double(:relation) }
 
       before do
-        expect(PgSearch::Document).to receive(:search).with(query).and_return(relation)
+        allow(PgSearch::Document).to receive(:search).with(query).and_return(relation)
       end
 
       it { is_expected.to eq(relation) }

@@ -26,9 +26,10 @@ describe PgSearch::Multisearch do
     end
 
     it "operates inside a transaction" do
-      expect(model).to receive(:transaction).once
+      allow(model).to receive(:transaction)
 
       described_class.rebuild(model)
+      expect(model).to have_received(:transaction).once
     end
 
     describe "cleaning up search documents for this model" do
@@ -86,10 +87,11 @@ describe PgSearch::Multisearch do
         end
 
         it "calls .rebuild_pg_search_documents and skip the default behavior" do
-          expect(described_class).not_to receive(:rebuild_sql)
+          allow(described_class).to receive(:rebuild_sql)
           described_class.rebuild(model)
 
           record = PgSearch::Document.find_by(searchable_type: "Baz", searchable_id: 789)
+          expect(described_class).not_to have_received(:rebuild_sql)
           expect(record.content).to eq("baz")
         end
       end

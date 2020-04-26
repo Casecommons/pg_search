@@ -33,8 +33,9 @@ describe PgSearch::Multisearch::Rebuilder do
 
         it "calls .rebuild_pg_search_documents" do
           rebuilder = described_class.new(Model)
-          expect(Model).to receive(:rebuild_pg_search_documents)
+          allow(Model).to receive(:rebuild_pg_search_documents)
           rebuilder.rebuild
+          expect(Model).to have_received(:rebuild_pg_search_documents)
         end
       end
 
@@ -57,8 +58,9 @@ describe PgSearch::Multisearch::Rebuilder do
 
             it "calls .rebuild_pg_search_documents" do
               rebuilder = described_class.new(Model)
-              expect(Model).to receive(:rebuild_pg_search_documents)
+              allow(Model).to receive(:rebuild_pg_search_documents)
               rebuilder.rebuild
+              expect(Model).to have_received(:rebuild_pg_search_documents)
             end
           end
         end
@@ -92,8 +94,9 @@ describe PgSearch::Multisearch::Rebuilder do
               end
             end
 
-            expect(Model).not_to receive(:rebuild_pg_search_documents)
+            allow(Model).to receive(:rebuild_pg_search_documents)
             rebuilder.rebuild
+            expect(Model).not_to have_received(:rebuild_pg_search_documents)
           end
 
           it "executes the default SQL" do
@@ -216,10 +219,11 @@ describe PgSearch::Multisearch::Rebuilder do
                 original_respond_to.call(method_name, *args)
               end
             end
-            expect(Model).not_to receive(:rebuild_pg_search_documents)
+            allow(Model).to receive(:rebuild_pg_search_documents)
 
             rebuilder.rebuild
 
+            expect(Model).not_to have_received(:rebuild_pg_search_documents)
             expect(record.pg_search_document).to be_present
           end
         end
@@ -280,10 +284,11 @@ describe PgSearch::Multisearch::Rebuilder do
                 original_respond_to.call(method_name, *args)
               end
             end
-            expect(Model).not_to receive(:rebuild_pg_search_documents)
+            allow(Model).to receive(:rebuild_pg_search_documents)
 
             rebuilder.rebuild
 
+            expect(Model).not_to have_received(:rebuild_pg_search_documents)
             expect(record_1.pg_search_document).to be_present
             expect(record_2.pg_search_document).not_to be_present
           end
@@ -316,10 +321,11 @@ describe PgSearch::Multisearch::Rebuilder do
                 original_respond_to.call(method_name, *args)
               end
             end
-            expect(Model).not_to receive(:rebuild_pg_search_documents)
+            allow(Model).to receive(:rebuild_pg_search_documents)
 
             rebuilder.rebuild
 
+            expect(Model).not_to have_received(:rebuild_pg_search_documents)
             expect(record_1.pg_search_document).not_to be_present
             expect(record_2.pg_search_document).to be_present
           end

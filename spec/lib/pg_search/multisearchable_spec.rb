@@ -76,8 +76,9 @@ describe PgSearch::Multisearchable do
 
           describe "saving the record" do
             it "calls save on the pg_search_document" do
-              expect(record.pg_search_document).to receive(:save)
+              allow(record.pg_search_document).to receive(:save)
               record.save!
+              expect(record.pg_search_document).to have_received(:save)
             end
 
             it "does not create a PgSearch::Document record" do
@@ -88,8 +89,9 @@ describe PgSearch::Multisearchable do
               before { allow(PgSearch).to receive(:multisearch_enabled?).and_return(false) }
 
               it "does not create a PgSearch::Document record" do
-                expect(record.pg_search_document).not_to receive(:save)
+                allow(record.pg_search_document).to receive(:save)
                 expect { record.save! }.not_to change(PgSearch::Document, :count)
+                expect(record.pg_search_document).not_to have_received(:save)
               end
             end
           end
@@ -231,10 +233,11 @@ describe PgSearch::Multisearchable do
 
         it "sets the attributes" do
           allow(record).to receive(:bar).and_return(text)
-          expect(record)
-            .to receive(:create_pg_search_document)
-            .with(content: '', foo: text)
+          allow(record).to receive(:create_pg_search_document)
           record.save
+          expect(record)
+            .to have_received(:create_pg_search_document)
+            .with(content: '', foo: text)
         end
       end
 
@@ -250,10 +253,11 @@ describe PgSearch::Multisearchable do
 
         it "creates the document" do
           allow(record).to receive(:bar?).and_return(false)
-          expect(record)
-            .to receive(:create_pg_search_document)
-            .with(content: '')
+          allow(record).to receive(:create_pg_search_document)
           record.save
+          expect(record)
+            .to have_received(:create_pg_search_document)
+            .with(content: '')
         end
 
         context "when the document is created" do
@@ -338,8 +342,9 @@ describe PgSearch::Multisearchable do
             describe "saving the record" do
               context "when the condition is true" do
                 it "calls save on the pg_search_document" do
-                  expect(record.pg_search_document).to receive(:save)
+                  allow(record.pg_search_document).to receive(:save)
                   record.save!
+                  expect(record.pg_search_document).to have_received(:save)
                 end
 
                 it "does not create a PgSearch::Document record" do
@@ -351,8 +356,9 @@ describe PgSearch::Multisearchable do
                 before { record.multisearchable = false }
 
                 it "calls destroy on the pg_search_document" do
-                  expect(record.pg_search_document).to receive(:destroy)
+                  allow(record.pg_search_document).to receive(:destroy)
                   record.save!
+                  expect(record.pg_search_document).to have_received(:destroy)
                 end
 
                 it "removes its document" do
@@ -368,8 +374,9 @@ describe PgSearch::Multisearchable do
                 end
 
                 it "does not create a PgSearch::Document record" do
-                  expect(record.pg_search_document).not_to receive(:save)
+                  allow(record.pg_search_document).to receive(:save)
                   expect { record.save! }.not_to change(PgSearch::Document, :count)
+                  expect(record.pg_search_document).not_to have_received(:save)
                 end
               end
             end
@@ -466,8 +473,9 @@ describe PgSearch::Multisearchable do
             describe "saving the record" do
               context "when the condition is false" do
                 it "calls save on the pg_search_document" do
-                  expect(record.pg_search_document).to receive(:save)
+                  allow(record.pg_search_document).to receive(:save)
                   record.save!
+                  expect(record.pg_search_document).to have_received(:save)
                 end
 
                 it "does not create a PgSearch::Document record" do
@@ -477,7 +485,11 @@ describe PgSearch::Multisearchable do
                 context "with multisearch disabled" do
                   before do
                     allow(PgSearch).to receive(:multisearch_enabled?).and_return(false)
-                    expect(record.pg_search_document).not_to receive(:save)
+                    allow(record.pg_search_document).to receive(:save)
+                  end
+
+                  it "does not call save on the document" do
+                    expect(record.pg_search_document).not_to have_received(:save)
                   end
 
                   it "does not create a PgSearch::Document record" do
@@ -490,8 +502,9 @@ describe PgSearch::Multisearchable do
                 before { record.not_multisearchable = true }
 
                 it "calls destroy on the pg_search_document" do
-                  expect(record.pg_search_document).to receive(:destroy)
+                  allow(record.pg_search_document).to receive(:destroy)
                   record.save!
+                  expect(record.pg_search_document).to have_received(:destroy)
                 end
 
                 it "removes its document" do
@@ -595,8 +608,9 @@ describe PgSearch::Multisearchable do
             describe "saving the record" do
               context "when the condition is true" do
                 it "calls save on the pg_search_document" do
-                  expect(record.pg_search_document).to receive(:save)
+                  allow(record.pg_search_document).to receive(:save)
                   record.save!
+                  expect(record.pg_search_document).to have_received(:save)
                 end
 
                 it "does not create a PgSearch::Document record" do
@@ -606,7 +620,11 @@ describe PgSearch::Multisearchable do
                 context "with multisearch disabled" do
                   before do
                     allow(PgSearch).to receive(:multisearch_enabled?).and_return(false)
-                    expect(record.pg_search_document).not_to receive(:save)
+                    allow(record.pg_search_document).to receive(:save)
+                  end
+
+                  it "does not call save on the document" do
+                    expect(record.pg_search_document).not_to have_received(:save)
                   end
 
                   it "does not create a PgSearch::Document record" do
@@ -619,8 +637,9 @@ describe PgSearch::Multisearchable do
                 before { record.multisearchable = false }
 
                 it "calls destroy on the pg_search_document" do
-                  expect(record.pg_search_document).to receive(:destroy)
+                  allow(record.pg_search_document).to receive(:destroy)
                   record.save!
+                  expect(record.pg_search_document).to have_received(:destroy)
                 end
 
                 it "removes its document" do
@@ -729,8 +748,9 @@ describe PgSearch::Multisearchable do
                 before { record.not_multisearchable = true }
 
                 it "calls destroy on the pg_search_document" do
-                  expect(record.pg_search_document).to receive(:destroy)
+                  allow(record.pg_search_document).to receive(:destroy)
                   record.save!
+                  expect(record.pg_search_document).to have_received(:destroy)
                 end
 
                 it "removes its document" do
@@ -742,8 +762,9 @@ describe PgSearch::Multisearchable do
 
               context "when the condition is false" do
                 it "calls save on the pg_search_document" do
-                  expect(record.pg_search_document).to receive(:save)
+                  allow(record.pg_search_document).to receive(:save)
                   record.save!
+                  expect(record.pg_search_document).to have_received(:save)
                 end
 
                 it "does not create a PgSearch::Document record" do
@@ -753,7 +774,11 @@ describe PgSearch::Multisearchable do
                 context "with multisearch disabled" do
                   before do
                     allow(PgSearch).to receive(:multisearch_enabled?).and_return(false)
-                    expect(record.pg_search_document).not_to receive(:save)
+                    allow(record.pg_search_document).to receive(:save)
+                  end
+
+                  it "does not call save on the document" do
+                    expect(record.pg_search_document).not_to have_received(:save)
                   end
 
                   it "does not create a PgSearch::Document record" do
