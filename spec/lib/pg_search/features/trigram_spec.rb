@@ -89,6 +89,7 @@ describe PgSearch::Features::Trigram do
           expect(feature.conditions.to_sql).to eq("('#{query}' % (#{coalesced_column}))")
         end
       end
+
       context 'with multiple columns' do
         let(:options) { { only: %i[name content] } }
 
