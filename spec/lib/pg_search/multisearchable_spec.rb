@@ -138,6 +138,7 @@ describe PgSearch::Multisearchable do
 
     describe "populating the searchable text" do
       let(:record) { ModelThatIsMultisearchable.new }
+
       subject { record }
 
       before do
@@ -147,6 +148,7 @@ describe PgSearch::Multisearchable do
       context "when searching against a single column" do
         let(:multisearchable_options) { { against: :some_content } }
         let(:text) { "foo bar" }
+
         before do
           allow(record).to receive(:some_content) { text }
           record.save
@@ -160,6 +162,7 @@ describe PgSearch::Multisearchable do
 
       context "when searching against multiple columns" do
         let(:multisearchable_options) { { against: %i[attr1 attr2] } }
+
         before do
           allow(record).to receive(:attr1) { '1' }
           allow(record).to receive(:attr2) { '2' }
@@ -175,6 +178,7 @@ describe PgSearch::Multisearchable do
 
     describe "populating the searchable attributes" do
       let(:record) { ModelThatIsMultisearchable.new }
+
       subject { record }
 
       before do
@@ -184,6 +188,7 @@ describe PgSearch::Multisearchable do
       context "when searching against a single column" do
         let(:multisearchable_options) { { against: :some_content } }
         let(:text) { "foo bar" }
+
         before do
           allow(record).to receive(:some_content) { text }
           record.save
@@ -197,6 +202,7 @@ describe PgSearch::Multisearchable do
 
       context "when searching against multiple columns" do
         let(:multisearchable_options) { { against: %i[attr1 attr2] } }
+
         before do
           allow(record).to receive(:attr1) { '1' }
           allow(record).to receive(:attr2) { '2' }

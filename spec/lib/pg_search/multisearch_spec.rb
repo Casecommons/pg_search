@@ -97,6 +97,7 @@ describe PgSearch::Multisearch do
 
     describe "inserting the new documents" do
       let!(:new_models) { [] }
+
       before do
         new_models << model.create!(title: "Foo", content: "Bar")
         new_models << model.create!(title: "Baz", content: "Bar")
@@ -110,6 +111,7 @@ describe PgSearch::Multisearch do
 
     describe "the generated SQL" do
       let(:now) { Time.now }
+
       before { allow(Time).to receive(:now).and_return(now) }
 
       context "with one attribute" do

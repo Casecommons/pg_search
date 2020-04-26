@@ -6,15 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 13
-# Cop supports --auto-correct.
-RSpec/EmptyLineAfterFinalLet:
-  Exclude:
-    - 'spec/integration/pg_search_spec.rb'
-    - 'spec/lib/pg_search/multisearch_spec.rb'
-    - 'spec/lib/pg_search/multisearchable_spec.rb'
-    - 'spec/lib/pg_search_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 RSpec/EmptyLineAfterHook:

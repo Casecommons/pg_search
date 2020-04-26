@@ -1195,6 +1195,7 @@ describe "an Active Record model which includes PgSearch" do
       %w[tsearch trigram dmetaphone].each do |feature|
         context "using the #{feature} ranking algorithm" do
           let(:scope_name) { :"search_content_ranked_by_#{feature}" }
+
           before do
             ModelWithPgSearch.pg_search_scope scope_name,
                                               against: :content,

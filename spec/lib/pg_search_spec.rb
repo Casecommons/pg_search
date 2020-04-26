@@ -24,6 +24,7 @@ describe PgSearch do
 
       let(:query) { double(:query) }
       let(:relation) { double(:relation) }
+
       before do
         expect(PgSearch::Document).to receive(:search).with(query).and_return(relation)
       end
@@ -50,6 +51,7 @@ describe PgSearch do
 
       let!(:soundalike_record) { MultisearchableModel.create!(title: 'foning') }
       let(:query) { "Phoning" }
+
       it { is_expected.to include(soundalike_record) }
     end
 
@@ -86,11 +88,13 @@ describe PgSearch do
 
       context "with soundalike true" do
         let(:soundalike) { true }
+
         it { is_expected.to include(soundalike_record) }
       end
 
       context "with soundalike false" do
         let(:soundalike) { false }
+
         it { is_expected.not_to include(soundalike_record) }
       end
     end
