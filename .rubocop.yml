@@ -98,3 +98,6 @@ Style/ExponentialNotation:
 
 RSpec/DescribedClass:
   Enabled: true
+
+RSpec/ExpectInHook:
+  Enabled: false

@@ -22,13 +22,6 @@ RSpec/ExampleLength:
     - 'spec/lib/pg_search/multisearchable_spec.rb'
     - 'spec/lib/pg_search_spec.rb'
 
-# Offense count: 10
-RSpec/ExpectInHook:
-  Exclude:
-    - 'spec/lib/pg_search/multisearch_spec.rb'
-    - 'spec/lib/pg_search/multisearchable_spec.rb'
-    - 'spec/lib/pg_search_spec.rb'
-
 # Offense count: 2
 # Configuration parameters: CustomTransform, IgnoreMethods.
 RSpec/FilePath:
