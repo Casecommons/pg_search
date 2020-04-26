@@ -101,3 +101,8 @@ RSpec/DescribedClass:
 
 RSpec/ExpectInHook:
   Enabled: false
+
+RSpec/FilePath:
+  CustomTransform: 
+    TSearch: "tsearch"
+    DMetaphone: "dmetaphone"
