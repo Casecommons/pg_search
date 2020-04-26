@@ -31,11 +31,6 @@ RSpec/MultipleExpectations:
 RSpec/NestedGroups:
   Max: 10
 
-# Offense count: 2
-RSpec/RepeatedExampleGroupDescription:
-  Exclude:
-    - 'spec/integration/associations_spec.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
