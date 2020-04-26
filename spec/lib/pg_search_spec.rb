@@ -33,12 +33,12 @@ describe PgSearch do
     end
 
     context "with PgSearch.multisearch_options set to a Hash" do
-      before { allow(described_class).to receive(:multisearch_options).and_return(using: :dmetaphone) }
-
       subject do
         PgSearch::Document.clear_searchable_cache
         described_class.multisearch(query).map(&:searchable)
       end
+
+      before { allow(described_class).to receive(:multisearch_options).and_return(using: :dmetaphone) }
 
       with_model :MultisearchableModel do
         table do |t|

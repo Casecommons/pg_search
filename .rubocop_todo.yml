@@ -22,13 +22,6 @@ RSpec/ExampleLength:
     - 'spec/lib/pg_search/multisearchable_spec.rb'
     - 'spec/lib/pg_search_spec.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-RSpec/LeadingSubject:
-  Exclude:
-    - 'spec/lib/pg_search/multisearchable_spec.rb'
-    - 'spec/lib/pg_search_spec.rb'
-
 # Offense count: 1
 RSpec/LetSetup:
   Exclude:

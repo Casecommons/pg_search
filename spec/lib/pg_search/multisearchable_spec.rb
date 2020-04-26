@@ -137,9 +137,9 @@ describe PgSearch::Multisearchable do
     end
 
     describe "populating the searchable text" do
-      let(:record) { ModelThatIsMultisearchable.new }
-
       subject { record }
+
+      let(:record) { ModelThatIsMultisearchable.new }
 
       before do
         ModelThatIsMultisearchable.multisearchable(multisearchable_options)
@@ -179,9 +179,9 @@ describe PgSearch::Multisearchable do
     end
 
     describe "populating the searchable attributes" do
-      let(:record) { ModelThatIsMultisearchable.new }
-
       subject { record }
+
+      let(:record) { ModelThatIsMultisearchable.new }
 
       before do
         ModelThatIsMultisearchable.multisearchable(multisearchable_options)
