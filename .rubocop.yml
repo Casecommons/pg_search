@@ -95,3 +95,6 @@ Layout/SpaceAroundMethodCallOperator:
 
 Style/ExponentialNotation:
   Enabled: true
+
+RSpec/DescribedClass:
+  Enabled: true

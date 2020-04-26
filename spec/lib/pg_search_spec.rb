@@ -20,7 +20,7 @@ describe PgSearch do
     with_table "pg_search_documents", &DOCUMENTS_SCHEMA
 
     describe "delegation to PgSearch::Document.search" do
-      subject { PgSearch.multisearch(query) }
+      subject { described_class.multisearch(query) }
 
       let(:query) { double(:query) }
       let(:relation) { double(:relation) }
@@ -32,10 +32,10 @@ describe PgSearch do
     end
 
     context "with PgSearch.multisearch_options set to a Hash" do
-      before { allow(PgSearch).to receive(:multisearch_options).and_return(using: :dmetaphone) }
+      before { allow(described_class).to receive(:multisearch_options).and_return(using: :dmetaphone) }
       subject do
         PgSearch::Document.clear_searchable_cache
-        PgSearch.multisearch(query).map(&:searchable)
+        described_class.multisearch(query).map(&:searchable)
       end
 
       with_model :MultisearchableModel do
@@ -56,11 +56,11 @@ describe PgSearch do
     context "with PgSearch.multisearch_options set to a Proc" do
       subject do
         PgSearch::Document.clear_searchable_cache
-        PgSearch.multisearch(query, soundalike).map(&:searchable)
+        described_class.multisearch(query, soundalike).map(&:searchable)
       end
 
       before do
-        allow(PgSearch).to receive(:multisearch_options) do
+        allow(described_class).to receive(:multisearch_options) do
           lambda do |query, soundalike|
             if soundalike
               { using: :dmetaphone, query: query }
@@ -128,7 +128,7 @@ describe PgSearch do
 
           expect(PgSearch::Document.count).to be 2
 
-          results = PgSearch.multisearch("foo bar")
+          results = described_class.multisearch("foo bar")
 
           expect(results).to eq [included.pg_search_document]
         end
@@ -141,7 +141,7 @@ describe PgSearch do
           model = SearchableSubclassModel.find(model.id)
           model.content = "foo"
           model.save!
-          results = PgSearch.multisearch("foo")
+          results = described_class.multisearch("foo")
           expect(results.size).to eq(SearchableSubclassModel.count)
         end
 
@@ -218,7 +218,7 @@ describe PgSearch do
 
           expect(PgSearch::Document.count).to be 2
 
-          results = PgSearch.multisearch("foo bar")
+          results = described_class.multisearch("foo bar")
 
           expect(results).to eq [included.pg_search_document]
         end
@@ -228,11 +228,11 @@ describe PgSearch do
 
   describe ".disable_multisearch" do
     it "should temporarily disable multisearch" do
-      @multisearch_enabled_before = PgSearch.multisearch_enabled?
-      PgSearch.disable_multisearch do
-        @multisearch_enabled_inside = PgSearch.multisearch_enabled?
+      @multisearch_enabled_before = described_class.multisearch_enabled?
+      described_class.disable_multisearch do
+        @multisearch_enabled_inside = described_class.multisearch_enabled?
       end
-      @multisearch_enabled_after = PgSearch.multisearch_enabled?
+      @multisearch_enabled_after = described_class.multisearch_enabled?
 
       expect(@multisearch_enabled_before).to be(true)
       expect(@multisearch_enabled_inside).to be(false)
@@ -240,16 +240,16 @@ describe PgSearch do
     end
 
     it "should reenable multisearch after an error" do
-      @multisearch_enabled_before = PgSearch.multisearch_enabled?
+      @multisearch_enabled_before = described_class.multisearch_enabled?
       begin
-        PgSearch.disable_multisearch do
-          @multisearch_enabled_inside = PgSearch.multisearch_enabled?
+        described_class.disable_multisearch do
+          @multisearch_enabled_inside = described_class.multisearch_enabled?
           raise
         end
       rescue StandardError
       end
 
-      @multisearch_enabled_after = PgSearch.multisearch_enabled?
+      @multisearch_enabled_after = described_class.multisearch_enabled?
 
       expect(@multisearch_enabled_before).to be(true)
       expect(@multisearch_enabled_inside).to be(false)
@@ -260,15 +260,15 @@ describe PgSearch do
       values = Queue.new
       sync = Queue.new
       Thread.new do
-        values.push PgSearch.multisearch_enabled?
+        values.push described_class.multisearch_enabled?
         sync.pop # wait
-        values.push PgSearch.multisearch_enabled?
+        values.push described_class.multisearch_enabled?
         sync.pop # wait
-        values.push PgSearch.multisearch_enabled?
+        values.push described_class.multisearch_enabled?
       end
 
       @multisearch_enabled_before = values.pop
-      PgSearch.disable_multisearch do
+      described_class.disable_multisearch do
         sync.push :go
         @multisearch_enabled_inside = values.pop
       end

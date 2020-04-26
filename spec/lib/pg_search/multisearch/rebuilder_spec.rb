@@ -10,7 +10,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
     it 'raises an exception' do
       expect {
-        PgSearch::Multisearch::Rebuilder.new(NotMultisearchable)
+        described_class.new(NotMultisearchable)
       }.to raise_exception(
         PgSearch::Multisearch::ModelNotMultisearchable,
         "NotMultisearchable is not multisearchable. See PgSearch::ClassMethods#multisearchable"
@@ -32,7 +32,7 @@ describe PgSearch::Multisearch::Rebuilder do
         end
 
         it "should call .rebuild_pg_search_documents" do
-          rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+          rebuilder = described_class.new(Model)
           expect(Model).to receive(:rebuild_pg_search_documents)
           rebuilder.rebuild
         end
@@ -56,7 +56,7 @@ describe PgSearch::Multisearch::Rebuilder do
             end
 
             it "should call .rebuild_pg_search_documents" do
-              rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+              rebuilder = described_class.new(Model)
               expect(Model).to receive(:rebuild_pg_search_documents)
               rebuilder.rebuild
             end
@@ -80,7 +80,7 @@ describe PgSearch::Multisearch::Rebuilder do
           end
 
           it "should not call :rebuild_pg_search_documents" do
-            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+            rebuilder = described_class.new(Model)
 
             # stub respond_to? to return false since should_not_receive defines the method
             original_respond_to = Model.method(:respond_to?)
@@ -98,7 +98,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
           it "should execute the default SQL" do
             time = Time.utc(2001, 1, 1, 0, 0, 0)
-            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, -> { time })
+            rebuilder = described_class.new(Model, -> { time })
 
             expected_sql = <<-SQL.strip_heredoc
             INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
@@ -139,7 +139,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             it "creates search document without PG error" do
               time = Time.utc(2001, 1, 1, 0, 0, 0)
-              rebuilder = PgSearch::Multisearch::Rebuilder.new(Model, -> { time })
+              rebuilder = described_class.new(Model, -> { time })
               rebuilder.rebuild
             end
           end
@@ -158,7 +158,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             it "generates SQL with the correct primary key" do
               time = Time.utc(2001, 1, 1, 0, 0, 0)
-              rebuilder = PgSearch::Multisearch::Rebuilder.new(ModelWithNonStandardPrimaryKey, -> { time })
+              rebuilder = described_class.new(ModelWithNonStandardPrimaryKey, -> { time })
 
               expected_sql = <<-SQL.strip_heredoc
               INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
@@ -205,7 +205,7 @@ describe PgSearch::Multisearch::Rebuilder do
           it "calls update_pg_search_document on each record" do
             record = Model.create!
 
-            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+            rebuilder = described_class.new(Model)
 
             # stub respond_to? to return false since should_not_receive defines the method
             original_respond_to = Model.method(:respond_to?)
@@ -243,7 +243,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             PgSearch::Document.delete_all
 
-            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+            rebuilder = described_class.new(Model)
             rebuilder.rebuild
 
             expect(record_1.reload.pg_search_document.additional_attribute_column).to eq("Model::1")
@@ -269,7 +269,7 @@ describe PgSearch::Multisearch::Rebuilder do
             record_1 = Model.create!(active: true)
             record_2 = Model.create!(active: false)
 
-            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+            rebuilder = described_class.new(Model)
 
             # stub respond_to? to return false since should_not_receive defines the method
             original_respond_to = Model.method(:respond_to?)
@@ -305,7 +305,7 @@ describe PgSearch::Multisearch::Rebuilder do
             record_1 = Model.create!(inactive: true)
             record_2 = Model.create!(inactive: false)
 
-            rebuilder = PgSearch::Multisearch::Rebuilder.new(Model)
+            rebuilder = described_class.new(Model)
 
             # stub respond_to? to return false since should_not_receive defines the method
             original_respond_to = Model.method(:respond_to?)
