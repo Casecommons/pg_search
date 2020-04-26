@@ -22,11 +22,6 @@ RSpec/ExampleLength:
     - 'spec/lib/pg_search/multisearchable_spec.rb'
     - 'spec/lib/pg_search_spec.rb'
 
-# Offense count: 1
-RSpec/LetSetup:
-  Exclude:
-    - 'spec/integration/pg_search_spec.rb'
-
 # Offense count: 27
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: have_received, receive

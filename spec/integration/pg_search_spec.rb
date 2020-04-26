@@ -1067,9 +1067,10 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       let!(:expected) { ModelWithTsvector.create!(content: 'tiling is grouty') }
-      let!(:unexpected) { ModelWithTsvector.create!(content: 'longcat is looooooooong') }
 
       before do
+        ModelWithTsvector.create!(content: 'longcat is looooooooong')
+
         ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
           UPDATE #{ModelWithTsvector.quoted_table_name}
           SET content_tsvector = to_tsvector('english'::regconfig, #{ModelWithTsvector.quoted_table_name}."content")
