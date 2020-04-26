@@ -22,13 +22,6 @@ RSpec/ExampleLength:
     - 'spec/lib/pg_search/multisearchable_spec.rb'
     - 'spec/lib/pg_search_spec.rb'
 
-# Offense count: 11
-# Configuration parameters: AssignmentOnly.
-RSpec/InstanceVariable:
-  Exclude:
-    - 'spec/integration/pg_search_spec.rb'
-    - 'spec/lib/pg_search_spec.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 RSpec/LeadingSubject:

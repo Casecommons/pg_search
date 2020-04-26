@@ -950,16 +950,13 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       context "with feature-specific configuration" do
-        before do
-          @tsearch_config = tsearch_config = { dictionary: 'english' }
-          @trigram_config = trigram_config = { foo: 'bar' }
+        let(:tsearch_config) { { dictionary: 'english' } }
+        let(:trigram_config) { { foo: 'bar' } }
 
+        before do
           ModelWithPgSearch.pg_search_scope :with_tsearch_and_trigram_using_hash,
                                             against: :title,
-                                            using: {
-                                              tsearch: tsearch_config,
-                                              trigram: trigram_config
-                                            }
+                                            using: { tsearch: tsearch_config, trigram: trigram_config }
         end
 
         it "passes the custom configuration down to the specified feature" do
@@ -968,8 +965,8 @@ describe "an Active Record model which includes PgSearch" do
             rank: Arel::Nodes::Grouping.new(Arel.sql("1.0"))
           )
 
-          expect(PgSearch::Features::TSearch).to receive(:new).with(anything, @tsearch_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
-          expect(PgSearch::Features::Trigram).to receive(:new).with(anything, @trigram_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
+          expect(PgSearch::Features::TSearch).to receive(:new).with(anything, tsearch_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
+          expect(PgSearch::Features::Trigram).to receive(:new).with(anything, trigram_config, anything, anything, anything).at_least(:once).and_return(stub_feature)
 
           ModelWithPgSearch.with_tsearch_and_trigram_using_hash("foo")
         end

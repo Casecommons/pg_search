@@ -233,32 +233,33 @@ describe PgSearch do
 
   describe ".disable_multisearch" do
     it "disables multisearch temporarily" do
-      @multisearch_enabled_before = described_class.multisearch_enabled?
+      multisearch_enabled_before = described_class.multisearch_enabled?
+      multisearch_enabled_inside = nil
       described_class.disable_multisearch do
-        @multisearch_enabled_inside = described_class.multisearch_enabled?
+        multisearch_enabled_inside = described_class.multisearch_enabled?
       end
-      @multisearch_enabled_after = described_class.multisearch_enabled?
+      multisearch_enabled_after = described_class.multisearch_enabled?
 
-      expect(@multisearch_enabled_before).to be(true)
-      expect(@multisearch_enabled_inside).to be(false)
-      expect(@multisearch_enabled_after).to be(true)
+      expect(multisearch_enabled_before).to be(true)
+      expect(multisearch_enabled_inside).to be(false)
+      expect(multisearch_enabled_after).to be(true)
     end
 
     it "reenables multisearch after an error" do
-      @multisearch_enabled_before = described_class.multisearch_enabled?
+      multisearch_enabled_before = described_class.multisearch_enabled?
+      multisearch_enabled_inside = nil
       begin
         described_class.disable_multisearch do
-          @multisearch_enabled_inside = described_class.multisearch_enabled?
+          multisearch_enabled_inside = described_class.multisearch_enabled?
           raise
         end
       rescue StandardError
       end
+      multisearch_enabled_after = described_class.multisearch_enabled?
 
-      @multisearch_enabled_after = described_class.multisearch_enabled?
-
-      expect(@multisearch_enabled_before).to be(true)
-      expect(@multisearch_enabled_inside).to be(false)
-      expect(@multisearch_enabled_after).to be(true)
+      expect(multisearch_enabled_before).to be(true)
+      expect(multisearch_enabled_inside).to be(false)
+      expect(multisearch_enabled_after).to be(true)
     end
 
     it "does not disable multisearch on other threads" do
@@ -272,17 +273,18 @@ describe PgSearch do
         values.push described_class.multisearch_enabled?
       end
 
-      @multisearch_enabled_before = values.pop
+      multisearch_enabled_before = values.pop
+      multisearch_enabled_inside = nil
       described_class.disable_multisearch do
         sync.push :go
-        @multisearch_enabled_inside = values.pop
+        multisearch_enabled_inside = values.pop
       end
       sync.push :go
-      @multisearch_enabled_after = values.pop
+      multisearch_enabled_after = values.pop
 
-      expect(@multisearch_enabled_before).to be(true)
-      expect(@multisearch_enabled_inside).to be(true)
-      expect(@multisearch_enabled_after).to be(true)
+      expect(multisearch_enabled_before).to be(true)
+      expect(multisearch_enabled_inside).to be(true)
+      expect(multisearch_enabled_after).to be(true)
     end
   end
 end
