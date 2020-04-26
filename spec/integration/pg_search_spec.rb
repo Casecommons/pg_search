@@ -157,7 +157,7 @@ describe "an Active Record model which includes PgSearch" do
           results = ModelWithPgSearch.select('id, title').search_content('foo')
 
           expect(results).to include(included)
-          expect(results).to_not include(excluded)
+          expect(results).not_to include(excluded)
 
           expect(results.first.attributes.key?('content')).to eq false
 
@@ -174,7 +174,7 @@ describe "an Active Record model which includes PgSearch" do
           results = ModelWithPgSearch.search_content('foo').select('id, title')
 
           expect(results).to include(included)
-          expect(results).to_not include(excluded)
+          expect(results).not_to include(excluded)
 
           expect(results.first.attributes.key?('content')).to eq false
 
@@ -191,7 +191,7 @@ describe "an Active Record model which includes PgSearch" do
           results = ModelWithPgSearch.select('id').search_content('foo').select('title')
 
           expect(results).to include(included)
-          expect(results).to_not include(excluded)
+          expect(results).not_to include(excluded)
 
           expect(results.first.attributes.key?('content')).to eq false
 
@@ -270,7 +270,7 @@ describe "an Active Record model which includes PgSearch" do
           it "does not raise an exception" do
             relation = Person.named('foo').house_search_city('bar')
 
-            expect { relation.to_a }.to_not raise_error
+            expect { relation.to_a }.not_to raise_error
           end
         end
       end
@@ -283,7 +283,7 @@ describe "an Active Record model which includes PgSearch" do
         it "does not raise an exception" do
           relation = ModelWithPgSearch.search_content('foo').search_title('bar')
 
-          expect { relation.to_a }.to_not raise_error
+          expect { relation.to_a }.not_to raise_error
         end
       end
 

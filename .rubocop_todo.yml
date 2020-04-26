@@ -31,15 +31,6 @@ RSpec/MultipleExpectations:
 RSpec/NestedGroups:
   Max: 10
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: not_to, to_not
-RSpec/NotToNot:
-  Exclude:
-    - 'spec/integration/pg_search_spec.rb'
-    - 'spec/lib/pg_search/multisearchable_spec.rb'
-
 # Offense count: 2
 RSpec/RepeatedExampleGroupDescription:
   Exclude:
