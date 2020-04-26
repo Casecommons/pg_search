@@ -289,7 +289,7 @@ describe PgSearch do
         end
       end
 
-      it "should only do one join" do
+      it "joins only once" do
         included = [
           ModelWithAssociation.create!(
             another_model: AssociatedModel.create!(
@@ -342,7 +342,7 @@ describe PgSearch do
         end
       end
 
-      it "should cast the columns to text" do
+      it "casts the columns to text" do
         associated = AssociatedModel.create!(number: 123)
         included = [
           Model.create!(number: 123, another_model: associated),
@@ -416,7 +416,7 @@ describe PgSearch do
       end
     end
 
-    it "should find records of the other model" do
+    it "finds records of the other model" do
       included_associated_1 = AssociatedModel.create(content: "foo bar")
       included_associated_2 = AssociatedModel.create(content: "foo baz")
       excluded_associated_1 = AssociatedModel.create(content: "baz quux")
@@ -461,7 +461,7 @@ describe PgSearch do
     end
 
     # https://github.com/Casecommons/pg_search/issues/106
-    it "should handle numbers in a trigram query properly" do
+    it "handles numbers in a trigram query properly" do
       company = Company.create!
       another_company = Company.create!
 
@@ -502,7 +502,7 @@ describe PgSearch do
     end
 
     # https://github.com/Casecommons/pg_search/issues/106
-    it "should handle numbers in a trigram query properly" do
+    it "handles numbers in a trigram query properly" do
       company = Company.create!
       another_company = Company.create!
 

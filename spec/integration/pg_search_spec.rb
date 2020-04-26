@@ -962,7 +962,7 @@ describe "an Active Record model which includes PgSearch" do
                                             }
         end
 
-        it "should pass the custom configuration down to the specified feature" do
+        it "passes the custom configuration down to the specified feature" do
           stub_feature = double(
             conditions: Arel::Nodes::Grouping.new(Arel.sql("1 = 1")),
             rank: Arel::Nodes::Grouping.new(Arel.sql("1.0"))
@@ -1022,15 +1022,15 @@ describe "an Active Record model which includes PgSearch" do
                              }
       end
 
-      it "should find by the tsvector column" do
+      it "finds by the tsvector column" do
         expect(Post.search_by_content_with_tsvector("phooey").map(&:id)).to eq([expected.id])
       end
 
-      it "should find by the associated record" do
+      it "finds by the associated record" do
         expect(Post.search_by_content_with_tsvector("commentone").map(&:id)).to eq([expected.id])
       end
 
-      it 'should find by a combination of the two' do
+      it 'finds by a combination of the two' do
         expect(Post.search_by_content_with_tsvector("phooey commentone").map(&:id)).to eq([expected.id])
       end
     end
@@ -1088,11 +1088,11 @@ describe "an Active Record model which includes PgSearch" do
                                           }
       end
 
-      it "should not use to_tsvector in the query" do
+      it "does not use to_tsvector in the query" do
         expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").to_sql).not_to match(/to_tsvector/)
       end
 
-      it "should find the expected result" do
+      it "finds the expected result" do
         expect(ModelWithTsvector.search_by_content_with_tsvector("tiles").map(&:id)).to eq([expected.id])
       end
 
@@ -1108,7 +1108,7 @@ describe "an Active Record model which includes PgSearch" do
           ModelWithTsvector.has_many :another_models
         end
 
-        it "should refer to the tsvector column in the query unambiguously" do
+        it "refers to the tsvector column in the query unambiguously" do
           expect {
             ModelWithTsvector.joins(:another_models).search_by_content_with_tsvector("test").to_a
           }.not_to raise_exception
@@ -1157,13 +1157,13 @@ describe "an Active Record model which includes PgSearch" do
                                           ranked_by: ":tsearch * importance"
       end
 
-      it "should return records with a rank attribute equal to the :ranked_by expression" do
+      it "returns records with a rank attribute equal to the :ranked_by expression" do
         ModelWithPgSearch.create!(content: 'foo', importance: 10)
         results = ModelWithPgSearch.search_content_with_importance_as_rank("foo").with_pg_search_rank
         expect(results.first.pg_search_rank).to eq(10)
       end
 
-      it "should substitute :tsearch with the tsearch rank expression in the :ranked_by expression" do
+      it "substitutes :tsearch with the tsearch rank expression in the :ranked_by expression" do
         ModelWithPgSearch.create!(content: 'foo', importance: 10)
 
         tsearch_result =
@@ -1181,7 +1181,7 @@ describe "an Active Record model which includes PgSearch" do
         expect(multiplied_rank).to be_within(0.001).of(tsearch_rank * 10)
       end
 
-      it "should return results in descending order of the value of the rank expression" do
+      it "returns results in descending order of the value of the rank expression" do
         records = [
           ModelWithPgSearch.create!(content: 'foo', importance: 1),
           ModelWithPgSearch.create!(content: 'foo', importance: 3),

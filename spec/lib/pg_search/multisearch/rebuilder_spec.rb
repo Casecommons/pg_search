@@ -31,7 +31,7 @@ describe PgSearch::Multisearch::Rebuilder do
           end
         end
 
-        it "should call .rebuild_pg_search_documents" do
+        it "calls .rebuild_pg_search_documents" do
           rebuilder = described_class.new(Model)
           expect(Model).to receive(:rebuild_pg_search_documents)
           rebuilder.rebuild
@@ -55,7 +55,7 @@ describe PgSearch::Multisearch::Rebuilder do
               end
             end
 
-            it "should call .rebuild_pg_search_documents" do
+            it "calls .rebuild_pg_search_documents" do
               rebuilder = described_class.new(Model)
               expect(Model).to receive(:rebuild_pg_search_documents)
               rebuilder.rebuild
@@ -79,7 +79,7 @@ describe PgSearch::Multisearch::Rebuilder do
             end
           end
 
-          it "should not call :rebuild_pg_search_documents" do
+          it "does not call :rebuild_pg_search_documents" do
             rebuilder = described_class.new(Model)
 
             # stub respond_to? to return false since should_not_receive defines the method
@@ -96,7 +96,7 @@ describe PgSearch::Multisearch::Rebuilder do
             rebuilder.rebuild
           end
 
-          it "should execute the default SQL" do
+          it "executes the default SQL" do
             time = Time.utc(2001, 1, 1, 0, 0, 0)
             rebuilder = described_class.new(Model, -> { time })
 

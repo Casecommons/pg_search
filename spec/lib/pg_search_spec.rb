@@ -232,7 +232,7 @@ describe PgSearch do
   end
 
   describe ".disable_multisearch" do
-    it "should temporarily disable multisearch" do
+    it "disables multisearch temporarily" do
       @multisearch_enabled_before = described_class.multisearch_enabled?
       described_class.disable_multisearch do
         @multisearch_enabled_inside = described_class.multisearch_enabled?
@@ -244,7 +244,7 @@ describe PgSearch do
       expect(@multisearch_enabled_after).to be(true)
     end
 
-    it "should reenable multisearch after an error" do
+    it "reenables multisearch after an error" do
       @multisearch_enabled_before = described_class.multisearch_enabled?
       begin
         described_class.disable_multisearch do
@@ -261,7 +261,7 @@ describe PgSearch do
       expect(@multisearch_enabled_after).to be(true)
     end
 
-    it "should not disable multisearch on other threads" do
+    it "does not disable multisearch on other threads" do
       values = Queue.new
       sync = Queue.new
       Thread.new do
