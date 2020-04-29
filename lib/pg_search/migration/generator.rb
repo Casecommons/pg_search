@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require 'active_record'
-require 'rails/generators/base'
+require "active_record"
+require "rails/generators"
+require "rails/generators/base"
 
 module PgSearch
   module Migration

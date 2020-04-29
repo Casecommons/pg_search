@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 require "active_support/core_ext/module/delegation"
-require 'active_support/deprecation'
+require "active_support/deprecation"
+require "arel"
+require "pg_search/features/feature"
+require "pg_search/configuration/foreign_column"
 
 module PgSearch
   module Features

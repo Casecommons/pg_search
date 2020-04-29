@@ -4,7 +4,7 @@ require 'pg_search/migration/generator'
 
 module PgSearch
   module Migration
-    class DmetaphoneGenerator < Generator
+    class DmetaphoneGenerator < PgSearch::Migration::Generator
       def migration_name
         'add_pg_search_dmetaphone_support_functions'
       end

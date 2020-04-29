@@ -4,7 +4,7 @@ require 'pg_search/migration/generator'
 
 module PgSearch
   module Migration
-    class MultisearchGenerator < Generator
+    class MultisearchGenerator < PgSearch::Migration::Generator
       def migration_name
         'create_pg_search_documents'
       end

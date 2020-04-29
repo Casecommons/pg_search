@@ -6,6 +6,7 @@ require:
   - rubocop-rake
   - rubocop-rspec
   - rubocop-thread_safety
+  - rubocop/require_tools
 
 AllCops:
   TargetRubyVersion: 2.4

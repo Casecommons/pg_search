@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "arel"
+require "pg_search/features/feature"
+
 module PgSearch
   module Features
     class Trigram < Feature

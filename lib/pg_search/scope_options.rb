@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "active_support/core_ext/module/delegation"
+require "pg_search/configuration"
+require "pg_search/normalizer"
+require "arel"
 
 module PgSearch
   class ScopeOptions

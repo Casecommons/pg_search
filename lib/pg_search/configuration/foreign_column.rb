@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'digest'
+require "pg_search/configuration/column"
 
 module PgSearch
   class Configuration

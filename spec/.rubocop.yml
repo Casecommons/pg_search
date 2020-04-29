@@ -12,3 +12,6 @@ Lint/UselessAssignment:
 
 Style/BlockDelimiters:
   Enabled: false
+
+Require/MissingRequireStatement:
+  Enabled: false

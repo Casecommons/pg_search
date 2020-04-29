@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-require 'logger'
+require "active_record/base"
+require "logger"
+require "pg_search"
 
 module PgSearch
   class Document < ActiveRecord::Base

@@ -69,4 +69,6 @@ module PgSearch
   end
 end
 
+# rubocop:disable Require/MissingRequireStatement
 require "pg_search/railtie" if defined?(Rails::Railtie)
+# rubocop:enable Require/MissingRequireStatement

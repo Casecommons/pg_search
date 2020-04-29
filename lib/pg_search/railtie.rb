@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "rails/railtie"
+require "pg_search"
+
 module PgSearch
   class Railtie < Rails::Railtie
     rake_tasks do

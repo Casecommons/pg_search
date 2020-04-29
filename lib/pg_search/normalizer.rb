@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "arel"
+
 module PgSearch
   class Normalizer
     def initialize(config)

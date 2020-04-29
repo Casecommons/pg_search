@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "active_support/core_ext/module/delegation"
+require "pg_search/features/feature"
+require "pg_search/features/tsearch"
 
 module PgSearch
   module Features

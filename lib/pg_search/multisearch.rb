@@ -5,12 +5,14 @@ require "pg_search/multisearch/rebuilder"
 module PgSearch
   module Multisearch
     class << self
+      # rubocop:disable Require/MissingRequireStatement
       def rebuild(model, clean_up = true)
         model.transaction do
           PgSearch::Document.where(searchable_type: model.base_class.name).delete_all if clean_up
           Rebuilder.new(model).rebuild
         end
       end
+      # rubocop:enable Require/MissingRequireStatement
     end
 
     class ModelNotMultisearchable < StandardError

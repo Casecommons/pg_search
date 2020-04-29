@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "digest"
+require "pg_search/configuration/foreign_column"
 
 module PgSearch
   class Configuration
@@ -11,7 +12,7 @@ module PgSearch
         @model = model
         @name = name
         @columns = Array(column_names).map do |column_name, weight|
-          ForeignColumn.new(column_name, weight, @model, self)
+          PgSearch::Configuration::ForeignColumn.new(column_name, weight, @model, self)
         end
       end
 

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pg_search/multisearch"
+
 module PgSearch
   module Multisearch
     class Rebuilder
@@ -101,9 +103,11 @@ module PgSearch
         model.quoted_table_name
       end
 
+      # rubocop:disable Require/MissingRequireStatement
       def documents_table
         PgSearch::Document.quoted_table_name
       end
+      # rubocop:enable Require/MissingRequireStatement
 
       def current_time
         connection.quote(connection.quoted_date(@time_source.call))

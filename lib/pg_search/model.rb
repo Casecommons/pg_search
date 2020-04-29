@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require "active_support/concern"
+require "pg_search/configuration"
+require "pg_search/scope_options"
+require "pg_search"
+
 module PgSearch
   module Model
     extend ActiveSupport::Concern
