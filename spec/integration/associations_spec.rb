@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe PgSearch do
+describe "a pg_search_scope" do
   context "when joining to another table" do
     context "without an :against" do
       with_model :AssociatedModel do
