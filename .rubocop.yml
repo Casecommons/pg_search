@@ -8,7 +8,7 @@ require:
   - rubocop-thread_safety
 
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
   Exclude:
     - bin/**/*
     - vendor/**/*
