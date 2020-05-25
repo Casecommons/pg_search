@@ -107,3 +107,12 @@ RSpec/FilePath:
   CustomTransform:
     TSearch: "tsearch"
     DMetaphone: "dmetaphone"
+
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
+
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true
+
+Style/SlicingWithRange:
+  Enabled: true
