@@ -116,3 +116,15 @@ Lint/DeprecatedOpenSSLConstant:
 
 Style/SlicingWithRange:
   Enabled: true
+
+Lint/MixedRegexpCaptureTypes:
+  Enabled: true
+
+Style/RedundantFetchBlock:
+  Enabled: true
+
+Style/RedundantRegexpCharacterClass:
+  Enabled: true
+
+Style/RedundantRegexpEscape:
+  Enabled: true
