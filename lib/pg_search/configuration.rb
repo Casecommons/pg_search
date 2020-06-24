@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pg_search/configuration/association"
+require "pg_search/configuration/arel_association"
 require "pg_search/configuration/column"
 require "pg_search/configuration/foreign_column"
 
@@ -27,6 +28,10 @@ module PgSearch
       regular_columns + associated_columns
     end
 
+    def associations
+      relation_associations + arel_associations
+    end
+
     def regular_columns
       return [] unless options[:against]
 
@@ -35,11 +40,18 @@ module PgSearch
       end
     end
 
-    def associations
+    def relation_associations
       return [] unless options[:associated_against]
 
       options[:associated_against].map do |association, column_names|
         Association.new(model, association, column_names)
+      end.flatten
+    end
+
+    def arel_associations
+      return [] unless options[:associated_arel]
+      options[:associated_arel].map do |arel, column_names|
+        ArelAssociation.new(model, arel, column_names)
       end.flatten
     end
 
@@ -84,7 +96,7 @@ module PgSearch
     end
 
     VALID_KEYS = %w[
-      against ranked_by ignoring using query associated_against order_within_rank
+      against ranked_by ignoring using query associated_against associated_arel order_within_rank
     ].map(&:to_sym)
 
     VALID_VALUES = {
@@ -92,8 +104,8 @@ module PgSearch
     }.freeze
 
     def assert_valid_options(options)
-      unless options[:against] || options[:associated_against]
-        raise ArgumentError, "the search scope #{@name} must have :against or :associated_against in its options"
+      unless options[:against] || options[:associated_against] || options[:associated_arel]
+        raise ArgumentError, "the search scope #{@name} must have :against or :associated_against or :associated_arel in its options"
       end
 
       options.assert_valid_keys(VALID_KEYS)
