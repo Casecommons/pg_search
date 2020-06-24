@@ -50,6 +50,7 @@ module PgSearch
 
     def arel_associations
       return [] unless options[:associated_arel]
+
       options[:associated_arel].map do |arel, column_names|
         ArelAssociation.new(model, arel, column_names)
       end.flatten
@@ -105,7 +106,8 @@ module PgSearch
 
     def assert_valid_options(options)
       unless options[:against] || options[:associated_against] || options[:associated_arel]
-        raise ArgumentError, "the search scope #{@name} must have :against or :associated_against or :associated_arel in its options"
+        raise ArgumentError,
+              "the search scope #{@name} must have :against or :associated_against or :associated_arel in its options"
       end
 
       options.assert_valid_keys(VALID_KEYS)

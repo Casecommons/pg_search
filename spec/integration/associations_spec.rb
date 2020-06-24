@@ -483,7 +483,7 @@ describe "a pg_search_scope" do
     end
   end
 
-  context "through an Arel Node" do
+  context "when through an Arel Node" do
     with_model :AssociatedDog do
       table do |t|
         t.string 'dog_name'
@@ -527,29 +527,29 @@ describe "a pg_search_scope" do
 
       model do
         include PgSearch::Model
-        has_many :other_models, :class_name => 'AssociatedModelWithHasManyAndPolymorphicPet', :foreign_key => 'ModelWithHasMany_id'
+        has_many :other_models, class_name: 'AssociatedModelWithHasManyAndPolymorphicPet', foreign_key: 'ModelWithHasMany_id'
 
+        # rubocop:disable Metrics/AbcSize
         def self.associated_pet_names
           cat_table = AssociatedCat.arel_table
           dog_table = AssociatedDog.arel_table
           bt_table = AssociatedModelWithHasManyAndPolymorphicPet.arel_table
 
           cat_join = bt_table.join(cat_table).on(bt_table[:polymorphic_pet_id].eq(cat_table[:id]).and(bt_table[:polymorphic_pet_type].eq('AssociatedCat')))
-                         .project(bt_table[:ModelWithHasMany_id].as('id'), cat_table[:cat_name].as('name'))
+                             .project(bt_table[:ModelWithHasMany_id].as('id'), cat_table[:cat_name].as('name'))
           dog_join = bt_table.join(dog_table).on(bt_table[:polymorphic_pet_id].eq(dog_table[:id]).and(bt_table[:polymorphic_pet_type].eq('AssociatedDog')))
-                         .project(bt_table[:ModelWithHasMany_id].as('id'), dog_table[:dog_name].as('name'))
+                             .project(bt_table[:ModelWithHasMany_id].as('id'), dog_table[:dog_name].as('name'))
 
-          union = cat_join.union(dog_join)
-          Arel::Nodes::TableAlias.new(union, 'associated_pet_names')
+          Arel::Nodes::TableAlias.new(cat_join.union(dog_join), 'associated_pet_names')
         end
 
         pg_search_scope :with_associated,
                         against: :title,
                         associated_against: {
-                            other_models: [:title]
+                          other_models: [:title]
                         },
                         associated_arel: {
-                            associated_pet_names => :name
+                          associated_pet_names => :name
                         }
       end
     end
@@ -561,31 +561,32 @@ describe "a pg_search_scope" do
       goofy = AssociatedDog.create!(dog_name: 'goofy')
 
       included = [
-          # covered by polymorphic arel column
-          ModelWithHasMany.create!(:title => 'abcdef', :other_models => [
-              AssociatedModelWithHasManyAndPolymorphicPet.create!(:title => 'foo', polymorphic_pet: felix),
-              AssociatedModelWithHasManyAndPolymorphicPet.create!(:title => 'bar', polymorphic_pet: goofy)
-          ]),
-          # covered by associated column
-          ModelWithHasMany.create!(:title => 'ghijkl', :other_models => [
-              AssociatedModelWithHasManyAndPolymorphicPet.create!(:title => 'foo bar', polymorphic_pet: felix),
-              AssociatedModelWithHasManyAndPolymorphicPet.create!(:title => 'goofy', polymorphic_pet: snoopy)
-          ]),
-          # covered by model column
-          ModelWithHasMany.create!(:title => 'felix', :other_models => [
-              AssociatedModelWithHasManyAndPolymorphicPet.create!(:title => 'foo bar', polymorphic_pet: garfield),
-              AssociatedModelWithHasManyAndPolymorphicPet.create!(:title => 'goofy', polymorphic_pet: snoopy)
-          ])
+        # covered by polymorphic arel column
+        ModelWithHasMany.create!(title: 'abcdef', other_models: [
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'foo', polymorphic_pet: felix),
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'bar', polymorphic_pet: goofy)
+        ]),
+        # covered by associated column
+        ModelWithHasMany.create!(title: 'ghijkl', other_models: [
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'foo bar', polymorphic_pet: felix),
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'goofy', polymorphic_pet: snoopy)
+        ]),
+        # covered by model column
+        ModelWithHasMany.create!(title: 'felix', other_models: [
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'foo bar', polymorphic_pet: garfield),
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'goofy', polymorphic_pet: snoopy)
+        ])
       ]
-      excluded = ModelWithHasMany.create!(:title => 'stuvwx', :other_models => [
-          # not covered
-          AssociatedModelWithHasManyAndPolymorphicPet.create!(:title => 'foo bar', polymorphic_pet: felix),
-          AssociatedModelWithHasManyAndPolymorphicPet.create!(:title => 'mnopqr', polymorphic_pet: snoopy)
+      excluded = ModelWithHasMany.create!(title: 'stuvwx', other_models: [
+        # not covered
+        AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'foo bar', polymorphic_pet: felix),
+        AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'mnopqr', polymorphic_pet: snoopy)
       ])
 
       results = ModelWithHasMany.with_associated('felix goofy')
-      expect(results.flat_map{|r| r.other_models.map(&:polymorphic_pet).map(&:name)}).to(
-          match_array(included.flat_map{|r| r.other_models.map(&:polymorphic_pet).map(&:name)}))
+      expect(results.flat_map { |r| r.other_models.map(&:polymorphic_pet).map(&:name) }).to(
+        match_array(included.flat_map { |r| r.other_models.map(&:polymorphic_pet).map(&:name) })
+      )
       expect(results).not_to include(excluded)
     end
   end
