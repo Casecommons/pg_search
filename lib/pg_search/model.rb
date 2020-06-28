@@ -21,11 +21,13 @@ module PgSearch
         end
       end
 
+      # rubocop:disable ThreadSafety/ClassAndModuleAttributes
       def multisearchable(options = {})
         include PgSearch::Multisearchable
         class_attribute :pg_search_multisearchable_options
         self.pg_search_multisearchable_options = options
       end
+      # rubocop:enable ThreadSafety/ClassAndModuleAttributes
     end
 
     def method_missing(symbol, *args)
