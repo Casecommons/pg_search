@@ -895,7 +895,7 @@ class Sentence < ActiveRecord::Base
   include PgSearch::Model
 
   pg_search_scope :similarity_like,
-                  against: :words,
+                  against: :name,
                   using: {
                     trigram: {
                       word_similarity: true
@@ -903,7 +903,7 @@ class Sentence < ActiveRecord::Base
                   }
 
   pg_search_scope :word_similarity_like,
-                  against: :words,
+                  against: :name,
                   using: [:trigram]
 end
 
