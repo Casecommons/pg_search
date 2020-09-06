@@ -7,7 +7,7 @@ module PgSearch
   module Features
     class Feature
       def self.valid_options
-        %i[only sort_only]
+        %i[only sort_only highlight_only]
       end
 
       delegate :connection, :quoted_table_name, to: :'@model'
@@ -35,6 +35,20 @@ module PgSearch
           end
         else
           all_columns
+        end
+      end
+
+      def highlight_document
+        highlight_columns.map { |column| column.to_sql }.join(" || ' ' || ")
+      end
+
+      def highlight_columns
+        if options[:highlight_only]
+          columns.select do |column|
+            Array.wrap(options[:highlight_only]).map(&:to_s).include? column.name
+          end
+        else
+          columns
         end
       end
 
