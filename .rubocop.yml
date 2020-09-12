@@ -129,3 +129,6 @@ Style/RedundantRegexpCharacterClass:
 
 Style/RedundantRegexpEscape:
   Enabled: true
+
+RSpec/MultipleExpectations:
+  Max: 5

@@ -150,7 +150,8 @@ describe PgSearch do
           expect(results.size).to eq(SearchableSubclassModel.count)
         end
 
-        it "reindexing works" do
+        # rubocop:disable RSpec/MultipleExpectations
+        specify "reindexing works" do
           NonSearchableSubclassModel.create!(content: "foo bar")
           NonSearchableSubclassModel.create!(content: "baz")
           expected = SearchableSubclassModel.create!(content: "baz")
@@ -171,6 +172,7 @@ describe PgSearch do
           expect(PgSearch::Document.first.searchable.class).to be SearchableSubclassModel
           expect(PgSearch::Document.first.searchable).to eq expected
         end
+        # rubocop:enable RSpec/MultipleExpectations
 
         it "reindexing searchable STI doesn't clobber other related STI models" do
           SearchableSubclassModel.create!(content: "baz")

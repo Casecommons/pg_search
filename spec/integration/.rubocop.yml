@@ -3,3 +3,6 @@ inherit_from:
 
 RSpec/DescribeClass:
   Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false

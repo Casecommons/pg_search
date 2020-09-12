@@ -22,9 +22,6 @@ RSpec/ExampleLength:
     - 'spec/lib/pg_search/multisearchable_spec.rb'
     - 'spec/lib/pg_search_spec.rb'
 
-# Offense count: 75
-RSpec/MultipleExpectations:
-  Max: 20
 
 # Offense count: 11
 # Configuration parameters: AllowSubject.
