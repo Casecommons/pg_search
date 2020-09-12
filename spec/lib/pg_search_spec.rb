@@ -15,6 +15,7 @@ class << PgSearch::Document
   end
 end
 
+# rubocop:disable RSpec/NestedGroups
 describe PgSearch do
   describe ".multisearch" do
     with_table "pg_search_documents", &DOCUMENTS_SCHEMA
@@ -293,3 +294,4 @@ describe PgSearch do
     end
   end
 end
+# rubocop:enable RSpec/NestedGroups

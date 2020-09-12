@@ -2,6 +2,7 @@
 
 require "spec_helper"
 
+# rubocop:disable RSpec/NestedGroups
 describe "an Active Record model which includes PgSearch" do
   with_model :ModelWithPgSearch do
     table do |t|
@@ -1307,3 +1308,4 @@ describe "an Active Record model which includes PgSearch" do
     end
   end
 end
+# rubocop:enable RSpec/NestedGroups

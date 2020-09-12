@@ -2,6 +2,7 @@
 
 require "spec_helper"
 
+# rubocop:disable RSpec/NestedGroups
 describe "a pg_search_scope" do
   context "when joining to another table" do
     context "without an :against" do
@@ -483,3 +484,4 @@ describe "a pg_search_scope" do
     end
   end
 end
+# rubocop:enable RSpec/NestedGroups

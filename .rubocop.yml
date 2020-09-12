@@ -135,6 +135,3 @@ RSpec/MultipleExpectations:
 
 RSpec/MultipleMemoizedHelpers:
   AllowSubject: true
-
-RSpec/NestedGroups:
-  Enabled: false

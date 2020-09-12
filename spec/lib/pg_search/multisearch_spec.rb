@@ -2,6 +2,7 @@
 
 require "spec_helper"
 
+# rubocop:disable RSpec/NestedGroups
 describe PgSearch::Multisearch do
   with_table "pg_search_documents", &DOCUMENTS_SCHEMA
 
@@ -173,3 +174,4 @@ describe PgSearch::Multisearch do
     end
   end
 end
+# rubocop:enable RSpec/NestedGroups
