@@ -22,10 +22,6 @@ RSpec/ExampleLength:
     - 'spec/lib/pg_search/multisearchable_spec.rb'
     - 'spec/lib/pg_search_spec.rb'
 
-# Offense count: 168
-RSpec/NestedGroups:
-  Max: 10
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Rails/NegateInclude:
