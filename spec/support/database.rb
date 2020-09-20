@@ -29,7 +29,7 @@ end
 
 if ENV["LOGGER"]
   require "logger"
-  ActiveRecord::Base.logger = Logger.new(STDOUT)
+  ActiveRecord::Base.logger = Logger.new($stdout)
 end
 
 def install_extension(name)

@@ -12,7 +12,7 @@ module PgSearch
     # The logger might not have loaded yet.
     # https://github.com/Casecommons/pg_search/issues/26
     def self.logger
-      super || Logger.new(STDERR)
+      super || Logger.new($stderr)
     end
 
     pg_search_scope :search, lambda { |*args|

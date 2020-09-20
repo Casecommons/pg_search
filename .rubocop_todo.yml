@@ -23,13 +23,6 @@ RSpec/ExampleLength:
     - 'spec/lib/pg_search_spec.rb'
 
 # Offense count: 2
-# Cop supports --auto-correct.
-Style/GlobalStdStream:
-  Exclude:
-    - 'lib/pg_search/document.rb'
-    - 'spec/support/database.rb'
-
-# Offense count: 2
 Style/OptionalBooleanParameter:
   Exclude:
     - 'lib/pg_search/multisearch.rb'
