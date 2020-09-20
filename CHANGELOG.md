@@ -1,62 +1,67 @@
 # pg_search changelog
 
+## 2.3.3
+
+* Drop support for Ruby < 2.5.
+* Use keyword argument for `clean_up` setting in `PgSearch::Multisearch.rebuild`.
+
 ## 2.3.2
 
-* Autoload PgSearch::Document to prevent it from being loaded in projects that are not using multi-search.
-* Rebuilder should use update_pg_search_document if additional_attributes is set (David Ramalho)
+* Autoload `PgSearch::Document` to prevent it from being loaded in projects that are not using multi-search.
+* Rebuilder should use `update_pg_search_document` if `additional_attributes` is set. (David Ramalho)
 
 ## 2.3.1
 
-* Drop support for Active Record < 5.2
-* Do not load railtie unless Rails::Railtie is defined, to avoid problem when loading alongside Action Mailer (Adam Schwartz)
+* Drop support for Active Record < 5.2.
+* Do not load railtie unless Rails::Railtie is defined, to avoid problem when loading alongside Action Mailer. (Adam Schwartz)
 
 ## 2.3.0
 
-* Extract `PgSearch::Model` module
+* Extract `PgSearch::Model` module.
 * Deprecate `include PgSearch`. Use `include PgSearch::Model` instead.
 
 ## 2.2.0
 
-* Add word_similarity option to trigram search (Severin Räz)
+* Add `word_similarity` option to trigram search. (Severin Räz)
 
 ## 2.1.7
 
-* Restore link to GitHub repository to original location
+* Restore link to GitHub repository to original location.
 
 ## 2.1.6
 
-* Update link to GitHub repository to new location
+* Update link to GitHub repository to new location.
 
 ## 2.1.5
 
-* Drop support for Ruby < 2.4
+* Drop support for Ruby < 2.4.
 
 ## 2.1.4
 
-* Drop support for Ruby < 2.3
-* Use update instead of deprecated update_attributes
-* Remove explicit arel dependency to better support Active Record 6 beta
+* Drop support for Ruby < 2.3.
+* Use `update` instead of deprecated `update_attributes`.
+* Remove explicit Arel dependency to better support Active Record 6 beta.
 
 ## 2.1.3
 
 * Drop support for Ruby < 2.2
-* Disallow left/right single quotation marks in tsquery (Fabian Schwahn) (#382)
-* Do not attempt to save an already-destroy PgSearch::Document (Oleg Dashevskii, Vokhmin Aleksei V) (#353)
-* Quote column name when rebuilding (Jed Levin) (#379)
+* Disallow left/right single quotation marks in tsquery. (Fabian Schwahn) (#382)
+* Do not attempt to save an already-destroyed `PgSearch::Document`. (Oleg Dashevskii, Vokhmin Aleksei V) (#353)
+* Quote column name when rebuilding. (Jed Levin) (#379)
 
 ## 2.1.2
 
-* Silence warnings in Rails 5.2.0.beta2 (Kevin Deisz)
+* Silence warnings in Rails 5.2.0.beta2. (Kevin Deisz)
 
 ## 2.1.1
 
-* Support snake_case ts_headline options again (with deprecation warning)
+* Support snake_case `ts_headline` options again. (with deprecation warning)
 
 ## 2.1.0
 
-* Allow ts_headline options to be passed to :highlight (Ian Heisters)
-* Wait to load PgSearch::Document until after Active Record has loaded (Logan Leger)
-* Add Rails version to generated migrations (Erik Eide)
+* Allow `ts_headline` options to be passed to `:highlight`. (Ian Heisters)
+* Wait to load `PgSearch::Document` until after Active Record has loaded. (Logan Leger)
+* Add Rails version to generated migrations. (Erik Eide)
 
 ## 2.0.1
 
