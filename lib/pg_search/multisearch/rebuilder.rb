@@ -30,7 +30,7 @@ module PgSearch
 
       def dynamic?
         column_names = model.columns.map(&:name)
-        columns.any? { |column| !column_names.include?(column.to_s) }
+        columns.any? { |column| column_names.exclude?(column.to_s) }
       end
 
       def additional_attributes?

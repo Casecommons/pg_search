@@ -22,12 +22,6 @@ RSpec/ExampleLength:
     - 'spec/lib/pg_search/multisearchable_spec.rb'
     - 'spec/lib/pg_search_spec.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Rails/NegateInclude:
-  Exclude:
-    - 'lib/pg_search/multisearch/rebuilder.rb'
-
 # Offense count: 13
 # Cop supports --auto-correct.
 Rails/SquishedSQLHeredocs:
