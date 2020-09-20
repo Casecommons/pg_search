@@ -23,7 +23,7 @@ describe "Including the deprecated PgSearch module" do
     AnotherModel.include(PgSearch)
 
     expect(ActiveSupport::Deprecation).to have_received(:warn).with(
-      <<-MESSAGE.strip_heredoc
+      <<~MESSAGE
         Directly including `PgSearch` into an Active Record model is deprecated and will be removed in pg_search 3.0.
 
         Please replace `include PgSearch` with `include PgSearch::Model`.

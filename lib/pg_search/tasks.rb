@@ -7,7 +7,7 @@ namespace :pg_search do
   namespace :multisearch do
     desc "Rebuild PgSearch multisearch records for a given model"
     task :rebuild, %i[model schema] => :environment do |_task, args|
-      raise ArgumentError, <<-MESSAGE.strip_heredoc unless args.model
+      raise ArgumentError, <<~MESSAGE unless args.model
 
         You must pass a model as an argument.
         Example: rake pg_search:multisearch:rebuild[BlogPost]

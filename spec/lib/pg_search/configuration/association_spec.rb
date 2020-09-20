@@ -51,7 +51,7 @@ describe PgSearch::Configuration::Association do
 
     describe "#join" do
       let(:expected_sql) do
-        <<-SQL.gsub(/\s+/, ' ').strip
+        <<~SQL.squish
           LEFT OUTER JOIN
             (SELECT model_id AS id,
                     #{column_select} AS #{association.columns.first.alias}
@@ -82,7 +82,7 @@ describe PgSearch::Configuration::Association do
 
     describe "#join" do
       let(:expected_sql) do
-        <<-SQL.gsub(/\s+/, ' ').strip
+        <<~SQL.squish
           LEFT OUTER JOIN
             (SELECT model_id AS id,
                     #{column_select} AS #{association.columns.first.alias}
@@ -113,7 +113,7 @@ describe PgSearch::Configuration::Association do
 
     describe "#join" do
       let(:expected_sql) do
-        <<-SQL.gsub(/\s+/, ' ').strip
+        <<~SQL.squish
           LEFT OUTER JOIN
             (SELECT model_id AS id,
                     string_agg(\"#{association.table_name}\".\"name\"::text, ' ') AS #{association.columns.first.alias}

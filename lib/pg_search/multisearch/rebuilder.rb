@@ -46,7 +46,7 @@ module PgSearch
       end
 
       def rebuild_sql_template
-        <<-SQL.strip_heredoc
+        <<~SQL.squish
           INSERT INTO :documents_table (searchable_type, searchable_id, content, created_at, updated_at)
             SELECT :base_model_name AS searchable_type,
                    :model_table.#{primary_key} AS searchable_id,

@@ -18,7 +18,7 @@ module PgSearch
   autoload :Document, "pg_search/document"
 
   def self.included(base)
-    ActiveSupport::Deprecation.warn <<-MESSAGE.strip_heredoc
+    ActiveSupport::Deprecation.warn <<~MESSAGE
       Directly including `PgSearch` into an Active Record model is deprecated and will be removed in pg_search 3.0.
 
       Please replace `include PgSearch` with `include PgSearch::Model`.

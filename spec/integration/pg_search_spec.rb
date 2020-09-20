@@ -1012,7 +1012,7 @@ describe "an Active Record model which includes PgSearch" do
       let!(:unexpected) { Post.create!(content: 'longcat is looooooooong') }
 
       before do
-        ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
+        ActiveRecord::Base.connection.execute <<~SQL.squish
           UPDATE #{Post.quoted_table_name}
           SET content_tsvector = to_tsvector('english'::regconfig, #{Post.quoted_table_name}."content")
         SQL
@@ -1082,7 +1082,7 @@ describe "an Active Record model which includes PgSearch" do
       before do
         ModelWithTsvector.create!(content: 'longcat is looooooooong')
 
-        ActiveRecord::Base.connection.execute <<-SQL.strip_heredoc
+        ActiveRecord::Base.connection.execute <<~SQL.squish
           UPDATE #{ModelWithTsvector.quoted_table_name}
           SET content_tsvector = to_tsvector('english'::regconfig, #{ModelWithTsvector.quoted_table_name}."content")
         SQL

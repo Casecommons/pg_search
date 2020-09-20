@@ -338,7 +338,7 @@ class Movie < ActiveRecord::Base
 
   # More sophisticated approach
   def self.rebuild_pg_search_documents
-    connection.execute <<-SQL
+    connection.execute <<~SQL.squish
      INSERT INTO pg_search_documents (searchable_type, searchable_id, content, created_at, updated_at)
        SELECT 'Movie' AS searchable_type,
               movies.id AS searchable_id,

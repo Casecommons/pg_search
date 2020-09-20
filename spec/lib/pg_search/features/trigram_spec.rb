@@ -19,8 +19,10 @@ describe PgSearch::Features::Trigram do
   let(:config) { OpenStruct.new(ignore: []) }
 
   let(:coalesced_columns) do
-    <<-SQL.strip_heredoc.chomp
-      coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')
+    <<~SQL.squish
+      coalesce(#{Model.quoted_table_name}."name"::text, '')
+        || ' '
+        || coalesce(#{Model.quoted_table_name}."content"::text, '')
     SQL
   end
 

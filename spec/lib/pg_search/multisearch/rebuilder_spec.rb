@@ -112,16 +112,16 @@ describe PgSearch::Multisearch::Rebuilder do
             time = Time.utc(2001, 1, 1, 0, 0, 0)
             rebuilder = described_class.new(Model, -> { time })
 
-            expected_sql = <<-SQL.strip_heredoc
-            INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
-              SELECT 'Model' AS searchable_type,
-                     #{Model.quoted_table_name}.#{Model.primary_key} AS searchable_id,
-                     (
-                       coalesce(#{Model.quoted_table_name}."name"::text, '')
-                     ) AS content,
-                     '2001-01-01 00:00:00' AS created_at,
-                     '2001-01-01 00:00:00' AS updated_at
-              FROM #{Model.quoted_table_name}
+            expected_sql = <<~SQL.squish
+              INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
+                SELECT 'Model' AS searchable_type,
+                       #{Model.quoted_table_name}.#{Model.primary_key} AS searchable_id,
+                       (
+                         coalesce(#{Model.quoted_table_name}."name"::text, '')
+                       ) AS content,
+                       '2001-01-01 00:00:00' AS created_at,
+                       '2001-01-01 00:00:00' AS updated_at
+                FROM #{Model.quoted_table_name}
             SQL
 
             executed_sql = []
@@ -172,16 +172,16 @@ describe PgSearch::Multisearch::Rebuilder do
               time = Time.utc(2001, 1, 1, 0, 0, 0)
               rebuilder = described_class.new(ModelWithNonStandardPrimaryKey, -> { time })
 
-              expected_sql = <<-SQL.strip_heredoc
-              INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
-                SELECT 'ModelWithNonStandardPrimaryKey' AS searchable_type,
-                       #{ModelWithNonStandardPrimaryKey.quoted_table_name}.non_standard_primary_key AS searchable_id,
-                       (
-                         coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}."name"::text, '')
-                       ) AS content,
-                       '2001-01-01 00:00:00' AS created_at,
-                       '2001-01-01 00:00:00' AS updated_at
-                FROM #{ModelWithNonStandardPrimaryKey.quoted_table_name}
+              expected_sql = <<~SQL.squish
+                INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
+                  SELECT 'ModelWithNonStandardPrimaryKey' AS searchable_type,
+                         #{ModelWithNonStandardPrimaryKey.quoted_table_name}.non_standard_primary_key AS searchable_id,
+                         (
+                           coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}."name"::text, '')
+                         ) AS content,
+                         '2001-01-01 00:00:00' AS created_at,
+                         '2001-01-01 00:00:00' AS updated_at
+                  FROM #{ModelWithNonStandardPrimaryKey.quoted_table_name}
               SQL
 
               executed_sql = []

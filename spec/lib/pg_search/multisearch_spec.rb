@@ -34,7 +34,7 @@ describe PgSearch::Multisearch do
 
     describe "cleaning up search documents for this model" do
       before do
-        connection.execute <<-SQL.strip_heredoc
+        connection.execute <<~SQL.squish
           INSERT INTO pg_search_documents
             (searchable_type, searchable_id, content, created_at, updated_at)
             VALUES
@@ -77,7 +77,7 @@ describe PgSearch::Multisearch do
       context "when the model implements .rebuild_pg_search_documents" do
         before do
           def model.rebuild_pg_search_documents
-            connection.execute <<-SQL.strip_heredoc
+            connection.execute <<~SQL.squish
               INSERT INTO pg_search_documents
                 (searchable_type, searchable_id, content, created_at, updated_at)
                 VALUES
@@ -124,7 +124,7 @@ describe PgSearch::Multisearch do
         end
 
         it "generates the proper SQL code" do
-          expected_sql = <<-SQL.strip_heredoc
+          expected_sql = <<~SQL.squish
             INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
               SELECT #{connection.quote(model.name)} AS searchable_type,
                      #{model.quoted_table_name}.id AS searchable_id,
@@ -151,7 +151,7 @@ describe PgSearch::Multisearch do
         end
 
         it "generates the proper SQL code" do
-          expected_sql = <<-SQL.strip_heredoc
+          expected_sql = <<~SQL.squish
             INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
               SELECT #{connection.quote(model.name)} AS searchable_type,
                      #{model.quoted_table_name}.id AS searchable_id,
