@@ -1,5 +1,3 @@
-inherit_from: .rubocop_todo.yml
-
 require:
   - rubocop-performance
   - rubocop-rails
@@ -135,3 +133,6 @@ RSpec/MultipleExpectations:
 
 RSpec/MultipleMemoizedHelpers:
   AllowSubject: true
+
+RSpec/ExampleLength:
+  Max: 15

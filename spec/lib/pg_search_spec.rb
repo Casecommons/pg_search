@@ -265,6 +265,7 @@ describe PgSearch do
       expect(multisearch_enabled_after).to be(true)
     end
 
+    # rubocop:disable RSpec/ExampleLength
     it "does not disable multisearch on other threads" do
       values = Queue.new
       sync = Queue.new
@@ -292,6 +293,7 @@ describe PgSearch do
       expect(multisearch_enabled_inside).to be(true)
       expect(multisearch_enabled_after).to be(true)
     end
+    # rubocop:enable RSpec/ExampleLength
   end
 end
 # rubocop:enable RSpec/NestedGroups
