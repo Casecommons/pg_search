@@ -294,7 +294,7 @@ is your base class. You can prevent ```rebuild``` from deleting your records
 like so:
 
 ```ruby
-PgSearch::Multisearch.rebuild(Product, false)
+PgSearch::Multisearch.rebuild(Product, clean_up: false)
 ```
 
 Rebuild is also available as a Rake task, for convenience.

@@ -22,12 +22,6 @@ RSpec/ExampleLength:
     - 'spec/lib/pg_search/multisearchable_spec.rb'
     - 'spec/lib/pg_search_spec.rb'
 
-# Offense count: 2
-Style/OptionalBooleanParameter:
-  Exclude:
-    - 'lib/pg_search/multisearch.rb'
-    - 'lib/pg_search/scope_options.rb'
-
 # Offense count: 23
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.

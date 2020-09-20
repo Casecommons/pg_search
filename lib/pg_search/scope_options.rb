@@ -14,7 +14,7 @@ module PgSearch
 
     def apply(scope)
       scope = include_table_aliasing_for_rank(scope)
-      rank_table_alias = scope.pg_search_rank_table_alias(:include_counter)
+      rank_table_alias = scope.pg_search_rank_table_alias(include_counter: true)
 
       scope
         .joins(rank_join(rank_table_alias))
@@ -58,7 +58,7 @@ module PgSearch
     end
 
     module PgSearchRankTableAliasing
-      def pg_search_rank_table_alias(include_counter = false)
+      def pg_search_rank_table_alias(include_counter: false)
         components = [arel_table.name]
         if include_counter
           count = increment_counter

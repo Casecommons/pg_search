@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "active_support/deprecation"
 
 # rubocop:disable RSpec/NestedGroups
 describe PgSearch::Multisearch do
@@ -56,20 +57,31 @@ describe PgSearch::Multisearch do
       end
 
       context "when clean_up is true" do
-        let(:clean_up) { true }
-
         it "deletes the document for the model" do
-          described_class.rebuild(model, clean_up)
+          described_class.rebuild(model, clean_up: true)
           expect(PgSearch::Document.count).to eq(1)
           expect(PgSearch::Document.first.searchable_type).to eq("Bar")
         end
       end
 
       context "when clean_up is false" do
-        let(:clean_up) { false }
-
         it "does not delete the document for the model" do
-          described_class.rebuild(model, clean_up)
+          described_class.rebuild(model, clean_up: false)
+          expect(PgSearch::Document.count).to eq(2)
+        end
+      end
+
+      context "when deprecated_clean_up is true" do
+        it "deletes the document for the model" do
+          ActiveSupport::Deprecation.silence { described_class.rebuild(model, true) }
+          expect(PgSearch::Document.count).to eq(1)
+          expect(PgSearch::Document.first.searchable_type).to eq("Bar")
+        end
+      end
+
+      context "when deprecated_clean_up is false" do
+        it "does not delete the document for the model" do
+          ActiveSupport::Deprecation.silence { described_class.rebuild(model, false) }
           expect(PgSearch::Document.count).to eq(2)
         end
       end
