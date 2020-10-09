@@ -2,7 +2,7 @@
 
 require "active_record"
 require "active_support/concern"
-require "active_support/core_ext/module/attribute_accessors_per_thread"
+require "active_support/core_ext/module/attribute_accessors"
 require "active_support/core_ext/string/strip"
 
 require "pg_search/configuration"
@@ -27,10 +27,10 @@ module PgSearch
     base.include PgSearch::Model
   end
 
-  thread_mattr_accessor :multisearch_options
+  mattr_accessor :multisearch_options
   self.multisearch_options = {}
 
-  thread_mattr_accessor :unaccent_function
+  mattr_accessor :unaccent_function
   self.unaccent_function = "unaccent"
 
   class << self

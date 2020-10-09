@@ -3,7 +3,6 @@ require:
   - rubocop-rails
   - rubocop-rake
   - rubocop-rspec
-  - rubocop-thread_safety
 
 AllCops:
   TargetRubyVersion: 2.5
@@ -103,7 +102,7 @@ RSpec/ExpectInHook:
   Enabled: false
 
 RSpec/FilePath:
-  CustomTransform:
+  CustomTransform: 
     TSearch: "tsearch"
     DMetaphone: "dmetaphone"
 

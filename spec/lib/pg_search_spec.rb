@@ -269,8 +269,6 @@ describe PgSearch do
     it "does not disable multisearch on other threads" do
       values = Queue.new
       sync = Queue.new
-
-      # rubocop:disable ThreadSafety/NewThread
       Thread.new do
         values.push described_class.multisearch_enabled?
         sync.pop # wait
@@ -278,7 +276,6 @@ describe PgSearch do
         sync.pop # wait
         values.push described_class.multisearch_enabled?
       end
-      # rubocop:enable ThreadSafety/NewThread
 
       multisearch_enabled_before = values.pop
       multisearch_enabled_inside = nil
