@@ -1,5 +1,10 @@
 # pg_search changelog
 
+## 2.3.4
+
+* Fix issue when setting various options directly on the `PgSearch` module while
+  running with a threaded web server, such as Puma. (Anton Rieder)
+
 ## 2.3.3
 
 * Drop support for Ruby < 2.5.
