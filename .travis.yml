@@ -6,7 +6,7 @@ rvm:
   - 2.7.2
   - 2.6.6
   - 2.5.8
-  - jruby-9.2.11.1
+  - jruby-9.2.13.0
 
 env:
   global:
@@ -16,7 +16,6 @@ env:
     - ACTIVE_RECORD_BRANCH="6-0-stable"
     - ACTIVE_RECORD_VERSION="~> 6.0.0"
     - ACTIVE_RECORD_VERSION="~> 5.2.0"
-
 
 matrix:
   allow_failures:
