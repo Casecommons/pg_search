@@ -8,6 +8,9 @@ rvm:
   - 2.5.8
   - jruby-9.2.13.0
 
+services:
+  - postgresql
+
 env:
   global:
     - CC_TEST_REPORTER_ID=0a0e3e45118bc447e677d52c21d056a5471c4921d54f96ed7b2550d9fc5043ea
@@ -33,9 +36,3 @@ script: bin/rake
 
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
-
-jdk:
-  - openjdk8
-
-addons:
-  postgresql: "9.6"
