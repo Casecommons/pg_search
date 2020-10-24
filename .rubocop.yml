@@ -102,7 +102,7 @@ RSpec/ExpectInHook:
   Enabled: false
 
 RSpec/FilePath:
-  CustomTransform: 
+  CustomTransform:
     TSearch: "tsearch"
     DMetaphone: "dmetaphone"
 
@@ -129,9 +129,6 @@ Style/RedundantRegexpEscape:
 
 RSpec/MultipleExpectations:
   Max: 5
-
-RSpec/MultipleMemoizedHelpers:
-  AllowSubject: true
 
 RSpec/ExampleLength:
   Max: 15
