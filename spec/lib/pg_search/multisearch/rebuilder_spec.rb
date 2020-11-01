@@ -205,9 +205,6 @@ describe PgSearch::Multisearch::Rebuilder do
 
         context "when :against includes non-column dynamic methods" do
           with_model :Model do
-            table do
-            end
-
             model do
               include PgSearch::Model
               multisearchable against: [:foo]
