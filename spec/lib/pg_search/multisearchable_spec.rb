@@ -167,14 +167,13 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against multiple columns" do
-        let(:multisearchable_options) { { against: %i[attr1 attr2] } }
+        let(:multisearchable_options) { { against: %i[attr_1 attr_2] } }
 
         before do
           without_partial_double_verification do
-            allow(record).to receive(:attr1).and_return('1')
-            allow(record).to receive(:attr2).and_return('2')
+            allow(record).to receive(:attr_1).and_return('1')
+            allow(record).to receive(:attr_2).and_return('2')
           end
-
           record.save
         end
 
@@ -214,12 +213,12 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against multiple columns" do
-        let(:multisearchable_options) { { against: %i[attr1 attr2] } }
+        let(:multisearchable_options) { { against: %i[attr_1 attr_2] } }
 
         before do
           without_partial_double_verification do
-            allow(record).to receive(:attr1).and_return('1')
-            allow(record).to receive(:attr2).and_return('2')
+            allow(record).to receive(:attr_1).and_return('1')
+            allow(record).to receive(:attr_2).and_return('2')
           end
           record.save
         end
