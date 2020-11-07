@@ -53,6 +53,47 @@ class Shape < ActiveRecord::Base
 end
 ```    
 
+### Contents
+* [Multi-search vs. search scopes](#multi-search-vs-search-scopes)
+* [Multi-search](#multi-search)
+  * [Setup](#setup)
+  * [`multisearchable`](#multisearchable)
+  * [More Options ](#more-options)
+  * [Multi-search associations](#multi-search-associations)
+  * [Searching in the global search index](#searching-in-the-global-search-index)
+  * [Chaining method calls onto the results](#chaining-method-calls-onto-the-results)
+  * [Configuring multi-search](#configuring-multi-search)
+  * [Rebuilding search documents for a given class](#rebuilding-search-documents-for-a-given-class)
+  * [Disabling multi-search indexing temporarily](#disabling-multi-search-indexing-temporarily)
+* [`pg_search_scope`](#pg_search_scope)
+  * [Searching against one column](#searching-against-one-column)
+  * [Searching against multiple columns](#searching-against-multiple-columns)
+  * [Dynamic search scopes](#dynamic-search-scopes)
+  * [Searching through associations](#searching-through-associations)
+* [Searching using different search features](#searching-using-different-search-features)
+  * [`:tsearch` (Full Text Search)](#tsearch-full-text-search)
+    * [Weighting](#weighting)
+    * [`:prefix` (PostgreSQL 8.4 and newer only)](#prefix-postgresql-84-and-newer-only)
+    * [`:negation`](#negation)
+    * [`:dictionary`](#dictionary)
+    * [`:normalization`](#normalization)
+    * [`:any_word`](#any_word)
+    * [`:sort_only`](#sort_only)
+    * [`:highlight`](#highlight)
+  * [`:dmetaphone` (Double Metaphone soundalike search)](#dmetaphone-double-metaphone-soundalike-search)
+  * [`:trigram` (Trigram search)](#trigram-trigram-search)
+    * [`:threshold`](#threshold)
+    * [`:word_similarity`](#word_similarity)
+* [Limiting Fields When Combining Features](#limiting-fields-when-combining-features)
+* [Ignoring accent marks](#ignoring-accent-marks)
+* [Using tsvector columns](#using-tsvector-columns)
+  * [Combining multiple tsvectors](#combining-multiple-tsvectors)
+* [Configuring ranking and ordering](#configuring-ranking-and-ordering)
+  * [`:ranked_by` (Choosing a ranking algorithm)](#ranked_by-choosing-a-ranking-algorithm)
+  * [`:order_within_rank` (Breaking ties)](#order_within_rank-breaking-ties)
+  * [`PgSearch#pg_search_rank` (Reading a record's rank as a Float)](#pgsearchpg_search_rank-reading-a-records-rank-as-a-float)
+  * [Search rank and chained scopes](#search-rank-and-chained-scopes)
+
 ### Multi-search vs. search scopes
 
 pg_search supports two different techniques for searching, multi-search and
