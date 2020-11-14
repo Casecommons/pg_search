@@ -2,16 +2,14 @@
 
 require "spec_helper"
 
-# For AR 5 and greater, the association reflection's cache needs be cleared
+# For Active Record 5.x and 6.0, the association reflection's cache needs be cleared
 # because we're stubbing the related constants.
-class << PgSearch::Document
-  if ActiveRecord::VERSION::MAJOR >= 5
-    def clear_searchable_cache
-      reflect_on_association(:searchable).clear_association_scope_cache
-    end
-  else
-    def clear_searchable_cache
-    end
+if ActiveRecord::VERSION::MAJOR == 5 || (ActiveRecord::VERSION::MAJOR == 6 && ActiveRecord::VERSION::MINOR == 0)
+  def clear_searchable_cache
+    PgSearch::Document.reflect_on_association(:searchable).clear_association_scope_cache
+  end
+else
+  def clear_searchable_cache
   end
 end
 
@@ -35,7 +33,7 @@ describe PgSearch do
 
     context "with PgSearch.multisearch_options set to a Hash" do
       subject do
-        PgSearch::Document.clear_searchable_cache
+        clear_searchable_cache
         described_class.multisearch(query).map(&:searchable)
       end
 
@@ -59,7 +57,7 @@ describe PgSearch do
 
     context "with PgSearch.multisearch_options set to a Proc" do
       subject do
-        PgSearch::Document.clear_searchable_cache
+        clear_searchable_cache
         described_class.multisearch(query, soundalike).map(&:searchable)
       end
 
@@ -168,7 +166,7 @@ describe PgSearch do
 
           PgSearch::Multisearch.rebuild(SearchableSubclassModel)
 
-          PgSearch::Document.clear_searchable_cache
+          clear_searchable_cache
           expect(PgSearch::Document.count).to be 1
           expect(PgSearch::Document.first.searchable.class).to be SearchableSubclassModel
           expect(PgSearch::Document.first.searchable).to eq expected
@@ -183,7 +181,7 @@ describe PgSearch do
           PgSearch::Multisearch.rebuild(SearchableSubclassModel)
           expect(PgSearch::Document.count).to be 2
 
-          PgSearch::Document.clear_searchable_cache
+          clear_searchable_cache
           classes = PgSearch::Document.all.collect { |d| d.searchable.class }
           expect(classes).to include SearchableSubclassModel
           expect(classes).to include AnotherSearchableSubclassModel
