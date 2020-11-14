@@ -152,7 +152,7 @@ module PgSearch
       return scope if scope.included_modules.include?(PgSearchRankTableAliasing)
 
       scope.all.spawn.tap do |new_scope|
-        new_scope.class_eval { include PgSearchRankTableAliasing }
+        new_scope.instance_eval { extend PgSearchRankTableAliasing }
       end
     end
   end
