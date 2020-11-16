@@ -1,5 +1,10 @@
 # pg_search changelog
 
+## 2.3.5
+
+* Add table of contents to README (Barry Woolgar)
+* Add support for Active Record 6.1
+
 ## 2.3.4
 
 * Fix issue when setting various options directly on the `PgSearch` module while
