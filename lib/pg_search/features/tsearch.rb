@@ -132,7 +132,7 @@ module PgSearch
       def tsquery
         return "''" if query.blank?
 
-        query_terms = query.split(" ").compact
+        query_terms = query.split.compact
         tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
         tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
       end
