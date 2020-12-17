@@ -29,6 +29,8 @@ matrix:
     - env: ACTIVE_RECORD_BRANCH="6-0-stable"
     - env: ACTIVE_RECORD_BRANCH="6-1-stable"
     - rvm: 3.0.0-preview2
+    - rvm: jruby-9.2.13.0
+      env: ACTIVE_RECORD_VERSION="~> 6.1.0"
 
 before_script:
   - psql --version
