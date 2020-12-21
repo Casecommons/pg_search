@@ -319,7 +319,7 @@ To remove all of the documents for a given class, you can simply delete all of
 the PgSearch::Document records.
 
 ```ruby
-PgSearch::Document.delete_all(searchable_type: "Animal")
+PgSearch::Document.delete_by(searchable_type: "Animal")
 ```
 
 To regenerate the documents for a given class, run:
