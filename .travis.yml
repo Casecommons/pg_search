@@ -3,7 +3,7 @@ bundler_args: --binstubs
 cache: bundler
 
 rvm:
-  - 3.0.0-preview2
+  - 3.0.0
   - 2.7.2
   - 2.6.6
   - 2.5.8
@@ -28,7 +28,6 @@ matrix:
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="6-0-stable"
     - env: ACTIVE_RECORD_BRANCH="6-1-stable"
-    - rvm: 3.0.0-preview2
     - rvm: jruby-9.2.13.0
       env: ACTIVE_RECORD_VERSION="~> 6.1.0"
 
