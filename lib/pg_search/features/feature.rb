@@ -10,7 +10,7 @@ module PgSearch
         %i[only sort_only]
       end
 
-      delegate :connection, :quoted_table_name, to: :'@model'
+      delegate :connection, :quoted_table_name, to: :@model
 
       def initialize(query, options, all_columns, model, normalizer)
         @query = query
