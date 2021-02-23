@@ -37,11 +37,8 @@ module PgSearch
 
       def with_pg_search_highlight
         scope = self
-        scope.select(pg_search_highlight_field)
-      end
-
-      def pg_search_highlight_field
-        "(#{highlight}) AS pg_search_highlight, #{table_name}.*"
+        scope = scope.select("#{table_name}.*") unless scope.select_values.any?
+        scope.select("(#{highlight}) AS pg_search_highlight")
       end
 
       def highlight
