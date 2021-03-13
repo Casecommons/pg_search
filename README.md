@@ -550,6 +550,21 @@ class Beer < ActiveRecord::Base
 end
 ```
 
+Here's an example if you pass multiple :using options with additional configurations.
+
+```ruby
+class Beer < ActiveRecord::Base
+  include PgSearch::Model
+  pg_search_scope :search_name, 
+  against: :name, 
+  using: {
+      :trigram => {},
+      :dmetaphone => {},
+      :tsearch => { :prefix => true }
+  }
+end
+```
+
 The currently implemented features are
 
 *   :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html), which is built-in to PostgreSQL
