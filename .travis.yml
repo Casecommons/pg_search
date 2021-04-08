@@ -6,8 +6,6 @@ rvm:
   - 3.0.1
   - 2.7.3
   - 2.6.7
-  - 2.5.9
-  - jruby-9.2.13.0
 
 services:
   - postgresql
@@ -28,8 +26,6 @@ jobs:
     - env: ACTIVE_RECORD_BRANCH="master"
     - env: ACTIVE_RECORD_BRANCH="6-0-stable"
     - env: ACTIVE_RECORD_BRANCH="6-1-stable"
-    - rvm: jruby-9.2.13.0
-      env: ACTIVE_RECORD_VERSION="~> 6.1.0"
   exclude:
     - rvm: 3.0.1
       env: ACTIVE_RECORD_VERSION="~> 5.2.0"
