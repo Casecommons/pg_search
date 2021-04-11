@@ -14,7 +14,7 @@ env:
   global:
     - CC_TEST_REPORTER_ID=0a0e3e45118bc447e677d52c21d056a5471c4921d54f96ed7b2550d9fc5043ea
   jobs:
-    - ACTIVE_RECORD_BRANCH="master"
+    - ACTIVE_RECORD_BRANCH="main"
     - ACTIVE_RECORD_BRANCH="6-1-stable"
     - ACTIVE_RECORD_BRANCH="6-0-stable"
     - ACTIVE_RECORD_VERSION="~> 6.1.0"
@@ -23,7 +23,7 @@ env:
 
 jobs:
   allow_failures:
-    - env: ACTIVE_RECORD_BRANCH="master"
+    - env: ACTIVE_RECORD_BRANCH="main"
     - env: ACTIVE_RECORD_BRANCH="6-0-stable"
     - env: ACTIVE_RECORD_BRANCH="6-1-stable"
   exclude:
