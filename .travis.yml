@@ -11,8 +11,6 @@ services:
   - postgresql
 
 env:
-  global:
-    - CC_TEST_REPORTER_ID=0a0e3e45118bc447e677d52c21d056a5471c4921d54f96ed7b2550d9fc5043ea
   jobs:
     - ACTIVE_RECORD_BRANCH="main"
     - ACTIVE_RECORD_BRANCH="6-1-stable"
@@ -33,11 +31,5 @@ jobs:
 before_script:
   - psql --version
   - psql -c 'create database pg_search_test;' -U postgres >/dev/null
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
 
 script: bin/rake
-
-after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
