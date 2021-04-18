@@ -27,6 +27,8 @@ jobs:
   exclude:
     - rvm: 3.0.1
       env: ACTIVE_RECORD_VERSION="~> 5.2.0"
+    - rvm: 2.6.7
+      env: ACTIVE_RECORD_BRANCH="main"
 
 before_script:
   - psql --version
