@@ -57,14 +57,14 @@ module PgSearch
   class PgSearchRankNotSelected < StandardError
     def message
       "You must chain .with_pg_search_rank after the pg_search_scope " \
-      "to access the pg_search_rank attribute on returned records"
+        "to access the pg_search_rank attribute on returned records"
     end
   end
 
   class PgSearchHighlightNotSelected < StandardError
     def message
       "You must chain .with_pg_search_highlight after the pg_search_scope " \
-      "to access the pg_search_highlight attribute on returned records"
+        "to access the pg_search_highlight attribute on returned records"
     end
   end
 end
