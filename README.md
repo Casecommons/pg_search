@@ -380,7 +380,7 @@ class Movie < ActiveRecord::Base
      INSERT INTO pg_search_documents (searchable_type, searchable_id, content, created_at, updated_at)
        SELECT 'Movie' AS searchable_type,
               movies.id AS searchable_id,
-              (movies.name || ' ' || directors.name) AS content,
+              CONCAT_WS(' ', movies.name, directors.name) AS content,
               now() AS created_at,
               now() AS updated_at
        FROM movies
@@ -390,6 +390,7 @@ class Movie < ActiveRecord::Base
   end
 end
 ```
+**Note:** If using PostgreSQL before 9.1, replace the `CONCAT_WS()` function call with double-pipe concatenation, eg. `(movies.name || ' ' || directors.name)`. However, now be aware that if *any* of the joined values is NULL then the final `content` value will also be NULL, whereas `CONCAT_WS()` will selectively ignore NULL values.
 
 #### Disabling multi-search indexing temporarily
 
