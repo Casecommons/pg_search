@@ -11,4 +11,9 @@ RuboCop::RakeTask.new do |t|
   t.options = %w[--display-cop-names]
 end
 
-task default: %w[spec rubocop]
+desc "Check test coverage"
+task :undercover do
+  exit(1) unless system("bin/undercover --compare origin/master")
+end
+
+task default: %w[spec rubocop undercover]

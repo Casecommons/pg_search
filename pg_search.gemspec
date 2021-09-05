@@ -30,6 +30,8 @@ Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
   s.add_development_dependency 'rubocop-rake'
   s.add_development_dependency 'rubocop-rspec'
   s.add_development_dependency 'simplecov'
+  s.add_development_dependency 'simplecov-lcov'
+  s.add_development_dependency 'undercover'
   s.add_development_dependency 'warning'
   s.add_development_dependency 'with_model'
 

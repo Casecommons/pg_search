@@ -4,8 +4,16 @@ require 'warning'
 # Ignore Ruby 2.7 warnings from Active Record
 Warning.ignore :keyword_separation
 
+# https://github.com/grodowski/undercover#setting-up-required-lcov-reporting
 require 'simplecov'
-SimpleCov.start
+require 'simplecov-lcov'
+SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
+SimpleCov.formatter = SimpleCov::Formatter::LcovFormatter
+SimpleCov.start do
+  add_filter(%r{^/spec/})
+  enable_coverage(:branch)
+end
+require 'undercover'
 
 require "bundler/setup"
 require "pg_search"
