@@ -13,6 +13,7 @@ Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
   s.summary     = "PgSearch builds Active Record named scopes that take advantage of PostgreSQL's full text search"
   s.description = "PgSearch builds Active Record named scopes that take advantage of PostgreSQL's full text search"
   s.licenses    = ['MIT']
+  s.metadata["rubygems_mfa_required"] = "true"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- spec/*`.split("\n")

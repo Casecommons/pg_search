@@ -16,7 +16,7 @@ describe PgSearch::Features::Trigram do
     ]
   }
   let(:normalizer) { PgSearch::Normalizer.new(config) }
-  let(:config) { OpenStruct.new(ignore: []) }
+  let(:config) { OpenStruct.new(ignore: []) } # rubocop:disable Style/OpenStructUse
 
   let(:coalesced_columns) do
     <<~SQL.squish
