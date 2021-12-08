@@ -483,5 +483,113 @@ describe "a pg_search_scope" do
       expect(results).not_to include(*excluded)
     end
   end
+
+  context "when through an Arel Node" do
+    with_model :AssociatedDog do
+      table do |t|
+        t.string 'dog_name'
+      end
+
+      model do
+        def name
+          dog_name
+        end
+      end
+    end
+
+    with_model :AssociatedCat do
+      table do |t|
+        t.string 'cat_name'
+      end
+
+      model do
+        def name
+          cat_name
+        end
+      end
+    end
+
+    with_model :AssociatedModelWithHasManyAndPolymorphicPet do
+      table do |t|
+        t.string 'title'
+        t.belongs_to 'ModelWithHasMany', index: false
+        t.references :polymorphic_pet, polymorphic: true, index: false
+      end
+
+      model do
+        belongs_to :polymorphic_pet, polymorphic: true
+      end
+    end
+
+    with_model :ModelWithHasMany do
+      table do |t|
+        t.string 'title'
+      end
+
+      model do
+        include PgSearch::Model
+        has_many :other_models, class_name: 'AssociatedModelWithHasManyAndPolymorphicPet', foreign_key: 'ModelWithHasMany_id'
+
+        # rubocop:disable Metrics/AbcSize
+        def self.associated_pet_names
+          cat_table = AssociatedCat.arel_table
+          dog_table = AssociatedDog.arel_table
+          bt_table = AssociatedModelWithHasManyAndPolymorphicPet.arel_table
+
+          cat_join = bt_table.join(cat_table).on(bt_table[:polymorphic_pet_id].eq(cat_table[:id]).and(bt_table[:polymorphic_pet_type].eq('AssociatedCat')))
+                             .project(bt_table[:ModelWithHasMany_id].as('id'), cat_table[:cat_name].as('name'))
+          dog_join = bt_table.join(dog_table).on(bt_table[:polymorphic_pet_id].eq(dog_table[:id]).and(bt_table[:polymorphic_pet_type].eq('AssociatedDog')))
+                             .project(bt_table[:ModelWithHasMany_id].as('id'), dog_table[:dog_name].as('name'))
+
+          Arel::Nodes::TableAlias.new(cat_join.union(dog_join), 'associated_pet_names')
+        end
+
+        pg_search_scope :with_associated,
+                        against: :title,
+                        associated_against: {
+                          other_models: [:title]
+                        },
+                        associated_arel: {
+                          associated_pet_names => :name
+                        }
+      end
+    end
+
+    it "returns rows that match the query in either its own columns or the columns of the associated model" do
+      felix = AssociatedCat.create!(cat_name: 'felix')
+      garfield = AssociatedCat.create!(cat_name: 'garfield')
+      snoopy = AssociatedDog.create!(dog_name: 'snoopy')
+      goofy = AssociatedDog.create!(dog_name: 'goofy')
+
+      included = [
+        # covered by polymorphic arel column
+        ModelWithHasMany.create!(title: 'abcdef', other_models: [
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'foo', polymorphic_pet: felix),
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'bar', polymorphic_pet: goofy)
+        ]),
+        # covered by associated column
+        ModelWithHasMany.create!(title: 'ghijkl', other_models: [
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'foo bar', polymorphic_pet: felix),
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'goofy', polymorphic_pet: snoopy)
+        ]),
+        # covered by model column
+        ModelWithHasMany.create!(title: 'felix', other_models: [
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'foo bar', polymorphic_pet: garfield),
+          AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'goofy', polymorphic_pet: snoopy)
+        ])
+      ]
+      excluded = ModelWithHasMany.create!(title: 'stuvwx', other_models: [
+        # not covered
+        AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'foo bar', polymorphic_pet: felix),
+        AssociatedModelWithHasManyAndPolymorphicPet.create!(title: 'mnopqr', polymorphic_pet: snoopy)
+      ])
+
+      results = ModelWithHasMany.with_associated('felix goofy')
+      expect(results.flat_map { |r| r.other_models.map(&:polymorphic_pet).map(&:name) }).to(
+        match_array(included.flat_map { |r| r.other_models.map(&:polymorphic_pet).map(&:name) })
+      )
+      expect(results).not_to include(excluded)
+    end
+  end
 end
 # rubocop:enable RSpec/NestedGroups
