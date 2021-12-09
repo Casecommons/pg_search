@@ -335,6 +335,13 @@ like so:
 PgSearch::Multisearch.rebuild(Product, clean_up: false)
 ```
 
+```rebuild``` runs inside a single transaction. To run outside of a transaction,
+you can pass ```transactional: false``` like so:
+
+```ruby
+PgSearch::Multisearch.rebuild(Product, transactional: false)
+```
+
 Rebuild is also available as a Rake task, for convenience.
 
     $ rake pg_search:multisearch:rebuild[BlogPost]

@@ -33,6 +33,15 @@ describe PgSearch::Multisearch do
       expect(model).to have_received(:transaction).once
     end
 
+    context "when transactional is false" do
+      it "does not operate inside a transaction" do
+        allow(model).to receive(:transaction)
+
+        described_class.rebuild(model, transactional: false)
+        expect(model).not_to have_received(:transaction)
+      end
+    end
+
     describe "cleaning up search documents for this model" do
       before do
         connection.execute <<~SQL.squish
