@@ -92,8 +92,8 @@ module PgSearch
     }.freeze
 
     def assert_valid_options(options)
-      unless options[:against] || options[:associated_against]
-        raise ArgumentError, "the search scope #{@name} must have :against or :associated_against in its options"
+      unless options[:against] || options[:associated_against] || using_tsvector_column?(options[:using])
+        raise ArgumentError, "the search scope #{@name} must have :against or :associated_against in its options or specify a tsvector_column"
       end
 
       options.assert_valid_keys(VALID_KEYS)
@@ -103,6 +103,13 @@ module PgSearch
           raise ArgumentError, ":#{key} cannot accept #{value}" unless values_for_key.include?(value)
         end
       end
+    end
+
+    def using_tsvector_column?(options)
+      return unless options.is_a?(Hash)
+
+      options.dig(:dmetaphone, :tsvector_column).present? ||
+        options.dig(:tsearch, :tsvector_column).present?
     end
   end
 end

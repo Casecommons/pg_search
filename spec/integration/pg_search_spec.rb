@@ -140,6 +140,22 @@ describe "an Active Record model which includes PgSearch" do
             }.to raise_error(ArgumentError, /against/)
           end
         end
+
+        context "when a tsvector column is specified" do
+          it "does not raise an exception when invoked" do
+            ModelWithPgSearch.pg_search_scope :with_unknown_ignoring, {
+              using: {
+                tsearch: {
+                  tsvector_column: "tsv"
+                }
+              }
+            }
+
+            expect {
+              ModelWithPgSearch.with_unknown_ignoring("foo")
+            }.not_to raise_error
+          end
+        end
       end
     end
   end
