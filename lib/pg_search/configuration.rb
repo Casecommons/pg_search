@@ -93,7 +93,10 @@ module PgSearch
 
     def assert_valid_options(options)
       unless options[:against] || options[:associated_against] || using_tsvector_column?(options[:using])
-        raise ArgumentError, "the search scope #{@name} must have :against or :associated_against in its options or specify a tsvector_column"
+        raise(
+          ArgumentError,
+          "the search scope #{@name} must have :against, :associated_against, or :tsvector_column in its options"
+        )
       end
 
       options.assert_valid_keys(VALID_KEYS)
