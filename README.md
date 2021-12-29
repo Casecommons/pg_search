@@ -1,7 +1,7 @@
 # [pg_search](http://github.com/Casecommons/pg_search/)
 
 [![Gem Version](https://img.shields.io/gem/v/pg_search.svg?style=flat)](https://rubygems.org/gems/pg_search)
-[![Build Status](https://secure.travis-ci.org/Casecommons/pg_search.svg?branch=master)](https://travis-ci.org/Casecommons/pg_search)
+[![Build Status](https://github.com/Casecommons/pg_search/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Casecommons/pg_search/actions/workflows/ci.yml)
 [![Join the chat at https://gitter.im/Casecommons/pg_search](https://img.shields.io/badge/gitter-join%20chat-blue.svg)](https://gitter.im/Casecommons/pg_search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## DESCRIPTION
