@@ -10,10 +10,12 @@ else
 end
 
 begin
-  ActiveRecord::Base.establish_connection(adapter: 'postgresql',
-                                          database: 'pg_search_test',
-                                          username: (ENV["TRAVIS"] ? "postgres" : ENV["USER"]),
-                                          min_messages: 'warning')
+  connection_options = { adapter: 'postgresql', database: 'pg_search_test', min_messages: 'warning' }
+  if ENV["CI"]
+    connection_options[:username] = 'postgres'
+    connection_options[:password] = 'postgres'
+  end
+  ActiveRecord::Base.establish_connection(connection_options)
   connection = ActiveRecord::Base.connection
   connection.execute("SELECT 1")
 rescue ERROR_CLASS, ActiveRecord::NoDatabaseError => e
