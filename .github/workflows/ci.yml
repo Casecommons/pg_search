@@ -42,9 +42,6 @@ jobs:
         allow-failure: [false]
         include:
           - ruby-version: '3.1'
-            active-record-version-env: ACTIVE_RECORD_VERSION="~> 7.0.0"
-            allow-failure: true
-          - ruby-version: '3.1'
             active-record-version-env: ACTIVE_RECORD_BRANCH="7-0-stable"
             allow-failure: true
           - ruby-version: '3.1'
@@ -58,9 +55,6 @@ jobs:
             active-record-version-env: ACTIVE_RECORD_VERSION="~> 5.2.0"
             allow-failure: false
           - ruby-version: '2.6'
-            active-record-version-env: ACTIVE_RECORD_VERSION="~> 7.0.0"
-            allow-failure: false
-          - ruby-version: '3.1'
             active-record-version-env: ACTIVE_RECORD_VERSION="~> 7.0.0"
             allow-failure: false
     continue-on-error: ${{ matrix.allow-failure }}
