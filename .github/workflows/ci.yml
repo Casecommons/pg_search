@@ -10,6 +10,7 @@ on:
       - master
   schedule:
     - cron: "0 18 * * 6" # Saturdays at 12pm CST
+  workflow_dispatch:
 
 jobs:
   test:
