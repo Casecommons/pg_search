@@ -15,8 +15,8 @@ Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
   s.licenses    = ['MIT']
   s.metadata["rubygems_mfa_required"] = "true"
 
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- spec/*`.split("\n")
+  s.files         = `git ls-files -z`.split("\x0")
+  s.test_files    = `git ls-files -z -- spec/*`.split("\x0")
   s.require_paths = ['lib']
 
   s.add_dependency 'activerecord', '>= 5.2'
