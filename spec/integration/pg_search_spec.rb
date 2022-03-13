@@ -176,7 +176,7 @@ describe "an Active Record model which includes PgSearch" do
           expect(results).to include(included)
           expect(results).not_to include(excluded)
 
-          expect(results.first.attributes.key?('content')).to eq false
+          expect(results.first.attributes.key?('content')).to be false
 
           expect(results.select { |record| record.title == "bar" }).to eq [included]
           expect(results.reject { |record| record.title == "bar" }).to be_empty
@@ -193,7 +193,7 @@ describe "an Active Record model which includes PgSearch" do
           expect(results).to include(included)
           expect(results).not_to include(excluded)
 
-          expect(results.first.attributes.key?('content')).to eq false
+          expect(results.first.attributes.key?('content')).to be false
 
           expect(results.select { |record| record.title == "bar" }).to eq [included]
           expect(results.reject { |record| record.title == "bar" }).to be_empty
@@ -210,7 +210,7 @@ describe "an Active Record model which includes PgSearch" do
           expect(results).to include(included)
           expect(results).not_to include(excluded)
 
-          expect(results.first.attributes.key?('content')).to eq false
+          expect(results.first.attributes.key?('content')).to be false
 
           expect(results.select { |record| record.title == "bar" }).to eq [included]
           expect(results.reject { |record| record.title == "bar" }).to be_empty

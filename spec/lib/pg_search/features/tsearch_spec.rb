@@ -27,6 +27,24 @@ describe PgSearch::Features::TSearch do
         %{(ts_rank((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 0))}
       )
     end
+
+    context "with a tsvector column and a custom normalization" do
+      it "works?" do
+        query = "query"
+        columns = [
+          PgSearch::Configuration::Column.new(:name, nil, Model),
+          PgSearch::Configuration::Column.new(:content, nil, Model)
+        ]
+        options = { tsvector_column: :my_tsvector, normalization: 2 }
+        config = instance_double("PgSearch::Configuration", :config, ignore: [])
+        normalizer = PgSearch::Normalizer.new(config)
+
+        feature = described_class.new(query, options, columns, Model, normalizer)
+        expect(feature.rank.to_sql).to eq(
+          %{(ts_rank((#{Model.quoted_table_name}."my_tsvector"), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 2))}
+        )
+      end
+    end
   end
 
   describe "#conditions" do
