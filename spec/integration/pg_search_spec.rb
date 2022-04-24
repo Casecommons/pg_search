@@ -477,7 +477,7 @@ describe "an Active Record model which includes PgSearch" do
 
       it "accepts non-string queries and calls #to_s on them" do
         foo = ModelWithPgSearch.create!(content: "foo")
-        not_a_string = instance_double("Object", to_s: "foo")
+        not_a_string = instance_double(Object, to_s: "foo")
         expect(ModelWithPgSearch.search_content(not_a_string)).to eq([foo])
       end
 
@@ -993,13 +993,13 @@ describe "an Active Record model which includes PgSearch" do
 
         it "passes the custom configuration down to the specified feature" do
           tsearch_feature = instance_double(
-            "PgSearch::Features::TSearch",
+            PgSearch::Features::TSearch,
             conditions: Arel::Nodes::Grouping.new(Arel.sql("1 = 1")),
             rank: Arel::Nodes::Grouping.new(Arel.sql("1.0"))
           )
 
           trigram_feature = instance_double(
-            "PgSearch::Features::Trigram",
+            PgSearch::Features::Trigram,
             conditions: Arel::Nodes::Grouping.new(Arel.sql("1 = 1")),
             rank: Arel::Nodes::Grouping.new(Arel.sql("1.0"))
           )

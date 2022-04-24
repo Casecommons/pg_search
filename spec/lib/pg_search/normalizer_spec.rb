@@ -8,7 +8,7 @@ describe PgSearch::Normalizer do
     context "when config[:ignore] includes :accents" do
       context "when passed an Arel node" do
         it "wraps the expression in unaccent()" do
-          config = instance_double("PgSearch::Configuration", "config", ignore: [:accents])
+          config = instance_double(PgSearch::Configuration, "config", ignore: [:accents])
           node = Arel::Nodes::NamedFunction.new("foo", [Arel::Nodes.build_quoted("bar")])
 
           normalizer = described_class.new(config)
@@ -20,7 +20,7 @@ describe PgSearch::Normalizer do
             allow(PgSearch).to receive(:unaccent_function).and_return("my_unaccent")
             node = Arel::Nodes::NamedFunction.new("foo", [Arel::Nodes.build_quoted("bar")])
 
-            config = instance_double("PgSearch::Configuration", "config", ignore: [:accents])
+            config = instance_double(PgSearch::Configuration, "config", ignore: [:accents])
 
             normalizer = described_class.new(config)
             expect(normalizer.add_normalization(node)).to eq("my_unaccent(foo('bar'))")
@@ -30,7 +30,7 @@ describe PgSearch::Normalizer do
 
       context "when passed a String" do
         it "wraps the expression in unaccent()" do
-          config = instance_double("PgSearch::Configuration", "config", ignore: [:accents])
+          config = instance_double(PgSearch::Configuration, "config", ignore: [:accents])
 
           normalizer = described_class.new(config)
           expect(normalizer.add_normalization("foo")).to eq("unaccent(foo)")
@@ -40,7 +40,7 @@ describe PgSearch::Normalizer do
           it "wraps the expression in that function" do
             allow(PgSearch).to receive(:unaccent_function).and_return("my_unaccent")
 
-            config = instance_double("PgSearch::Configuration", "config", ignore: [:accents])
+            config = instance_double(PgSearch::Configuration, "config", ignore: [:accents])
 
             normalizer = described_class.new(config)
             expect(normalizer.add_normalization("foo")).to eq("my_unaccent(foo)")
@@ -51,7 +51,7 @@ describe PgSearch::Normalizer do
 
     context "when config[:ignore] does not include :accents" do
       it "passes the expression through" do
-        config = instance_double("PgSearch::Configuration", "config", ignore: [])
+        config = instance_double(PgSearch::Configuration, "config", ignore: [])
 
         normalizer = described_class.new(config)
         expect(normalizer.add_normalization("foo")).to eq("foo")
