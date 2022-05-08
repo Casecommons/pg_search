@@ -36,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby-version: ['2.6', '2.7', '3.0', '3.1']
+        ruby-version: ['2.7', '3.0', '3.1']
         active-record-version-env:
           - ACTIVE_RECORD_VERSION="~> 5.2.0"
           - ACTIVE_RECORD_VERSION="~> 6.0.0"
@@ -59,9 +59,6 @@ jobs:
             allow-failure: false
           - ruby-version: '3.1'
             active-record-version-env: ACTIVE_RECORD_VERSION="~> 5.2.0"
-            allow-failure: false
-          - ruby-version: '2.6'
-            active-record-version-env: ACTIVE_RECORD_VERSION="~> 7.0.0"
             allow-failure: false
     continue-on-error: ${{ matrix.allow-failure }}
     steps:

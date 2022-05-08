@@ -40,8 +40,7 @@ module PgSearch
 
         headline_options
           .merge(deprecated_headline_options)
-          .map { |key, value| "#{key} = #{value}" unless value.nil? }
-          .compact
+          .filter_map { |key, value| "#{key} = #{value}" unless value.nil? }
           .join(", ")
       end
 
