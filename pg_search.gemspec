@@ -3,7 +3,7 @@
 $LOAD_PATH.push File.expand_path('lib', __dir__)
 require 'pg_search/version'
 
-Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
+Gem::Specification.new do |s|
   s.name        = 'pg_search'
   s.version     = PgSearch::VERSION
   s.platform    = Gem::Platform::RUBY
