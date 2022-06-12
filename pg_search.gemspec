@@ -16,7 +16,6 @@ Gem::Specification.new do |s|
   s.metadata["rubygems_mfa_required"] = "true"
 
   s.files         = `git ls-files -z`.split("\x0")
-  s.test_files    = `git ls-files -z -- spec/*`.split("\x0")
   s.require_paths = ['lib']
 
   s.add_dependency 'activerecord', '>= 5.2'
