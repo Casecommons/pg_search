@@ -1091,7 +1091,7 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       it 'concats tsvector columns' do
-        expected = "#{ModelWithTsvector.quoted_table_name}.\"content_tsvector\" || "\
+        expected = "#{ModelWithTsvector.quoted_table_name}.\"content_tsvector\" || " \
                    "#{ModelWithTsvector.quoted_table_name}.\"message_tsvector\""
 
         expect(ModelWithTsvector.search_by_multiple_tsvector_columns("something").to_sql).to include(expected)
