@@ -94,7 +94,7 @@ module PgSearch
         end
       end
 
-      DISALLOWED_TSQUERY_CHARACTERS = /['?\\:‘’]/.freeze
+      DISALLOWED_TSQUERY_CHARACTERS = /['?\\:‘’ʻʼ]/.freeze
 
       def tsquery_for_term(unsanitized_term)
         if options[:negation] && unsanitized_term.start_with?("!")

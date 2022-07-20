@@ -1174,11 +1174,16 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       context "when the query includes accents" do
-        it "does not create an erroneous tsquery expression" do
-          included = ModelWithPgSearch.create!(title: "Weird L‘Content")
+        let(:term) { "L#{%w[‘ ’ ʻ ʼ].sample}Content" }
+        let(:included) { ModelWithPgSearch.create!(title: "Weird #{term}") }
+        let(:results) { ModelWithPgSearch.search_title_without_accents(term) }
 
-          results = ModelWithPgSearch.search_title_without_accents("L‘Content")
-          expect(results).to eq([included])
+        before do
+          ModelWithPgSearch.create!(title: 'FooBar')
+        end
+
+        it "does not create an erroneous tsquery expression" do
+          expect(results).to contain_exactly(included)
         end
       end
     end
