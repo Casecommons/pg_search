@@ -699,12 +699,12 @@ class BoringTweet < ActiveRecord::Base
                   }
 end
 
-sleepy = BoringTweet.create! text: "I snoozed my alarm for fourteen hours today. I bet I can beat that tomorrow! #sleepy"
+sleep = BoringTweet.create! text: "I snoozed my alarm for fourteen hours today. I bet I can beat that tomorrow! #sleep"
 sleeping = BoringTweet.create! text: "You know what I like? Sleeping. That's what. #enjoyment"
-sleeper = BoringTweet.create! text: "Have you seen Woody Allen's movie entitled Sleeper? Me neither. #boycott"
+sleeps = BoringTweet.create! text: "In the jungle, the mighty jungle, the lion sleeps #tonight"
 
-BoringTweet.kinda_matching("sleeping") # => [sleepy, sleeping, sleeper]
-BoringTweet.literally_matching("sleeping") # => [sleeping]
+BoringTweet.kinda_matching("sleeping") # => [sleep, sleeping, sleeps]
+BoringTweet.literally_matching("sleeps") # => [sleeps]
 ```
 
 ##### :normalization
