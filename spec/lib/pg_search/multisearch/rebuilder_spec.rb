@@ -151,10 +151,10 @@ describe PgSearch::Multisearch::Rebuilder do
               end
             end
 
-            it "creates search document without PG error" do
+            it "rebuilds without error" do
               time = Time.utc(2001, 1, 1, 0, 0, 0)
               rebuilder = described_class.new(Model, -> { time })
-              rebuilder.rebuild
+              expect { rebuilder.rebuild }.not_to raise_error
             end
           end
 
