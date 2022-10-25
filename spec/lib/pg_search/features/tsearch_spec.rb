@@ -120,7 +120,7 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.conditions.to_sql).to eq(
-          %{((#{Model.quoted_table_name}.\"my_tsvector\") @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+          %{((#{Model.quoted_table_name}."my_tsvector") @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
         )
       end
     end
@@ -138,7 +138,7 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.conditions.to_sql).to eq(
-          %{((#{Model.quoted_table_name}.\"tsvector1\" || #{Model.quoted_table_name}.\"tsvector2\") @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+          %{((#{Model.quoted_table_name}."tsvector1" || #{Model.quoted_table_name}."tsvector2") @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
         )
       end
     end
