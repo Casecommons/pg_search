@@ -359,15 +359,11 @@ pg_search_documents tables. The following will set the schema search path to
 
     $ rake pg_search:multisearch:rebuild[BlogPost,my_schema]
 
-For models that are multisearchable :against methods that directly map to
+For models that are multisearchable `:against` methods that directly map to
 Active Record attributes, an efficient single SQL statement is run to update
-the pg_search_documents table all at once. However, if you call any dynamic
-methods in :against, the following strategy will be used:
-
-```ruby
-PgSearch::Document.delete_by(searchable_type: "Ingredient")
-Ingredient.find_each { |record| record.update_pg_search_document }
-```
+the `pg_search_documents` table all at once. However, if you call any dynamic
+methods in `:against` then `update_pg_search_document` will be called on the
+individual records being indexed in batches.
 
 You can also provide a custom implementation for rebuilding the documents by
 adding a class method called `rebuild_pg_search_documents` to your model.
