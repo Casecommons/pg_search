@@ -168,7 +168,9 @@ module PgSearch
       end
 
       def tsearch_rank
-        p Arel::Nodes::NamedFunction.new("ts_rank", [
+        return "ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})"
+
+        Arel::Nodes::NamedFunction.new("ts_rank", [
           arel_wrap(tsdocument),
           arel_wrap(tsquery),
           normalization
@@ -176,11 +178,11 @@ module PgSearch
       end
 
       def dictionary
-        p Arel::Nodes.build_quoted(options[:dictionary] || :simple)
+        Arel::Nodes.build_quoted(options[:dictionary] || :simple)
       end
 
       def arel_wrap(sql_string)
-        p Arel::Nodes::Grouping.new(Arel.sql(sql_string))
+        Arel::Nodes::Grouping.new(Arel.sql(sql_string))
       end
 
       def columns_to_use
