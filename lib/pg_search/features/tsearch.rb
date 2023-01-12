@@ -122,7 +122,7 @@ module PgSearch
           Arel::Nodes::InfixOperation.new("||", memo, Arel::Nodes.build_quoted(term))
         end
 
-        Arel::Nodes::NamedFunction.new(
+        p Arel::Nodes::NamedFunction.new(
           "to_tsquery",
           [dictionary, tsquery_sql]
         ).to_sql
@@ -168,7 +168,7 @@ module PgSearch
       end
 
       def tsearch_rank
-        Arel::Nodes::NamedFunction.new("ts_rank", [
+        p Arel::Nodes::NamedFunction.new("ts_rank", [
           arel_wrap(tsdocument),
           arel_wrap(tsquery),
           normalization
@@ -176,11 +176,11 @@ module PgSearch
       end
 
       def dictionary
-        Arel::Nodes.build_quoted(options[:dictionary] || :simple)
+        p Arel::Nodes.build_quoted(options[:dictionary] || :simple)
       end
 
       def arel_wrap(sql_string)
-        Arel::Nodes::Grouping.new(Arel.sql(sql_string))
+        p Arel::Nodes::Grouping.new(Arel.sql(sql_string))
       end
 
       def columns_to_use
