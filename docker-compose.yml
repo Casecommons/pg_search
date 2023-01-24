@@ -1,0 +1,11 @@
+version: '3.2'
+
+services:
+  postgres:
+    image: postgres:12
+    ports:
+      - 5432:5432
+    restart: on-failure
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pg_search_test
