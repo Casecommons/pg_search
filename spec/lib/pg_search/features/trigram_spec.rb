@@ -20,9 +20,9 @@ describe PgSearch::Features::Trigram do
 
   let(:coalesced_columns) do
     <<~SQL.squish
-      coalesce(#{Model.quoted_table_name}."name"::text, '')
+      coalesce((#{Model.quoted_table_name}."name")::text, '')
         || ' '
-        || coalesce(#{Model.quoted_table_name}."content"::text, '')
+        || coalesce((#{Model.quoted_table_name}."content")::text, '')
     SQL
   end
 
@@ -88,7 +88,7 @@ describe PgSearch::Features::Trigram do
         let(:options) { { only: :name } }
 
         it 'only searches against the select column' do
-          coalesced_column = "coalesce(#{Model.quoted_table_name}.\"name\"::text, '')"
+          coalesced_column = "coalesce((#{Model.quoted_table_name}.\"name\")::text, '')"
           expect(feature.conditions.to_sql).to eq("('#{query}' % (#{coalesced_column}))")
         end
       end

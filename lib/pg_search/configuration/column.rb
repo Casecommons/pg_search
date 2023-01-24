@@ -9,18 +9,20 @@ module PgSearch
 
       def initialize(column_name, weight, model)
         @name = column_name.to_s
-        @column_name = column_name.to_s
+        @column_name = column_name
         @weight = weight
         @model = model
         @connection = model.connection
       end
 
       def full_name
+        return @column_name if @column_name.is_a?(Arel::Nodes::SqlLiteral)
+
         "#{table_name}.#{column_name}"
       end
 
       def to_sql
-        "coalesce(#{expression}::text, '')"
+        "coalesce((#{expression})::text, '')"
       end
 
       private
@@ -30,7 +32,7 @@ module PgSearch
       end
 
       def column_name
-        @connection.quote_column_name(@column_name)
+        @connection.quote_column_name(@name)
       end
 
       def expression
