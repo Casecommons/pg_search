@@ -52,9 +52,6 @@ jobs:
           - ruby-version: '3.2'
             active-record-version-env: ACTIVE_RECORD_BRANCH="6-1-stable"
             allow-failure: true
-          - ruby-version: '2.7'
-            active-record-version-env: ACTIVE_RECORD_VERSION="~> 5.2.0"
-            allow-failure: false
     continue-on-error: ${{ matrix.allow-failure }}
     steps:
     - uses: actions/checkout@v2
