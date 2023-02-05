@@ -13,3 +13,17 @@ if ENV['ACTIVE_RECORD_BRANCH']
 end
 
 gem 'activerecord', ENV.fetch('ACTIVE_RECORD_VERSION', nil) if ENV['ACTIVE_RECORD_VERSION']
+
+gem 'pry'
+gem 'rake'
+gem 'rspec'
+gem 'rubocop'
+gem 'rubocop-performance'
+gem 'rubocop-rails'
+gem 'rubocop-rake'
+gem 'rubocop-rspec'
+gem 'simplecov'
+gem 'simplecov-lcov'
+gem 'undercover'
+gem 'warning'
+gem 'with_model'
