@@ -6,10 +6,10 @@ require "spec_helper"
 describe PgSearch::Multisearch::Rebuilder do
   with_table "pg_search_documents", &DOCUMENTS_SCHEMA
 
-  describe 'when initialized with a model that is not multisearchable' do
+  describe "when initialized with a model that is not multisearchable" do
     with_model :not_multisearchable
 
-    it 'raises an exception' do
+    it "raises an exception" do
       expect {
         described_class.new(NotMultisearchable)
       }.to raise_exception(
@@ -253,7 +253,7 @@ describe PgSearch::Multisearch::Rebuilder do
             model do
               include PgSearch::Model
               multisearchable against: :name,
-                              additional_attributes: ->(obj) { { additional_attribute_column: "#{obj.class}::#{obj.id}" } }
+                additional_attributes: ->(obj) { {additional_attribute_column: "#{obj.class}::#{obj.id}"} }
             end
           end
 

@@ -10,11 +10,11 @@ module PgSearch
       return sql_expression unless config.ignore.include?(:accents)
 
       sql_node = case sql_expression
-                 when Arel::Nodes::Node
-                   sql_expression
-                 else
-                   Arel.sql(sql_expression)
-                 end
+      when Arel::Nodes::Node
+        sql_expression
+      else
+        Arel.sql(sql_expression)
+      end
 
       Arel::Nodes::NamedFunction.new(
         PgSearch.unaccent_function,

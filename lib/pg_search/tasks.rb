@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'rake'
-require 'pg_search'
+require "rake"
+require "pg_search"
 
 namespace :pg_search do
   namespace :multisearch do

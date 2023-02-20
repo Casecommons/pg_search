@@ -1,14 +1,27 @@
 inherit_from:
   - ../.rubocop.yml
 
-Layout/LineLength:
+RSpec/ContextWording:
+  Prefixes:
+    - using
+    - via
+    - when
+    - with
+    - without
+
+RSpec/DescribedClass:
+  Enabled: true
+
+RSpec/ExampleLength:
+  Max: 15
+
+RSpec/ExpectInHook:
   Enabled: false
 
-Lint/SuppressedException:
-  Enabled: false
+RSpec/FilePath:
+  CustomTransform:
+    TSearch: "tsearch"
+    DMetaphone: "dmetaphone"
 
-Lint/UselessAssignment:
-  Enabled: false
-
-Style/BlockDelimiters:
-  Enabled: false
+RSpec/MultipleExpectations:
+  Max: 5
