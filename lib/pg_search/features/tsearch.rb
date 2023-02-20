@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require "active_support/core_ext/module/delegation"
-require 'active_support/deprecation'
+require "active_support/deprecation"
 
 module PgSearch
   module Features
-    class TSearch < Feature # rubocop:disable Metrics/ClassLength
+    class TSearch < Feature
       def self.valid_options
         super + %i[dictionary prefix negation any_word normalization tsvector_column highlight]
       end
@@ -36,7 +36,7 @@ module PgSearch
       end
 
       def ts_headline_options
-        return '' unless options[:highlight].is_a?(Hash)
+        return "" unless options[:highlight].is_a?(Hash)
 
         headline_options
           .merge(deprecated_headline_options)
@@ -58,7 +58,7 @@ module PgSearch
         end
       end
 
-      def deprecated_headline_options # rubocop:disable Metrics/MethodLength
+      def deprecated_headline_options
         indifferent_options = options.with_indifferent_access
 
         %w[
@@ -94,11 +94,11 @@ module PgSearch
         end
       end
 
-      DISALLOWED_TSQUERY_CHARACTERS = /['?\\:‘’ʻʼ]/.freeze
+      DISALLOWED_TSQUERY_CHARACTERS = /['?\\:‘’ʻʼ]/
 
       def tsquery_for_term(unsanitized_term)
         if options[:negation] && unsanitized_term.start_with?("!")
-          unsanitized_term[0] = ''
+          unsanitized_term[0] = ""
           negated = true
         end
 
@@ -116,7 +116,7 @@ module PgSearch
       # If :negated is true, then the term will have ! prepended to the front.
       def tsquery_expression(term_sql, negated:, prefix:)
         terms = [
-          (Arel::Nodes.build_quoted('!') if negated),
+          (Arel::Nodes.build_quoted("!") if negated),
           Arel::Nodes.build_quoted("' "),
           term_sql,
           Arel::Nodes.build_quoted(" '"),
@@ -133,7 +133,7 @@ module PgSearch
 
         query_terms = query.split.compact
         tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
-        tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
+        tsquery_terms.join(options[:any_word] ? " || " : " && ")
       end
 
       def tsdocument
@@ -151,7 +151,7 @@ module PgSearch
           end
         end
 
-        tsdocument_terms.join(' || ')
+        tsdocument_terms.join(" || ")
       end
 
       # From http://www.postgresql.org/docs/8.3/static/textsearch-controls.html

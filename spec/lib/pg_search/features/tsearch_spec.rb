@@ -35,7 +35,7 @@ describe PgSearch::Features::TSearch do
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
-        options = { tsvector_column: :my_tsvector, normalization: 2 }
+        options = {tsvector_column: :my_tsvector, normalization: 2}
         config = instance_double(PgSearch::Configuration, :config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
@@ -78,7 +78,7 @@ describe PgSearch::Features::TSearch do
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
-        options = { negation: true }
+        options = {negation: true}
         config = instance_double(PgSearch::Configuration, :config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
@@ -96,7 +96,7 @@ describe PgSearch::Features::TSearch do
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
-        options = { negation: false }
+        options = {negation: false}
         config = instance_double(PgSearch::Configuration, :config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
@@ -108,13 +108,13 @@ describe PgSearch::Features::TSearch do
     end
 
     context "when options[:tsvector_column] is a string" do
-      it 'uses the tsvector column' do
+      it "uses the tsvector column" do
         query = "query"
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
-        options = { tsvector_column: "my_tsvector" }
+        options = {tsvector_column: "my_tsvector"}
         config = instance_double(PgSearch::Configuration, :config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
@@ -126,13 +126,13 @@ describe PgSearch::Features::TSearch do
     end
 
     context "when options[:tsvector_column] is an array of strings" do
-      it 'uses the tsvector column' do
+      it "uses the tsvector column" do
         query = "query"
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
           PgSearch::Configuration::Column.new(:content, nil, Model)
         ]
-        options = { tsvector_column: ["tsvector1", "tsvector2"] }
+        options = {tsvector_column: ["tsvector1", "tsvector2"]}
         config = instance_double(PgSearch::Configuration, :config, ignore: [])
         normalizer = PgSearch::Normalizer.new(config)
 
@@ -170,7 +170,7 @@ describe PgSearch::Features::TSearch do
 
     context "when options[:dictionary] is passed" do
       # rubocop:disable RSpec/ExampleLength
-      it 'uses the provided dictionary' do
+      it "uses the provided dictionary" do
         query = "query"
         columns = [
           PgSearch::Configuration::Column.new(:name, nil, Model),
@@ -206,13 +206,13 @@ describe PgSearch::Features::TSearch do
         options = {
           highlight: {
             StartSel: '<start class="search">',
-            StopSel: '<stop>',
+            StopSel: "<stop>",
             MaxWords: 123,
             MinWords: 456,
             ShortWord: 4,
             HighlightAll: true,
             MaxFragments: 3,
-            FragmentDelimiter: '&hellip;'
+            FragmentDelimiter: "&hellip;"
           }
         }
 
@@ -236,13 +236,13 @@ describe PgSearch::Features::TSearch do
         options = {
           highlight: {
             start_sel: '<start class="search">',
-            stop_sel: '<stop>',
+            stop_sel: "<stop>",
             max_words: 123,
             min_words: 456,
             short_word: 4,
             highlight_all: false,
             max_fragments: 3,
-            fragment_delimiter: '&hellip;'
+            fragment_delimiter: "&hellip;"
           }
         }
 

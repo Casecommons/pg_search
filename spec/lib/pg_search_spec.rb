@@ -49,7 +49,7 @@ describe PgSearch do
         end
       end
 
-      let!(:soundalike_record) { MultisearchableModel.create!(title: 'foning') }
+      let!(:soundalike_record) { MultisearchableModel.create!(title: "foning") }
       let(:query) { "Phoning" }
 
       it { is_expected.to include(soundalike_record) }
@@ -65,9 +65,9 @@ describe PgSearch do
         allow(described_class).to receive(:multisearch_options) do
           lambda do |query, soundalike|
             if soundalike
-              { using: :dmetaphone, query: query }
+              {using: :dmetaphone, query: query}
             else
-              { query: query }
+              {query: query}
             end
           end
         end
@@ -83,7 +83,7 @@ describe PgSearch do
         end
       end
 
-      let!(:soundalike_record) { MultisearchableModel.create!(title: 'foning') }
+      let!(:soundalike_record) { MultisearchableModel.create!(title: "foning") }
       let(:query) { "Phoning" }
 
       context "with soundalike true" do
@@ -103,8 +103,8 @@ describe PgSearch do
       context "with standard type column" do
         with_model :SuperclassModel do
           table do |t|
-            t.text 'content'
-            t.string 'type'
+            t.text "content"
+            t.string "type"
           end
         end
 
@@ -191,12 +191,12 @@ describe PgSearch do
       context "with custom type column" do
         with_model :SuperclassModel do
           table do |t|
-            t.text 'content'
-            t.string 'inherit'
+            t.text "content"
+            t.string "inherit"
           end
 
           model do
-            self.inheritance_column = 'inherit'
+            self.inheritance_column = "inherit"
           end
         end
 
@@ -254,7 +254,7 @@ describe PgSearch do
           multisearch_enabled_inside = described_class.multisearch_enabled?
           raise
         end
-      rescue StandardError
+      rescue
       end
       multisearch_enabled_after = described_class.multisearch_enabled?
 
