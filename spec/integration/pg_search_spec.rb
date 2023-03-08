@@ -547,7 +547,7 @@ describe "an Active Record model which includes PgSearch" do
         in_content = ModelWithPgSearch.create!(title: "bar", content: "foo")
 
         results = ModelWithPgSearch.search_title_and_content("foo")
-        expect(results).to match_array([in_title, in_content])
+        expect(results).to contain_exactly(in_title, in_content)
       end
 
       # Searching with a NULL column will prevent any matches unless we coalesce it.
