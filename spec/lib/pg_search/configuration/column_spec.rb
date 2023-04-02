@@ -28,4 +28,29 @@ describe PgSearch::Configuration::Column do
       expect(column.to_sql).to eq(%{coalesce(#{Model.quoted_table_name}."name"::text, '')})
     end
   end
+  
+  describe "hstore" do
+    with_model :Model do
+      table do |t|
+        t.string :name
+      end
+    end
+  
+    it "returns an expression that casts the column with hstore key to text" do
+      column = described_class.new("column->key", nil, Model)
+      expect(column.to_sql).to eq(%Q{coalesce(#{Model.quoted_table_name}."column"->'key'::text, '')})
+    end
+    
+    it "returns an expression that casts the column with hstore 'key' to text" do
+      column = described_class.new("column->'key'", nil, Model)
+      expect(column.to_sql).to eq(%Q{coalesce(#{Model.quoted_table_name}."column"->'key'::text, '')})
+    end
+
+    it "returns an expression that casts the column with hstore \"key\" to text" do
+      column = described_class.new('column->"key"', nil, Model)
+      expect(column.to_sql).to eq(%Q{coalesce(#{Model.quoted_table_name}."column"->'key'::text, '')})
+    end
+
+  end
+
 end
