@@ -8,8 +8,10 @@ describe "an Active Record model which includes PgSearch" do
     table do |t|
       t.string "title"
       t.text "content"
+      t.integer "tenant_id", null: false, default: 1
       t.integer "parent_model_id"
       t.integer "importance"
+      t.index ["tenant_id"], name: "index_model_with_pg_searches_on_tenant_id"
     end
 
     model do
@@ -176,6 +178,19 @@ describe "an Active Record model which includes PgSearch" do
     context "when against a single column" do
       before do
         ModelWithPgSearch.pg_search_scope :search_content, against: :content
+      end
+
+      context "when searching by tenant" do
+        it "uses the block to constrain the subquery to the tenant" do
+          ModelWithPgSearch.create!(tenant_id: 1, content: "foo")
+          tenant_2 = ModelWithPgSearch.create!(tenant_id: 2, content: "foo")
+
+          results = ModelWithPgSearch.search_content("foo") do |subquery|
+            subquery.where(tenant_id: 2)
+          end
+
+          expect(results).to eq [tenant_2]
+        end
       end
 
       context "when chained after a select() scope" do
