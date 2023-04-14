@@ -3,7 +3,7 @@
 require "spec_helper"
 require "ostruct"
 
-# rubocop:disable RSpec/MultipleMemoizedHelpers, RSpec/NestedGroups
+# rubocop:disable RSpec/MultipleMemoizedHelpers
 describe PgSearch::Features::ILike do
   subject(:feature) { described_class.new(query, options, columns, Model, normalizer) }
 
@@ -38,4 +38,11 @@ describe PgSearch::Features::ILike do
       expect(feature.conditions.to_sql).to eq("((#{coalesced_columns}) ILIKE '%#{query}%')")
     end
   end
+
+  describe "#rank" do
+    it "doesn't do different ranks" do
+      expect(feature.rank.to_sql).to eq("(0)")
+    end
+  end
 end
+# rubocop:enable RSpec/MultipleMemoizedHelpers
