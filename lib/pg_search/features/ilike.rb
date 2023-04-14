@@ -4,7 +4,7 @@ module PgSearch
       def conditions
         Arel::Nodes::Grouping.new(
           Arel::Nodes::InfixOperation.new(
-            'ILIKE',
+            "ILIKE",
             normalized_document,
             normalized_query
           )
@@ -12,7 +12,7 @@ module PgSearch
       end
 
       def rank
-        Arel::Nodes::Grouping.new(Arel.sql('0')) # no ranking or delegate to tsearch like DMetaphone?
+        Arel::Nodes::Grouping.new(Arel.sql("0")) # no ranking or delegate to tsearch like DMetaphone?
       end
 
       private
