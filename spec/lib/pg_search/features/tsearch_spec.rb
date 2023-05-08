@@ -24,7 +24,7 @@ describe PgSearch::Features::TSearch do
 
       feature = described_class.new(query, options, columns, Model, normalizer)
       expect(feature.rank.to_sql).to eq(
-        %{(ts_rank((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 0))}
+        %{(ts_rank((to_tsvector('simple', coalesce((#{Model.quoted_table_name}."name")::text, '')) || to_tsvector('simple', coalesce((#{Model.quoted_table_name}."content")::text, ''))), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 0))}
       )
     end
 
@@ -67,7 +67,7 @@ describe PgSearch::Features::TSearch do
 
       feature = described_class.new(query, options, columns, Model, normalizer)
       expect(feature.conditions.to_sql).to eq(
-        %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+        %{((to_tsvector('simple', coalesce((#{Model.quoted_table_name}."name")::text, '')) || to_tsvector('simple', coalesce((#{Model.quoted_table_name}."content")::text, ''))) @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
       )
     end
 
@@ -84,7 +84,7 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.conditions.to_sql).to eq(
-          %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', '!' || ''' ' || 'query' || ' ''')))}
+          %{((to_tsvector('simple', coalesce((#{Model.quoted_table_name}."name")::text, '')) || to_tsvector('simple', coalesce((#{Model.quoted_table_name}."content")::text, ''))) @@ (to_tsquery('simple', '!' || ''' ' || 'query' || ' ''')))}
         )
       end
     end
@@ -102,7 +102,7 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.conditions.to_sql).to eq(
-          %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || '!query' || ' ''')))}
+          %{((to_tsvector('simple', coalesce((#{Model.quoted_table_name}."name")::text, '')) || to_tsvector('simple', coalesce((#{Model.quoted_table_name}."content")::text, ''))) @@ (to_tsquery('simple', ''' ' || '!query' || ' ''')))}
         )
       end
     end
@@ -164,7 +164,7 @@ describe PgSearch::Features::TSearch do
 
       feature = described_class.new(query, options, columns, Model, normalizer)
       expect(feature.highlight.to_sql).to eq(
-        "(ts_headline('simple', (coalesce(#{Model.quoted_table_name}.\"name\"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), ''))"
+        "(ts_headline('simple', (coalesce((#{Model.quoted_table_name}.\"name\")::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), ''))"
       )
     end
 
@@ -189,7 +189,7 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
 
-        expected_sql = %{(ts_headline('spanish', (coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('spanish', ''' ' || 'query' || ' ''')), 'StartSel = "<b>", StopSel = "</b>"'))}
+        expected_sql = %{(ts_headline('spanish', (coalesce((#{Model.quoted_table_name}."name")::text, '') || ' ' || coalesce((#{Model.quoted_table_name}."content")::text, '')), (to_tsquery('spanish', ''' ' || 'query' || ' ''')), 'StartSel = "<b>", StopSel = "</b>"'))}
 
         expect(feature.highlight.to_sql).to eq(expected_sql)
       end
@@ -221,7 +221,7 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
 
-        expected_sql = %{(ts_headline('simple', (coalesce(#{Model.quoted_table_name}."name"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = TRUE'))}
+        expected_sql = %{(ts_headline('simple', (coalesce((#{Model.quoted_table_name}."name")::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = TRUE'))}
 
         expect(feature.highlight.to_sql).to eq(expected_sql)
       end
@@ -252,7 +252,7 @@ describe PgSearch::Features::TSearch do
         feature = described_class.new(query, options, columns, Model, normalizer)
 
         highlight_sql = ActiveSupport::Deprecation.silence { feature.highlight.to_sql }
-        expected_sql = %{(ts_headline('simple', (coalesce(#{Model.quoted_table_name}."name"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = FALSE'))}
+        expected_sql = %{(ts_headline('simple', (coalesce((#{Model.quoted_table_name}."name")::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = FALSE'))}
 
         expect(highlight_sql).to eq(expected_sql)
       end
