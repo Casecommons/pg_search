@@ -35,17 +35,17 @@ module PgSearch
 
       def similarity_function
         if word_similarity?
-          'word_similarity'
+          "word_similarity"
         else
-          'similarity'
+          "similarity"
         end
       end
 
       def infix_operator
         if word_similarity?
-          '<%'
+          "<%"
         else
-          '%'
+          "%"
         end
       end
 

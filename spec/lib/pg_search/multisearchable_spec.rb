@@ -149,7 +149,7 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against a single column" do
-        let(:multisearchable_options) { { against: :some_content } }
+        let(:multisearchable_options) { {against: :some_content} }
         let(:text) { "foo bar" }
 
         before do
@@ -159,7 +159,7 @@ describe PgSearch::Multisearchable do
           record.save
         end
 
-        describe '#content' do
+        describe "#content" do
           subject { super().pg_search_document.content }
 
           it { is_expected.to eq(text) }
@@ -167,17 +167,17 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against multiple columns" do
-        let(:multisearchable_options) { { against: %i[attr_1 attr_2] } }
+        let(:multisearchable_options) { {against: %i[attr_1 attr_2]} }
 
         before do
           without_partial_double_verification do
-            allow(record).to receive(:attr_1).and_return('1')
-            allow(record).to receive(:attr_2).and_return('2')
+            allow(record).to receive(:attr_1).and_return("1")
+            allow(record).to receive(:attr_2).and_return("2")
           end
           record.save
         end
 
-        describe '#content' do
+        describe "#content" do
           subject { super().pg_search_document.content }
 
           it { is_expected.to eq("1 2") }
@@ -195,7 +195,7 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against a single column" do
-        let(:multisearchable_options) { { against: :some_content } }
+        let(:multisearchable_options) { {against: :some_content} }
         let(:text) { "foo bar" }
 
         before do
@@ -205,7 +205,7 @@ describe PgSearch::Multisearchable do
           record.save
         end
 
-        describe '#content' do
+        describe "#content" do
           subject { super().pg_search_document.content }
 
           it { is_expected.to eq(text) }
@@ -213,17 +213,17 @@ describe PgSearch::Multisearchable do
       end
 
       context "when searching against multiple columns" do
-        let(:multisearchable_options) { { against: %i[attr_1 attr_2] } }
+        let(:multisearchable_options) { {against: %i[attr_1 attr_2]} }
 
         before do
           without_partial_double_verification do
-            allow(record).to receive(:attr_1).and_return('1')
-            allow(record).to receive(:attr_2).and_return('2')
+            allow(record).to receive(:attr_1).and_return("1")
+            allow(record).to receive(:attr_2).and_return("2")
           end
           record.save
         end
 
-        describe '#content' do
+        describe "#content" do
           subject { super().pg_search_document.content }
 
           it { is_expected.to eq("1 2") }
@@ -234,7 +234,7 @@ describe PgSearch::Multisearchable do
         let(:multisearchable_options) do
           {
             additional_attributes: lambda do |record|
-              { foo: record.bar }
+              {foo: record.bar}
             end
           }
         end
@@ -247,7 +247,7 @@ describe PgSearch::Multisearchable do
             record.save
             expect(record)
               .to have_received(:create_pg_search_document)
-              .with(content: '', foo: text)
+              .with(content: "", foo: text)
           end
         end
       end
@@ -269,7 +269,7 @@ describe PgSearch::Multisearchable do
             record.save
             expect(record)
               .to have_received(:create_pg_search_document)
-              .with(content: '')
+              .with(content: "")
           end
         end
 

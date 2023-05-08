@@ -18,16 +18,16 @@ describe PgSearch::Configuration::ForeignColumn do
 
       model do
         include PgSearch::Model
-        belongs_to :another_model, class_name: 'AssociatedModel'
+        belongs_to :another_model, class_name: "AssociatedModel"
 
-        pg_search_scope :with_another, associated_against: { another_model: :title }
+        pg_search_scope :with_another, associated_against: {another_model: :title}
       end
     end
 
     it "returns a consistent string" do
       association = PgSearch::Configuration::Association.new(Model,
-                                                             :another_model,
-                                                             :title)
+        :another_model,
+        :title)
       foreign_column = described_class.new("title", nil, Model, association)
 
       column_alias = foreign_column.alias

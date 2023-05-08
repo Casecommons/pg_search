@@ -14,7 +14,7 @@ Read the blog post introducing PgSearch at https://tanzu.vmware.com/content/blog
 ## REQUIREMENTS
 
 *   Ruby 2.7+
-*   ActiveRecord 5.2+
+*   Active Record 6.0+
 *   PostgreSQL 9.2+
 *   [PostgreSQL extensions](https://github.com/Casecommons/pg_search/wiki/Installing-PostgreSQL-Extensions) for certain features
 
