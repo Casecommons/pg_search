@@ -979,7 +979,7 @@ Sentence.word_similarity_like("word") # => [sentence]
 ### Limiting Fields When Combining Features
 
 Sometimes when doing queries combining different features you
-might want to searching against only some of the fields with certain features.
+might want to search against only some of the fields with certain features.
 For example perhaps you want to only do a trigram search against the shorter fields
 so that you don't need to reduce the threshold excessively. You can specify
 which fields using the 'only' option:
