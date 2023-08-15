@@ -20,23 +20,23 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
-          belongs_to :another_model, class_name: 'AssociatedModel'
+          belongs_to :another_model, class_name: "AssociatedModel"
 
-          pg_search_scope :with_another, associated_against: { another_model: :title }
+          pg_search_scope :with_another, associated_against: {another_model: :title}
         end
       end
 
       it "returns rows that match the query in the columns of the associated model only" do
-        associated = AssociatedModel.create!(title: 'abcdef')
+        associated = AssociatedModel.create!(title: "abcdef")
         included = [
-          ModelWithoutAgainst.create!(title: 'abcdef', another_model: associated),
-          ModelWithoutAgainst.create!(title: 'ghijkl', another_model: associated)
+          ModelWithoutAgainst.create!(title: "abcdef", another_model: associated),
+          ModelWithoutAgainst.create!(title: "ghijkl", another_model: associated)
         ]
         excluded = [
-          ModelWithoutAgainst.create!(title: 'abcdef')
+          ModelWithoutAgainst.create!(title: "abcdef")
         ]
 
-        results = ModelWithoutAgainst.with_another('abcdef')
+        results = ModelWithoutAgainst.with_another("abcdef")
         expect(results.map(&:title)).to match_array(included.map(&:title))
         expect(results).not_to include(excluded)
       end
@@ -45,34 +45,34 @@ describe "a pg_search_scope" do
     context "via a belongs_to association" do
       with_model :AssociatedModel do
         table do |t|
-          t.string 'title'
+          t.string "title"
         end
       end
 
       with_model :ModelWithBelongsTo do
         table do |t|
-          t.string 'title'
-          t.belongs_to 'another_model', index: false
+          t.string "title"
+          t.belongs_to "another_model", index: false
         end
 
         model do
           include PgSearch::Model
-          belongs_to :another_model, class_name: 'AssociatedModel'
+          belongs_to :another_model, class_name: "AssociatedModel"
 
-          pg_search_scope :with_associated, against: :title, associated_against: { another_model: :title }
+          pg_search_scope :with_associated, against: :title, associated_against: {another_model: :title}
         end
       end
 
       it "returns rows that match the query in either its own columns or the columns of the associated model" do
-        associated = AssociatedModel.create!(title: 'abcdef')
+        associated = AssociatedModel.create!(title: "abcdef")
         included = [
-          ModelWithBelongsTo.create!(title: 'ghijkl', another_model: associated),
-          ModelWithBelongsTo.create!(title: 'abcdef')
+          ModelWithBelongsTo.create!(title: "ghijkl", another_model: associated),
+          ModelWithBelongsTo.create!(title: "abcdef")
         ]
-        excluded = ModelWithBelongsTo.create!(title: 'mnopqr',
-                                              another_model: AssociatedModel.create!(title: 'stuvwx'))
+        excluded = ModelWithBelongsTo.create!(title: "mnopqr",
+          another_model: AssociatedModel.create!(title: "stuvwx"))
 
-        results = ModelWithBelongsTo.with_associated('abcdef')
+        results = ModelWithBelongsTo.with_associated("abcdef")
         expect(results.map(&:title)).to match_array(included.map(&:title))
         expect(results).not_to include(excluded)
       end
@@ -81,61 +81,61 @@ describe "a pg_search_scope" do
     context "via a has_many association" do
       with_model :AssociatedModelWithHasMany do
         table do |t|
-          t.string 'title'
-          t.belongs_to 'ModelWithHasMany', index: false
+          t.string "title"
+          t.belongs_to "ModelWithHasMany", index: false
         end
       end
 
       with_model :ModelWithHasMany do
         table do |t|
-          t.string 'title'
+          t.string "title"
         end
 
         model do
           include PgSearch::Model
-          has_many :other_models, class_name: 'AssociatedModelWithHasMany', foreign_key: 'ModelWithHasMany_id'
+          has_many :other_models, class_name: "AssociatedModelWithHasMany", foreign_key: "ModelWithHasMany_id"
 
-          pg_search_scope :with_associated, against: [:title], associated_against: { other_models: :title }
+          pg_search_scope :with_associated, against: [:title], associated_against: {other_models: :title}
         end
       end
 
       it "returns rows that match the query in either its own columns or the columns of the associated model" do
         included = [
-          ModelWithHasMany.create!(title: 'abcdef', other_models: [
-            AssociatedModelWithHasMany.create!(title: 'foo'),
-            AssociatedModelWithHasMany.create!(title: 'bar')
+          ModelWithHasMany.create!(title: "abcdef", other_models: [
+            AssociatedModelWithHasMany.create!(title: "foo"),
+            AssociatedModelWithHasMany.create!(title: "bar")
           ]),
-          ModelWithHasMany.create!(title: 'ghijkl', other_models: [
-            AssociatedModelWithHasMany.create!(title: 'foo bar'),
-            AssociatedModelWithHasMany.create!(title: 'mnopqr')
+          ModelWithHasMany.create!(title: "ghijkl", other_models: [
+            AssociatedModelWithHasMany.create!(title: "foo bar"),
+            AssociatedModelWithHasMany.create!(title: "mnopqr")
           ]),
-          ModelWithHasMany.create!(title: 'foo bar')
+          ModelWithHasMany.create!(title: "foo bar")
         ]
-        excluded = ModelWithHasMany.create!(title: 'stuvwx', other_models: [
-          AssociatedModelWithHasMany.create!(title: 'abcdef')
+        excluded = ModelWithHasMany.create!(title: "stuvwx", other_models: [
+          AssociatedModelWithHasMany.create!(title: "abcdef")
         ])
 
-        results = ModelWithHasMany.with_associated('foo bar')
+        results = ModelWithHasMany.with_associated("foo bar")
         expect(results.map(&:title)).to match_array(included.map(&:title))
         expect(results).not_to include(excluded)
       end
 
       it "uses an unscoped relation of the associated model" do
-        excluded = ModelWithHasMany.create!(title: 'abcdef', other_models: [
-          AssociatedModelWithHasMany.create!(title: 'abcdef')
+        excluded = ModelWithHasMany.create!(title: "abcdef", other_models: [
+          AssociatedModelWithHasMany.create!(title: "abcdef")
         ])
 
         included = [
-          ModelWithHasMany.create!(title: 'abcdef', other_models: [
-            AssociatedModelWithHasMany.create!(title: 'foo'),
-            AssociatedModelWithHasMany.create!(title: 'bar')
+          ModelWithHasMany.create!(title: "abcdef", other_models: [
+            AssociatedModelWithHasMany.create!(title: "foo"),
+            AssociatedModelWithHasMany.create!(title: "bar")
           ])
         ]
 
         results = ModelWithHasMany
-                  .limit(1)
-                  .order(Arel.sql("#{ModelWithHasMany.quoted_table_name}.id ASC"))
-                  .with_associated('foo bar')
+          .limit(1)
+          .order(Arel.sql("#{ModelWithHasMany.quoted_table_name}.id ASC"))
+          .with_associated("foo bar")
 
         expect(results.map(&:title)).to match_array(included.map(&:title))
         expect(results).not_to include(excluded)
@@ -146,36 +146,36 @@ describe "a pg_search_scope" do
       context "when on different tables" do
         with_model :FirstAssociatedModel do
           table do |t|
-            t.string 'title'
-            t.belongs_to 'ModelWithManyAssociations', index: false
+            t.string "title"
+            t.belongs_to "ModelWithManyAssociations", index: false
           end
         end
 
         with_model :SecondAssociatedModel do
           table do |t|
-            t.string 'title'
+            t.string "title"
           end
         end
 
         with_model :ModelWithManyAssociations do
           table do |t|
-            t.string 'title'
-            t.belongs_to 'model_of_second_type', index: false
+            t.string "title"
+            t.belongs_to "model_of_second_type", index: false
           end
 
           model do
             include PgSearch::Model
 
             has_many :models_of_first_type,
-                     class_name: 'FirstAssociatedModel',
-                     foreign_key: 'ModelWithManyAssociations_id'
+              class_name: "FirstAssociatedModel",
+              foreign_key: "ModelWithManyAssociations_id"
 
             belongs_to :model_of_second_type,
-                       class_name: 'SecondAssociatedModel'
+              class_name: "SecondAssociatedModel"
 
             pg_search_scope :with_associated,
-                            against: :title,
-                            associated_against: { models_of_first_type: :title, model_of_second_type: :title }
+              against: :title,
+              associated_against: {models_of_first_type: :title, model_of_second_type: :title}
           end
         end
 
@@ -184,25 +184,25 @@ describe "a pg_search_scope" do
           unmatching_second = SecondAssociatedModel.create!(title: "uiop")
 
           included = [
-            ModelWithManyAssociations.create!(title: 'abcdef', models_of_first_type: [
-              FirstAssociatedModel.create!(title: 'foo'),
-              FirstAssociatedModel.create!(title: 'bar')
+            ModelWithManyAssociations.create!(title: "abcdef", models_of_first_type: [
+              FirstAssociatedModel.create!(title: "foo"),
+              FirstAssociatedModel.create!(title: "bar")
             ]),
-            ModelWithManyAssociations.create!(title: 'ghijkl', models_of_first_type: [
-              FirstAssociatedModel.create!(title: 'foo bar'),
-              FirstAssociatedModel.create!(title: 'mnopqr')
+            ModelWithManyAssociations.create!(title: "ghijkl", models_of_first_type: [
+              FirstAssociatedModel.create!(title: "foo bar"),
+              FirstAssociatedModel.create!(title: "mnopqr")
             ]),
-            ModelWithManyAssociations.create!(title: 'foo bar'),
-            ModelWithManyAssociations.create!(title: 'qwerty', model_of_second_type: matching_second)
+            ModelWithManyAssociations.create!(title: "foo bar"),
+            ModelWithManyAssociations.create!(title: "qwerty", model_of_second_type: matching_second)
           ]
           excluded = [
-            ModelWithManyAssociations.create!(title: 'stuvwx', models_of_first_type: [
-              FirstAssociatedModel.create!(title: 'abcdef')
+            ModelWithManyAssociations.create!(title: "stuvwx", models_of_first_type: [
+              FirstAssociatedModel.create!(title: "abcdef")
             ]),
-            ModelWithManyAssociations.create!(title: 'qwerty', model_of_second_type: unmatching_second)
+            ModelWithManyAssociations.create!(title: "qwerty", model_of_second_type: unmatching_second)
           ]
 
-          results = ModelWithManyAssociations.with_associated('foo bar')
+          results = ModelWithManyAssociations.with_associated("foo bar")
           expect(results.map(&:title)).to match_array(included.map(&:title))
           excluded.each { |object| expect(results).not_to include(object) }
         end
@@ -211,58 +211,58 @@ describe "a pg_search_scope" do
       context "when on the same table" do
         with_model :DoublyAssociatedModel do
           table do |t|
-            t.string 'title'
-            t.belongs_to 'ModelWithDoubleAssociation', index: false
-            t.belongs_to 'ModelWithDoubleAssociation_again', index: false
+            t.string "title"
+            t.belongs_to "ModelWithDoubleAssociation", index: false
+            t.belongs_to "ModelWithDoubleAssociation_again", index: false
           end
         end
 
         with_model :ModelWithDoubleAssociation do
           table do |t|
-            t.string 'title'
+            t.string "title"
           end
 
           model do
             include PgSearch::Model
 
             has_many :things,
-                     class_name: 'DoublyAssociatedModel',
-                     foreign_key: 'ModelWithDoubleAssociation_id'
+              class_name: "DoublyAssociatedModel",
+              foreign_key: "ModelWithDoubleAssociation_id"
 
             has_many :thingamabobs,
-                     class_name: 'DoublyAssociatedModel',
-                     foreign_key: 'ModelWithDoubleAssociation_again_id'
+              class_name: "DoublyAssociatedModel",
+              foreign_key: "ModelWithDoubleAssociation_again_id"
 
             pg_search_scope :with_associated, against: :title,
-                                              associated_against: { things: :title, thingamabobs: :title }
+              associated_against: {things: :title, thingamabobs: :title}
           end
         end
 
         it "returns rows that match the query in either its own columns or the columns of the associated model" do
           included = [
-            ModelWithDoubleAssociation.create!(title: 'abcdef', things: [
-              DoublyAssociatedModel.create!(title: 'foo'),
-              DoublyAssociatedModel.create!(title: 'bar')
+            ModelWithDoubleAssociation.create!(title: "abcdef", things: [
+              DoublyAssociatedModel.create!(title: "foo"),
+              DoublyAssociatedModel.create!(title: "bar")
             ]),
-            ModelWithDoubleAssociation.create!(title: 'ghijkl', things: [
-              DoublyAssociatedModel.create!(title: 'foo bar'),
-              DoublyAssociatedModel.create!(title: 'mnopqr')
+            ModelWithDoubleAssociation.create!(title: "ghijkl", things: [
+              DoublyAssociatedModel.create!(title: "foo bar"),
+              DoublyAssociatedModel.create!(title: "mnopqr")
             ]),
-            ModelWithDoubleAssociation.create!(title: 'foo bar'),
-            ModelWithDoubleAssociation.create!(title: 'qwerty', thingamabobs: [
+            ModelWithDoubleAssociation.create!(title: "foo bar"),
+            ModelWithDoubleAssociation.create!(title: "qwerty", thingamabobs: [
               DoublyAssociatedModel.create!(title: "foo bar")
             ])
           ]
           excluded = [
-            ModelWithDoubleAssociation.create!(title: 'stuvwx', things: [
-              DoublyAssociatedModel.create!(title: 'abcdef')
+            ModelWithDoubleAssociation.create!(title: "stuvwx", things: [
+              DoublyAssociatedModel.create!(title: "abcdef")
             ]),
-            ModelWithDoubleAssociation.create!(title: 'qwerty', thingamabobs: [
+            ModelWithDoubleAssociation.create!(title: "qwerty", thingamabobs: [
               DoublyAssociatedModel.create!(title: "uiop")
             ])
           ]
 
-          results = ModelWithDoubleAssociation.with_associated('foo bar')
+          results = ModelWithDoubleAssociation.with_associated("foo bar")
           expect(results.map(&:title)).to match_array(included.map(&:title))
           excluded.each { |object| expect(results).not_to include(object) }
         end
@@ -272,21 +272,21 @@ describe "a pg_search_scope" do
     context "when against multiple attributes on one association" do
       with_model :AssociatedModel do
         table do |t|
-          t.string 'title'
-          t.text 'author'
+          t.string "title"
+          t.text "author"
         end
       end
 
       with_model :ModelWithAssociation do
         table do |t|
-          t.belongs_to 'another_model', index: false
+          t.belongs_to "another_model", index: false
         end
 
         model do
           include PgSearch::Model
-          belongs_to :another_model, class_name: 'AssociatedModel'
+          belongs_to :another_model, class_name: "AssociatedModel"
 
-          pg_search_scope :with_associated, associated_against: { another_model: %i[title author] }
+          pg_search_scope :with_associated, associated_against: {another_model: %i[title author]}
         end
       end
 
@@ -314,7 +314,7 @@ describe "a pg_search_scope" do
           )
         ]
 
-        results = ModelWithAssociation.with_associated('foo bar')
+        results = ModelWithAssociation.with_associated("foo bar")
 
         expect(results.to_sql.scan("INNER JOIN #{AssociatedModel.quoted_table_name}").length).to eq(1)
         included.each { |object| expect(results).to include(object) }
@@ -325,21 +325,21 @@ describe "a pg_search_scope" do
     context "when against non-text columns" do
       with_model :AssociatedModel do
         table do |t|
-          t.integer 'number'
+          t.integer "number"
         end
       end
 
       with_model :Model do
         table do |t|
-          t.integer 'number'
-          t.belongs_to 'another_model', index: false
+          t.integer "number"
+          t.belongs_to "another_model", index: false
         end
 
         model do
           include PgSearch::Model
-          belongs_to :another_model, class_name: 'AssociatedModel'
+          belongs_to :another_model, class_name: "AssociatedModel"
 
-          pg_search_scope :with_associated, associated_against: { another_model: :number }
+          pg_search_scope :with_associated, associated_against: {another_model: :number}
         end
       end
 
@@ -353,7 +353,7 @@ describe "a pg_search_scope" do
           Model.create!(number: 123)
         ]
 
-        results = Model.with_associated('123')
+        results = Model.with_associated("123")
         expect(results.map(&:number)).to match_array(included.map(&:number))
         expect(results).not_to include(excluded)
       end
@@ -384,10 +384,10 @@ describe "a pg_search_scope" do
 
       # https://github.com/Casecommons/pg_search/issues/14
       it "supports queries with periods" do
-        included = Parent.create!(name: 'bar.foo')
-        excluded = Parent.create!(name: 'foo.bar')
+        included = Parent.create!(name: "bar.foo")
+        excluded = Parent.create!(name: "foo.bar")
 
-        results = Parent.search_name('bar.foo').includes(:children)
+        results = Parent.search_name("bar.foo").includes(:children)
         results.to_a
 
         expect(results).to include(included)
@@ -477,7 +477,7 @@ describe "a pg_search_scope" do
         Position.create!(company_id: company.id, title: "penn 1")
       ]
 
-      results = company.positions.search('teller 1')
+      results = company.positions.search("teller 1")
 
       expect(results).to include(*included)
       expect(results).not_to include(*excluded)

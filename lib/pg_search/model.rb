@@ -7,12 +7,12 @@ module PgSearch
     module ClassMethods
       def pg_search_scope(name, options)
         options_proc = if options.respond_to?(:call)
-                         options
-                       elsif options.respond_to?(:merge)
-                         ->(query) { { query: query }.merge(options) }
-                       else
-                         raise ArgumentError, 'pg_search_scope expects a Hash or Proc'
-                       end
+          options
+        elsif options.respond_to?(:merge)
+          ->(query) { {query: query}.merge(options) }
+        else
+          raise ArgumentError, "pg_search_scope expects a Hash or Proc"
+        end
 
         define_singleton_method(name) do |*args|
           config = Configuration.new(options_proc.call(*args), self)

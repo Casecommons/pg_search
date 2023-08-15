@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'digest'
+require "digest"
 
 module PgSearch
   class Configuration
@@ -8,8 +8,8 @@ module PgSearch
       attr_reader :weight, :tsvector_column, :name
 
       def initialize(column_name, weight, model)
-        @name = column_name.to_s
-        @column_name = column_name.to_s
+        @name        = column_name.to_s
+        @column_name = column_name
         if weight.is_a?(Hash)
           @weight = weight[:weight]
           @tsvector_column = weight[:tsvector_column]
@@ -21,14 +21,16 @@ module PgSearch
       end
 
       def full_name
+        return @column_name if @column_name.is_a?(Arel::Nodes::SqlLiteral)
+
         "#{table_name}.#{column_name}"
       end
 
       def to_sql
         if tsvector_column
-          "coalesce(#{expression}, '')"
+          "coalesce((#{expression})::tsvector, '')"
         else
-          "coalesce(#{expression}::text, '')"
+          "coalesce((#{expression})::text, '')"
         end
       end
 
@@ -39,7 +41,7 @@ module PgSearch
       end
 
       def column_name
-        @connection.quote_column_name(@column_name)
+        @connection.quote_column_name(@name)
       end
 
       def expression

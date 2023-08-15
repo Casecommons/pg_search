@@ -40,21 +40,20 @@ module PgSearch
       def selects_for_singular_association
         columns.map do |column|
           if column.tsvector_column
-            "tsvector_agg(#{column.full_name}) AS #{column.alias}"
+            "#{column.full_name}::tsvector AS #{column.alias}"
           else
-            case postgresql_version
-            when 0..90000
-              "array_to_string(array_agg(#{column.full_name}::text), ' ') AS #{column.alias}"
-            else
-              "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
-            end
+            "#{column.full_name}::text AS #{column.alias}"
           end
         end.join(", ")
       end
 
       def selects_for_multiple_association
         columns.map do |column|
-          "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
+          if column.tsvector_column
+            "tsvector_agg(#{column.full_name}) AS #{column.alias}"
+          else
+            "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
+          end
         end.join(", ")
       end
 

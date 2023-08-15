@@ -4,7 +4,7 @@ $function$ BEGIN
 END; $function$
 LANGUAGE plpgsql;
 
-CREATE AGGREGATE tsvector_agg(tsvector) (
+CREATE OR REPLACE AGGREGATE tsvector_agg(tsvector) (
   SFUNC=concat_tsvectors,
   STYPE=tsvector,
   INITCOND=''

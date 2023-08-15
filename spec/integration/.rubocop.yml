@@ -4,8 +4,8 @@ inherit_from:
 RSpec/DescribeClass:
   Enabled: false
 
-RSpec/MultipleExpectations:
+RSpec/ExampleLength:
   Enabled: false
 
-RSpec/ExampleLength:
+RSpec/MultipleExpectations:
   Enabled: false
