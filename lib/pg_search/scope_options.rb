@@ -38,11 +38,27 @@ module PgSearch
       def with_pg_search_highlight
         scope = self
         scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        scope.select("(#{highlight}) AS pg_search_highlight")
+        add_highlight_columns(scope)
       end
 
-      def highlight
-        tsearch.highlight.to_sql
+      def add_highlight_columns(scope)
+        if highlight_columns.present?
+          highlight_columns.each do |name, cols|
+            scope = scope.select("(#{highlight(cols)}) AS pg_search_#{name}_highlight")
+          end
+
+          scope
+        else
+          scope.select("(#{highlight}) AS pg_search_highlight")
+        end
+      end
+
+      def highlight(columns = [])
+        tsearch.highlight(columns).to_sql
+      end
+
+      def highlight_columns
+        tsearch.options.dig(:highlight, :columns)
       end
     end
 
