@@ -575,7 +575,7 @@ The currently implemented features are
 *   :trigram - [Trigram search](http://www.postgresql.org/docs/current/static/pgtrgm.html), which
     requires the trigram extension
 *   :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html#AEN177521), which requires the fuzzystrmatch extension
-*   :iliek - Basic search using built in ilike operator
+*   :ilike - Basic search using built in ilike operator
 
 
 #### :tsearch (Full Text Search)
