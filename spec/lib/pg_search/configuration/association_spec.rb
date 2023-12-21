@@ -139,4 +139,5 @@ describe PgSearch::Configuration::Association do
     end
   end
 end
+
 # rubocop:enable RSpec/NestedGroups
