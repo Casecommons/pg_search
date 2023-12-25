@@ -7,9 +7,11 @@ module PgSearch
     class << self
       def rebuild(model, deprecated_clean_up = nil, clean_up: true, transactional: true)
         unless deprecated_clean_up.nil?
-          ActiveSupport::Deprecation.warn(
+          warn(
             "pg_search 3.0 will no longer accept a boolean second argument to PgSearchMultisearch.rebuild, " \
-            "use keyword argument `clean_up:` instead."
+            "use keyword argument `clean_up:` instead.",
+            category: :deprecated,
+            uplevel: 1
           )
           clean_up = deprecated_clean_up
         end
