@@ -21,5 +21,5 @@ Gem::Specification.new do |s|
   s.add_dependency "activerecord", ">= 6.0"
   s.add_dependency "activesupport", ">= 6.0"
 
-  s.required_ruby_version = ">= 2.7"
+  s.required_ruby_version = ">= 3.0"
 end

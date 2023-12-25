@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "warning"
-# Ignore Ruby 2.7 warnings from Active Record
-Warning.ignore :keyword_separation
 
 # https://github.com/grodowski/undercover#setting-up-required-lcov-reporting
 require "simplecov"
