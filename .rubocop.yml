@@ -1,12 +1,18 @@
 require:
   - standard
+  - standard-performance
+  - standard-rails
+  - standard-rspec
   - rubocop-performance
-  - rubocop-rails
   - rubocop-rake
+  - rubocop-rails
   - rubocop-rspec
 
 inherit_gem:
   standard: config/base.yml
+  standard-performance: config/base.yml
+  standard-rails: config/base.yml
+  standard-rspec: config/base.yml
 
 AllCops:
   TargetRubyVersion: 3.0

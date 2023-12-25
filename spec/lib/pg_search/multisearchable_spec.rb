@@ -36,7 +36,7 @@ describe PgSearch::Multisearchable do
         belongs_to :multisearchable_parent
 
         after_destroy do
-          multisearchable_parent.update_attribute(:secret, rand(1000).to_s) # rubocop:disable Rails/SkipsModelValidations
+          multisearchable_parent.update_attribute(:secret, rand(1000).to_s)
         end
       end
     end
