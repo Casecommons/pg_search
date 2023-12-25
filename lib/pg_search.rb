@@ -34,8 +34,8 @@ module PgSearch
   self.unaccent_function = "unaccent"
 
   class << self
-    def multisearch(*args)
-      PgSearch::Document.search(*args)
+    def multisearch(...)
+      PgSearch::Document.search(...)
     end
 
     def disable_multisearch
