@@ -12,12 +12,12 @@ module PgSearch
       @feature_options = config.feature_options
     end
 
-    def apply(scope)
+    def apply(scope, &block)
       scope = include_table_aliasing_for_rank(scope)
       rank_table_alias = scope.pg_search_rank_table_alias(include_counter: true)
 
       scope
-        .joins(rank_join(rank_table_alias))
+        .joins(rank_join(rank_table_alias, &block))
         .order(Arel.sql("#{rank_table_alias}.rank DESC, #{order_within_rank}"))
         .extend(WithPgSearchRank)
         .extend(WithPgSearchHighlight[feature_for(:tsearch)])
@@ -79,7 +79,7 @@ module PgSearch
     delegate :connection, :quoted_table_name, to: :model
 
     def subquery
-      model
+      relation = model
         .unscoped
         .select("#{primary_key} AS pg_search_id")
         .select("#{rank} AS rank")
@@ -87,6 +87,8 @@ module PgSearch
         .where(conditions)
         .limit(nil)
         .offset(nil)
+
+      block_given? ? yield(relation) : relation
     end
 
     def conditions
@@ -141,8 +143,8 @@ module PgSearch
       end
     end
 
-    def rank_join(rank_table_alias)
-      "INNER JOIN (#{subquery.to_sql}) AS #{rank_table_alias} ON #{primary_key} = #{rank_table_alias}.pg_search_id"
+    def rank_join(rank_table_alias, &block)
+      "INNER JOIN (#{subquery(&block).to_sql}) AS #{rank_table_alias} ON #{primary_key} = #{rank_table_alias}.pg_search_id"
     end
 
     def include_table_aliasing_for_rank(scope)
