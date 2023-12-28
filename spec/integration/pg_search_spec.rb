@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-# rubocop:disable RSpec/NestedGroups
+# standard:disable RSpec/NestedGroups
 describe "an Active Record model which includes PgSearch" do
   with_model :ModelWithPgSearch do
     table do |t|
@@ -1059,8 +1059,8 @@ describe "an Active Record model which includes PgSearch" do
           SET content_tsvector = to_tsvector('english'::regconfig, #{Post.quoted_table_name}."content")
         SQL
 
-        expected.comments.create(body: "commentone")
-        unexpected.comments.create(body: "commentwo")
+        expected.comments.create!(body: "commentone")
+        unexpected.comments.create!(body: "commentwo")
 
         Post.pg_search_scope :search_by_content_with_tsvector,
           associated_against: {comments: [:body]},
@@ -1355,4 +1355,4 @@ describe "an Active Record model which includes PgSearch" do
     end
   end
 end
-# rubocop:enable RSpec/NestedGroups
+# standard:enable RSpec/NestedGroups

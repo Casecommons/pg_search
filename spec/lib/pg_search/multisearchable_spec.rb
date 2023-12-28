@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-# rubocop:disable RSpec/NestedGroups
+# standard:disable RSpec/NestedGroups
 describe PgSearch::Multisearchable do
   with_table "pg_search_documents", &DOCUMENTS_SCHEMA
 
@@ -156,7 +156,7 @@ describe PgSearch::Multisearchable do
           without_partial_double_verification do
             allow(record).to receive(:some_content) { text }
           end
-          record.save
+          record.save!
         end
 
         describe "#content" do
@@ -174,7 +174,7 @@ describe PgSearch::Multisearchable do
             allow(record).to receive(:attr_1).and_return("1")
             allow(record).to receive(:attr_2).and_return("2")
           end
-          record.save
+          record.save!
         end
 
         describe "#content" do
@@ -202,7 +202,7 @@ describe PgSearch::Multisearchable do
           without_partial_double_verification do
             allow(record).to receive(:some_content) { text }
           end
-          record.save
+          record.save!
         end
 
         describe "#content" do
@@ -220,7 +220,7 @@ describe PgSearch::Multisearchable do
             allow(record).to receive(:attr_1).and_return("1")
             allow(record).to receive(:attr_2).and_return("2")
           end
-          record.save
+          record.save!
         end
 
         describe "#content" do
@@ -244,7 +244,7 @@ describe PgSearch::Multisearchable do
           without_partial_double_verification do
             allow(record).to receive(:bar).and_return(text)
             allow(record).to receive(:create_pg_search_document)
-            record.save
+            record.save!
             expect(record)
               .to have_received(:create_pg_search_document)
               .with(content: "", foo: text)
@@ -266,7 +266,7 @@ describe PgSearch::Multisearchable do
           without_partial_double_verification do
             allow(record).to receive(:bar?).and_return(false)
             allow(record).to receive(:create_pg_search_document)
-            record.save
+            record.save!
             expect(record)
               .to have_received(:create_pg_search_document)
               .with(content: "")
@@ -286,7 +286,7 @@ describe PgSearch::Multisearchable do
             it "does not update the document" do
               without_partial_double_verification do
                 allow(record.pg_search_document).to receive(:update)
-                record.save
+                record.save!
                 expect(record.pg_search_document).not_to have_received(:update)
               end
             end
@@ -301,7 +301,7 @@ describe PgSearch::Multisearchable do
 
             it "updates the document" do
               allow(record.pg_search_document).to receive(:update)
-              record.save
+              record.save!
               expect(record.pg_search_document).to have_received(:update)
             end
           end
@@ -854,4 +854,4 @@ describe PgSearch::Multisearchable do
     end
   end
 end
-# rubocop:enable RSpec/NestedGroups
+# standard:enable RSpec/NestedGroups
