@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-# rubocop:disable RSpec/NestedGroups
+# standard:disable RSpec/NestedGroups
 describe PgSearch::Normalizer do
   describe "#add_normalization" do
     context "when config[:ignore] includes :accents" do
@@ -59,4 +59,4 @@ describe PgSearch::Normalizer do
     end
   end
 end
-# rubocop:enable RSpec/NestedGroups
+# standard:enable RSpec/NestedGroups

@@ -1,0 +1,9 @@
+parallel: true
+ruby_version: 3.0
+
+ignore:
+  - 'bin/**/*'
+  - 'vendor/**/*'
+
+plugins:
+  - standard-rails

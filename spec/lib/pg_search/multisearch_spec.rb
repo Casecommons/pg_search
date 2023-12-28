@@ -3,7 +3,7 @@
 require "spec_helper"
 require "active_support/core_ext/kernel/reporting"
 
-# rubocop:disable RSpec/NestedGroups
+# standard:disable RSpec/NestedGroups
 describe PgSearch::Multisearch do
   with_table "pg_search_documents", &DOCUMENTS_SCHEMA
 
@@ -135,7 +135,7 @@ describe PgSearch::Multisearch do
     end
 
     describe "the generated SQL" do
-      let(:now) { Time.now }
+      let(:now) { Time.now } # standard:disable Rails/TimeZone
 
       before { allow(Time).to receive(:now).and_return(now) }
 
@@ -195,4 +195,4 @@ describe PgSearch::Multisearch do
     end
   end
 end
-# rubocop:enable RSpec/NestedGroups
+# standard:enable RSpec/NestedGroups

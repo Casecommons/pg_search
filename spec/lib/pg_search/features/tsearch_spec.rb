@@ -169,7 +169,7 @@ describe PgSearch::Features::TSearch do
     end
 
     context "when options[:dictionary] is passed" do
-      # rubocop:disable RSpec/ExampleLength
+      # standard:disable RSpec/ExampleLength
       it "uses the provided dictionary" do
         query = "query"
         columns = [
@@ -193,11 +193,11 @@ describe PgSearch::Features::TSearch do
 
         expect(feature.highlight.to_sql).to eq(expected_sql)
       end
-      # rubocop:enable RSpec/ExampleLength
+      # standard:enable RSpec/ExampleLength
     end
 
     context "when options[:highlight] has options set" do
-      # rubocop:disable RSpec/ExampleLength
+      # standard:disable RSpec/ExampleLength
       it "passes the options to ts_headline" do
         query = "query"
         columns = [
@@ -225,9 +225,9 @@ describe PgSearch::Features::TSearch do
 
         expect(feature.highlight.to_sql).to eq(expected_sql)
       end
-      # rubocop:enable RSpec/ExampleLength
+      # standard:enable RSpec/ExampleLength
 
-      # rubocop:disable RSpec/ExampleLength
+      # standard:disable RSpec/ExampleLength
       it "passes deprecated options to ts_headline" do
         query = "query"
         columns = [
@@ -256,7 +256,7 @@ describe PgSearch::Features::TSearch do
 
         expect(highlight_sql).to eq(expected_sql)
       end
-      # rubocop:enable RSpec/ExampleLength
+      # standard:enable RSpec/ExampleLength
     end
   end
 end

@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-# rubocop:disable RSpec/NestedGroups
+# standard:disable RSpec/NestedGroups
 describe "a pg_search_scope" do
   context "when joining to another table" do
     context "without an :against" do
@@ -418,10 +418,10 @@ describe "a pg_search_scope" do
     end
 
     it "finds records of the other model" do
-      included_associated_1 = AssociatedModel.create(content: "foo bar")
-      included_associated_2 = AssociatedModel.create(content: "foo baz")
-      excluded_associated_1 = AssociatedModel.create(content: "baz quux")
-      excluded_associated_2 = AssociatedModel.create(content: "baz bar")
+      included_associated_1 = AssociatedModel.create!(content: "foo bar")
+      included_associated_2 = AssociatedModel.create!(content: "foo baz")
+      excluded_associated_1 = AssociatedModel.create!(content: "baz quux")
+      excluded_associated_2 = AssociatedModel.create!(content: "baz bar")
 
       included = [
         ModelWithAssociation.create(associated_models: [included_associated_1]),
@@ -484,4 +484,4 @@ describe "a pg_search_scope" do
     end
   end
 end
-# rubocop:enable RSpec/NestedGroups
+# standard:enable RSpec/NestedGroups
