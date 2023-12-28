@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-# rubocop:disable RSpec/NestedGroups
+# standard:disable RSpec/NestedGroups
 describe PgSearch::Configuration::Association do
   with_model :Avatar do
     table do |t|
@@ -139,4 +139,4 @@ describe PgSearch::Configuration::Association do
     end
   end
 end
-# rubocop:enable RSpec/NestedGroups
+# standard:enable RSpec/NestedGroups

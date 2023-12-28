@@ -3,7 +3,7 @@
 require "spec_helper"
 require "ostruct"
 
-# rubocop:disable RSpec/MultipleMemoizedHelpers, RSpec/NestedGroups
+# standard:disable RSpec/MultipleMemoizedHelpers, RSpec/NestedGroups
 describe PgSearch::Features::Trigram do
   subject(:feature) { described_class.new(query, options, columns, Model, normalizer) }
 
@@ -109,4 +109,4 @@ describe PgSearch::Features::Trigram do
     end
   end
 end
-# rubocop:enable RSpec/MultipleMemoizedHelpers, RSpec/NestedGroups
+# standard:enable RSpec/MultipleMemoizedHelpers, RSpec/NestedGroups

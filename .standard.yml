@@ -1,0 +1,6 @@
+ruby_version: 3.0
+
+plugins:
+  - standard-performance
+  - standard-rails:
+      target_rails_version: 6.1
