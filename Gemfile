@@ -14,7 +14,8 @@ end
 
 gem "activerecord", ENV.fetch("ACTIVE_RECORD_VERSION", nil) if ENV["ACTIVE_RECORD_VERSION"] # standard:disable Bundler/DuplicatedGem
 
-gem "pry"
+gem "debug"
+gem "irb"
 gem "rake"
 gem "rspec"
 gem "simplecov"
