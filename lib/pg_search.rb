@@ -67,6 +67,20 @@ module PgSearch
         "to access the pg_search_highlight attribute on returned records"
     end
   end
+
+  class PgSearchHighlightCustomColumnsNotSelected < StandardError
+    attr_reader :attribute
+
+    def initialize(attribute)
+      @attribute = attribute
+    end
+
+    def message
+      "You must chain .with_pg_search_highlight after the pg_search_scope " \
+        "and define highlight: { columns: } option in pg_search_scope " \
+        "to access the #{attribute} attribute on returned records"
+    end
+  end
 end
 
 require "pg_search/railtie" if defined?(Rails::Railtie)
