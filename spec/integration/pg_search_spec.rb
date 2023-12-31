@@ -756,6 +756,46 @@ describe "an Active Record model which includes PgSearch" do
         end
       end
 
+      describe "ranking with custom order" do
+        before do
+          {"Strip Down" => 1, "Down" => 2, "Down and Out" => 3, "Won't Let You Down" => 2}.each do |name, importance|
+            ModelWithPgSearch.create! content: name, importance: importance
+          end
+        end
+
+        context "with ranking_order importance DESC" do
+          before do
+            ModelWithPgSearch.pg_search_scope :search_content_with_ranking_order,
+              against: :content,
+              using: :tsearch,
+              ranking_order: "importance DESC"
+          end
+
+          it "returns results sorted by importance before rank" do
+            results = ModelWithPgSearch.search_content_with_ranking_order("down")
+
+            expect(results.map(&:content)).to eq(["Down and Out", "Down", "Won't Let You Down", "Strip Down"])
+            expect(results.map(&:importance)).to eq([3, 2, 2, 1])
+          end
+        end
+
+        context "with ranking_order importance DESC, id DESC" do
+          before do
+            ModelWithPgSearch.pg_search_scope :search_content_with_ranking_order,
+              against: :content,
+              using: :tsearch,
+              ranking_order: {importance: :desc, id: :desc}
+          end
+
+          it "returns results sorted by importance before rank" do
+            results = ModelWithPgSearch.search_content_with_ranking_order("down")
+
+            expect(results.map(&:content)).to eq(["Down and Out", "Won't Let You Down", "Down", "Strip Down"])
+            expect(results.map(&:importance)).to eq([3, 2, 2, 1])
+          end
+        end
+      end
+
       context "when against columns ranked with arrays" do
         before do
           ModelWithPgSearch.pg_search_scope :search_weighted_by_array_of_arrays,

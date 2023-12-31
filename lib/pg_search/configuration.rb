@@ -75,6 +75,10 @@ module PgSearch
       options[:order_within_rank]
     end
 
+    def ranking_order
+      options[:ranking_order]
+    end
+
     private
 
     attr_reader :options
@@ -84,7 +88,7 @@ module PgSearch
     end
 
     VALID_KEYS = %w[
-      against ranked_by ignoring using query associated_against order_within_rank
+      against ranked_by ignoring using query associated_against order_within_rank ranking_order
     ].map(&:to_sym)
 
     VALID_VALUES = {
