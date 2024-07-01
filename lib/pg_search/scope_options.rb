@@ -90,10 +90,17 @@ module PgSearch
     end
 
     def conditions
-      config.features
-        .reject { |_feature_name, feature_options| feature_options && feature_options[:sort_only] }
-        .map { |feature_name, _feature_options| feature_for(feature_name).conditions }
-        .inject { |accumulator, expression| Arel::Nodes::Or.new(accumulator, expression) }
+      expressions =
+        config.features
+          .reject { |_feature_name, feature_options| feature_options && feature_options[:sort_only] }
+          .map { |feature_name, _feature_options| feature_for(feature_name).conditions }
+
+      # https://github.com/rails/rails/pull/51492
+      if ActiveRecord.version >= Gem::Version.new("7.2.0.beta1")
+        Arel::Nodes::Or.new(expressions)
+      else
+        expressions.inject { |accumulator, expression| Arel::Nodes::Or.new(accumulator, expression) }
+      end
     end
 
     def order_within_rank
