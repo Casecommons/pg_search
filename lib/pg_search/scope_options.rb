@@ -101,7 +101,12 @@ module PgSearch
     end
 
     def primary_key
-      "#{quoted_table_name}.#{connection.quote_column_name(model.primary_key)}"
+      if model.primary_key.is_a?(Array)
+        model.primary_key.map { |part| "#{quoted_table_name}.#{connection.quote_column_name(part)}" }
+                         .join(',')
+      else
+        "#{quoted_table_name}.#{connection.quote_column_name(model.primary_key)}"
+      end
     end
 
     def subquery_join
