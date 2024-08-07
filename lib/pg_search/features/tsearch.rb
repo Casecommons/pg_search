@@ -70,9 +70,11 @@ module PgSearch
             unless value.nil?
               key = deprecated_key.camelize
 
-              ActiveSupport::Deprecation.warn(
+              warn(
                 "pg_search 3.0 will no longer accept :#{deprecated_key} as an argument to :ts_headline, " \
-                "use :#{key} instead."
+                "use :#{key} instead.",
+                category: :deprecated,
+                uplevel: 1
               )
 
               hash[key] = ts_headline_option_value(value)

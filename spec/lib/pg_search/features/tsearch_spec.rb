@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "active_support/deprecation"
+require "active_support/core_ext/kernel/reporting"
 
 describe PgSearch::Features::TSearch do
   describe "#rank" do
@@ -186,7 +186,7 @@ describe PgSearch::Features::TSearch do
     end
 
     context "when options[:dictionary] is passed" do
-      # rubocop:disable RSpec/ExampleLength
+      # standard:disable RSpec/ExampleLength
       it "uses the provided dictionary" do
         query = "query"
         columns = [
@@ -210,11 +210,11 @@ describe PgSearch::Features::TSearch do
 
         expect(feature.highlight.to_sql).to eq(expected_sql)
       end
-      # rubocop:enable RSpec/ExampleLength
+      # standard:enable RSpec/ExampleLength
     end
 
     context "when options[:highlight] has options set" do
-      # rubocop:disable RSpec/ExampleLength
+      # standard:disable RSpec/ExampleLength
       it "passes the options to ts_headline" do
         query = "query"
         columns = [
@@ -242,9 +242,9 @@ describe PgSearch::Features::TSearch do
 
         expect(feature.highlight.to_sql).to eq(expected_sql)
       end
-      # rubocop:enable RSpec/ExampleLength
+      # standard:enable RSpec/ExampleLength
 
-      # rubocop:disable RSpec/ExampleLength
+      # standard:disable RSpec/ExampleLength
       it "passes deprecated options to ts_headline" do
         query = "query"
         columns = [
@@ -268,12 +268,12 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
 
-        highlight_sql = ActiveSupport::Deprecation.silence { feature.highlight.to_sql }
+        highlight_sql = silence_warnings { feature.highlight.to_sql }
         expected_sql = %{(ts_headline('simple', (coalesce((#{Model.quoted_table_name}."name")::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = FALSE'))}
 
         expect(highlight_sql).to eq(expected_sql)
       end
-      # rubocop:enable RSpec/ExampleLength
+      # standard:enable RSpec/ExampleLength
     end
 
     context "when column is a tsvector_column" do

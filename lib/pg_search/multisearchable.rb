@@ -50,7 +50,7 @@ module PgSearch
       if should_have_document
         create_or_update_pg_search_document
       else
-        pg_search_document&.destroy
+        pg_search_document&.destroy # standard:disable Rails/SaveBang
       end
     end
 
@@ -58,7 +58,7 @@ module PgSearch
       if !pg_search_document
         create_pg_search_document(pg_search_document_attrs)
       elsif should_update_pg_search_document?
-        pg_search_document.update(pg_search_document_attrs)
+        pg_search_document.update(pg_search_document_attrs) # standard:disable Rails/SaveBang
       end
     end
   end
