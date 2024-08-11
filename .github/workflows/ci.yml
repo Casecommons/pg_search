@@ -64,7 +64,7 @@ jobs:
             allow-failure: true
     continue-on-error: ${{ matrix.allow-failure }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
