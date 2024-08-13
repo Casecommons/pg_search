@@ -50,6 +50,17 @@ describe PgSearch::Features::Trigram do
       end
     end
 
+    context "when searching by strict_word_similarity" do
+      let(:options) do
+        {strict_word_similarity: true}
+      end
+
+      it 'uses the "<<%" operator when searching by word_similarity' do
+        config.ignore = []
+        expect(feature.conditions.to_sql).to eq("('#{query}' <<% (#{coalesced_columns}))")
+      end
+    end
+
     context "when ignoring accents" do
       it "escapes the search document and query, but not the accent function" do
         config.ignore = [:accents]
@@ -78,6 +89,18 @@ describe PgSearch::Features::Trigram do
         it 'uses a minimum similarity expression instead of the "<%" operator' do
           expect(feature.conditions.to_sql).to eq(
             "(word_similarity('#{query}', (#{coalesced_columns})) >= 0.5)"
+          )
+        end
+      end
+
+      context "when searching by strict_word_similarity" do
+        let(:options) do
+          {threshold: 0.5, strict_word_similarity: true}
+        end
+
+        it 'uses a minimum similarity expression instead of the "<<%" operator' do
+          expect(feature.conditions.to_sql).to eq(
+            "(strict_word_similarity('#{query}', (#{coalesced_columns})) >= 0.5)"
           )
         end
       end
