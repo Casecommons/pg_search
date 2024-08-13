@@ -840,6 +840,37 @@ See the
 [documentation](https://www.postgresql.org/docs/current/static/textsearch-controls.html)
 for details on the meaning of each option.
 
+Use the `columns` option to create `pg_search_<custom_name>_highlight` with the necessary columns.
+
+
+```ruby
+class Person < ActiveRecord::Base
+  include PgSearch::Model
+  pg_search_scope :search,
+                  against: [:portrait, :bio],
+                  using: {
+                    tsearch: {
+                      highlight: {
+                        columns: {
+                          first: :portrait,
+                          second: [:portrait, :bio]
+                        }
+                      }
+                    }
+                  }
+end
+
+Person.create!(
+  :portrait => "He's driven by an innate curiosity to discover every corner of Alberta.",
+  :bio => "Born in rural Alberta, where the buffalo roam."
+)
+
+first_match = Person.search("Alberta").with_pg_search_highlight.first
+first_match.pg_search_first_highlight => "He's driven by an innate curiosity to discover every corner of <b>Alberta</b>."
+first_match.pg_search_second_highlight => "He's driven by an innate curiosity to discover every corner of <b>Alberta</b>. Born in rural <b>Alberta</b>, where the buffalo roam."
+```
+
+
 #### :dmetaphone (Double Metaphone soundalike search)
 
 [Double Metaphone](http://en.wikipedia.org/wiki/Double_Metaphone) is an

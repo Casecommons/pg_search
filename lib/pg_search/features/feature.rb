@@ -10,6 +10,8 @@ module PgSearch
         %i[only sort_only]
       end
 
+      attr_reader :options
+
       delegate :connection, :quoted_table_name, to: :@model
 
       def initialize(query, options, all_columns, model, normalizer)
@@ -22,7 +24,7 @@ module PgSearch
 
       private
 
-      attr_reader :query, :options, :all_columns, :model, :normalizer
+      attr_reader :query, :all_columns, :model, :normalizer
 
       def document
         columns.map(&:to_sql).join(" || ' ' || ")

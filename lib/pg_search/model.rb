@@ -38,6 +38,10 @@ module PgSearch
         raise PgSearchHighlightNotSelected unless respond_to?(:pg_search_highlight)
 
         read_attribute(:pg_search_highlight)
+      when /^pg_search_(.+)_highlight$/
+        raise PgSearchHighlightCustomColumnsNotSelected.new(symbol) unless respond_to?(symbol)
+
+        read_attribute(symbol)
       else
         super
       end

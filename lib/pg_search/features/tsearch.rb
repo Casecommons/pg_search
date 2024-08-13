@@ -20,19 +20,31 @@ module PgSearch
         arel_wrap(tsearch_rank)
       end
 
-      def highlight
-        arel_wrap(ts_headline)
+      def highlight(hl_columns = [])
+        arel_wrap(ts_headline(hl_columns))
       end
 
       private
 
-      def ts_headline
+      def ts_headline(hl_columns)
         Arel::Nodes::NamedFunction.new("ts_headline", [
           dictionary,
-          arel_wrap(document),
+          arel_wrap(document(hl_columns)),
           arel_wrap(tsquery),
           Arel::Nodes.build_quoted(ts_headline_options)
         ]).to_sql
+      end
+
+      def document(hl_columns)
+        selected_columns(hl_columns).map(&:to_sql).join(" || ' ' || ")
+      end
+
+      def selected_columns(hl_columns)
+        return columns if hl_columns.blank?
+
+        columns.select do |column|
+          Array.wrap(hl_columns).map(&:to_s).include? column.name
+        end
       end
 
       def ts_headline_options
