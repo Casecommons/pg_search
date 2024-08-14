@@ -173,10 +173,6 @@ module PgSearch
       model.primary_key.is_a?(Array)
     end
 
-    def composite_primary_key_length
-      model.primary_key.length
-    end
-
     def quoted_column_name(column)
       "#{quoted_table_name}.#{connection.quote_column_name(column)}"
     end
