@@ -80,11 +80,11 @@ module PgSearch
 
     def subquery
       query = model.unscoped
-      
-      if composite_primary_key?
-        query = query.select(model.primary_key.map.with_index(1) { |part, index| "#{quoted_column_name(part)} AS pg_search_id_#{index}" })
+
+      query = if composite_primary_key?
+        query.select(model.primary_key.map.with_index(1) { |part, index| "#{quoted_column_name(part)} AS pg_search_id_#{index}" })
       else
-        query = query.select("#{primary_key} AS pg_search_id")  
+        query.select("#{primary_key} AS pg_search_id")
       end
 
       query.select("#{rank} AS rank")
@@ -107,7 +107,7 @@ module PgSearch
 
     def primary_key
       if composite_primary_key?
-        model.primary_key.map { |part| quoted_column_name(part) }.join(',')
+        model.primary_key.map { |part| quoted_column_name(part) }.join(",")
       else
         quoted_column_name(model.primary_key)
       end
