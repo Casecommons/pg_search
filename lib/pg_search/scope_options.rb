@@ -116,6 +116,7 @@ module PgSearch
     def subquery_join
       if config.associations.any?
         config.associations.map do |association|
+          # TODO: handle composite primary keys in associations
           association.join(primary_key)
         end.join(" ")
       end
