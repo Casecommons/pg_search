@@ -3,7 +3,7 @@
 require "spec_helper"
 
 describe "composite_primary_key" do
-  context 'without relations' do
+  context 'without associations' do
     with_model :Parent do
       table primary_key: [:first_name, :last_name] do |t|
         t.string :first_name
@@ -26,7 +26,7 @@ describe "composite_primary_key" do
     end
   end
 
-  context "without composite_primary_key, searching against relation with a composite_primary_key" do
+  context "without composite_primary_key, searching against association with a composite_primary_key" do
     with_model :Parent do
       table primary_key: [:first_name, :last_name] do |t|
         t.string :first_name
