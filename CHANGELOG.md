@@ -1,5 +1,16 @@
 # pg_search changelog
 
+## 2.3.7
+
+* Drop support for Ruby 2.6 and 2.7
+* Drop support for Active Record 6.0 and earlier
+* Support Ruby 3.2 and 3.3
+* Support Active Record 7.1
+* Support Active Record 7.2 (fatkodima)
+* Add U+02BB/U+02BC to disallowed tsquery characters (Vital Ryabchinskiy)
+* add support for Arel::Nodes::SqlLiteral columns (Kyle Fazzari)
+* Improve documentation (Prima Aulia Gusta, Ross Baird, Andy Atkinson)
+
 ## 2.3.6
 
 * Drop support for Ruby 2.5
