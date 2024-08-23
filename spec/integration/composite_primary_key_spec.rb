@@ -3,7 +3,7 @@
 require "spec_helper"
 
 describe "composite_primary_key" do
-  context 'without associations' do
+  context "without associations" do
     with_model :Parent do
       table primary_key: [:first_name, :last_name] do |t|
         t.string :first_name
@@ -40,7 +40,7 @@ describe "composite_primary_key" do
         self.primary_key = [:first_name, :last_name]
       end
     end
-    
+
     with_model :Child do
       table do |t|
         t.string :parent_first_name
@@ -53,7 +53,7 @@ describe "composite_primary_key" do
 
         pg_search_scope :search_parent_hobby, associated_against: {
           parent: [:hobby]
-        } 
+        }
       end
     end
 
