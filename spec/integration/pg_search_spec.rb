@@ -436,14 +436,16 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       it "is filterable in sub-select when sorted by rank" do
-        ModelWithPgSearch.create!(content: "foo foo foo", parent_model_id: 2)
         loser = ModelWithPgSearch.create!(content: "foo", parent_model_id: 1)
         winner = ModelWithPgSearch.create!(content: "foo foo", parent_model_id: 1)
+        filtered = ModelWithPgSearch.create!(content: "foo foo foo", parent_model_id: 2)
+
 
         results = ModelWithPgSearch.search_content("foo") do |subquery_relation|
           subquery_relation.where(parent_model_id: 1)
         end.with_pg_search_rank
-        expect(results[0].pg_search_rank).to be > results[1].pg_search_rank
+
+        expect(results).to_not include(filtered)
         expect(results).to eq([winner, loser])
       end
 
