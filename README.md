@@ -1203,6 +1203,19 @@ shirt_brands = ShirtBrand.search_by_name("Penguin")
   .group("shirt_brands.id, #{PgSearch::Configuration.alias('shirt_brands')}.rank")
 ```
 
+#### Scoping search rank subqueries
+
+It may be necessary to limit the scope of a rank subquery for performance reasons.
+The subquery scope relation object is accessed by passing a block to the search
+method.
+
+```ruby
+shirt_manufacturer = ShirtManufacturer.find_by(name: "Hypercolor Sportswear Co")
+shirt_brands = ShirtBrand.search_by_name("Penguin") do |subquery_relation|
+  subquery_relation.where(shirt_manufacturer: shirt_manufacturer)
+end.with_pg_search_rank
+```
+
 ## ATTRIBUTIONS
 
 PgSearch would not have been possible without inspiration from texticle (now renamed
