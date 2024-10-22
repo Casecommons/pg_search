@@ -90,11 +90,32 @@ module PgSearch
     end
 
     def conditions
-      config.features
-        .reject { |_feature_name, feature_options| feature_options && feature_options[:sort_only] }
-        .map { |feature_name, _feature_options| feature_for(feature_name).conditions }
-        .inject { |accumulator, expression| Arel::Nodes::Or.new(accumulator, expression) }
+      expressions =
+        config.features
+          .reject { |_feature_name, feature_options| feature_options && feature_options[:sort_only] }
+          .map { |feature_name, _feature_options| feature_for(feature_name).conditions }
+
+      or_node(expressions)
     end
+
+    # https://github.com/rails/rails/pull/51492
+    # :nocov:
+    # standard:disable Lint/DuplicateMethods
+    or_arity = Arel::Nodes::Or.instance_method(:initialize).arity
+    case or_arity
+    when 1
+      def or_node(expressions)
+        Arel::Nodes::Or.new(expressions)
+      end
+    when 2
+      def or_node(expressions)
+        expressions.inject { |accumulator, expression| Arel::Nodes::Or.new(accumulator, expression) }
+      end
+    else
+      raise "Unsupported arity #{or_arity} for Arel::Nodes::Or#initialize"
+    end
+    # :nocov:
+    # standard:enable Lint/DuplicateMethods
 
     def order_within_rank
       config.order_within_rank || "#{primary_key} ASC"
