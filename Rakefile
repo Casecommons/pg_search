@@ -6,10 +6,7 @@ Bundler::GemHelper.install_tasks
 require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec)
 
-require "rubocop/rake_task"
-RuboCop::RakeTask.new do |t|
-  t.options = %w[--display-cop-names]
-end
+require "standard/rake"
 
 desc "Check test coverage"
 task :undercover do
@@ -17,4 +14,4 @@ task :undercover do
   exit(1) unless system("bin/undercover --compare origin/master")
 end
 
-task default: %w[spec rubocop undercover]
+task default: %w[spec standard undercover]

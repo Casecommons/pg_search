@@ -18,7 +18,7 @@ module PgSearch
   autoload :Document, "pg_search/document"
 
   def self.included(base)
-    ActiveSupport::Deprecation.warn <<~MESSAGE
+    warn(<<~MESSAGE, category: :deprecated, uplevel: 1)
       Directly including `PgSearch` into an Active Record model is deprecated and will be removed in pg_search 3.0.
 
       Please replace `include PgSearch` with `include PgSearch::Model`.
@@ -34,8 +34,8 @@ module PgSearch
   self.unaccent_function = "unaccent"
 
   class << self
-    def multisearch(*args)
-      PgSearch::Document.search(*args)
+    def multisearch(...)
+      PgSearch::Document.search(...)
     end
 
     def disable_multisearch

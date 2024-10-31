@@ -3,7 +3,7 @@
 require "logger"
 
 module PgSearch
-  class Document < ActiveRecord::Base
+  class Document < ActiveRecord::Base # standard:disable Rails/ApplicationRecord
     include PgSearch::Model
 
     self.table_name = "pg_search_documents"

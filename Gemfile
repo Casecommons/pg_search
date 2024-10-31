@@ -12,19 +12,17 @@ if ENV["ACTIVE_RECORD_BRANCH"]
   gem "arel", git: "https://github.com/rails/arel.git" if ENV.fetch("ACTIVE_RECORD_BRANCH", nil) == "master"
 end
 
-gem "activerecord", ENV.fetch("ACTIVE_RECORD_VERSION", nil) if ENV["ACTIVE_RECORD_VERSION"]
+gem "activerecord", ENV.fetch("ACTIVE_RECORD_VERSION", nil) if ENV["ACTIVE_RECORD_VERSION"] # standard:disable Bundler/DuplicatedGem
 
-gem "pry"
+gem "debug"
+gem "irb"
 gem "rake"
 gem "rspec"
-gem "rubocop"
-gem "rubocop-performance"
-gem "rubocop-rails"
-gem "rubocop-rake"
-gem "rubocop-rspec"
 gem "simplecov"
 gem "simplecov-lcov"
-gem "standard", ">= 1.23.0"
+gem "standard", require: false
+gem "standard-rails", require: false
+gem "standard-rspec", require: false
 gem "undercover"
 gem "warning"
 gem "with_model"

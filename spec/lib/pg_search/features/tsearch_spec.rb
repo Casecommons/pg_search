@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "active_support/deprecation"
+require "active_support/core_ext/kernel/reporting"
 
 describe PgSearch::Features::TSearch do
   describe "#rank" do
@@ -24,7 +24,7 @@ describe PgSearch::Features::TSearch do
 
       feature = described_class.new(query, options, columns, Model, normalizer)
       expect(feature.rank.to_sql).to eq(
-        %{(ts_rank((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 0))}
+        %{(ts_rank((to_tsvector('simple', coalesce((#{Model.quoted_table_name}."name")::text, '')) || to_tsvector('simple', coalesce((#{Model.quoted_table_name}."content")::text, ''))), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 0))}
       )
     end
 
@@ -67,7 +67,7 @@ describe PgSearch::Features::TSearch do
 
       feature = described_class.new(query, options, columns, Model, normalizer)
       expect(feature.conditions.to_sql).to eq(
-        %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
+        %{((to_tsvector('simple', coalesce((#{Model.quoted_table_name}."name")::text, '')) || to_tsvector('simple', coalesce((#{Model.quoted_table_name}."content")::text, ''))) @@ (to_tsquery('simple', ''' ' || 'query' || ' ''')))}
       )
     end
 
@@ -84,7 +84,7 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.conditions.to_sql).to eq(
-          %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', '!' || ''' ' || 'query' || ' ''')))}
+          %{((to_tsvector('simple', coalesce((#{Model.quoted_table_name}."name")::text, '')) || to_tsvector('simple', coalesce((#{Model.quoted_table_name}."content")::text, ''))) @@ (to_tsquery('simple', '!' || ''' ' || 'query' || ' ''')))}
         )
       end
     end
@@ -102,7 +102,7 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
         expect(feature.conditions.to_sql).to eq(
-          %{((to_tsvector('simple', coalesce(#{Model.quoted_table_name}."name"::text, '')) || to_tsvector('simple', coalesce(#{Model.quoted_table_name}."content"::text, ''))) @@ (to_tsquery('simple', ''' ' || '!query' || ' ''')))}
+          %{((to_tsvector('simple', coalesce((#{Model.quoted_table_name}."name")::text, '')) || to_tsvector('simple', coalesce((#{Model.quoted_table_name}."content")::text, ''))) @@ (to_tsquery('simple', ''' ' || '!query' || ' ''')))}
         )
       end
     end
@@ -164,12 +164,12 @@ describe PgSearch::Features::TSearch do
 
       feature = described_class.new(query, options, columns, Model, normalizer)
       expect(feature.highlight.to_sql).to eq(
-        "(ts_headline('simple', (coalesce(#{Model.quoted_table_name}.\"name\"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), ''))"
+        "(ts_headline('simple', (coalesce((#{Model.quoted_table_name}.\"name\")::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), ''))"
       )
     end
 
     context "when options[:dictionary] is passed" do
-      # rubocop:disable RSpec/ExampleLength
+      # standard:disable RSpec/ExampleLength
       it "uses the provided dictionary" do
         query = "query"
         columns = [
@@ -189,15 +189,15 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
 
-        expected_sql = %{(ts_headline('spanish', (coalesce(#{Model.quoted_table_name}."name"::text, '') || ' ' || coalesce(#{Model.quoted_table_name}."content"::text, '')), (to_tsquery('spanish', ''' ' || 'query' || ' ''')), 'StartSel = "<b>", StopSel = "</b>"'))}
+        expected_sql = %{(ts_headline('spanish', (coalesce((#{Model.quoted_table_name}."name")::text, '') || ' ' || coalesce((#{Model.quoted_table_name}."content")::text, '')), (to_tsquery('spanish', ''' ' || 'query' || ' ''')), 'StartSel = "<b>", StopSel = "</b>"'))}
 
         expect(feature.highlight.to_sql).to eq(expected_sql)
       end
-      # rubocop:enable RSpec/ExampleLength
+      # standard:enable RSpec/ExampleLength
     end
 
     context "when options[:highlight] has options set" do
-      # rubocop:disable RSpec/ExampleLength
+      # standard:disable RSpec/ExampleLength
       it "passes the options to ts_headline" do
         query = "query"
         columns = [
@@ -221,13 +221,13 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
 
-        expected_sql = %{(ts_headline('simple', (coalesce(#{Model.quoted_table_name}."name"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = TRUE'))}
+        expected_sql = %{(ts_headline('simple', (coalesce((#{Model.quoted_table_name}."name")::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = TRUE'))}
 
         expect(feature.highlight.to_sql).to eq(expected_sql)
       end
-      # rubocop:enable RSpec/ExampleLength
+      # standard:enable RSpec/ExampleLength
 
-      # rubocop:disable RSpec/ExampleLength
+      # standard:disable RSpec/ExampleLength
       it "passes deprecated options to ts_headline" do
         query = "query"
         columns = [
@@ -251,12 +251,12 @@ describe PgSearch::Features::TSearch do
 
         feature = described_class.new(query, options, columns, Model, normalizer)
 
-        highlight_sql = ActiveSupport::Deprecation.silence { feature.highlight.to_sql }
-        expected_sql = %{(ts_headline('simple', (coalesce(#{Model.quoted_table_name}."name"::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = FALSE'))}
+        highlight_sql = silence_warnings { feature.highlight.to_sql }
+        expected_sql = %{(ts_headline('simple', (coalesce((#{Model.quoted_table_name}."name")::text, '')), (to_tsquery('simple', ''' ' || 'query' || ' ''')), 'StartSel = "<start class=""search"">", StopSel = "<stop>", MaxFragments = 3, MaxWords = 123, MinWords = 456, ShortWord = 4, FragmentDelimiter = "&hellip;", HighlightAll = FALSE'))}
 
         expect(highlight_sql).to eq(expected_sql)
       end
-      # rubocop:enable RSpec/ExampleLength
+      # standard:enable RSpec/ExampleLength
     end
   end
 end
