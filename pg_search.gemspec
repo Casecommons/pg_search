@@ -19,7 +19,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "activerecord", ">= 6.1"
-  s.add_dependency "activesupport", ">= 6.1"
 
   s.required_ruby_version = ">= 3.1"
 end
