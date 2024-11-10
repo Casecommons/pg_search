@@ -135,6 +135,7 @@ module PgSearch
 
     FEATURE_CLASSES = {
       dmetaphone: Features::DMetaphone,
+      ilike: Features::ILike,
       tsearch: Features::TSearch,
       trigram: Features::Trigram
     }.freeze
