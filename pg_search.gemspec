@@ -18,8 +18,8 @@ Gem::Specification.new do |s|
   s.files = `git ls-files -z`.split("\x0")
   s.require_paths = ["lib"]
 
-  s.add_dependency "activerecord", ">= 6.1"
-  s.add_dependency "activesupport", ">= 6.1"
+  s.add_dependency "activerecord", ">= 7.0"
+  s.add_dependency "activesupport", ">= 7.0"
 
   s.required_ruby_version = ">= 3.1"
 end
