@@ -67,3 +67,4 @@ def load_sql(filename)
 end
 
 load_sql("dmetaphone.sql")
+load_sql("tsvector_agg.sql")
