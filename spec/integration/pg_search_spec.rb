@@ -706,6 +706,40 @@ describe "an Active Record model which includes PgSearch" do
             expect(result.pg_search_highlight).to eq(%(<mark class="highlight">Let</mark> text<delim class="my_delim"><mark class="highlight">Let</mark> text))
           end
         end
+
+        context "with highlighting columns options" do
+          before do
+            ModelWithPgSearch.create!(
+              title: "The cat reads under the tree.",
+              content: "He hides behind a tree with colorful leaves."
+            )
+
+            ModelWithPgSearch.pg_search_scope :search_content,
+              against: %i[title content],
+              using: {
+                tsearch: {
+                  highlight: {
+                    columns: {
+                      first: :title,
+                      second: %i[title content]
+                    }
+                  }
+                }
+              }
+          end
+
+          it "adds a #pg_search_first_highlight method to each returned model record" do
+            result = ModelWithPgSearch.search_content("tree").with_pg_search_highlight.first
+
+            expect(result.pg_search_first_highlight).to eq(%(The cat reads under the <b>tree</b>.))
+          end
+
+          it "adds a #pg_search_second_highlight method to each returned model record" do
+            result = ModelWithPgSearch.search_content("tree").with_pg_search_highlight.first
+
+            expect(result.pg_search_second_highlight).to eq(%(The cat reads under the <b>tree</b>. He hides behind a <b>tree</b> with colorful leaves.))
+          end
+        end
       end
 
       describe "ranking" do
