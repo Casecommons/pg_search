@@ -815,8 +815,8 @@ class Person < ActiveRecord::Base
                       highlight: {
                         StartSel: '<b>',
                         StopSel: '</b>',
-                        MaxWords: 123,
-                        MinWords: 456,
+                        MinWords: 123,
+                        MaxWords: 456,
                         ShortWord: 4,
                         HighlightAll: true,
                         MaxFragments: 3,
