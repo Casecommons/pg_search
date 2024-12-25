@@ -16,6 +16,7 @@ gem "activerecord", ENV.fetch("ACTIVE_RECORD_VERSION", nil) if ENV["ACTIVE_RECOR
 
 gem "debug"
 gem "irb"
+gem "mutex_m"
 gem "rake"
 gem "rspec"
 gem "simplecov"
