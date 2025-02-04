@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "logger"
 require "warning"
 
 # https://github.com/grodowski/undercover#setting-up-required-lcov-reporting
