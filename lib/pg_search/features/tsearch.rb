@@ -47,39 +47,63 @@ module PgSearch
       def headline_options
         indifferent_options = options.with_indifferent_access
 
-        %w[
-          StartSel StopSel MaxFragments MaxWords MinWords ShortWord FragmentDelimiter HighlightAll
-        ].reduce({}) do |hash, key|
-          hash.tap do
-            value = indifferent_options[:highlight][key]
+        valid_options = {
+          "StartSel" => String,
+          "StopSel" => String,
+          "MaxFragments" => Integer,
+          "MaxWords" => Integer,
+          "MinWords" => Integer,
+          "ShortWord" => Integer,
+          "FragmentDelimiter" => String,
+          "HighlightAll" => [TrueClass, FalseClass]
+        }
 
-            hash[key] = ts_headline_option_value(value)
+        valid_options.each_with_object({}) do |(key, expected_type), hash|
+          value = indifferent_options[:highlight][key]
+          next if value.nil?
+
+          types = Array(expected_type)
+          unless types.any? { |type| value.is_a?(type) }
+            raise ArgumentError, "Invalid type for ts_headline option #{key}: expected #{types.join(" or ")}, got #{value.class}"
           end
+
+          hash[key] = ts_headline_option_value(value)
         end
       end
 
       def deprecated_headline_options
         indifferent_options = options.with_indifferent_access
 
-        %w[
-          start_sel stop_sel max_fragments max_words min_words short_word fragment_delimiter highlight_all
-        ].reduce({}) do |hash, deprecated_key|
-          hash.tap do
-            value = indifferent_options[:highlight][deprecated_key]
+        valid_deprecated_options = {
+          "start_sel" => String,
+          "stop_sel" => String,
+          "max_fragments" => Integer,
+          "max_words" => Integer,
+          "min_words" => Integer,
+          "short_word" => Integer,
+          "fragment_delimiter" => String,
+          "highlight_all" => [TrueClass, FalseClass]
+        }
 
-            unless value.nil?
-              key = deprecated_key.camelize
+        valid_deprecated_options.each_with_object({}) do |(deprecated_key, expected_type), hash|
+          value = indifferent_options[:highlight][deprecated_key]
+          next if value.nil?
 
-              warn(
-                "pg_search 3.0 will no longer accept :#{deprecated_key} as an argument to :ts_headline, " \
-                "use :#{key} instead.",
-                category: :deprecated,
-                uplevel: 1
-              )
+          key = deprecated_key.camelize
 
-              hash[key] = ts_headline_option_value(value)
-            end
+          warn(
+            "pg_search 3.0 will no longer accept :#{deprecated_key} as an argument to :ts_headline, " \
+            "use :#{key} instead.",
+            category: :deprecated,
+            uplevel: 1
+          )
+
+          types = Array(expected_type)
+          unless types.any? { |type| value.is_a?(type) }
+            raise ArgumentError, "Invalid type for ts_headline option #{deprecated_key}: expected #{types.join(" or ")}, got #{value.class}"
           end
+
+          hash[key] = ts_headline_option_value(value)
         end
       end
 
@@ -91,8 +115,10 @@ module PgSearch
           "TRUE"
         when false
           "FALSE"
+        when Integer
+          value.to_s
         else
-          value
+          raise ArgumentError, "Invalid ts_headline option value: #{value.inspect}. Expected String, Boolean, or Integer."
         end
       end
 
