@@ -16,9 +16,10 @@ module PgSearch
       scope = include_table_aliasing_for_rank(scope)
       rank_table_alias = scope.pg_search_rank_table_alias(include_counter: true)
 
+      rank_table = Arel::Table.new(rank_table_alias)
       scope
         .joins(rank_join(rank_table_alias))
-        .order(Arel.sql("#{rank_table_alias}.rank DESC, #{order_within_rank}"))
+        .order(rank_table[:rank].desc, Arel.sql(order_within_rank))
         .extend(WithPgSearchRank)
         .extend(WithPgSearchHighlight[feature_for(:tsearch)])
     end
@@ -37,20 +38,26 @@ module PgSearch
 
       def with_pg_search_highlight
         scope = self
-        scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        scope.select("(#{highlight}) AS pg_search_highlight")
-      end
-
-      def highlight
-        tsearch.highlight.to_sql
+        scope = scope.select(Arel::Table.new(table_name)[Arel.star]) unless scope.select_values.any?
+        scope.select(
+          Arel::Nodes::As.new(
+            tsearch.highlight,
+            Arel::Nodes::SqlLiteral.new("pg_search_highlight")
+          )
+        )
       end
     end
 
     module WithPgSearchRank
       def with_pg_search_rank
         scope = self
-        scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        scope.select("#{pg_search_rank_table_alias}.rank AS pg_search_rank")
+        scope = scope.select(Arel::Table.new(table_name)[Arel.star]) unless scope.select_values.any?
+        scope.select(
+          Arel::Nodes::As.new(
+            Arel::Table.new(pg_search_rank_table_alias)[:rank],
+            Arel::Nodes::SqlLiteral.new("pg_search_rank")
+          )
+        )
       end
     end
 
@@ -81,8 +88,8 @@ module PgSearch
     def subquery
       model
         .unscoped
-        .select("#{primary_key} AS pg_search_id")
-        .select("#{rank} AS rank")
+        .select(model.arel_table[model.primary_key].as("pg_search_id"))
+        .select(rank.as("rank"))
         .joins(subquery_join)
         .where(conditions)
         .limit(nil)
@@ -157,9 +164,11 @@ module PgSearch
     end
 
     def rank
-      (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
-        feature_for(Regexp.last_match(1)).rank.to_sql
-      end
+      Arel.sql(
+        (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
+          feature_for(Regexp.last_match(1)).rank.to_sql
+        end
+      )
     end
 
     def rank_join(rank_table_alias)
