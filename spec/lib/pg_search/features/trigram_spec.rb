@@ -52,7 +52,7 @@ describe PgSearch::Features::Trigram do
       let(:ignore) { [:accents] }
 
       it "escapes the search document and query, but not the accent function" do
-        expect(feature.conditions.to_sql).to eq("(unaccent('#{query}') % (unaccent(#{coalesced_columns})))")
+        expect(feature.conditions.to_sql).to eq("(regexp_replace(unaccent('#{query}'), '[''?\\:]', '', 'g') % (regexp_replace(unaccent(#{coalesced_columns}), '[''?\\:]', '', 'g')))")
       end
     end
 
