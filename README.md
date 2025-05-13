@@ -13,8 +13,8 @@ Read the blog post introducing PgSearch at https://tanzu.vmware.com/content/blog
 
 ## REQUIREMENTS
 
-*   Ruby 3.0+
-*   Active Record 6.1+
+*   Ruby 3.1+
+*   Active Record 7.1+
 *   PostgreSQL 9.2+
 *   [PostgreSQL extensions](https://github.com/Casecommons/pg_search/wiki/Installing-PostgreSQL-Extensions) for certain features
 
@@ -815,8 +815,8 @@ class Person < ActiveRecord::Base
                       highlight: {
                         StartSel: '<b>',
                         StopSel: '</b>',
-                        MaxWords: 123,
-                        MinWords: 456,
+                        MinWords: 123,
+                        MaxWords: 456,
                         ShortWord: 4,
                         HighlightAll: true,
                         MaxFragments: 3,
