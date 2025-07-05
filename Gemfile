@@ -24,6 +24,7 @@ gem "simplecov-lcov"
 gem "standard", require: false
 gem "standard-rails", require: false
 gem "standard-rspec", require: false
+gem "strict_ivars", require: false
 gem "undercover"
 gem "warning"
 gem "with_model"

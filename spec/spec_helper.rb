@@ -2,6 +2,7 @@
 
 require "logger"
 require "warning"
+require "strict_ivars"
 
 # https://github.com/grodowski/undercover#setting-up-required-lcov-reporting
 require "simplecov"
