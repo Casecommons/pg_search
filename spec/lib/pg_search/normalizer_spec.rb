@@ -12,7 +12,7 @@ describe PgSearch::Normalizer do
           node = Arel::Nodes::NamedFunction.new("foo", [Arel::Nodes.build_quoted("bar")])
 
           normalizer = described_class.new(config)
-          expect(normalizer.add_normalization(node)).to eq("unaccent(foo('bar'))")
+          expect(normalizer.add_normalization(node)).to eq("regexp_replace(unaccent(foo('bar')), '[''?\\:]', '', 'g')")
         end
 
         context "when a custom unaccent function is specified" do
@@ -23,7 +23,7 @@ describe PgSearch::Normalizer do
             config = instance_double(PgSearch::Configuration, "config", ignore: [:accents])
 
             normalizer = described_class.new(config)
-            expect(normalizer.add_normalization(node)).to eq("my_unaccent(foo('bar'))")
+            expect(normalizer.add_normalization(node)).to eq("regexp_replace(my_unaccent(foo('bar')), '[''?\\:]', '', 'g')")
           end
         end
       end
@@ -33,7 +33,7 @@ describe PgSearch::Normalizer do
           config = instance_double(PgSearch::Configuration, "config", ignore: [:accents])
 
           normalizer = described_class.new(config)
-          expect(normalizer.add_normalization("foo")).to eq("unaccent(foo)")
+          expect(normalizer.add_normalization("foo")).to eq("regexp_replace(unaccent(foo), '[''?\\:]', '', 'g')")
         end
 
         context "when a custom unaccent function is specified" do
@@ -43,7 +43,7 @@ describe PgSearch::Normalizer do
             config = instance_double(PgSearch::Configuration, "config", ignore: [:accents])
 
             normalizer = described_class.new(config)
-            expect(normalizer.add_normalization("foo")).to eq("my_unaccent(foo)")
+            expect(normalizer.add_normalization("foo")).to eq("regexp_replace(my_unaccent(foo), '[''?\\:]', '', 'g')")
           end
         end
       end
