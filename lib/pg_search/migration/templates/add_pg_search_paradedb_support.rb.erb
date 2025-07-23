@@ -1,0 +1,31 @@
+class AddPgSearchParadedbSupport < ActiveRecord::Migration<%= migration_version %>
+  def up
+    say_with_time("Installing pg_search extension by ParadeDB") do
+      execute "CREATE EXTENSION IF NOT EXISTS pg_search"
+    end
+
+    say_with_time("Creating BM25 index on pg_search_documents") do
+      # Create a BM25 index on the pg_search_documents table
+      # Using searchable_id as the key field since it's part of the composite primary key
+      # and is required for ParadeDB's score() function
+      execute <<~SQL
+        CREATE INDEX IF NOT EXISTS pg_search_documents_bm25_idx 
+        ON pg_search_documents 
+        USING bm25 (searchable_id, searchable_type, content)
+        WITH (key_field='searchable_id')
+      SQL
+    end
+  end
+
+  def down
+    say_with_time("Removing BM25 index from pg_search_documents") do
+      execute "DROP INDEX IF EXISTS pg_search_documents_bm25_idx"
+    end
+
+    # Note: We don't drop the pg_search extension as it might be used by other tables
+    # If you want to remove it, uncomment the following:
+    # say_with_time("Removing pg_search extension") do
+    #   execute "DROP EXTENSION IF EXISTS pg_search"
+    # end
+  end
+end

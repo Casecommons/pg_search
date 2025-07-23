@@ -136,7 +136,8 @@ module PgSearch
     FEATURE_CLASSES = {
       dmetaphone: Features::DMetaphone,
       tsearch: Features::TSearch,
-      trigram: Features::Trigram
+      trigram: Features::Trigram,
+      paradedb: Features::ParadeDB
     }.freeze
 
     def feature_for(feature_name)
