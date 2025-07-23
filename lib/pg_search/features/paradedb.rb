@@ -142,15 +142,20 @@ module PgSearch
       end
 
       def ensure_bm25_index!
-        return unless model.table_name == 'pg_search_documents'
+        # Determine the appropriate index name based on model
+        index_name = if model.table_name == 'pg_search_documents'
+          @options[:index_name] || 'pg_search_documents_bm25_idx'
+        else
+          # For model-specific searches, create an index on the model's table
+          searchable_columns = columns.map(&:name).join('_')
+          @options[:index_name] || "#{model.table_name}_#{searchable_columns}_bm25_idx"
+        end
         
         # Check if BM25 index exists
-        index_name = @options[:index_name] || 'pg_search_documents_bm25_idx'
-        
         result = connection.execute(<<-SQL)
           SELECT 1 
           FROM pg_indexes 
-          WHERE tablename = 'pg_search_documents' 
+          WHERE tablename = '#{model.table_name}' 
           AND indexname = '#{index_name}'
           LIMIT 1
         SQL
@@ -163,30 +168,41 @@ module PgSearch
 
       def create_bm25_index!(index_name)
         # Determine which columns to include in the index
-        index_columns = if model.table_name == 'pg_search_documents'
+        if model.table_name == 'pg_search_documents'
           # For multisearch, index the key columns
-          'id, content, searchable_id, searchable_type'
+          index_columns = 'id, content, searchable_id, searchable_type'
         else
-          # For single model search, index the searchable columns
-          columns.map { |col| connection.quote_column_name(col.name) }.join(', ')
+          # For single model search, we need to include:
+          # 1. The primary key (for key_field)
+          # 2. All searchable columns
+          pk_column = connection.quote_column_name(model.primary_key)
+          search_columns = columns.map { |col| connection.quote_column_name(col.name) }
+          
+          # Remove duplicate if primary key is in search columns
+          all_columns = ([pk_column] + search_columns).uniq
+          index_columns = all_columns.join(', ')
         end
         
         begin
+          # Truncate long index names to PostgreSQL's 63 character limit
+          truncated_index_name = index_name[0..62]
+          
           connection.execute(<<-SQL)
-            CREATE INDEX CONCURRENTLY IF NOT EXISTS #{index_name}
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS #{connection.quote_column_name(truncated_index_name)}
             ON #{quoted_table_name}
             USING bm25 (#{index_columns})
             WITH (key_field='#{key_field}')
           SQL
           
-          Rails.logger.info "[pg_search] Created BM25 index: #{index_name}" if defined?(Rails)
+          Rails.logger.info "[pg_search] Created BM25 index: #{truncated_index_name} on #{quoted_table_name}" if defined?(Rails)
         rescue ActiveRecord::StatementInvalid => e
           if e.message.include?("already exists")
             # Index already exists, that's fine
           elsif e.message.include?("CONCURRENTLY")
             # Retry without CONCURRENTLY (might be in a transaction)
+            truncated_index_name = index_name[0..62]
             connection.execute(<<-SQL)
-              CREATE INDEX IF NOT EXISTS #{index_name}
+              CREATE INDEX IF NOT EXISTS #{connection.quote_column_name(truncated_index_name)}
               ON #{quoted_table_name}
               USING bm25 (#{index_columns})
               WITH (key_field='#{key_field}')
