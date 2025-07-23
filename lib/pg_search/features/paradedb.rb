@@ -8,6 +8,10 @@ module PgSearch
       class ExtensionNotInstalled < StandardError; end
       class IndexNotFound < StandardError; end
       
+      # Class variables for one-time checks
+      @@extension_checked = false
+      @@extension_valid = false
+      
       def self.valid_options
         super + %i[
           index_name key_field text_fields numeric_fields boolean_fields 
@@ -16,12 +20,20 @@ module PgSearch
           auto_create_index check_extension
         ]
       end
+      
+      # Reset the extension check cache (useful for testing)
+      def self.reset_extension_check!
+        @@extension_checked = false
+        @@extension_valid = false
+      end
 
       def initialize(query, options, all_columns, model, normalizer)
         super
         # Default to checking extension and auto-creating index
-        @check_extension = options.fetch(:check_extension, true)
-        @auto_create_index = options.fetch(:auto_create_index, true)
+        # Handle both simple syntax (using: :paradedb) and complex syntax (using: { paradedb: {...} })
+        @options = options || {}
+        @check_extension = @options.fetch(:check_extension, true)
+        @auto_create_index = @options.fetch(:auto_create_index, true)
         
         ensure_paradedb_ready! if @check_extension
       end
@@ -73,7 +85,7 @@ module PgSearch
         if model.table_name == 'pg_search_documents'
           'id'
         else
-          options[:key_field] || model.primary_key || 'id'
+          @options[:key_field] || model.primary_key || 'id'
         end
       end
 
@@ -83,32 +95,57 @@ module PgSearch
       end
 
       def check_extension!
-        result = connection.execute(<<-SQL)
-          SELECT 1 FROM pg_extension WHERE extname = 'pg_search' LIMIT 1
-        SQL
-        
-        unless result.any?
-          raise ExtensionNotInstalled, <<~ERROR
-            ParadeDB pg_search extension is not installed.
-            
-            To fix this, run the following SQL command:
-              CREATE EXTENSION IF NOT EXISTS pg_search;
-            
-            Or generate and run the ParadeDB migration:
-              rails generate pg_search:migration:paradedb
-              rails db:migrate
-          ERROR
+        # Use cached result if already checked
+        if @@extension_checked
+          unless @@extension_valid
+            raise ExtensionNotInstalled, <<~ERROR
+              ParadeDB pg_search extension is not installed.
+              
+              To fix this, run the following SQL command:
+                CREATE EXTENSION IF NOT EXISTS pg_search;
+              
+              Or generate and run the ParadeDB migration:
+                rails generate pg_search:migration:paradedb
+                rails db:migrate
+            ERROR
+          end
+          return
         end
-      rescue ActiveRecord::StatementInvalid => e
-        # Handle case where pg_extension table doesn't exist (unlikely but possible)
-        raise ExtensionNotInstalled, "Could not verify pg_search extension: #{e.message}"
+        
+        # Perform the check only once
+        @@extension_checked = true
+        
+        begin
+          result = connection.execute(<<-SQL)
+            SELECT 1 FROM pg_extension WHERE extname = 'pg_search' LIMIT 1
+          SQL
+          
+          @@extension_valid = result.any?
+          
+          unless @@extension_valid
+            raise ExtensionNotInstalled, <<~ERROR
+              ParadeDB pg_search extension is not installed.
+              
+              To fix this, run the following SQL command:
+                CREATE EXTENSION IF NOT EXISTS pg_search;
+              
+              Or generate and run the ParadeDB migration:
+                rails generate pg_search:migration:paradedb
+                rails db:migrate
+            ERROR
+          end
+        rescue ActiveRecord::StatementInvalid => e
+          # Handle case where pg_extension table doesn't exist (unlikely but possible)
+          @@extension_valid = false
+          raise ExtensionNotInstalled, "Could not verify pg_search extension: #{e.message}"
+        end
       end
 
       def ensure_bm25_index!
         return unless model.table_name == 'pg_search_documents'
         
         # Check if BM25 index exists
-        index_name = options[:index_name] || 'pg_search_documents_bm25_idx'
+        index_name = @options[:index_name] || 'pg_search_documents_bm25_idx'
         
         result = connection.execute(<<-SQL)
           SELECT 1 
@@ -172,7 +209,7 @@ module PgSearch
         return "''" if query.blank?
         
         # Handle different query types
-        case options[:query_type]
+        case @options[:query_type]
         when :phrase
           phrase_query
         when :prefix
@@ -204,7 +241,7 @@ module PgSearch
 
       def fuzzy_query
         # For fuzzy search, use the ~N syntax where N is the distance
-        distance = options[:fuzzy_distance] || 1
+        distance = @options[:fuzzy_distance] || 1
         escaped = query.gsub("'", "''")
         "'#{escaped}~#{distance}'"
       end
