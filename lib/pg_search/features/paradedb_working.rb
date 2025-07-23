@@ -15,12 +15,10 @@ module PgSearch
 
       def conditions
         # ParadeDB uses the @@@ operator for BM25 search
-        # Example: WHERE content @@@ 'shoes'
-        # For multiple columns, we use OR conditions
+        # We need direct column references without coalesce
         if columns.any?
           conditions = columns.map do |column|
-            # Use column.full_name directly to avoid coalesce wrapper
-            # ParadeDB doesn't support coalesce and returns "node is not a Var/Expr" error
+            # Use column.full_name to avoid coalesce wrapper
             Arel::Nodes::InfixOperation.new("@@@", 
               arel_wrap(column.full_name), 
               arel_wrap(formatted_query)
@@ -28,8 +26,12 @@ module PgSearch
           end
           
           # Combine all conditions with OR
-          conditions.reduce do |combined, condition|
-            Arel::Nodes::Or.new(combined, condition)
+          if conditions.size > 1
+            conditions.reduce do |combined, condition|
+              Arel::Nodes::Or.new(combined, condition)
+            end
+          else
+            conditions.first
           end
         else
           # Fallback to content column for multisearch
@@ -41,9 +43,13 @@ module PgSearch
       end
 
       def rank
-        # ParadeDB uses paradedb.score(key_field) for ranking
-        # Example: ORDER BY paradedb.score(id) DESC
-        arel_wrap(paradedb_score)
+        # Return an Arel node for ParadeDB scoring
+        # Use the id column as the key field for scoring
+        # Wrap in NamedFunction to ensure it has to_sql method
+        Arel::Nodes::NamedFunction.new(
+          "paradedb.score",
+          [Arel.sql("#{quoted_table_name}.#{connection.quote_column_name('id')}")]
+        )
       end
 
       private
@@ -54,16 +60,12 @@ module PgSearch
         # Handle different query types
         case options[:query_type]
         when :phrase
-          # Phrase search: wrap in double quotes
           phrase_query
         when :prefix
-          # Prefix search: add wildcard
           prefix_query
         when :fuzzy
-          # Fuzzy search with distance
           fuzzy_query
         else
-          # Default: standard query
           standard_query
         end
       end
@@ -91,19 +93,6 @@ module PgSearch
         distance = options[:fuzzy_distance] || 1
         escaped = query.gsub("'", "''")
         "'#{escaped}~#{distance}'"
-      end
-
-      def paradedb_score
-        # Generate the paradedb.score() function call
-        # For multisearch, we need to use searchable_id as the key field
-        # since it's part of the indexed columns
-        key_field = if model.name == "PgSearch::Document"
-          "searchable_id"
-        else
-          options[:key_field] || "id"
-        end
-        
-        "paradedb.score(#{quoted_table_name}.#{connection.quote_column_name(key_field)})"
       end
 
       def arel_wrap(sql_string)
