@@ -23,6 +23,7 @@ module PgSearch
 
       def multisearchable(options = {})
         include PgSearch::Multisearchable
+
         class_attribute :pg_search_multisearchable_options
         self.pg_search_multisearchable_options = options
       end

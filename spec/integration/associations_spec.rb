@@ -20,6 +20,7 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
+
           belongs_to :another_model, class_name: "AssociatedModel"
 
           pg_search_scope :with_another, associated_against: {another_model: :title}
@@ -57,6 +58,7 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
+
           belongs_to :another_model, class_name: "AssociatedModel"
 
           pg_search_scope :with_associated, against: :title, associated_against: {another_model: :title}
@@ -93,6 +95,7 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
+
           has_many :other_models, class_name: "AssociatedModelWithHasMany", foreign_key: "ModelWithHasMany_id"
 
           pg_search_scope :with_associated, against: [:title], associated_against: {other_models: :title}
@@ -284,6 +287,7 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
+
           belongs_to :another_model, class_name: "AssociatedModel"
 
           pg_search_scope :with_associated, associated_against: {another_model: %i[title author]}
@@ -337,6 +341,7 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
+
           belongs_to :another_model, class_name: "AssociatedModel"
 
           pg_search_scope :with_associated, associated_against: {another_model: :number}
@@ -368,6 +373,7 @@ describe "a pg_search_scope" do
         model do
           has_many :children
           include PgSearch::Model
+
           pg_search_scope :search_name, against: :name
         end
       end
@@ -411,6 +417,7 @@ describe "a pg_search_scope" do
 
       model do
         include PgSearch::Model
+
         belongs_to :model_with_association
 
         pg_search_scope :search_content, against: :content
@@ -457,6 +464,7 @@ describe "a pg_search_scope" do
 
       model do
         include PgSearch::Model
+
         pg_search_scope :search, against: :title, using: %i[tsearch trigram]
       end
     end

@@ -18,6 +18,7 @@ describe PgSearch::Configuration::ForeignColumn do
 
       model do
         include PgSearch::Model
+
         belongs_to :another_model, class_name: "AssociatedModel"
 
         pg_search_scope :with_another, associated_against: {another_model: :title}

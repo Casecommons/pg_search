@@ -14,6 +14,7 @@ describe "an Active Record model which includes PgSearch" do
 
     model do
       include PgSearch::Model
+
       belongs_to :parent_model
     end
   end
@@ -24,6 +25,7 @@ describe "an Active Record model which includes PgSearch" do
 
     model do
       include PgSearch::Model
+
       has_many :models_with_pg_search
       scope :active, -> { where(active: true) }
     end
@@ -238,6 +240,7 @@ describe "an Active Record model which includes PgSearch" do
 
           model do
             include PgSearch::Model
+
             belongs_to :person
             pg_search_scope :search_city, against: [:city]
           end
@@ -250,6 +253,7 @@ describe "an Active Record model which includes PgSearch" do
 
           model do
             include PgSearch::Model
+
             has_many :houses
             pg_search_scope :named, against: [:name]
             scope :with_house_in_city, lambda { |city|
@@ -1046,6 +1050,7 @@ describe "an Active Record model which includes PgSearch" do
 
         model do
           include PgSearch::Model
+
           has_many :comments
         end
       end

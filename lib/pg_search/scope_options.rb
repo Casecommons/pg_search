@@ -27,6 +27,7 @@ module PgSearch
       def self.[](tsearch)
         Module.new do
           include WithPgSearchHighlight
+
           define_method(:tsearch) { tsearch }
         end
       end

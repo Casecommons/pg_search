@@ -25,6 +25,7 @@ describe PgSearch::Multisearch::Rebuilder do
         with_model :Model do
           model do
             include PgSearch::Model
+
             multisearchable
 
             def rebuild_pg_search_documents
@@ -53,6 +54,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
               model do
                 include PgSearch::Model
+
                 multisearchable conditional_key => :active?
 
                 def rebuild_pg_search_documents
@@ -84,6 +86,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             model do
               include PgSearch::Model
+
               multisearchable against: :name
             end
           end
@@ -147,6 +150,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
               model do
                 include PgSearch::Model
+
                 multisearchable against: :name
               end
             end
@@ -166,6 +170,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
               model do
                 include PgSearch::Model
+
                 multisearchable against: :name
               end
             end
@@ -207,6 +212,7 @@ describe PgSearch::Multisearch::Rebuilder do
           with_model :Model do
             model do
               include PgSearch::Model
+
               multisearchable against: [:foo]
 
               def foo
@@ -252,6 +258,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             model do
               include PgSearch::Model
+
               multisearchable against: :name,
                 additional_attributes: ->(obj) { {additional_attribute_column: "#{obj.class}::#{obj.id}"} }
             end
@@ -281,6 +288,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             model do
               include PgSearch::Model
+
               multisearchable if: :active?
             end
           end
@@ -322,6 +330,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             model do
               include PgSearch::Model
+
               multisearchable unless: :inactive?
             end
           end

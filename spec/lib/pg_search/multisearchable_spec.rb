@@ -10,6 +10,7 @@ describe PgSearch::Multisearchable do
     with_model :ModelThatIsMultisearchable do
       model do
         include PgSearch::Model
+
         multisearchable
       end
     end
@@ -21,6 +22,7 @@ describe PgSearch::Multisearchable do
 
       model do
         include PgSearch::Model
+
         multisearchable
 
         has_many :multisearchable_children, dependent: :destroy
@@ -319,6 +321,7 @@ describe PgSearch::Multisearchable do
 
         model do
           include PgSearch::Model
+
           multisearchable if: ->(record) { record.multisearchable? }
         end
       end
@@ -450,6 +453,7 @@ describe PgSearch::Multisearchable do
 
         model do
           include PgSearch::Model
+
           multisearchable unless: ->(record) { record.not_multisearchable? }
         end
       end
@@ -585,6 +589,7 @@ describe PgSearch::Multisearchable do
 
         model do
           include PgSearch::Model
+
           multisearchable if: :multisearchable?
         end
       end
@@ -723,6 +728,7 @@ describe PgSearch::Multisearchable do
 
         model do
           include PgSearch::Model
+
           multisearchable unless: :not_multisearchable?
         end
       end
