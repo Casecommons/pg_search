@@ -25,15 +25,13 @@ module PgSearch
           @normalizer_to_wrap = normalizer_to_wrap
         end
 
-        def add_normalization(original_sql)
-          otherwise_normalized_sql = Arel.sql(
-            normalizer_to_wrap.add_normalization(original_sql)
-          )
+        def add_normalization(original_node)
+          otherwise_normalized_node = normalizer_to_wrap.add_normalization(original_node)
 
           Arel::Nodes::NamedFunction.new(
             "pg_search_dmetaphone",
-            [otherwise_normalized_sql]
-          ).to_sql
+            [otherwise_normalized_node]
+          )
         end
 
         private

@@ -60,12 +60,12 @@ module PgSearch
       end
 
       def normalized_document
-        Arel::Nodes::Grouping.new(Arel.sql(normalize(document)))
+        Arel::Nodes::Grouping.new(normalize(document))
       end
 
       def normalized_query
-        sanitized_query = connection.quote(query)
-        Arel.sql(normalize(sanitized_query))
+        sanitized_query = Arel::Nodes.build_quoted(query)
+        normalize(sanitized_query)
       end
     end
   end

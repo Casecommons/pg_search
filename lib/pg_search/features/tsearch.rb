@@ -12,12 +12,16 @@ module PgSearch
 
       def conditions
         Arel::Nodes::Grouping.new(
-          Arel::Nodes::InfixOperation.new("@@", arel_wrap(tsdocument), arel_wrap(tsquery))
+          Arel::Nodes::InfixOperation.new("@@", tsdocument, tsquery)
         )
       end
 
       def rank
-        arel_wrap(tsearch_rank)
+        Arel::Nodes::NamedFunction.new("ts_rank", [
+          tsdocument,
+          tsquery,
+          normalization
+        ])
       end
 
       def highlight
@@ -29,8 +33,8 @@ module PgSearch
       def ts_headline
         Arel::Nodes::NamedFunction.new("ts_headline", [
           dictionary,
-          arel_wrap(document),
-          arel_wrap(tsquery),
+          document,
+          tsquery,
           Arel::Nodes.build_quoted(ts_headline_options)
         ]).to_sql
       end
@@ -72,7 +76,7 @@ module PgSearch
 
               warn(
                 "pg_search 3.0 will no longer accept :#{deprecated_key} as an argument to :ts_headline, " \
-                "use :#{key} instead.",
+                  "use :#{key} instead.",
                 category: :deprecated,
                 uplevel: 1
               )
@@ -106,11 +110,11 @@ module PgSearch
 
         sanitized_term = unsanitized_term.gsub(DISALLOWED_TSQUERY_CHARACTERS, " ")
 
-        term_sql = Arel.sql(normalize(connection.quote(sanitized_term)))
+        term_sql = normalize(Arel::Nodes.build_quoted(sanitized_term))
 
         tsquery = tsquery_expression(term_sql, negated: negated, prefix: options[:prefix])
 
-        Arel::Nodes::NamedFunction.new("to_tsquery", [dictionary, tsquery]).to_sql
+        Arel::Nodes::NamedFunction.new("to_tsquery", [dictionary, tsquery])
       end
 
       # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
@@ -131,29 +135,34 @@ module PgSearch
       end
 
       def tsquery
-        return "''" if query.blank?
+        return Arel::Nodes.build_quoted(query) if query.blank?
 
-        query_terms = query.split.compact
-        tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
-        tsquery_terms.join(options[:any_word] ? " || " : " && ")
+        operator = tsquery_operator
+
+        Arel::Nodes::Grouping.new(
+          query
+            .split
+            .compact
+            .map { tsquery_for_term(_1) }
+            .inject { Arel::Nodes::InfixOperation.new(operator, _1, _2) }
+        )
       end
 
+      def tsquery_operator = options[:any_word] ? "||" : "&&"
+
       def tsdocument
-        tsdocument_terms = (columns_to_use || []).map do |search_column|
-          column_to_tsvector(search_column)
-        end
+        tsdocument_terms = [
+          *(columns_to_use || []).map { column_to_tsvector(_1) },
+          *Array.wrap(options[:tsvector_column]).map { arel_table[_1] }
+        ]
 
-        if options[:tsvector_column]
-          tsvector_columns = Array.wrap(options[:tsvector_column])
+        return Arel::Nodes.build_quoted(nil) if tsdocument_terms.empty?
 
-          tsdocument_terms << tsvector_columns.map do |tsvector_column|
-            column_name = connection.quote_column_name(tsvector_column)
-
-            "#{quoted_table_name}.#{column_name}"
+        Arel::Nodes::Grouping.new(
+          tsdocument_terms.inject do |memo, term|
+            Arel::Nodes::InfixOperation.new("||", memo, term)
           end
-        end
-
-        tsdocument_terms.join(" || ")
+        )
       end
 
       # From http://www.postgresql.org/docs/8.3/static/textsearch-controls.html
@@ -167,14 +176,6 @@ module PgSearch
       # The integer option controls several behaviors, so it is a bit mask: you can specify one or more behaviors
       def normalization
         options[:normalization] || 0
-      end
-
-      def tsearch_rank
-        Arel::Nodes::NamedFunction.new("ts_rank", [
-          arel_wrap(tsdocument),
-          arel_wrap(tsquery),
-          normalization
-        ]).to_sql
       end
 
       def dictionary
@@ -196,13 +197,14 @@ module PgSearch
       def column_to_tsvector(search_column)
         tsvector = Arel::Nodes::NamedFunction.new(
           "to_tsvector",
-          [dictionary, Arel.sql(normalize(search_column.to_sql))]
-        ).to_sql
+          [dictionary, normalize(search_column.to_arel)]
+        )
 
         if search_column.weight.nil?
           tsvector
         else
-          "setweight(#{tsvector}, #{connection.quote(search_column.weight)})"
+          weight = Arel::Nodes.build_quoted(search_column.weight)
+          Arel::Nodes::NamedFunction.new("setweight", [tsvector, weight])
         end
       end
     end
