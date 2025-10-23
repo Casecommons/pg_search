@@ -1190,7 +1190,7 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       context "when the query includes accents" do
-        let(:term) { "L#{%w[‘ ’ ʻ ʼ].sample}Content" }
+        let(:term) { "L#{%w[‘ ’ ʻ ʼ ʹ ʽ ˈ ＇ ŉ].sample}Content" }
         let(:included) { ModelWithPgSearch.create!(title: "Weird #{term}") }
         let(:results) { ModelWithPgSearch.search_title_without_accents(term) }
 

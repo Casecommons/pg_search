@@ -96,8 +96,7 @@ module PgSearch
         end
       end
 
-      DISALLOWED_TSQUERY_CHARACTERS = /['?\\:‘’ʻʼ]/ # standard:disable Lint/UselessConstantScoping
-
+      DISALLOWED_TSQUERY_CHARACTERS = /['?\\:]/ # standard:disable Lint/UselessConstantScoping
       def tsquery_for_term(unsanitized_term)
         if options[:negation] && unsanitized_term.start_with?("!")
           unsanitized_term[0] = ""
