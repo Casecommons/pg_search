@@ -10,7 +10,7 @@ module PgSearch
         %i[only sort_only]
       end
 
-      delegate :connection, :quoted_table_name, to: :@model
+      delegate :connection, :arel_table, to: :@model
 
       def initialize(query, options, all_columns, model, normalizer)
         @query = query
@@ -24,8 +24,19 @@ module PgSearch
 
       attr_reader :query, :options, :all_columns, :model, :normalizer
 
+      # Join columns with spaces, like: column1 || ' ' || column2 || ' ' || column3...
       def document
-        columns.map(&:to_sql).join(" || ' ' || ")
+        columns.map(&:to_arel).inject do |memo, column_node|
+          Arel::Nodes::InfixOperation.new(
+            "||",
+            Arel::Nodes::InfixOperation.new(
+              "||",
+              memo,
+              Arel::Nodes.build_quoted(" ")
+            ),
+            column_node
+          )
+        end
       end
 
       def columns

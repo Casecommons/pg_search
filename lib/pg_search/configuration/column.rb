@@ -21,6 +21,10 @@ module PgSearch
         "#{table_name}.#{column_name}"
       end
 
+      def to_arel
+        Arel.sql(to_sql)
+      end
+
       def to_sql
         "coalesce((#{expression})::text, '')"
       end
