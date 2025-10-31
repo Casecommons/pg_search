@@ -16,8 +16,9 @@ module PgSearch
       scope = include_table_aliasing_for_rank(scope)
       rank_table_alias = scope.pg_search_rank_table_alias(include_counter: true)
 
-      # Keep Arel.sql for table alias references since these are dynamic subquery aliases
-      rank_column = Arel.sql("#{rank_table_alias}.rank")
+      # Create proper Arel table reference for the subquery alias
+      rank_table = Arel::Table.new(rank_table_alias)
+      rank_column = rank_table[:rank]
 
       order_expression = [rank_column.desc]
 
@@ -67,8 +68,9 @@ module PgSearch
       def with_pg_search_rank
         scope = self
         scope = scope.select(arel_table[Arel.star]) unless scope.select_values.any?
-        # Keep Arel.sql for table alias references since these are dynamic subquery aliases
-        rank_column = Arel.sql("#{pg_search_rank_table_alias}.rank")
+        # Create proper Arel table reference for the subquery alias
+        rank_table = Arel::Table.new(pg_search_rank_table_alias)
+        rank_column = rank_table[:rank]
         scope.select(rank_column.as("pg_search_rank"))
       end
     end
@@ -186,7 +188,17 @@ module PgSearch
     end
 
     def rank_join(rank_table_alias)
-      "INNER JOIN (#{subquery.to_sql}) AS #{rank_table_alias} ON #{primary_key} = #{rank_table_alias}.pg_search_id"
+      # Create proper Arel constructs for the JOIN components
+      subquery_sql = subquery.to_sql
+      rank_table = Arel::Table.new(rank_table_alias)
+
+      # Create proper Arel column references instead of string interpolation
+      primary_key_column = model.arel_table[model.primary_key]
+      subquery_id_column = rank_table[:pg_search_id]
+      join_condition = primary_key_column.eq(subquery_id_column)
+
+      # Build JOIN string using Arel constructs for the condition
+      "INNER JOIN (#{subquery_sql}) AS #{rank_table_alias} ON #{join_condition.to_sql}"
     end
 
     def include_table_aliasing_for_rank(scope)
