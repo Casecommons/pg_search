@@ -16,9 +16,15 @@ module PgSearch
       scope = include_table_aliasing_for_rank(scope)
       rank_table_alias = scope.pg_search_rank_table_alias(include_counter: true)
 
+      rank_column = Arel.sql("#{rank_table_alias}.rank")
+      order_expression = [
+        rank_column.desc,
+        Arel.sql(order_within_rank)
+      ]
+
       scope
         .joins(rank_join(rank_table_alias))
-        .order(Arel.sql("#{rank_table_alias}.rank DESC, #{order_within_rank}"))
+        .order(order_expression)
         .extend(WithPgSearchRank)
         .extend(WithPgSearchHighlight[feature_for(:tsearch)])
     end
@@ -38,8 +44,9 @@ module PgSearch
 
       def with_pg_search_highlight
         scope = self
-        scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        scope.select("(#{highlight}) AS pg_search_highlight")
+        scope = scope.select(arel_table[Arel.star]) unless scope.select_values.any?
+        highlight_expression = Arel::Nodes::Grouping.new(Arel.sql(highlight))
+        scope.select(highlight_expression.as("pg_search_highlight"))
       end
 
       def highlight
@@ -50,8 +57,9 @@ module PgSearch
     module WithPgSearchRank
       def with_pg_search_rank
         scope = self
-        scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        scope.select("#{pg_search_rank_table_alias}.rank AS pg_search_rank")
+        scope = scope.select(arel_table[Arel.star]) unless scope.select_values.any?
+        rank_column = Arel.sql("#{pg_search_rank_table_alias}.rank")
+        scope.select(rank_column.as("pg_search_rank"))
       end
     end
 
@@ -80,10 +88,13 @@ module PgSearch
     delegate :connection, :quoted_table_name, to: :model
 
     def subquery
+      primary_key_column = model.arel_table[model.primary_key]
+      rank_expression = Arel.sql(rank)
+
       model
         .unscoped
-        .select("#{primary_key} AS pg_search_id")
-        .select("#{rank} AS rank")
+        .select(primary_key_column.as("pg_search_id"))
+        .select(rank_expression.as("rank"))
         .joins(subquery_join)
         .where(conditions)
         .limit(nil)
