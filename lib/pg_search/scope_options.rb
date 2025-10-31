@@ -32,8 +32,7 @@ module PgSearch
         order_expression << primary_key_column.asc
       end
 
-      scope
-        .joins(rank_join(rank_table_alias))
+      scope_with_rank_join(scope, rank_table_alias)
         .order(order_expression)
         .extend(WithPgSearchRank)
         .extend(WithPgSearchHighlight[feature_for(:tsearch)])
@@ -55,12 +54,12 @@ module PgSearch
       def with_pg_search_highlight
         scope = self
         scope = scope.select(arel_table[Arel.star]) unless scope.select_values.any?
-        highlight_expression = Arel::Nodes::Grouping.new(Arel.sql(highlight))
+        highlight_expression = highlight
         scope.select(highlight_expression.as("pg_search_highlight"))
       end
 
       def highlight
-        tsearch.highlight.to_sql
+        tsearch.highlight
       end
     end
 
@@ -101,8 +100,9 @@ module PgSearch
 
     def subquery
       primary_key_column = model.arel_table[model.primary_key]
-      # Keep Arel.sql here since rank() returns complex user-configurable SQL expressions
-      rank_expression = Arel.sql(rank)
+      # Handle both Arel nodes and SQL strings from rank()
+      rank_result = rank
+      rank_expression = rank_result.is_a?(String) ? Arel.sql(rank_result) : rank_result
 
       model
         .unscoped
@@ -143,18 +143,22 @@ module PgSearch
     # standard:enable Lint/DuplicateMethods
 
     def order_within_rank
-      config.order_within_rank || "#{primary_key} ASC"
+      config.order_within_rank || "#{primary_key_sql} ASC"
     end
 
     def primary_key
+      model.arel_table[model.primary_key]
+    end
+
+    def primary_key_sql
       "#{quoted_table_name}.#{connection.quote_column_name(model.primary_key)}"
     end
 
     def subquery_join
-      if config.associations.any?
-        config.associations.map do |association|
-          association.join(primary_key)
-        end.join(" ")
+      return nil unless config.associations.any?
+
+      config.associations.map do |association|
+        association.join(primary_key_sql)
       end
     end
 
@@ -182,23 +186,40 @@ module PgSearch
     end
 
     def rank
-      (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
+      ranking_expression = config.ranking_sql || ":tsearch"
+
+      # For simple single-feature expressions, return Arel node directly
+      if ranking_expression.match(/\A:(\w+)\z/)
+        feature_name = Regexp.last_match(1)
+        return feature_for(feature_name).rank
+      end
+
+      # For complex expressions, use string substitution and Arel.sql
+      ranking_expression.gsub(/:(\w*)/) do
         feature_for(Regexp.last_match(1)).rank.to_sql
       end
     end
 
-    def rank_join(rank_table_alias)
-      # Create proper Arel constructs for the JOIN components
-      subquery_sql = subquery.to_sql
-      rank_table = Arel::Table.new(rank_table_alias)
+    def scope_with_rank_join(scope, rank_table_alias)
+      # Build join using pure Arel - no string interpolation whatsoever
+      # Uses SelectManager to construct the join properly, then extracts the join source
 
-      # Create proper Arel column references instead of string interpolation
+      # Create a SelectManager to build the join structure
+      builder = Arel::SelectManager.new
+
+      # Build join components using Arel constructs
+      rank_table = Arel::Table.new(rank_table_alias)
       primary_key_column = model.arel_table[model.primary_key]
       subquery_id_column = rank_table[:pg_search_id]
       join_condition = primary_key_column.eq(subquery_id_column)
 
-      # Build JOIN string using Arel constructs for the condition
-      "INNER JOIN (#{subquery_sql}) AS #{rank_table_alias} ON #{join_condition.to_sql}"
+      # Use SelectManager's native join methods to build the subquery join
+      subquery_manager = subquery.arel
+      builder.join(subquery_manager.as(rank_table_alias)).on(join_condition)
+
+      # Extract the properly constructed join and apply it to the scope
+      join_source = builder.join_sources.first
+      scope.joins(join_source)
     end
 
     def include_table_aliasing_for_rank(scope)
