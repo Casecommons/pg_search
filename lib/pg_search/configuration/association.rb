@@ -20,7 +20,21 @@ module PgSearch
       end
 
       def join(primary_key)
-        "LEFT OUTER JOIN (#{relation(primary_key).to_sql}) #{subselect_alias} ON #{subselect_alias}.id = #{primary_key}"
+        # Build join using Arel join node instead of string interpolation
+        builder = Arel::SelectManager.new
+
+        # Build join components using Arel constructs
+        alias_table = Arel::Table.new(subselect_alias)
+        alias_id_column = alias_table[:id]
+        primary_key_expr = Arel.sql(primary_key)
+        join_condition = alias_id_column.eq(primary_key_expr)
+
+        # Use SelectManager's native join methods to build the subquery join
+        subquery_relation = relation(primary_key)
+        builder.join(subquery_relation.arel.as(subselect_alias), Arel::Nodes::OuterJoin).on(join_condition)
+
+        # Return the properly constructed join node
+        builder.join_sources.first
       end
 
       def subselect_alias
@@ -28,6 +42,13 @@ module PgSearch
       end
 
       private
+
+      def cast_column_to_text(column_expression)
+        # Build Arel node with CAST for text conversion (without coalesce)
+        Arel::Nodes::NamedFunction.new("CAST", [
+          Arel::Nodes::InfixOperation.new("AS", column_expression, Arel.sql("text"))
+        ])
+      end
 
       def selects
         if singular_association?
@@ -39,18 +60,28 @@ module PgSearch
 
       def selects_for_singular_association
         columns.map do |column|
-          "#{column.full_name}::text AS #{column.alias}"
-        end.join(", ")
+          # Use helper method to build proper Arel node with CAST
+          column_expr = Arel.sql(column.full_name)
+          cast_column_to_text(column_expr).as(column.alias)
+        end
       end
 
       def selects_for_multiple_association
         columns.map do |column|
-          "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
-        end.join(", ")
+          # Use helper method to build proper Arel node with CAST
+          column_expr = Arel.sql(column.full_name)
+          cast_expr = cast_column_to_text(column_expr)
+          string_agg_func = Arel::Nodes::NamedFunction.new("string_agg", [cast_expr, Arel::Nodes::Quoted.new(" ")])
+          string_agg_func.as(column.alias)
+        end
       end
 
       def relation(primary_key)
-        result = @model.unscoped.joins(@name).select("#{primary_key} AS id, #{selects}")
+        # Use Arel to build the SELECT clause instead of string interpolation
+        primary_key_expr = Arel.sql(primary_key).as("id")
+        select_expressions = [primary_key_expr] + selects
+
+        result = @model.unscoped.joins(@name).select(select_expressions)
         result = result.group(primary_key) unless singular_association?
         result
       end

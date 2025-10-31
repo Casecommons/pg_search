@@ -60,7 +60,9 @@ module PgSearch
       end
 
       def normalized_document
-        Arel::Nodes::Grouping.new(Arel.sql(normalize(document)))
+        # document now returns an Arel node, so convert to SQL first
+        document_sql = document.to_sql
+        Arel::Nodes::Grouping.new(Arel.sql(normalize(document_sql)))
       end
 
       def normalized_query

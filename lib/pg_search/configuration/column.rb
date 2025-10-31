@@ -22,12 +22,19 @@ module PgSearch
       end
 
       def to_sql
-        expr = Arel.sql("(#{expression})::text")
-        coalesce = Arel::Nodes::NamedFunction.new("coalesce", [
-          expr,
+        to_arel.to_sql
+      end
+
+      def to_arel
+        # Return Arel node that casts the column to text and coalesces with empty string
+        expr = Arel.sql(expression)
+        cast_expr = Arel::Nodes::NamedFunction.new("CAST", [
+          Arel::Nodes::InfixOperation.new("AS", expr, Arel.sql("text"))
+        ])
+        Arel::Nodes::NamedFunction.new("coalesce", [
+          cast_expr,
           Arel::Nodes::Quoted.new("")
         ])
-        coalesce.to_sql
       end
 
       private

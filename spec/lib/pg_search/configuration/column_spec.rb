@@ -32,12 +32,12 @@ describe PgSearch::Configuration::Column do
 
     it "returns an expression that casts the column to text and coalesces it with an empty string" do
       column = described_class.new("name", nil, Model)
-      expect(column.to_sql).to eq(%{coalesce((#{Model.quoted_table_name}."name")::text, '')})
+      expect(column.to_sql).to eq(%{coalesce(CAST(#{Model.quoted_table_name}."name" AS text), '')})
     end
 
     it "returns an expression that casts the nested json attribute to text and coalesces it with an empty string" do
       column = described_class.new(Arel.sql("object->>'name'"), nil, Model)
-      expect(column.to_sql).to eq(%{coalesce((object->>'name')::text, '')})
+      expect(column.to_sql).to eq(%{coalesce(CAST(object->>'name' AS text), '')})
     end
   end
 end

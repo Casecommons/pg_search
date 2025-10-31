@@ -60,15 +60,17 @@ describe PgSearch::Configuration::Association do
             FROM "#{User.table_name}"
             INNER JOIN "#{association.table_name}"
             ON "#{association.table_name}"."user_id" = "#{User.table_name}"."id") #{association.subselect_alias}
-          ON #{association.subselect_alias}.id = model_id
+          ON "#{association.subselect_alias}"."id" = model_id
         SQL
       end
       let(:column_select) do
-        "\"#{association.table_name}\".\"url\"::text"
+        "CAST(\"#{association.table_name}\".\"url\" AS text)"
       end
 
       it "returns the correct SQL join" do
-        expect(association.join("model_id")).to eq(expected_sql)
+        join_node = association.join("model_id")
+        expect(join_node).to be_a(Arel::Nodes::OuterJoin)
+        expect(join_node.to_sql).to eq(expected_sql)
       end
     end
   end
@@ -91,15 +93,17 @@ describe PgSearch::Configuration::Association do
             FROM "#{User.table_name}"
             INNER JOIN "#{association.table_name}"
             ON "#{association.table_name}"."id" = "#{User.table_name}"."site_id") #{association.subselect_alias}
-          ON #{association.subselect_alias}.id = model_id
+          ON "#{association.subselect_alias}"."id" = model_id
         SQL
       end
       let(:column_select) do
-        "\"#{association.table_name}\".\"title\"::text"
+        "CAST(\"#{association.table_name}\".\"title\" AS text)"
       end
 
       it "returns the correct SQL join" do
-        expect(association.join("model_id")).to eq(expected_sql)
+        join_node = association.join("model_id")
+        expect(join_node).to be_a(Arel::Nodes::OuterJoin)
+        expect(join_node.to_sql).to eq(expected_sql)
       end
     end
   end
@@ -118,17 +122,19 @@ describe PgSearch::Configuration::Association do
         <<~SQL.squish
           LEFT OUTER JOIN
             (SELECT model_id AS id,
-                    string_agg("#{association.table_name}"."name"::text, ' ') AS #{association.columns.first.alias}
+                    string_agg(CAST("#{association.table_name}"."name" AS text), ' ') AS #{association.columns.first.alias}
             FROM "#{Site.table_name}"
             INNER JOIN "#{association.table_name}"
             ON "#{association.table_name}"."site_id" = "#{Site.table_name}"."id"
             GROUP BY model_id) #{association.subselect_alias}
-          ON #{association.subselect_alias}.id = model_id
+          ON "#{association.subselect_alias}"."id" = model_id
         SQL
       end
 
       it "returns the correct SQL join" do
-        expect(association.join("model_id")).to eq(expected_sql)
+        join_node = association.join("model_id")
+        expect(join_node).to be_a(Arel::Nodes::OuterJoin)
+        expect(join_node.to_sql).to eq(expected_sql)
       end
 
       describe "#subselect_alias" do

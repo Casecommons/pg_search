@@ -25,7 +25,24 @@ module PgSearch
       attr_reader :query, :options, :all_columns, :model, :normalizer
 
       def document
-        columns.map(&:to_sql).join(" || ' ' || ")
+        column_expressions = columns.map do |column|
+          # Get the coalesce expression as an Arel node from Column#to_arel
+          column.to_arel
+        end
+
+        # Combine with || operator using Arel InfixOperation
+        if column_expressions.empty?
+          Arel::Nodes::Quoted.new("")
+        elsif column_expressions.size == 1
+          column_expressions.first
+        else
+          # Join with ' ' || ' ' pattern
+          column_expressions.inject do |memo, expr|
+            space_literal = Arel::Nodes::Quoted.new(" ")
+            memo_with_space = Arel::Nodes::InfixOperation.new("||", memo, space_literal)
+            Arel::Nodes::InfixOperation.new("||", memo_with_space, expr)
+          end
+        end
       end
 
       def columns
