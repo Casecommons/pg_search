@@ -16,11 +16,20 @@ module PgSearch
       scope = include_table_aliasing_for_rank(scope)
       rank_table_alias = scope.pg_search_rank_table_alias(include_counter: true)
 
+      # Keep Arel.sql for table alias references since these are dynamic subquery aliases
       rank_column = Arel.sql("#{rank_table_alias}.rank")
-      order_expression = [
-        rank_column.desc,
-        Arel.sql(order_within_rank)
-      ]
+
+      order_expression = [rank_column.desc]
+
+      # Add order_within_rank - keep Arel.sql for user input, use proper Arel for our defaults
+      if config.order_within_rank
+        # User-provided ordering - must use Arel.sql to accept arbitrary SQL
+        order_expression << Arel.sql(config.order_within_rank)
+      else
+        # Our default ordering - use proper Arel constructs
+        primary_key_column = model.arel_table[model.primary_key]
+        order_expression << primary_key_column.asc
+      end
 
       scope
         .joins(rank_join(rank_table_alias))
@@ -58,6 +67,7 @@ module PgSearch
       def with_pg_search_rank
         scope = self
         scope = scope.select(arel_table[Arel.star]) unless scope.select_values.any?
+        # Keep Arel.sql for table alias references since these are dynamic subquery aliases
         rank_column = Arel.sql("#{pg_search_rank_table_alias}.rank")
         scope.select(rank_column.as("pg_search_rank"))
       end
@@ -89,6 +99,7 @@ module PgSearch
 
     def subquery
       primary_key_column = model.arel_table[model.primary_key]
+      # Keep Arel.sql here since rank() returns complex user-configurable SQL expressions
       rank_expression = Arel.sql(rank)
 
       model

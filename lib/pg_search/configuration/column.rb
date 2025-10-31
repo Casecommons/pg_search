@@ -25,7 +25,7 @@ module PgSearch
         expr = Arel.sql("(#{expression})::text")
         coalesce = Arel::Nodes::NamedFunction.new("coalesce", [
           expr,
-          Arel.sql("''")
+          Arel::Nodes::Quoted.new("")
         ])
         coalesce.to_sql
       end
