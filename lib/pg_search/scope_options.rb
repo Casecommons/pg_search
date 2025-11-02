@@ -85,6 +85,7 @@ module PgSearch
         .select("#{primary_key} AS pg_search_id")
         .select("#{rank} AS rank")
         .joins(subquery_join)
+        .where(config.default_scope)
         .where(conditions)
         .limit(nil)
         .offset(nil)
