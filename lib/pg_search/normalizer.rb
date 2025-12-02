@@ -6,6 +6,8 @@ module PgSearch
       @config = config
     end
 
+    DISALLOWED_CHARACTERS = "'[''?\\:]'"
+
     def add_normalization(sql_expression)
       return sql_expression unless config.ignore.include?(:accents)
 
@@ -17,8 +19,16 @@ module PgSearch
       end
 
       Arel::Nodes::NamedFunction.new(
-        PgSearch.unaccent_function,
-        [sql_node]
+        "regexp_replace",
+        [
+          Arel::Nodes::NamedFunction.new(
+            PgSearch.unaccent_function,
+            [sql_node]
+          ),
+          Arel.sql(DISALLOWED_CHARACTERS),
+          Arel.sql("''"),
+          Arel.sql("'g'")
+        ]
       ).to_sql
     end
 
