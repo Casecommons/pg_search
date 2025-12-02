@@ -136,6 +136,7 @@ module PgSearch
 
     FEATURE_CLASSES = { # standard:disable Lint/UselessConstantScoping
       dmetaphone: Features::DMetaphone,
+      ilike: Features::ILike,
       tsearch: Features::TSearch,
       trigram: Features::Trigram
     }.freeze

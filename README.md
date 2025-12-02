@@ -81,6 +81,7 @@ end
   * [`:trigram` (Trigram search)](#trigram-trigram-search)
     * [`:threshold`](#threshold)
     * [`:word_similarity`](#word_similarity)
+  * [`:ilike` (Basic Search)](#ilike-basic-search)
 * [Limiting Fields When Combining Features](#limiting-fields-when-combining-features)
 * [Ignoring accent marks](#ignoring-accent-marks)
 * [Using tsvector columns](#using-tsvector-columns)
@@ -548,7 +549,7 @@ search techniques.
 ```ruby
 class Beer < ActiveRecord::Base
   include PgSearch::Model
-  pg_search_scope :search_name, against: :name, using: [:tsearch, :trigram, :dmetaphone]
+  pg_search_scope :search_name, against: :name, using: [:tsearch, :trigram, :dmetaphone, :ilike]
 end
 ```
 
@@ -562,7 +563,8 @@ class Beer < ActiveRecord::Base
   using: {
       :trigram => {},
       :dmetaphone => {},
-      :tsearch => { :prefix => true }
+      :tsearch => { :prefix => true },
+      :ilike => {}
   }
 end
 ```
@@ -573,6 +575,7 @@ The currently implemented features are
 *   :trigram - [Trigram search](http://www.postgresql.org/docs/current/static/pgtrgm.html), which
     requires the trigram extension
 *   :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html#AEN177521), which requires the fuzzystrmatch extension
+*   :ilike - Basic search using built in ilike operator
 
 
 #### :tsearch (Full Text Search)
@@ -974,6 +977,22 @@ sentence = Sentence.create! name: "Those are two words."
 
 Sentence.similarity_like("word") # => []
 Sentence.word_similarity_like("word") # => [sentence]
+```
+
+### :ilike (Basic Search)
+
+Basic search using ilike. This will look for anything containing an exact match, ie `%QUERY%`. This is useful in situations where you are looking for a substring.
+
+```ruby
+class Company < ActiveRecord::Base
+  include PgSearch::Model
+  pg_search_scope :find_substring,
+                  against: :name,
+                  using: :ilike
+end
+
+macrohard = Company.create! name: "MacroHard"
+Website.find_substring("hard") # => [macrohard]
 ```
 
 ### Limiting Fields When Combining Features
