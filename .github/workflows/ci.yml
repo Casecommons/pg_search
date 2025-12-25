@@ -78,3 +78,11 @@ jobs:
         run: ${{ matrix.active-record-version-env }} bundle update
       - name: Run tests
         run: ${{ matrix.active-record-version-env }} bundle exec rake
+      - name: Upload coverage report to Undercover
+        if: >-
+          ${{ matrix.ruby-version == '3.4' && matrix.active-record-version-env == 'ACTIVE_RECORD_VERSION="~> 8.1.0"' }}
+        run: >-
+          ruby -e "$(curl -s https://undercover-ci.com/uploader.rb)" -- \
+            --repo ${{ github.repository }} \
+            --commit ${{ github.event.pull_request.head.sha || github.sha }} \
+            --simplecov coverage/coverage.json

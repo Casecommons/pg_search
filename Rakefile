@@ -10,8 +10,8 @@ require "standard/rake"
 
 desc "Check test coverage"
 task :undercover do
-  system("git fetch --unshallow") if ENV["CI"]
   exit(1) unless system("bin/undercover --compare origin/master")
 end
 
-task default: %w[spec standard undercover]
+task default: %w[spec standard]
+task default: %w[undercover] unless ENV["CI"]

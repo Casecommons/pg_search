@@ -14,6 +14,7 @@ end
 
 gem "activerecord", ENV.fetch("ACTIVE_RECORD_VERSION", nil) if ENV["ACTIVE_RECORD_VERSION"] # standard:disable Bundler/DuplicatedGem
 
+gem "benchmark" # required for undercover in Ruby 4.0+
 gem "debug"
 gem "irb"
 gem "mutex_m"
