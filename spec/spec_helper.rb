@@ -1,19 +1,5 @@
 # frozen_string_literal: true
 
-require "logger"
-require "warning"
-
-# https://github.com/grodowski/undercover#setting-up-required-lcov-reporting
-require "simplecov"
-require "simplecov-lcov"
-SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
-SimpleCov.formatter = SimpleCov::Formatter::LcovFormatter
-SimpleCov.start do
-  add_filter(%r{^/spec/})
-  enable_coverage(:branch)
-end
-require "undercover"
-
 require "bundler/setup"
 require "pg_search"
 
