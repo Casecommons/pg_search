@@ -13,10 +13,10 @@ Read the blog post introducing PgSearch at https://tanzu.vmware.com/content/blog
 
 ## REQUIREMENTS
 
-*   Ruby 3.2+
-*   Active Record 7.1+
-*   PostgreSQL 9.2+
-*   [PostgreSQL extensions](https://github.com/Casecommons/pg_search/wiki/Installing-PostgreSQL-Extensions) for certain features
+- Ruby 3.2+
+- Active Record 7.2+
+- PostgreSQL 9.2+
+- [PostgreSQL extensions](https://github.com/Casecommons/pg_search/wiki/Installing-PostgreSQL-Extensions) for certain features
 
 ## INSTALL
 
@@ -51,45 +51,46 @@ end
 ```
 
 ### Contents
-* [Multi-search vs. search scopes](#multi-search-vs-search-scopes)
-* [Multi-search](#multi-search)
-  * [Setup](#setup)
-  * [`multisearchable`](#multisearchable)
-  * [More Options ](#more-options)
-  * [Multi-search associations](#multi-search-associations)
-  * [Searching in the global search index](#searching-in-the-global-search-index)
-  * [Chaining method calls onto the results](#chaining-method-calls-onto-the-results)
-  * [Configuring multi-search](#configuring-multi-search)
-  * [Rebuilding search documents for a given class](#rebuilding-search-documents-for-a-given-class)
-  * [Disabling multi-search indexing temporarily](#disabling-multi-search-indexing-temporarily)
-* [`pg_search_scope`](#pg_search_scope)
-  * [Searching against one column](#searching-against-one-column)
-  * [Searching against multiple columns](#searching-against-multiple-columns)
-  * [Dynamic search scopes](#dynamic-search-scopes)
-  * [Searching through associations](#searching-through-associations)
-* [Searching using different search features](#searching-using-different-search-features)
-  * [`:tsearch` (Full Text Search)](#tsearch-full-text-search)
-    * [Weighting](#weighting)
-    * [`:prefix` (PostgreSQL 8.4 and newer only)](#prefix-postgresql-84-and-newer-only)
-    * [`:negation`](#negation)
-    * [`:dictionary`](#dictionary)
-    * [`:normalization`](#normalization)
-    * [`:any_word`](#any_word)
-    * [`:sort_only`](#sort_only)
-    * [`:highlight`](#highlight)
-  * [`:dmetaphone` (Double Metaphone soundalike search)](#dmetaphone-double-metaphone-soundalike-search)
-  * [`:trigram` (Trigram search)](#trigram-trigram-search)
-    * [`:threshold`](#threshold)
-    * [`:word_similarity`](#word_similarity)
-* [Limiting Fields When Combining Features](#limiting-fields-when-combining-features)
-* [Ignoring accent marks](#ignoring-accent-marks)
-* [Using tsvector columns](#using-tsvector-columns)
-  * [Combining multiple tsvectors](#combining-multiple-tsvectors)
-* [Configuring ranking and ordering](#configuring-ranking-and-ordering)
-  * [`:ranked_by` (Choosing a ranking algorithm)](#ranked_by-choosing-a-ranking-algorithm)
-  * [`:order_within_rank` (Breaking ties)](#order_within_rank-breaking-ties)
-  * [`PgSearch#pg_search_rank` (Reading a record's rank as a Float)](#pgsearchpg_search_rank-reading-a-records-rank-as-a-float)
-  * [Search rank and chained scopes](#search-rank-and-chained-scopes)
+
+- [Multi-search vs. search scopes](#multi-search-vs-search-scopes)
+- [Multi-search](#multi-search)
+  - [Setup](#setup)
+  - [`multisearchable`](#multisearchable)
+  - [More Options ](#more-options)
+  - [Multi-search associations](#multi-search-associations)
+  - [Searching in the global search index](#searching-in-the-global-search-index)
+  - [Chaining method calls onto the results](#chaining-method-calls-onto-the-results)
+  - [Configuring multi-search](#configuring-multi-search)
+  - [Rebuilding search documents for a given class](#rebuilding-search-documents-for-a-given-class)
+  - [Disabling multi-search indexing temporarily](#disabling-multi-search-indexing-temporarily)
+- [`pg_search_scope`](#pg_search_scope)
+  - [Searching against one column](#searching-against-one-column)
+  - [Searching against multiple columns](#searching-against-multiple-columns)
+  - [Dynamic search scopes](#dynamic-search-scopes)
+  - [Searching through associations](#searching-through-associations)
+- [Searching using different search features](#searching-using-different-search-features)
+  - [`:tsearch` (Full Text Search)](#tsearch-full-text-search)
+    - [Weighting](#weighting)
+    - [`:prefix` (PostgreSQL 8.4 and newer only)](#prefix-postgresql-84-and-newer-only)
+    - [`:negation`](#negation)
+    - [`:dictionary`](#dictionary)
+    - [`:normalization`](#normalization)
+    - [`:any_word`](#any_word)
+    - [`:sort_only`](#sort_only)
+    - [`:highlight`](#highlight)
+  - [`:dmetaphone` (Double Metaphone soundalike search)](#dmetaphone-double-metaphone-soundalike-search)
+  - [`:trigram` (Trigram search)](#trigram-trigram-search)
+    - [`:threshold`](#threshold)
+    - [`:word_similarity`](#word_similarity)
+- [Limiting Fields When Combining Features](#limiting-fields-when-combining-features)
+- [Ignoring accent marks](#ignoring-accent-marks)
+- [Using tsvector columns](#using-tsvector-columns)
+  - [Combining multiple tsvectors](#combining-multiple-tsvectors)
+- [Configuring ranking and ordering](#configuring-ranking-and-ordering)
+  - [`:ranked_by` (Choosing a ranking algorithm)](#ranked_by-choosing-a-ranking-algorithm)
+  - [`:order_within_rank` (Breaking ties)](#order_within_rank-breaking-ties)
+  - [`PgSearch#pg_search_rank` (Reading a record's rank as a Float)](#pgsearchpg_search_rank-reading-a-records-rank-as-a-float)
+  - [Search rank and chained scopes](#search-rank-and-chained-scopes)
 
 ### Multi-search vs. search scopes
 
@@ -246,8 +247,8 @@ This allows much faster searches without joins later on by doing something like:
 PgSearch.multisearch(params['search']).where(author_id: 2)
 ```
 
-*NOTE: You must currently manually call `record.update_pg_search_document` for
-the additional attribute to be included in the pg_search_documents table*
+_NOTE: You must currently manually call `record.update_pg_search_document` for
+the additional attribute to be included in the pg_search_documents table_
 
 #### Multi-search associations
 
@@ -331,18 +332,18 @@ To regenerate the documents for a given class, run:
 PgSearch::Multisearch.rebuild(Product)
 ```
 
-The ```rebuild``` method will delete all the documents for the given class
+The `rebuild` method will delete all the documents for the given class
 before regenerating them. In some situations this may not be desirable,
-such as when you're using single-table inheritance and ```searchable_type```
-is your base class. You can prevent ```rebuild``` from deleting your records
+such as when you're using single-table inheritance and `searchable_type`
+is your base class. You can prevent `rebuild` from deleting your records
 like so:
 
 ```ruby
 PgSearch::Multisearch.rebuild(Product, clean_up: false)
 ```
 
-```rebuild``` runs inside a single transaction. To run outside of a transaction,
-you can pass ```transactional: false``` like so:
+`rebuild` runs inside a single transaction. To run outside of a transaction,
+you can pass `transactional: false` like so:
 
 ```ruby
 PgSearch::Multisearch.rebuild(Product, transactional: false)
@@ -399,7 +400,8 @@ class Movie < ActiveRecord::Base
   end
 end
 ```
-**Note:** If using PostgreSQL before 9.1, replace the `CONCAT_WS()` function call with double-pipe concatenation, eg. `(movies.name || ' ' || directors.name)`. However, now be aware that if *any* of the joined values is NULL then the final `content` value will also be NULL, whereas `CONCAT_WS()` will selectively ignore NULL values.
+
+**Note:** If using PostgreSQL before 9.1, replace the `CONCAT_WS()` function call with double-pipe concatenation, eg. `(movies.name || ' ' || directors.name)`. However, now be aware that if _any_ of the joined values is NULL then the final `content` value will also be NULL, whereas `CONCAT_WS()` will selectively ignore NULL values.
 
 #### Disabling multi-search indexing temporarily
 
@@ -569,11 +571,10 @@ end
 
 The currently implemented features are
 
-*   :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html), which is built-in to PostgreSQL
-*   :trigram - [Trigram search](http://www.postgresql.org/docs/current/static/pgtrgm.html), which
-    requires the trigram extension
-*   :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html#AEN177521), which requires the fuzzystrmatch extension
-
+- :tsearch - [Full text search](http://www.postgresql.org/docs/current/static/textsearch-intro.html), which is built-in to PostgreSQL
+- :trigram - [Trigram search](http://www.postgresql.org/docs/current/static/pgtrgm.html), which
+  requires the trigram extension
+- :dmetaphone - [Double Metaphone search](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html#AEN177521), which requires the fuzzystrmatch extension
 
 #### :tsearch (Full Text Search)
 
@@ -581,6 +582,7 @@ PostgreSQL's built-in full text search supports weighting, prefix searches,
 and stemming in multiple languages.
 
 ##### Weighting
+
 Each searchable column can be given a weight of "A", "B", "C", or "D". Columns
 with earlier letters are weighted higher than those with later letters. So, in
 the following example, the title is the most important, followed by the
@@ -644,6 +646,7 @@ robin = Superhero.create name: 'Robin'
 
 Superhero.whose_name_starts_with("Bat") # => [batman, batgirl]
 ```
+
 ##### :negation
 
 PostgreSQL's full text search matches all search terms by default. If you want
@@ -803,7 +806,6 @@ Person.search('ash hines') # => [exact, one_exact_one_close, one_exact]
 
 Adding .with_pg_search_highlight after the pg_search_scope you can access to
 `pg_highlight` attribute for each object.
-
 
 ```ruby
 class Person < ActiveRecord::Base
@@ -1053,31 +1055,31 @@ as it offloads creation of the tsvector that the tsquery is evaluated against.
 
 To use this functionality you'll need to do a few things:
 
-*   Create a column of type tsvector that you'd like to search against. If you
-    want to search using multiple search methods, for example tsearch and
-    dmetaphone, you'll need a column for each.
-*   Create a trigger function that will update the column(s) using the
-    expression appropriate for that type of search. See:
-    [the PostgreSQL documentation for text search triggers](http://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS)
-*   Should you have any pre-existing data in the table, update the
-    newly-created tsvector columns with the expression that your trigger
-    function uses.
-*   Add the option to pg_search_scope, e.g:
+- Create a column of type tsvector that you'd like to search against. If you
+  want to search using multiple search methods, for example tsearch and
+  dmetaphone, you'll need a column for each.
+- Create a trigger function that will update the column(s) using the
+  expression appropriate for that type of search. See:
+  [the PostgreSQL documentation for text search triggers](http://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS)
+- Should you have any pre-existing data in the table, update the
+  newly-created tsvector columns with the expression that your trigger
+  function uses.
+- Add the option to pg_search_scope, e.g:
 
-    ```ruby
-    pg_search_scope :fast_content_search,
-                    against: :content,
-                    using: {
-                      dmetaphone: {
-                        tsvector_column: 'tsvector_content_dmetaphone'
-                      },
-                      tsearch: {
-                        dictionary: 'english',
-                        tsvector_column: 'tsvector_content_tsearch'
-                      },
-                      trigram: {} # trigram does not use tsvectors
-                    }
-    ```
+  ```ruby
+  pg_search_scope :fast_content_search,
+                  against: :content,
+                  using: {
+                    dmetaphone: {
+                      tsvector_column: 'tsvector_content_dmetaphone'
+                    },
+                    tsearch: {
+                      dictionary: 'english',
+                      tsvector_column: 'tsvector_content_tsearch'
+                    },
+                    trigram: {} # trigram does not use tsvectors
+                  }
+  ```
 
 Please note that the :against column is only used when the tsvector_column is
 not present for the search type.
@@ -1190,9 +1192,9 @@ shirt_brands[1].pg_search_rank #=> 0.0607927
 
 #### Search rank and chained scopes
 
-Each PgSearch scope generates a named subquery for the search rank.  If you
+Each PgSearch scope generates a named subquery for the search rank. If you
 chain multiple scopes then PgSearch will generate a ranking query for each
-scope, so the ranking queries must have unique names.  If you need to reference
+scope, so the ranking queries must have unique names. If you need to reference
 the ranking query (e.g. in a GROUP BY clause) you can regenerate the subquery
 name with the `PgScope::Configuration.alias` method by passing the name of the
 queried table.
