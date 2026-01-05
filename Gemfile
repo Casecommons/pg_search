@@ -27,3 +27,9 @@ gem "standard-rails", require: false
 gem "standard-rspec", require: false
 gem "warning"
 gem "with_model"
+
+gem "reek", "~> 6.5"
+
+gem "ruby-lsp", "~> 0.26.4"
+
+gem "ruby-lsp-reek", "~> 0.3.1"

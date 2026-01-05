@@ -8,4 +8,9 @@ RSpec::Core::RakeTask.new(:spec)
 
 require "standard/rake"
 
-task default: %w[spec standard]
+require "reek/rake/task"
+Reek::Rake::Task.new do |t|
+  t.fail_on_error = false
+end
+
+task default: %w[spec standard reek]
