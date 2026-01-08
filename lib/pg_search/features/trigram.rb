@@ -4,7 +4,7 @@ module PgSearch
   module Features
     class Trigram < Feature
       def self.valid_options
-        super + %i[threshold word_similarity]
+        super + %i[threshold word_similarity strict_word_similarity]
       end
 
       def conditions
@@ -29,23 +29,31 @@ module PgSearch
 
       private
 
+      def strict_word_similarity?
+        options[:strict_word_similarity]
+      end
+
       def word_similarity?
         options[:word_similarity]
       end
 
       def similarity_function
-        if word_similarity?
-          "word_similarity"
+        if strict_word_similarity?
+          'strict_word_similarity'
+        elsif word_similarity?
+          'word_similarity'
         else
-          "similarity"
+          'similarity'
         end
       end
 
       def infix_operator
-        if word_similarity?
-          "<%"
+        if strict_word_similarity?
+          '<<%'
+        elsif word_similarity?
+          '<%'
         else
-          "%"
+          '%'
         end
       end
 
