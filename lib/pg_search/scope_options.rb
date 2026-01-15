@@ -137,7 +137,8 @@ module PgSearch
     FEATURE_CLASSES = { # standard:disable Lint/UselessConstantScoping
       dmetaphone: Features::DMetaphone,
       tsearch: Features::TSearch,
-      trigram: Features::Trigram
+      trigram: Features::Trigram,
+      paradedb: Features::ParadeDB
     }.freeze
 
     def feature_for(feature_name)
