@@ -23,6 +23,12 @@ module PgSearch
       end
     end
 
+    def default_scope
+      return nil unless options[:default_scope]
+
+      options[:default_scope]
+    end
+
     def columns
       regular_columns + associated_columns
     end
@@ -85,7 +91,7 @@ module PgSearch
 
     # standard:disable Lint/UselessConstantScoping
     VALID_KEYS = %w[
-      against ranked_by ignoring using query associated_against order_within_rank
+      against ranked_by ignoring using query associated_against order_within_rank default_scope
     ].map(&:to_sym)
 
     VALID_VALUES = {
