@@ -33,7 +33,6 @@ jobs:
       CI: true
       PGHOST: 127.0.0.1
       PGUSER: postgres
-      PGPASS: postgres
     strategy:
       fail-fast: false
       matrix:
