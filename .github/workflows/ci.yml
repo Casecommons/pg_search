@@ -37,40 +37,43 @@ jobs:
       fail-fast: false
       matrix:
         ruby-version: ["3.3", "3.4", "4.0"]
-        active-record-version-env:
-          - ACTIVE_RECORD_VERSION="~> 7.2.0"
-          - ACTIVE_RECORD_VERSION="~> 8.0.0"
-          - ACTIVE_RECORD_VERSION="~> 8.1.0"
+        active-record-env:
+          - "ACTIVE_RECORD_VERSION=~> 7.2.0"
+          - "ACTIVE_RECORD_VERSION=~> 8.0.0"
+          - "ACTIVE_RECORD_VERSION=~> 8.1.0"
         allow-failure: [false]
         include:
           - ruby-version: "ruby-head"
-            active-record-version-env: ACTIVE_RECORD_VERSION="~> 8.1.0"
+            active-record-env: "ACTIVE_RECORD_VERSION=~> 8.1.0"
             allow-failure: true
           - ruby-version: "4.0"
-            active-record-version-env: ACTIVE_RECORD_BRANCH="main"
+            active-record-env: "ACTIVE_RECORD_BRANCH=main"
             allow-failure: true
           - ruby-version: "4.0"
-            active-record-version-env: ACTIVE_RECORD_BRANCH="8-1-stable"
+            active-record-env: "ACTIVE_RECORD_BRANCH=8-1-stable"
             allow-failure: true
           - ruby-version: "4.0"
-            active-record-version-env: ACTIVE_RECORD_BRANCH="8-0-stable"
+            active-record-env: "ACTIVE_RECORD_BRANCH=8-0-stable"
             allow-failure: true
           - ruby-version: "4.0"
-            active-record-version-env: ACTIVE_RECORD_BRANCH="7-2-stable"
+            active-record-env: "ACTIVE_RECORD_BRANCH=7-2-stable"
             allow-failure: true
     continue-on-error: ${{ matrix.allow-failure }}
     steps:
       - uses: actions/checkout@v6
+      - name: Select ActiveRecord version
+        env:
+          ACTIVE_RECORD_ENV: ${{ matrix.active-record-env }}
+        run: echo "$ACTIVE_RECORD_ENV" >> "$GITHUB_ENV"
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true
+          cache-version: ${{ matrix.active-record-env }}
       - name: Set up test database
         env:
           PGPASSWORD: postgres
         run: createdb pg_search_test
-      - name: Update bundle
-        run: ${{ matrix.active-record-version-env }} bundle update
       - name: Run tests
-        run: ${{ matrix.active-record-version-env }} bundle exec rake
+        run: bundle exec rake
