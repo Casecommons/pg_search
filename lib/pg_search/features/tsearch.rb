@@ -49,12 +49,8 @@ module PgSearch
 
         %w[
           StartSel StopSel MaxFragments MaxWords MinWords ShortWord FragmentDelimiter HighlightAll
-        ].reduce({}) do |hash, key|
-          hash.tap do
-            value = indifferent_options[:highlight][key]
-
-            hash[key] = ts_headline_option_value(value)
-          end
+        ].to_h do |key|
+          [key, ts_headline_option_value(indifferent_options[:highlight][key])]
         end
       end
 
@@ -63,23 +59,20 @@ module PgSearch
 
         %w[
           start_sel stop_sel max_fragments max_words min_words short_word fragment_delimiter highlight_all
-        ].reduce({}) do |hash, deprecated_key|
-          hash.tap do
-            value = indifferent_options[:highlight][deprecated_key]
+        ].each_with_object({}) do |deprecated_key, hash|
+          value = indifferent_options[:highlight][deprecated_key]
+          next if value.nil?
 
-            unless value.nil?
-              key = deprecated_key.camelize
+          key = deprecated_key.camelize
 
-              warn(
-                "pg_search 3.0 will no longer accept :#{deprecated_key} as an argument to :ts_headline, " \
-                "use :#{key} instead.",
-                category: :deprecated,
-                uplevel: 1
-              )
+          warn(
+            "pg_search 3.0 will no longer accept :#{deprecated_key} as an argument to :ts_headline, " \
+            "use :#{key} instead.",
+            category: :deprecated,
+            uplevel: 1
+          )
 
-              hash[key] = ts_headline_option_value(value)
-            end
-          end
+          hash[key] = ts_headline_option_value(value)
         end
       end
 
