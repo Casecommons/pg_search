@@ -64,11 +64,7 @@ module PgSearch
     end
 
     def feature_options
-      @feature_options ||= {}.tap do |hash|
-        features.map do |feature_name, feature_options|
-          hash[feature_name] = feature_options
-        end
-      end
+      @feature_options ||= features.to_h { |name, opts| [name, opts] }
     end
 
     def order_within_rank
