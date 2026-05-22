@@ -148,7 +148,7 @@ describe PgSearch::Multisearch do
           expected_sql = <<~SQL.squish
             INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
               SELECT #{connection.quote(model.name)} AS searchable_type,
-                     #{model.quoted_table_name}.id AS searchable_id,
+                     #{model.quoted_table_name}.#{connection.quote_column_name(model.primary_key)} AS searchable_id,
                      (
                        coalesce(#{model.quoted_table_name}."title"::text, '')
                      ) AS content,
@@ -175,7 +175,7 @@ describe PgSearch::Multisearch do
           expected_sql = <<~SQL.squish
             INSERT INTO #{PgSearch::Document.quoted_table_name} (searchable_type, searchable_id, content, created_at, updated_at)
               SELECT #{connection.quote(model.name)} AS searchable_type,
-                     #{model.quoted_table_name}.id AS searchable_id,
+                     #{model.quoted_table_name}.#{connection.quote_column_name(model.primary_key)} AS searchable_id,
                      (
                        coalesce(#{model.quoted_table_name}."title"::text, '') || ' ' || coalesce(#{model.quoted_table_name}."content"::text, '')
                      ) AS content,

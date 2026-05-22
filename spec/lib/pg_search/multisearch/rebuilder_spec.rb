@@ -119,7 +119,7 @@ describe PgSearch::Multisearch::Rebuilder do
             expected_sql = <<~SQL.squish
               INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
                 SELECT 'Model' AS searchable_type,
-                       #{Model.quoted_table_name}.#{Model.primary_key} AS searchable_id,
+                       #{Model.quoted_table_name}.#{Model.connection.quote_column_name(Model.primary_key)} AS searchable_id,
                        (
                          coalesce(#{Model.quoted_table_name}."name"::text, '')
                        ) AS content,
@@ -183,7 +183,7 @@ describe PgSearch::Multisearch::Rebuilder do
               expected_sql = <<~SQL.squish
                 INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
                   SELECT 'ModelWithNonStandardPrimaryKey' AS searchable_type,
-                         #{ModelWithNonStandardPrimaryKey.quoted_table_name}.non_standard_primary_key AS searchable_id,
+                         #{ModelWithNonStandardPrimaryKey.quoted_table_name}."non_standard_primary_key" AS searchable_id,
                          (
                            coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}."name"::text, '')
                          ) AS content,
@@ -248,6 +248,41 @@ describe PgSearch::Multisearch::Rebuilder do
             expect(record.pg_search_document).to be_present
           end
           # standard:enable RSpec/ExampleLength
+        end
+
+        context "with an identifier that requires quoting" do
+          with_model :Model do
+            table do |t|
+              t.string :name
+            end
+
+            model do
+              include PgSearch::Model
+
+              multisearchable against: :name
+            end
+          end
+
+          it "quotes the primary key in the generated SQL" do
+            malicious_pk = %(id"; DROP TABLE pg_search_documents; --)
+            allow(Model).to receive(:primary_key).and_return(malicious_pk)
+
+            rebuilder = described_class.new(Model)
+            sql = rebuilder.send(:rebuild_sql)
+
+            expect(sql).to include(Model.connection.quote_column_name(malicious_pk))
+          end
+
+          it "quotes the inheritance column in the STI clause" do
+            malicious_column = %(type"; DROP TABLE pg_search_documents; --)
+            allow(Model).to receive(:inheritance_column).and_return(malicious_column)
+            allow(Model).to receive(:column_names).and_return(Model.column_names + [malicious_column])
+
+            rebuilder = described_class.new(Model)
+            sql = rebuilder.send(:rebuild_sql)
+
+            expect(sql).to include(Model.connection.quote_column_name(malicious_column))
+          end
         end
 
         context "when only additional_attributes is set" do

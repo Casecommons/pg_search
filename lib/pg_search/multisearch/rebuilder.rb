@@ -42,7 +42,7 @@ module PgSearch
       end
 
       def primary_key
-        model.primary_key
+        connection.quote_column_name(model.primary_key)
       end
 
       def rebuild_sql_template
@@ -68,9 +68,10 @@ module PgSearch
       def sti_clause
         clause = ""
         if model.column_names.include? model.inheritance_column
+          quoted_inheritance_column = connection.quote_column_name(model.inheritance_column)
           clause = "WHERE"
-          clause = "#{clause} #{model.inheritance_column} IS NULL OR" if model.base_class == model
-          clause = "#{clause} #{model.inheritance_column} = #{model_name}"
+          clause = "#{clause} #{quoted_inheritance_column} IS NULL OR" if model.base_class == model
+          clause = "#{clause} #{quoted_inheritance_column} = #{model_name}"
         end
         clause
       end
