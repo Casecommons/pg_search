@@ -80,10 +80,15 @@ module PgSearch
     delegate :connection, :quoted_table_name, to: :model
 
     def subquery
-      model
-        .unscoped
-        .select("#{primary_key} AS pg_search_id")
-        .select("#{rank} AS rank")
+      query = model.unscoped
+
+      query = if composite_primary_key?
+        query.select(model.primary_key.map.with_index(1) { |part, index| "#{quoted_column_name(part)} AS pg_search_id_#{index}" })
+      else
+        query.select("#{primary_key} AS pg_search_id")
+      end
+
+      query.select("#{rank} AS rank")
         .joins(subquery_join)
         .where(conditions)
         .limit(nil)
@@ -123,7 +128,11 @@ module PgSearch
     end
 
     def primary_key
-      "#{quoted_table_name}.#{connection.quote_column_name(model.primary_key)}"
+      if composite_primary_key?
+        model.primary_key.map { |part| quoted_column_name(part) }.join(",")
+      else
+        quoted_column_name(model.primary_key)
+      end
     end
 
     def subquery_join
@@ -164,7 +173,14 @@ module PgSearch
     end
 
     def rank_join(rank_table_alias)
-      "INNER JOIN (#{subquery.to_sql}) AS #{rank_table_alias} ON #{primary_key} = #{rank_table_alias}.pg_search_id"
+      join_condition = if composite_primary_key?
+        model.primary_key.map.with_index(1) { |part, index| "#{quoted_column_name(part)} = #{rank_table_alias}.pg_search_id_#{index}" }
+          .join(" AND ")
+      else
+        "#{primary_key} = #{rank_table_alias}.pg_search_id"
+      end
+
+      "INNER JOIN (#{subquery.to_sql}) AS #{rank_table_alias} ON #{join_condition}"
     end
 
     def include_table_aliasing_for_rank(scope)
@@ -173,6 +189,14 @@ module PgSearch
       scope.all.spawn.tap do |new_scope|
         new_scope.instance_eval { extend PgSearchRankTableAliasing }
       end
+    end
+
+    def composite_primary_key?
+      model.primary_key.is_a?(Array)
+    end
+
+    def quoted_column_name(column)
+      "#{quoted_table_name}.#{connection.quote_column_name(column)}"
     end
   end
 end
