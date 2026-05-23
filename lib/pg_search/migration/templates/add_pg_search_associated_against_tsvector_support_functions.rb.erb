@@ -1,0 +1,17 @@
+class AddPgSearchAssociatedAgainstTsvectorSupportFunctions < ActiveRecord::Migration
+  def self.up
+    say_with_time("Adding tsvector support functions for pg_search :associated_against") do
+      execute <<-'SQL'
+<%= read_sql_file "tsvector_agg" %>
+      SQL
+    end
+  end
+
+  def self.down
+    say_with_time("Dropping tsvector support functions for pg_search :associated_against") do
+      execute <<-'SQL'
+<%= read_sql_file "uninstall_tsvector_agg" %>
+      SQL
+    end
+  end
+end
