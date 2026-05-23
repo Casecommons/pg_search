@@ -24,8 +24,8 @@ module PgSearch
 
       attr_reader :query, :options, :all_columns, :model, :normalizer
 
-      def document
-        columns.map(&:to_sql).join(" || ' ' || ")
+      def document(separator = " ")
+        columns.map(&:to_sql).join(" || '#{separator}' || ")
       end
 
       def columns
