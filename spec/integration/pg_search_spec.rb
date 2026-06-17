@@ -1088,6 +1088,10 @@ describe "an Active Record model which includes PgSearch" do
       it "finds by a combination of the two" do
         expect(Post.search_by_content_with_tsvector("phooey commentone").map(&:id)).to eq([expected.id])
       end
+
+      it "finds by the tsvector column when using order" do
+        expect(Post.search_by_content_with_tsvector("phooey").order("#{Post.table_name}.id").map(&:id)).to eq([expected.id])
+      end
     end
 
     context "when using multiple tsvector columns" do
