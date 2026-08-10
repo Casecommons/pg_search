@@ -10,6 +10,9 @@ When in doubt, go ahead and make a pull request. If something needs tweaking or 
 
 Don't be discouraged if the maintainers ask you to change your code. We are always appreciative when people work hard to modify our code, but we also have a lot of opinions about coding style and object design.
 
+Refer to the gem as `pg_search` in documentation and naming. Use `PgSearch`
+only when referring to the Ruby module.
+
 Our automated tests start by updating all gems to their latest version. This is by design, because we want to be proactive about compatibility with other libraries. You can do the same by running `bundle update` at any time. To test against a specific version of Active Record, you can set the `ACTIVE_RECORD_VERSION` environment variable.
 
     $ ACTIVE_RECORD_VERSION="~> 8.0.0" bundle update

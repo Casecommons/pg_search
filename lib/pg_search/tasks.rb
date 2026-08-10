@@ -5,7 +5,7 @@ require "pg_search"
 
 namespace :pg_search do
   namespace :multisearch do
-    desc "Rebuild PgSearch multisearch records for a given model"
+    desc "Rebuild pg_search multisearch records for a given model"
     task :rebuild, %i[model schema] => :environment do |_task, args|
       raise ArgumentError, <<~MESSAGE unless args.model
 
