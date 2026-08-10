@@ -1220,5 +1220,5 @@ for discussing pg_search and other Casebook PBC open source projects.
 
 ## LICENSE
 
-Copyright © 2010–2022 [Casebook PBC](http://www.casebook.net).
+Copyright © 2010–2026 [Casebook PBC](http://www.casebook.net).
 Licensed under the MIT license, see [LICENSE](/LICENSE) file.
