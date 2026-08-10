@@ -1088,6 +1088,28 @@ describe "an Active Record model which includes PgSearch" do
       it "finds by a combination of the two" do
         expect(Post.search_by_content_with_tsvector("phooey commentone").map(&:id)).to eq([expected.id])
       end
+
+      it "finds by the tsvector column when ordering by an associated table" do
+        # Reference the physical table name that Active Record would normally
+        # leave unaliased. The old string rank join made AliasTracker think the
+        # name was already used and alias this outer join, breaking the order.
+        # https://github.com/Casecommons/pg_search/issues/206
+        results = Post
+          .joins(:comments)
+          .search_by_content_with_tsvector("phooey")
+          .order(Comment.table_name => {id: :asc})
+
+        expect(results).to eq([expected])
+      end
+
+      it "finds by the tsvector column when ordering by an association alias" do
+        results = Post
+          .joins(:comments)
+          .search_by_content_with_tsvector("phooey")
+          .order(comments: {id: :asc})
+
+        expect(results).to eq([expected])
+      end
     end
 
     context "when using multiple tsvector columns" do
