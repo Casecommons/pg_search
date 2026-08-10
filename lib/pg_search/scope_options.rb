@@ -164,7 +164,13 @@ module PgSearch
     end
 
     def rank_join(rank_table_alias)
-      "INNER JOIN (#{subquery.to_sql}) AS #{rank_table_alias} ON #{primary_key} = #{rank_table_alias}.pg_search_id"
+      arel_table = model.arel_table
+      subquery_arel = subquery.arel.as(rank_table_alias)
+
+      arel_table
+        .join(subquery_arel)
+        .on(arel_table[model.primary_key].eq(subquery_arel[:pg_search_id]))
+        .join_sources
     end
 
     def include_table_aliasing_for_rank(scope)
