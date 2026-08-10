@@ -2,17 +2,6 @@
 
 require "spec_helper"
 
-# For Active Record 5.x, the association reflection's cache needs be cleared
-# because we're stubbing the related constants.
-if ActiveRecord::VERSION::MAJOR == 5
-  def clear_searchable_cache
-    PgSearch::Document.reflect_on_association(:searchable).clear_association_scope_cache
-  end
-else
-  def clear_searchable_cache
-  end
-end
-
 # standard:disable RSpec/NestedGroups
 describe PgSearch do
   describe ".multisearch" do
@@ -32,10 +21,7 @@ describe PgSearch do
     end
 
     context "with PgSearch.multisearch_options set to a Hash" do
-      subject do
-        clear_searchable_cache
-        described_class.multisearch(query).map(&:searchable)
-      end
+      subject { described_class.multisearch(query).map(&:searchable) }
 
       before { allow(described_class).to receive(:multisearch_options).and_return(using: :dmetaphone) }
 
@@ -57,10 +43,7 @@ describe PgSearch do
     end
 
     context "with PgSearch.multisearch_options set to a Proc" do
-      subject do
-        clear_searchable_cache
-        described_class.multisearch(query, soundalike).map(&:searchable)
-      end
+      subject { described_class.multisearch(query, soundalike).map(&:searchable) }
 
       before do
         allow(described_class).to receive(:multisearch_options) do
@@ -169,7 +152,6 @@ describe PgSearch do
 
           PgSearch::Multisearch.rebuild(SearchableSubclassModel)
 
-          clear_searchable_cache
           expect(PgSearch::Document.count).to be 1
           expect(PgSearch::Document.first.searchable.class).to be SearchableSubclassModel
           expect(PgSearch::Document.first.searchable).to eq expected
@@ -184,7 +166,6 @@ describe PgSearch do
           PgSearch::Multisearch.rebuild(SearchableSubclassModel)
           expect(PgSearch::Document.count).to be 2
 
-          clear_searchable_cache
           classes = PgSearch::Document.all.collect { |d| d.searchable.class }
           expect(classes).to include SearchableSubclassModel
           expect(classes).to include AnotherSearchableSubclassModel

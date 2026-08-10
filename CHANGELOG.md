@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## Unreleased
+
+* Drop support for Active Record 7.2
+
 ## 2.3.8
 
 * Drop support for Ruby 3.0, 3.1, and 3.2

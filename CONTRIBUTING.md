@@ -12,7 +12,7 @@ Don't be discouraged if the maintainers ask you to change your code. We are alwa
 
 Our automated tests start by updating all gems to their latest version. This is by design, because we want to be proactive about compatibility with other libraries. You can do the same by running `bundle update` at any time. To test against a specific version of Active Record, you can set the `ACTIVE_RECORD_VERSION` environment variable.
 
-    $ ACTIVE_RECORD_VERSION=5.0 bundle update
+    $ ACTIVE_RECORD_VERSION="~> 8.0.0" bundle update
 
 Run the tests by running `bundle exec rake`, or `bin/rake` if you use Bundler binstubs. 
 

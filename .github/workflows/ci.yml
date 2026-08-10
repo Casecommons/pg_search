@@ -46,7 +46,6 @@ jobs:
       matrix:
         ruby-version: ["3.3", "3.4", "4.0"]
         active-record:
-          - { label: "7.2", env: "ACTIVE_RECORD_VERSION=~> 7.2.0" }
           - { label: "8.0", env: "ACTIVE_RECORD_VERSION=~> 8.0.0" }
           - { label: "8.1", env: "ACTIVE_RECORD_VERSION=~> 8.1.0" }
         allow-failure: [false]
@@ -59,9 +58,6 @@ jobs:
             allow-failure: true
           - ruby-version: "4.0"
             active-record: { label: "8-0-stable", env: "ACTIVE_RECORD_BRANCH=8-0-stable" }
-            allow-failure: true
-          - ruby-version: "4.0"
-            active-record: { label: "7-2-stable", env: "ACTIVE_RECORD_BRANCH=7-2-stable" }
             allow-failure: true
           - ruby-version: "ruby-head"
             active-record: { label: "8.1", env: "ACTIVE_RECORD_VERSION=~> 8.1.0" }
