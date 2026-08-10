@@ -20,6 +20,7 @@ gem "irb"
 gem "mutex_m"
 gem "rake"
 gem "rspec"
+gem "ruby-lsp"
 gem "simplecov"
 gem "simplecov-lcov"
 gem "standard", require: false
