@@ -7,7 +7,9 @@ describe PgSearch::Multisearch::Rebuilder do
   with_table "pg_search_documents", &DOCUMENTS_SCHEMA
 
   describe "when initialized with a model that is not multisearchable" do
-    with_model :not_multisearchable
+    with_model :not_multisearchable do
+      table
+    end
 
     it "raises an exception" do
       expect {
@@ -23,6 +25,8 @@ describe PgSearch::Multisearch::Rebuilder do
     context "when the model defines .rebuild_pg_search_documents" do
       context "when multisearchable is not conditional" do
         with_model :Model do
+          table
+
           model do
             include PgSearch::Model
 
@@ -210,6 +214,8 @@ describe PgSearch::Multisearch::Rebuilder do
 
         context "when :against includes non-column dynamic methods" do
           with_model :Model do
+            table
+
             model do
               include PgSearch::Model
 

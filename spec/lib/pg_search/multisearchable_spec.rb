@@ -8,6 +8,8 @@ describe PgSearch::Multisearchable do
 
   describe "a model that is multisearchable" do
     with_model :ModelThatIsMultisearchable do
+      table
+
       model do
         include PgSearch::Model
 

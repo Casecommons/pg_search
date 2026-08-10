@@ -404,6 +404,8 @@ describe "a pg_search_scope" do
 
   context "when merging a pg_search_scope into another model's scope" do
     with_model :ModelWithAssociation do
+      table
+
       model do
         has_many :associated_models
       end
@@ -451,6 +453,8 @@ describe "a pg_search_scope" do
 
   context "when chained onto a has_many association" do
     with_model :Company do
+      table
+
       model do
         has_many :positions
       end

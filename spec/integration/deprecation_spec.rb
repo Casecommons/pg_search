@@ -5,6 +5,8 @@ require "active_support/core_ext/kernel/reporting"
 
 describe "Including the deprecated PgSearch module" do
   with_model :SomeModel do
+    table
+
     model do
       silence_warnings do
         include PgSearch
@@ -12,7 +14,9 @@ describe "Including the deprecated PgSearch module" do
     end
   end
 
-  with_model :AnotherModel
+  with_model :AnotherModel do
+    table
+  end
 
   it "includes PgSearch::Model" do
     expect(SomeModel.ancestors).to include PgSearch::Model

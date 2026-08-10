@@ -1092,6 +1092,8 @@ describe "an Active Record model which includes PgSearch" do
 
     context "when using multiple tsvector columns" do
       with_model :ModelWithTsvector do
+        table
+
         model do
           include PgSearch::Model
 
