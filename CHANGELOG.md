@@ -1,5 +1,17 @@
 # pg_search changelog
 
+## 2.3.8
+
+* Drop support for Ruby 3.0, 3.1, and 3.2
+* Drop support for Active Record 6.1, 7.0, and 7.1
+* Support Ruby 3.4 and 4.0
+* Support Active Record 8.0 and 8.1
+* Fix ordered searches and associated ordering that use the internal rank join (fatkodima)
+* Sanitize query characters introduced by unaccent normalization (Misha Doronin)
+* Support keyword arguments for dynamic rank and highlight accessors (Manuel Meurer)
+* Quote custom primary key and inheritance column identifiers in multisearch rebuild SQL
+* Improve documentation (Olli)
+
 ## 2.3.7
 
 * Drop support for Ruby 2.6 and 2.7
