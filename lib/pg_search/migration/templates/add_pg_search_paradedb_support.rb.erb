@@ -1,0 +1,58 @@
+class AddPgSearchParadedbSupport < ActiveRecord::Migration<%= migration_version %>
+  def up
+    # Install the ParadeDB pg_search extension
+    say_with_time("Installing pg_search extension by ParadeDB") do
+      execute "CREATE EXTENSION IF NOT EXISTS pg_search"
+    end
+
+    # Only create index if pg_search_documents table exists
+    if table_exists?(:pg_search_documents)
+      say_with_time("Creating BM25 index on pg_search_documents") do
+        # Check if index already exists
+        index_exists = select_value(<<~SQL)
+          SELECT 1 FROM pg_indexes 
+          WHERE tablename = 'pg_search_documents' 
+          AND indexname = 'pg_search_documents_bm25_idx'
+          LIMIT 1
+        SQL
+        
+        unless index_exists
+          # Create a BM25 index on the pg_search_documents table
+          # Using id as the key field for ParadeDB's score() function
+          execute <<~SQL
+            CREATE INDEX CONCURRENTLY pg_search_documents_bm25_idx 
+            ON pg_search_documents 
+            USING bm25 (id, content, searchable_id, searchable_type)
+            WITH (key_field='id')
+          SQL
+        else
+          say "BM25 index already exists, skipping creation"
+        end
+      end
+    else
+      say "pg_search_documents table not found. Run pg_search:multisearch:rebuild after creating the table."
+    end
+  end
+
+  def down
+    say_with_time("Removing BM25 index from pg_search_documents") do
+      execute "DROP INDEX IF EXISTS pg_search_documents_bm25_idx"
+    end
+
+    # Note: We don't drop the pg_search extension as it might be used by other tables
+    # If you want to remove it, uncomment the following:
+    # say_with_time("Removing pg_search extension") do
+    #   execute "DROP EXTENSION IF EXISTS pg_search CASCADE"
+    # end
+  end
+  
+  private
+  
+  def table_exists?(table_name)
+    connection.table_exists?(table_name)
+  end
+  
+  def select_value(sql)
+    connection.select_value(sql)
+  end
+end
