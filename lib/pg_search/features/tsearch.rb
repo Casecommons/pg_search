@@ -29,7 +29,7 @@ module PgSearch
       def ts_headline
         Arel::Nodes::NamedFunction.new("ts_headline", [
           dictionary,
-          arel_wrap(document),
+          arel_wrap(document((options[:highlight] || {})[:separator])),
           arel_wrap(tsquery),
           Arel::Nodes.build_quoted(ts_headline_options)
         ]).to_sql
