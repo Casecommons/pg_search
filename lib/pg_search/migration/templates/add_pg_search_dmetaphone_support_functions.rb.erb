@@ -1,5 +1,6 @@
 class AddPgSearchDmetaphoneSupportFunctions < ActiveRecord::Migration<%= migration_version %>
   def up
+    execute "CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;"                                                                 
     say_with_time("Adding support functions for pg_search :dmetaphone") do
       execute <<~'SQL'.squish
 <%= indent(read_sql_file("dmetaphone"), 8) %>
@@ -8,6 +9,7 @@ class AddPgSearchDmetaphoneSupportFunctions < ActiveRecord::Migration<%= migrati
   end
 
   def down
+    execute "DROP EXTENSION IF EXISTS fuzzystrmatch;"            
     say_with_time("Dropping support functions for pg_search :dmetaphone") do
       execute <<~'SQL'.squish
 <%= indent(read_sql_file("uninstall_dmetaphone"), 8) %>
