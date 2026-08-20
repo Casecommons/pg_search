@@ -18,7 +18,7 @@ module PgSearch
 
       scope
         .joins(rank_join(rank_table_alias))
-        .order(Arel.sql("#{rank_table_alias}.rank DESC, #{order_within_rank}"))
+        .order(order_clause(rank_table_alias))
         .extend(WithPgSearchRank)
         .extend(WithPgSearchHighlight[feature_for(:tsearch)])
     end
@@ -99,8 +99,18 @@ module PgSearch
       Arel::Nodes::Or.new(expressions)
     end
 
-    def order_within_rank
-      config.order_within_rank || "#{primary_key} ASC"
+    def order_clause(rank_table_alias)
+      pre_order = if (cfg = config.ranking_order).is_a?(Hash)
+        cfg.map { |field, od| "#{field} #{od}" }.join(", ")
+      else
+        cfg
+      end
+
+      rank_order = "#{rank_table_alias}.rank DESC"
+
+      post_order = config.order_within_rank || "#{primary_key} ASC"
+
+      Arel.sql([pre_order, rank_order, post_order].compact.join(", "))
     end
 
     def primary_key
