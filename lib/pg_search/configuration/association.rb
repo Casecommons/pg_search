@@ -20,7 +20,12 @@ module PgSearch
       end
 
       def join(primary_key)
-        "LEFT OUTER JOIN (#{relation(primary_key).to_sql}) #{subselect_alias} ON #{subselect_alias}.id = #{primary_key}"
+        subquery = relation(primary_key).arel.as(subselect_alias)
+        on_condition = Arel::Nodes::On.new(
+          subquery[:id].eq(Arel.sql(primary_key))
+        )
+        node = Arel::Nodes::OuterJoin.new(subquery, on_condition)
+        @model.connection.unprepared_statement { @model.connection.to_sql(node) }
       end
 
       def subselect_alias
@@ -29,30 +34,31 @@ module PgSearch
 
       private
 
-      def selects
-        if singular_association?
-          selects_for_singular_association
-        else
-          selects_for_multiple_association
-        end
-      end
-
-      def selects_for_singular_association
-        columns.map do |column|
-          "#{column.full_name}::text AS #{column.alias}"
-        end.join(", ")
-      end
-
-      def selects_for_multiple_association
-        columns.map do |column|
-          "string_agg(#{column.full_name}::text, ' ') AS #{column.alias}"
-        end.join(", ")
-      end
-
       def relation(primary_key)
-        result = @model.unscoped.joins(@name).select("#{primary_key} AS id, #{selects}")
+        result = @model.unscoped.joins(@name).select(
+          Arel.sql(primary_key).as("id"),
+          *selects
+        )
         result = result.group(primary_key) unless singular_association?
         result
+      end
+
+      def selects
+        columns.map do |column|
+          cast_node = Arel::Nodes::NamedFunction.new(
+            "cast",
+            [Arel.sql(column.full_name).as(Arel.sql("text"))]
+          )
+          projection = if singular_association?
+            cast_node
+          else
+            Arel::Nodes::NamedFunction.new(
+              "string_agg",
+              [cast_node, Arel::Nodes.build_quoted(" ")]
+            )
+          end
+          projection.as(column.alias)
+        end
       end
 
       def singular_association?

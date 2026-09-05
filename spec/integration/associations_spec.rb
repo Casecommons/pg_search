@@ -145,6 +145,57 @@ describe "a pg_search_scope" do
       end
     end
 
+    context "via a scoped has_many association with a quoted literal condition" do
+      with_model :Book do
+        table do |t|
+          t.string "title"
+          t.string "author"
+          t.belongs_to :shelf
+        end
+
+        model do
+          belongs_to :shelf
+        end
+      end
+
+      with_model :Shelf do
+        table do |t|
+          t.string "title"
+        end
+
+        model do
+          include PgSearch::Model
+
+          has_many :obrien_books,
+            -> { where(author: "O'Brien") },
+            class_name: "Book"
+
+          pg_search_scope :with_obrien_books,
+            associated_against: {obrien_books: :title}
+        end
+      end
+
+      it "applies the association condition and handles single-quoted values without bind placeholders" do
+        shelf_with_obrien = Shelf.create!(title: "Main Shelf")
+        shelf_without_obrien = Shelf.create!(title: "Other Shelf")
+
+        Book.create!(
+          title: "The Third Policeman",
+          author: "O'Brien",
+          shelf: shelf_with_obrien
+        )
+        Book.create!(
+          title: "The Third Policeman",
+          author: "Someone Else",
+          shelf: shelf_without_obrien
+        )
+
+        results = Shelf.with_obrien_books("Third Policeman")
+        expect(results).to include(shelf_with_obrien)
+        expect(results).not_to include(shelf_without_obrien)
+      end
+    end
+
     context "when across multiple associations" do
       context "when on different tables" do
         with_model :FirstAssociatedModel do

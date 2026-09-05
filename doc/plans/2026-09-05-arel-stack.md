@@ -26,7 +26,7 @@ behavioral coverage or require duplicating that coverage across both interfaces.
 - [x] **Column expressions:** add explicit Arel conversions for normal and foreign
   columns, preserving string conversions. Cover NULLs, casts, quoted identifiers,
   and trusted JSON expressions.
-- [ ] **Association queries:** build aggregated projections and joins with Arel.
+- [x] **Association queries:** build aggregated projections and joins with Arel.
   Cover association types, missing associations, aggregation, and alias collisions.
 - [ ] **Rank selection and ordering:** convert projections and ordering without
   replacing the existing rank-join fix. Cover selected ranks, tie-breaking,

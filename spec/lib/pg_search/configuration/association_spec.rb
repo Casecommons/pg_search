@@ -20,7 +20,7 @@ describe PgSearch::Configuration::Association do
     model do
       include PgSearch::Model
 
-      has_one :avatar, class_name: "Avatar"
+      has_one :avatar
       belongs_to :site
 
       pg_search_scope :with_avatar, associated_against: {avatar: :url}
@@ -36,7 +36,7 @@ describe PgSearch::Configuration::Association do
     model do
       include PgSearch::Model
 
-      has_many :users, class_name: "User"
+      has_many :users
 
       pg_search_scope :with_users, associated_against: {users: :name}
     end
@@ -60,11 +60,11 @@ describe PgSearch::Configuration::Association do
             FROM "#{User.table_name}"
             INNER JOIN "#{association.table_name}"
             ON "#{association.table_name}"."user_id" = "#{User.table_name}"."id") #{association.subselect_alias}
-          ON #{association.subselect_alias}.id = model_id
+          ON #{association.subselect_alias}."id" = model_id
         SQL
       end
       let(:column_select) do
-        "\"#{association.table_name}\".\"url\"::text"
+        "cast(\"#{association.table_name}\".\"url\" AS text)"
       end
 
       it "returns the correct SQL join" do
@@ -91,11 +91,11 @@ describe PgSearch::Configuration::Association do
             FROM "#{User.table_name}"
             INNER JOIN "#{association.table_name}"
             ON "#{association.table_name}"."id" = "#{User.table_name}"."site_id") #{association.subselect_alias}
-          ON #{association.subselect_alias}.id = model_id
+          ON #{association.subselect_alias}."id" = model_id
         SQL
       end
       let(:column_select) do
-        "\"#{association.table_name}\".\"title\"::text"
+        "cast(\"#{association.table_name}\".\"title\" AS text)"
       end
 
       it "returns the correct SQL join" do
@@ -118,17 +118,49 @@ describe PgSearch::Configuration::Association do
         <<~SQL.squish
           LEFT OUTER JOIN
             (SELECT model_id AS id,
-                    string_agg("#{association.table_name}"."name"::text, ' ') AS #{association.columns.first.alias}
+                    string_agg(cast("#{association.table_name}"."name" AS text), ' ') AS #{association.columns.first.alias}
             FROM "#{Site.table_name}"
             INNER JOIN "#{association.table_name}"
             ON "#{association.table_name}"."site_id" = "#{Site.table_name}"."id"
             GROUP BY model_id) #{association.subselect_alias}
-          ON #{association.subselect_alias}.id = model_id
+          ON #{association.subselect_alias}."id" = model_id
         SQL
       end
 
       it "returns the correct SQL join" do
         expect(association.join("model_id")).to eq(expected_sql)
+      end
+
+      let(:projected_column) do
+        Arel.sql("#{association.subselect_alias}.#{association.columns.first.alias}")
+      end
+      let(:joined_sites) do
+        primary_key = Site.connection.visitor.compile(Site.arel_table[:id])
+        Site.joins(association.join(primary_key))
+      end
+
+      it "ignores NULL inputs without padding the aggregate" do
+        site = Site.create!
+        site.users.create!(name: nil)
+        site.users.create!(name: "visible")
+        site.users.create!(name: nil)
+
+        expect(joined_sites.pluck(projected_column)).to eq ["visible"]
+      end
+
+      it "preserves an all-NULL aggregate" do
+        site = Site.create!
+        site.users.create!(name: nil)
+        site.users.create!(name: nil)
+
+        expect(joined_sites.pluck(projected_column)).to eq [nil]
+      end
+
+      it "retains the parent when no associated rows exist" do
+        site = Site.create!
+
+        expect(joined_sites.pluck(Site.arel_table[:id])).to eq [site.id]
+        expect(joined_sites.pluck(projected_column)).to eq [nil]
       end
 
       describe "#subselect_alias" do
