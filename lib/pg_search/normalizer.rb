@@ -8,32 +8,32 @@ module PgSearch
 
     DISALLOWED_CHARACTERS = "'[''?\\:]'"
 
-    def add_normalization(sql_expression)
-      return sql_expression unless config.ignore.include?(:accents)
-
-      sql_node = case sql_expression
-      when Arel::Nodes::Node
-        sql_expression
-      else
-        Arel.sql(sql_expression)
-      end
+    def add_normalization(expression)
+      node = to_node(expression)
+      return node unless config.ignore.include?(:accents)
 
       Arel::Nodes::NamedFunction.new(
         "regexp_replace",
         [
-          Arel::Nodes::NamedFunction.new(
-            PgSearch.unaccent_function,
-            [sql_node]
-          ),
+          Arel::Nodes::NamedFunction.new(PgSearch.unaccent_function, [node]),
           Arel.sql(DISALLOWED_CHARACTERS),
           Arel.sql("''"),
           Arel.sql("'g'")
         ]
-      ).to_sql
+      )
     end
 
     private
 
     attr_reader :config
+
+    def to_node(expression)
+      case expression
+      when Arel::Nodes::Node
+        expression
+      else
+        Arel.sql(expression.to_s)
+      end
+    end
   end
 end

@@ -31,7 +31,7 @@ behavioral coverage or require duplicating that coverage across both interfaces.
 - [x] **Rank selection and ordering:** convert projections and ordering without
   replacing the existing rank-join fix. Cover selected ranks, tie-breaking,
   custom ordering, associations, and chained scopes.
-- [ ] **Feature expressions and normalization:** compose search expressions as
+- [x] **Feature expressions and normalization:** compose search expressions as
   nodes while preserving sanitization. Cover blank queries, quotes and accents,
   prefix/negation, weighted and stored vectors, highlighting, and other features.
 - [ ] **Multisearch rebuilds:** convert useful statement components without forcing
