@@ -1228,6 +1228,23 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
+    context "when passed an :order_within_rank expression" do
+      before do
+        ModelWithPgSearch.pg_search_scope :search_content_ordered_by_importance,
+          against: :content,
+          order_within_rank: "importance DESC"
+      end
+
+      it "breaks ties in rank by the custom expression" do
+        # Both records match equally; importance determines order
+        low = ModelWithPgSearch.create!(content: "foo", importance: 1)
+        high = ModelWithPgSearch.create!(content: "foo", importance: 5)
+
+        results = ModelWithPgSearch.search_content_ordered_by_importance("foo")
+        expect(results).to eq([high, low])
+      end
+    end
+
     context "when passed a :ranked_by expression" do
       before do
         ModelWithPgSearch.pg_search_scope :search_content_with_default_rank,

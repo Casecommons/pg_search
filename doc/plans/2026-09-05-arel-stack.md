@@ -28,7 +28,7 @@ behavioral coverage or require duplicating that coverage across both interfaces.
   and trusted JSON expressions.
 - [x] **Association queries:** build aggregated projections and joins with Arel.
   Cover association types, missing associations, aggregation, and alias collisions.
-- [ ] **Rank selection and ordering:** convert projections and ordering without
+- [x] **Rank selection and ordering:** convert projections and ordering without
   replacing the existing rank-join fix. Cover selected ranks, tie-breaking,
   custom ordering, associations, and chained scopes.
 - [ ] **Feature expressions and normalization:** compose search expressions as

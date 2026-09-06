@@ -15,10 +15,12 @@ module PgSearch
     def apply(scope)
       scope = include_table_aliasing_for_rank(scope)
       rank_table_alias = scope.pg_search_rank_table_alias(include_counter: true)
+      rank_subquery = subquery.arel.as(rank_table_alias)
 
       scope
-        .joins(rank_join(rank_table_alias))
-        .order(Arel.sql("#{rank_table_alias}.rank DESC, #{order_within_rank}"))
+        .joins(rank_join(rank_subquery))
+        .order(rank_subquery[:rank].desc)
+        .order(order_within_rank)
         .extend(WithPgSearchRank)
         .extend(WithPgSearchHighlight[feature_for(:tsearch)])
     end
@@ -51,7 +53,8 @@ module PgSearch
       def with_pg_search_rank
         scope = self
         scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        scope.select("#{pg_search_rank_table_alias}.rank AS pg_search_rank")
+        rank_column = Arel.sql("#{pg_search_rank_table_alias}.rank").as("pg_search_rank")
+        scope.select(rank_column)
       end
     end
 
@@ -82,8 +85,8 @@ module PgSearch
     def subquery
       model
         .unscoped
-        .select("#{primary_key} AS pg_search_id")
-        .select("#{rank} AS rank")
+        .select(model.arel_table[model.primary_key].as("pg_search_id"))
+        .select(Arel.sql(rank).as("rank"))
         .joins(subquery_join)
         .where(conditions)
         .limit(nil)
@@ -100,7 +103,11 @@ module PgSearch
     end
 
     def order_within_rank
-      config.order_within_rank || "#{primary_key} ASC"
+      if config.order_within_rank
+        Arel.sql(config.order_within_rank)
+      else
+        model.arel_table[model.primary_key].asc
+      end
     end
 
     def primary_key
@@ -144,13 +151,10 @@ module PgSearch
       end
     end
 
-    def rank_join(rank_table_alias)
-      arel_table = model.arel_table
-      subquery_arel = subquery.arel.as(rank_table_alias)
-
-      arel_table
-        .join(subquery_arel)
-        .on(arel_table[model.primary_key].eq(subquery_arel[:pg_search_id]))
+    def rank_join(rank_subquery)
+      model.arel_table
+        .join(rank_subquery)
+        .on(model.arel_table[model.primary_key].eq(rank_subquery[:pg_search_id]))
         .join_sources
     end
 
