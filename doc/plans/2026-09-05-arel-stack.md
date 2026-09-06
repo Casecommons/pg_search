@@ -34,7 +34,7 @@ behavioral coverage or require duplicating that coverage across both interfaces.
 - [x] **Feature expressions and normalization:** compose search expressions as
   nodes while preserving sanitization. Cover blank queries, quotes and accents,
   prefix/negation, weighted and stored vectors, highlighting, and other features.
-- [ ] **Multisearch rebuilds:** convert useful statement components without forcing
+- [x] **Multisearch rebuilds:** convert useful statement components without forcing
   every fixed SQL fragment into Arel. Cover actual rebuilds, STI, NULL content,
   multiple columns, and custom identifiers.
 

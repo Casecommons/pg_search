@@ -7,16 +7,16 @@ describe PgSearch::Multisearch::Rebuilder do
   with_table "pg_search_documents", &DOCUMENTS_SCHEMA
 
   describe "when initialized with a model that is not multisearchable" do
-    with_model :not_multisearchable do
+    with_model :NotSearchable do
       table
     end
 
     it "raises an exception" do
       expect {
-        described_class.new(NotMultisearchable)
+        described_class.new(NotSearchable)
       }.to raise_exception(
         PgSearch::Multisearch::ModelNotMultisearchable,
-        "NotMultisearchable is not multisearchable. See PgSearch::ClassMethods#multisearchable"
+        "NotSearchable is not multisearchable. See PgSearch::ClassMethods#multisearchable"
       )
     end
   end
@@ -24,7 +24,7 @@ describe PgSearch::Multisearch::Rebuilder do
   describe "#rebuild" do
     context "when the model defines .rebuild_pg_search_documents" do
       context "when multisearchable is not conditional" do
-        with_model :Model do
+        with_model :Book do
           table
 
           model do
@@ -32,26 +32,23 @@ describe PgSearch::Multisearch::Rebuilder do
 
             multisearchable
 
-            def rebuild_pg_search_documents
-            end
+            class_attribute :documents_rebuilt, default: false
+
+            def self.rebuild_pg_search_documents = self.documents_rebuilt = true
           end
         end
 
-        it "calls .rebuild_pg_search_documents" do
-          rebuilder = described_class.new(Model)
+        it "dispatches to .rebuild_pg_search_documents" do
+          described_class.new(Book).rebuild
 
-          without_partial_double_verification do
-            allow(Model).to receive(:rebuild_pg_search_documents)
-            rebuilder.rebuild
-            expect(Model).to have_received(:rebuild_pg_search_documents)
-          end
+          expect(Book.documents_rebuilt).to be true
         end
       end
 
       context "when multisearchable is conditional" do
-        %i[if unless].each do |conditional_key|
-          context "via :#{conditional_key}" do
-            with_model :Model do
+        %i[if unless].each do |key|
+          context "via :#{key}" do
+            with_model :Book do
               table do |t|
                 t.boolean :active
               end
@@ -59,21 +56,20 @@ describe PgSearch::Multisearch::Rebuilder do
               model do
                 include PgSearch::Model
 
-                multisearchable conditional_key => :active?
+                multisearchable key => :active?
 
-                def rebuild_pg_search_documents
+                class_attribute :documents_rebuilt, default: false
+
+                def self.rebuild_pg_search_documents
+                  self.documents_rebuilt = true
                 end
               end
             end
 
-            it "calls .rebuild_pg_search_documents" do
-              rebuilder = described_class.new(Model)
+            it "dispatches to .rebuild_pg_search_documents" do
+              described_class.new(Book).rebuild
 
-              without_partial_double_verification do
-                allow(Model).to receive(:rebuild_pg_search_documents)
-                rebuilder.rebuild
-                expect(Model).to have_received(:rebuild_pg_search_documents)
-              end
+              expect(Book.documents_rebuilt).to be true
             end
           end
         end
@@ -83,182 +79,173 @@ describe PgSearch::Multisearch::Rebuilder do
     context "when the model does not define .rebuild_pg_search_documents" do
       context "when multisearchable is not conditional" do
         context "when :against only includes columns" do
-          with_model :Model do
+          with_model :Book do
             table do |t|
-              t.string :name
+              t.string :title
             end
 
             model do
               include PgSearch::Model
 
-              multisearchable against: :name
+              multisearchable against: :title
             end
           end
 
-          it "does not call :rebuild_pg_search_documents" do
-            rebuilder = described_class.new(Model)
+          it "inserts a document for each record via bulk INSERT" do
+            book = PgSearch.disable_multisearch { Book.create!(title: "Dune") }
 
-            # stub respond_to? to return false since should_not_receive defines the method
-            original_respond_to = Model.method(:respond_to?)
-            allow(Model).to receive(:respond_to?) do |method_name, *args|
-              if method_name == :rebuild_pg_search_documents
-                false
-              else
-                original_respond_to.call(method_name, *args)
-              end
-            end
+            described_class.new(Book).rebuild
 
-            without_partial_double_verification do
-              allow(Model).to receive(:rebuild_pg_search_documents)
-              rebuilder.rebuild
-              expect(Model).not_to have_received(:rebuild_pg_search_documents)
-            end
+            doc = PgSearch::Document.find_by!(searchable: book)
+            expect(doc.searchable_type).to eq("Book")
+            expect(doc.searchable_id).to eq(book.id)
+            expect(doc.content).to eq("Dune")
           end
 
-          # standard:disable RSpec/ExampleLength
-          it "executes the default SQL" do
-            time = Time.utc(2001, 1, 1, 0, 0, 0)
-            rebuilder = described_class.new(Model, -> { time })
+          it "coalesces NULL column values to empty string" do
+            book = PgSearch.disable_multisearch { Book.create!(title: nil) }
 
-            expected_sql = <<~SQL.squish
-              INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
-                SELECT 'Model' AS searchable_type,
-                       #{Model.quoted_table_name}.#{Model.connection.quote_column_name(Model.primary_key)} AS searchable_id,
-                       (
-                         coalesce(#{Model.quoted_table_name}."name"::text, '')
-                       ) AS content,
-                       '2001-01-01 00:00:00' AS created_at,
-                       '2001-01-01 00:00:00' AS updated_at
-                FROM #{Model.quoted_table_name}
-            SQL
+            described_class.new(Book).rebuild
 
-            executed_sql = []
-
-            notifier = ActiveSupport::Notifications.subscribe("sql.active_record") do |_name, _start, _finish, _id, payload|
-              executed_sql << payload[:sql] if payload[:sql].include?(%(INSERT INTO "pg_search_documents"))
-            end
-
-            rebuilder.rebuild
-            ActiveSupport::Notifications.unsubscribe(notifier)
-
-            expect(executed_sql.length).to eq(1)
-            expect(executed_sql.first.strip).to eq(expected_sql.strip)
-          end
-          # standard:enable RSpec/ExampleLength
-
-          context "with a model with a camel case column" do
-            with_model :ModelWithCamelCaseColumn do
-              table do |t|
-                t.string :camelName
-              end
-
-              model do
-                include PgSearch::Model
-
-                multisearchable against: :name
-              end
-            end
-
-            it "rebuilds without error" do
-              time = Time.utc(2001, 1, 1, 0, 0, 0)
-              rebuilder = described_class.new(Model, -> { time })
-              expect { rebuilder.rebuild }.not_to raise_error
-            end
+            doc = PgSearch::Document.find_by!(searchable: book)
+            expect(doc.content).to eq("")
           end
 
-          context "with a model with a non-standard primary key" do
-            with_model :ModelWithNonStandardPrimaryKey do
-              table primary_key: :non_standard_primary_key do |t|
-                t.string :name
-              end
-
-              model do
-                include PgSearch::Model
-
-                multisearchable against: :name
-              end
+          it "stamps both created_at and updated_at from a single time_source call" do
+            call_count = 0
+            time_source = lambda do
+              call_count += 1
+              Time.utc(2001, 1, 1)
             end
 
-            # standard:disable RSpec/ExampleLength
-            it "generates SQL with the correct primary key" do
-              time = Time.utc(2001, 1, 1, 0, 0, 0)
-              rebuilder = described_class.new(ModelWithNonStandardPrimaryKey, -> { time })
+            PgSearch.disable_multisearch { Book.create!(title: "Dune") }
 
-              expected_sql = <<~SQL.squish
-                INSERT INTO "pg_search_documents" (searchable_type, searchable_id, content, created_at, updated_at)
-                  SELECT 'ModelWithNonStandardPrimaryKey' AS searchable_type,
-                         #{ModelWithNonStandardPrimaryKey.quoted_table_name}."non_standard_primary_key" AS searchable_id,
-                         (
-                           coalesce(#{ModelWithNonStandardPrimaryKey.quoted_table_name}."name"::text, '')
-                         ) AS content,
-                         '2001-01-01 00:00:00' AS created_at,
-                         '2001-01-01 00:00:00' AS updated_at
-                  FROM #{ModelWithNonStandardPrimaryKey.quoted_table_name}
-              SQL
+            described_class.new(Book, time_source).rebuild
 
-              executed_sql = []
-
-              notifier = ActiveSupport::Notifications.subscribe("sql.active_record") do |_name, _start, _finish, _id, payload|
-                executed_sql << payload[:sql] if payload[:sql].include?(%(INSERT INTO "pg_search_documents"))
-              end
-
-              rebuilder.rebuild
-              ActiveSupport::Notifications.unsubscribe(notifier)
-
-              expect(executed_sql.length).to eq(1)
-              expect(executed_sql.first.strip).to eq(expected_sql.strip)
-            end
-            # standard:enable RSpec/ExampleLength
+            expect(call_count).to eq(1)
+            doc = PgSearch::Document.last
+            expect(doc.created_at).to eq(Time.utc(2001, 1, 1))
+            expect(doc.created_at).to eq(doc.updated_at)
           end
         end
 
-        context "when :against includes non-column dynamic methods" do
-          with_model :Model do
-            table
+        context "when :against includes multiple columns" do
+          with_model :Book do
+            table do |t|
+              t.string :title
+              t.text :body
+            end
 
             model do
               include PgSearch::Model
 
-              multisearchable against: [:foo]
-
-              def foo
-                "bar"
-              end
+              multisearchable against: %i[title body]
             end
           end
 
-          # standard:disable RSpec/ExampleLength
-          it "calls update_pg_search_document on each record" do
-            record = Model.create!
+          it "joins column values with a space" do
+            book = PgSearch.disable_multisearch { Book.create!(title: "Dune", body: "The spice") }
 
-            rebuilder = described_class.new(Model)
+            described_class.new(Book).rebuild
 
-            # stub respond_to? to return false since should_not_receive defines the method
-            original_respond_to = Model.method(:respond_to?)
-            allow(Model).to receive(:respond_to?) do |method_name, *args|
-              if method_name == :rebuild_pg_search_documents
-                false
-              else
-                original_respond_to.call(method_name, *args)
-              end
-            end
-
-            without_partial_double_verification do
-              allow(Model).to receive(:rebuild_pg_search_documents)
-
-              rebuilder.rebuild
-
-              expect(Model).not_to have_received(:rebuild_pg_search_documents)
-            end
-
-            expect(record.pg_search_document).to be_present
+            doc = PgSearch::Document.find_by!(searchable: book)
+            expect(doc.content).to eq("Dune The spice")
           end
-          # standard:enable RSpec/ExampleLength
+
+          it "coalesces NULL in any column to empty string" do
+            book = PgSearch.disable_multisearch { Book.create!(title: "Dune", body: nil) }
+
+            described_class.new(Book).rebuild
+
+            doc = PgSearch::Document.find_by!(searchable: book)
+            # Keep the separator when the NULL body becomes an empty string.
+            expect(doc.content).to eq("Dune ")
+          end
+        end
+
+        context "with a camelCase column name" do
+          with_model :Book do
+            table do |t|
+              t.string :camelName
+            end
+
+            model do
+              include PgSearch::Model
+
+              multisearchable against: :camelName
+            end
+          end
+
+          it "quotes the column name and inserts correct content" do
+            book = PgSearch.disable_multisearch { Book.create!(camelName: "CamelValue") }
+
+            described_class.new(Book).rebuild
+
+            doc = PgSearch::Document.find_by!(searchable: book)
+            expect(doc.content).to eq("CamelValue")
+          end
+        end
+
+        context "with a non-standard primary key" do
+          with_model :Book do
+            table primary_key: :isbn do |t|
+              t.string :title
+            end
+
+            model do
+              include PgSearch::Model
+
+              multisearchable against: :title
+            end
+          end
+
+          it "stores the non-standard primary key in searchable_id" do
+            book = PgSearch.disable_multisearch { Book.create!(title: "Dune") }
+
+            described_class.new(Book).rebuild
+
+            doc = PgSearch::Document.find_by!(searchable_type: "Book")
+            expect(doc.searchable_id).to eq(book.isbn)
+          end
         end
 
         context "with an identifier that requires quoting" do
-          with_model :Model do
+          with_model :Book do
             table do |t|
+              t.string :title
+            end
+
+            model do
+              include PgSearch::Model
+
+              multisearchable against: :title
+            end
+          end
+
+          it "quotes a malicious primary key in the generated SQL" do
+            malicious_pk = %(id"; DROP TABLE pg_search_documents; --)
+            allow(Book).to receive(:primary_key).and_return(malicious_pk)
+
+            sql = described_class.new(Book).send(:rebuild_sql)
+
+            expect(sql).to include(Book.connection.quote_column_name(malicious_pk))
+          end
+
+          it "quotes a malicious inheritance column in the generated SQL" do
+            malicious_column = %(type"; DROP TABLE pg_search_documents; --)
+            allow(Book).to receive(:inheritance_column).and_return(malicious_column)
+            allow(Book).to receive(:column_names).and_return(Book.column_names + [malicious_column])
+
+            sql = described_class.new(Book).send(:rebuild_sql)
+
+            expect(sql).to include(Book.connection.quote_column_name(malicious_column))
+          end
+        end
+
+        context "with STI" do
+          with_model :Animal do
+            table do |t|
+              t.string :type
               t.string :name
             end
 
@@ -269,140 +256,147 @@ describe PgSearch::Multisearch::Rebuilder do
             end
           end
 
-          it "quotes the primary key in the generated SQL" do
-            malicious_pk = %(id"; DROP TABLE pg_search_documents; --)
-            allow(Model).to receive(:primary_key).and_return(malicious_pk)
-
-            rebuilder = described_class.new(Model)
-            sql = rebuilder.send(:rebuild_sql)
-
-            expect(sql).to include(Model.connection.quote_column_name(malicious_pk))
-          end
-
-          it "quotes the inheritance column in the STI clause" do
-            malicious_column = %(type"; DROP TABLE pg_search_documents; --)
-            allow(Model).to receive(:inheritance_column).and_return(malicious_column)
-            allow(Model).to receive(:column_names).and_return(Model.column_names + [malicious_column])
-
-            rebuilder = described_class.new(Model)
-            sql = rebuilder.send(:rebuild_sql)
-
-            expect(sql).to include(Model.connection.quote_column_name(malicious_column))
-          end
-        end
-
-        context "when only additional_attributes is set" do
-          with_model :Model do
-            table do |t|
-              t.string :name
-            end
+          with_model :Cat, superclass: :Animal do
+            table(false)
 
             model do
               include PgSearch::Model
 
-              multisearchable against: :name,
-                additional_attributes: ->(obj) { {additional_attribute_column: "#{obj.class}::#{obj.id}"} }
+              multisearchable against: :name
             end
           end
 
-          it "calls update_pg_search_document on each record" do
-            record_1 = Model.create!(name: "record_1", id: 1)
-            record_2 = Model.create!(name: "record_2", id: 2)
+          it "rebuilds base class documents for null-typed rows only" do
+            base = PgSearch.disable_multisearch { Animal.create!(name: "Base") }
+            PgSearch.disable_multisearch { Cat.create!(name: "Whiskers") }
 
-            PgSearch::Document.delete_all
+            described_class.new(Animal).rebuild
 
-            rebuilder = described_class.new(Model)
-            rebuilder.rebuild
-
-            expect(record_1.reload.pg_search_document.additional_attribute_column).to eq("Model::1")
-            expect(record_2.reload.pg_search_document.additional_attribute_column).to eq("Model::2")
+            # Only the directly-typed Animal row is included; Cat rows require their own rebuild
+            ids = PgSearch::Document.where(searchable_type: "Animal").map(&:searchable_id)
+            expect(ids).to contain_exactly(base.id)
           end
+
+          it "rebuilds subclass documents with exact type match" do
+            PgSearch.disable_multisearch { Animal.create!(name: "Base") }
+            cat = PgSearch.disable_multisearch { Cat.create!(name: "Whiskers") }
+
+            described_class.new(Cat).rebuild
+
+            # Cat rebuild stores searchable_type = base class name
+            ids = PgSearch::Document.where(searchable_type: "Animal").map(&:searchable_id)
+            expect(ids).to contain_exactly(cat.id)
+          end
+
+          it "stores base_class.name as searchable_type for subclass rows" do
+            cat = PgSearch.disable_multisearch { Cat.create!(name: "Whiskers") }
+
+            described_class.new(Cat).rebuild
+
+            doc = PgSearch::Document.find_by!(searchable_id: cat.id, searchable_type: "Animal")
+            expect(doc.content).to eq("Whiskers")
+          end
+        end
+      end
+
+      context "when :against includes non-column dynamic methods" do
+        with_model :Book do
+          table
+
+          model do
+            include PgSearch::Model
+
+            multisearchable against: [:summary]
+
+            def summary = "dynamic"
+          end
+        end
+
+        it "falls back to find_each and creates a document per record" do
+          book = PgSearch.disable_multisearch { Book.create! }
+          PgSearch::Document.delete_all
+
+          described_class.new(Book).rebuild
+
+          expect(PgSearch::Document.find_by!(searchable: book)).to be_present
+        end
+      end
+
+      context "when only additional_attributes is set" do
+        with_model :Book do
+          table do |t|
+            t.string :title
+          end
+
+          model do
+            include PgSearch::Model
+
+            multisearchable against: :title,
+              additional_attributes: ->(obj) { {additional_attribute_column: "#{obj.class}::#{obj.id}"} }
+          end
+        end
+
+        it "falls back to find_each and populates additional attributes" do
+          book1 = PgSearch.disable_multisearch { Book.create!(title: "Dune") }
+          book2 = PgSearch.disable_multisearch { Book.create!(title: "Foundation") }
+          PgSearch::Document.delete_all
+
+          described_class.new(Book).rebuild
+
+          expect(book1.reload.pg_search_document.additional_attribute_column).to eq("Book::#{book1.id}")
+          expect(book2.reload.pg_search_document.additional_attribute_column).to eq("Book::#{book2.id}")
         end
       end
 
       context "when multisearchable is conditional" do
         context "via :if" do
-          with_model :Model do
+          with_model :Book do
             table do |t|
-              t.boolean :active
+              t.boolean :published
             end
 
             model do
               include PgSearch::Model
 
-              multisearchable if: :active?
+              multisearchable if: :published?
             end
           end
 
-          # standard:disable RSpec/ExampleLength
-          it "calls update_pg_search_document on each record" do
-            record_1 = Model.create!(active: true)
-            record_2 = Model.create!(active: false)
+          it "falls back to find_each and only creates documents for matching records" do
+            pub = PgSearch.disable_multisearch { Book.create!(published: true) }
+            draft = PgSearch.disable_multisearch { Book.create!(published: false) }
+            PgSearch::Document.delete_all
 
-            rebuilder = described_class.new(Model)
+            described_class.new(Book).rebuild
 
-            # stub respond_to? to return false since should_not_receive defines the method
-            original_respond_to = Model.method(:respond_to?)
-            allow(Model).to receive(:respond_to?) do |method_name, *args|
-              if method_name == :rebuild_pg_search_documents
-                false
-              else
-                original_respond_to.call(method_name, *args)
-              end
-            end
-
-            without_partial_double_verification do
-              allow(Model).to receive(:rebuild_pg_search_documents)
-              rebuilder.rebuild
-              expect(Model).not_to have_received(:rebuild_pg_search_documents)
-            end
-
-            expect(record_1.pg_search_document).to be_present
-            expect(record_2.pg_search_document).not_to be_present
+            expect(PgSearch::Document.find_by(searchable: pub)).to be_present
+            expect(PgSearch::Document.find_by(searchable: draft)).to be_nil
           end
-          # standard:enable RSpec/ExampleLength
         end
 
         context "via :unless" do
-          with_model :Model do
+          with_model :Book do
             table do |t|
-              t.boolean :inactive
+              t.boolean :archived
             end
 
             model do
               include PgSearch::Model
 
-              multisearchable unless: :inactive?
+              multisearchable unless: :archived?
             end
           end
 
-          # standard:disable RSpec/ExampleLength
-          it "calls update_pg_search_document on each record" do
-            record_1 = Model.create!(inactive: true)
-            record_2 = Model.create!(inactive: false)
+          it "falls back to find_each and skips records matching the condition" do
+            live = PgSearch.disable_multisearch { Book.create!(archived: false) }
+            archived = PgSearch.disable_multisearch { Book.create!(archived: true) }
+            PgSearch::Document.delete_all
 
-            rebuilder = described_class.new(Model)
+            described_class.new(Book).rebuild
 
-            # stub respond_to? to return false since should_not_receive defines the method
-            original_respond_to = Model.method(:respond_to?)
-            allow(Model).to receive(:respond_to?) do |method_name, *args|
-              if method_name == :rebuild_pg_search_documents
-                false
-              else
-                original_respond_to.call(method_name, *args)
-              end
-            end
-
-            without_partial_double_verification do
-              allow(Model).to receive(:rebuild_pg_search_documents)
-              rebuilder.rebuild
-              expect(Model).not_to have_received(:rebuild_pg_search_documents)
-            end
-
-            expect(record_1.pg_search_document).not_to be_present
-            expect(record_2.pg_search_document).to be_present
+            expect(PgSearch::Document.find_by(searchable: live)).to be_present
+            expect(PgSearch::Document.find_by(searchable: archived)).to be_nil
           end
-          # standard:enable RSpec/ExampleLength
         end
       end
     end
