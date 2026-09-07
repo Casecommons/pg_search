@@ -2,8 +2,10 @@
 
 module PgSearch
   class Normalizer
-    # @param config [PgSearch::Configuration] search configuration whose ignore
-    #   list controls accent normalization
+    # Arguments
+    #
+    # +config+:: Search configuration whose ignore list controls accent
+    #            normalization.
     def initialize(config)
       @config = config
     end
@@ -13,10 +15,16 @@ module PgSearch
     # Applies configured accent normalization, preserving the input expression
     # without an unaccent wrapper when accents are not ignored.
     #
-    # @param expression an Arel node, attribute, or trusted SQL String;
-    #   a String is an SQL expression, not a value to quote
-    # @return a composable Arel expression
-    # @raise [TypeError] if expression is not an Arel node, attribute, or String
+    # Arguments
+    #
+    # +expression+:: An Arel node, attribute, or trusted SQL String. A String is
+    #                an SQL expression, not a value to quote.
+    #
+    # Returns a composable Arel expression.
+    #
+    # Raises
+    #
+    # TypeError:: If +expression+ is not an Arel node, attribute, or String.
     def add_normalization(expression)
       node = to_node(expression)
       return node unless config.ignore.include?(:accents)

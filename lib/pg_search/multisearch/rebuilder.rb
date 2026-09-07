@@ -3,11 +3,16 @@
 module PgSearch
   module Multisearch
     class Rebuilder
-      # @param model [Class] an Active Record model configured for multisearch
-      # @param time_source [#call] clock returning a timestamp for bulk inserts;
-      #   defaults to Time.method(:now), called once per bulk rebuild so created_at
-      #   and updated_at share a timestamp
-      # @raise [ModelNotMultisearchable] if model is not configured for multisearch
+      # Arguments
+      #
+      # +model+:: Active Record model configured for multisearch.
+      # +time_source+:: Clock returning a timestamp for bulk inserts. Defaults to
+      #                 +Time.method(:now)+ and is called once per bulk rebuild so
+      #                 +created_at+ and +updated_at+ share a timestamp.
+      #
+      # Raises
+      #
+      # ModelNotMultisearchable:: If +model+ is not configured for multisearch.
       def initialize(model, time_source = Time.method(:now))
         raise ModelNotMultisearchable, model unless model.respond_to?(:pg_search_multisearchable_options)
 

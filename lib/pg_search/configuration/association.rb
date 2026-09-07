@@ -23,9 +23,12 @@ module PgSearch
 
       # Builds an outer join retaining association-scope binds.
       #
-      # @param primary_key an Arel expression or trusted SQL String identifying
-      #   the model's primary-key column, not a record's key value
-      # @return [Arel::Nodes::OuterJoin] a composable join to the search subquery
+      # Arguments
+      #
+      # +primary_key+:: An Arel expression or trusted SQL String identifying the
+      #                 model's primary-key column, not a record's key value.
+      #
+      # Returns a composable outer join to the search subquery.
       def to_arel(primary_key)
         primary_key = Arel.sql(primary_key) if primary_key.is_a?(String)
         subquery = relation(primary_key).arel.as(subselect_alias)
