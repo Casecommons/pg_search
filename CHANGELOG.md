@@ -1,9 +1,9 @@
 # pg_search changelog
 
-## Unreleased
+## 2.4.0 - 2026-09-07
 
 * Drop support for Active Record 7.2
-* Compose search queries with Arel expressions while preserving custom SQL options
+* Replace internal SQL-string manipulation with composable Arel operations while preserving all existing use cases
 
 ## 2.3.8 - 2026-08-10
 
