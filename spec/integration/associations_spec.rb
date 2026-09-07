@@ -196,6 +196,76 @@ describe "a pg_search_scope" do
       end
     end
 
+    context "with a physical source column shadowed by a model alias" do
+      with_model :Book do
+        table do |t|
+          t.string :title
+          t.string :name
+          t.belongs_to :shelf
+        end
+
+        model do
+          belongs_to :shelf
+        end
+      end
+
+      with_model :Shelf do
+        table
+
+        model do
+          include PgSearch::Model
+
+          has_many :books
+
+          pg_search_scope :search, associated_against: {books: :title}
+        end
+      end
+
+      it "searches the physical association source through the derived alias" do
+        shelf = Shelf.create!
+        shelf.books.create!(title: "physical", name: "alias")
+        Book.alias_attribute :title, :name
+
+        expect(Shelf.search("physical")).to eq [shelf]
+        expect(Shelf.search("alias")).to be_empty
+      end
+    end
+
+    context "with a trusted SQL expression as the association source" do
+      with_model :Book do
+        table do |t|
+          t.json :metadata
+          t.belongs_to :shelf
+        end
+
+        model do
+          belongs_to :shelf
+        end
+      end
+
+      with_model :Shelf do
+        table
+
+        model do
+          include PgSearch::Model
+
+          has_many :books
+
+          pg_search_scope :search,
+            associated_against: {books: Arel.sql("metadata->>'title'")}
+        end
+      end
+
+      it "evaluates the expression before aggregating the associated rows" do
+        shelf = Shelf.create!
+        shelf.books.create!(metadata: {title: "Hello"})
+        shelf.books.create!(metadata: {title: "world"})
+
+        expect(Shelf.search("Hello world")).to eq [shelf]
+        expect(Shelf.search("title")).to be_empty
+      end
+    end
+
     context "when across multiple associations" do
       context "when on different tables" do
         with_model :FirstAssociatedModel do

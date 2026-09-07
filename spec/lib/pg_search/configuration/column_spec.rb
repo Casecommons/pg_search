@@ -101,6 +101,24 @@ describe PgSearch::Configuration::Column do
     end
   end
 
+  context "when a model alias shadows a physical column" do
+    with_model :Book do
+      table do |t|
+        t.string :title
+        t.string :name
+      end
+    end
+
+    it "keeps full_name physical while normalizing the model attribute" do
+      Book.create!(title: "physical", name: "alias")
+      Book.alias_attribute :title, :name
+      column = described_class.new(:title, nil, Book)
+
+      expect(Book.pluck(Arel.sql(column.full_name))).to eq ["physical"]
+      expect(Book.pluck(column.to_arel)).to eq ["alias"]
+    end
+  end
+
   describe "#to_sql" do
     with_model :Model do
       table do |t|

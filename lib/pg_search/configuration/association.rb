@@ -19,6 +19,8 @@ module PgSearch
         @model.reflect_on_association(@name).table_name
       end
 
+      def arel_table = @model.reflect_on_association(@name).klass.arel_table
+
       def join(primary_key)
         subquery = relation(primary_key).arel.as(subselect_alias)
         on_condition = Arel::Nodes::On.new(
@@ -47,7 +49,7 @@ module PgSearch
         columns.map do |column|
           cast_node = Arel::Nodes::NamedFunction.new(
             "cast",
-            [Arel.sql(column.full_name).as(Arel.sql("text"))]
+            [column.source_attribute.as(Arel.sql("text"))]
           )
           projection = if singular_association?
             cast_node

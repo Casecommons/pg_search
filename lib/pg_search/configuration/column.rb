@@ -15,10 +15,12 @@ module PgSearch
         @connection = model.connection
       end
 
-      def full_name
+      def full_name = @connection.visitor.compile(source_attribute)
+
+      def source_attribute
         return @column_name if @column_name.is_a?(Arel::Nodes::SqlLiteral)
 
-        "#{table_name}.#{column_name}"
+        Arel::Attributes::Attribute.new(source_table, @name)
       end
 
       def to_arel = coalesce_to_blank_string(cast_to_text(attribute))
@@ -41,9 +43,7 @@ module PgSearch
         Arel::Nodes::NamedFunction.new("coalesce", [node, Arel.sql("''")])
       end
 
-      def table_name = @model.quoted_table_name
-
-      def column_name = @connection.quote_column_name(@name)
+      def source_table = @model.arel_table
     end
   end
 end
