@@ -14,12 +14,16 @@ module PgSearch
         @model = model
       end
 
+      # Physical source-column attribute, or the supplied trusted SQL literal.
+      # Foreign columns refer to the association table, not the search alias.
       def source_attribute
         return @column_name if @column_name.is_a?(Arel::Nodes::SqlLiteral)
 
         Arel::Attributes::Attribute.new(source_table, @name)
       end
 
+      # Composable search expression cast to text, with NULL mapped to "".
+      # Foreign columns use their derived search alias rather than the source.
       def to_arel = coalesce_to_blank_string(cast_to_text(attribute))
 
       private

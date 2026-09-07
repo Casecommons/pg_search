@@ -3,6 +3,11 @@
 module PgSearch
   module Multisearch
     class Rebuilder
+      # @param model [Class] an Active Record model configured for multisearch
+      # @param time_source [#call] clock returning a timestamp for bulk inserts;
+      #   defaults to Time.method(:now), called once per bulk rebuild so created_at
+      #   and updated_at share a timestamp
+      # @raise [ModelNotMultisearchable] if model is not configured for multisearch
       def initialize(model, time_source = Time.method(:now))
         raise ModelNotMultisearchable, model unless model.respond_to?(:pg_search_multisearchable_options)
 
@@ -10,6 +15,10 @@ module PgSearch
         @time_source = time_source
       end
 
+      # Populates search documents without first clearing existing documents.
+      # Uses the model's rebuild_pg_search_documents override when available;
+      # otherwise updates records individually for conditions, dynamic content,
+      # or additional attributes, and bulk-inserts for plain column content.
       def rebuild
         if model.respond_to?(:rebuild_pg_search_documents)
           model.rebuild_pg_search_documents

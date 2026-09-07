@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Drop support for Active Record 7.2
+* Compose search queries with Arel expressions while preserving custom SQL options
 
 ## 2.3.8
 
