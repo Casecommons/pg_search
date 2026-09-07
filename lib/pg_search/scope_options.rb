@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/module/delegation"
-
 module PgSearch
   class ScopeOptions
     attr_reader :config, :feature_options, :model
@@ -81,13 +79,11 @@ module PgSearch
 
     private
 
-    delegate :connection, to: :model
-
     def subquery
       model
         .unscoped
         .select(model.arel_table[model.primary_key].as("pg_search_id"))
-        .select(Arel.sql(rank).as("rank"))
+        .select(rank.as("rank"))
         .joins(subquery_join)
         .where(conditions)
         .limit(nil)
@@ -112,19 +108,11 @@ module PgSearch
     end
 
     def primary_key
-      attribute = Arel::Attributes::Attribute.new(
-        model.arel_table,
-        model.primary_key
-      )
-      connection.visitor.compile(attribute)
+      Arel::Attributes::Attribute.new(model.arel_table, model.primary_key)
     end
 
     def subquery_join
-      if config.associations.any?
-        config.associations.map do |association|
-          association.join(primary_key)
-        end.join(" ")
-      end
+      config.associations.map { |association| association.to_arel(primary_key) }
     end
 
     FEATURE_CLASSES = { # standard:disable Lint/UselessConstantScoping
@@ -151,9 +139,11 @@ module PgSearch
     end
 
     def rank
-      (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
+      return feature_for(:tsearch).rank unless config.ranking_sql
+
+      Arel.sql(config.ranking_sql.gsub(/:(\w*)/) do
         feature_for(Regexp.last_match(1)).rank.to_sql
-      end
+      end)
     end
 
     def rank_join(rank_subquery)

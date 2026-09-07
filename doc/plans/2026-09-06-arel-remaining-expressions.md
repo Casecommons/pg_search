@@ -27,12 +27,12 @@ data merely to eliminate Ruby interpolation. No new database functions/migration
   names, and timestamps. Preserve actual data, escaping, NULL behavior, and the
   shared timestamp. Do not confuse a SQL type token or empty SQL fragment with
   a string value.
-- [ ] **Expression boundaries:** preserve Arel attributes through normalization
+- [x] **Expression boundaries:** preserve Arel attributes through normalization
   instead of coercing their Ruby inspection into SQL; remove avoidable internal
   render-and-wrap cycles for primary keys and default ranking. Preserve the
   documented custom SQL inputs and legacy String adapters at their boundaries.
   Investigate empty-expression fragments before changing their semantics.
-- [ ] **Final audit:** verify remaining interpolation/raw SQL is intentional
+- [x] **Final audit:** verify remaining interpolation/raw SQL is intentional
   syntax, data serialization, or trusted escape-hatch input; report residue
   rather than hiding it.
 
@@ -45,5 +45,4 @@ additional SQL golden matrices. Run relevant specs and bin/rake independently
 for each layer, including the existing pinned Rails-main environment; require
 one focused independent review per layer and green hosted CI.
 
-Check each item with its owning code. Keep an empty working commit above the
-stack. Until /hi, do not sign; record any new unsigned commits for later signing.
+Check each item with its owning code.

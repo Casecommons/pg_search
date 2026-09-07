@@ -22,12 +22,15 @@ module PgSearch
       def arel_table = @model.reflect_on_association(@name).klass.arel_table
 
       def join(primary_key)
-        subquery = relation(primary_key).arel.as(subselect_alias)
-        on_condition = Arel::Nodes::On.new(
-          subquery[:id].eq(Arel.sql(primary_key))
-        )
-        node = Arel::Nodes::OuterJoin.new(subquery, on_condition)
+        node = to_arel(primary_key)
         @model.connection.unprepared_statement { @model.connection.to_sql(node) }
+      end
+
+      def to_arel(primary_key)
+        primary_key = Arel.sql(primary_key) if primary_key.is_a?(String)
+        subquery = relation(primary_key).arel.as(subselect_alias)
+        on_condition = Arel::Nodes::On.new(subquery[:id].eq(primary_key))
+        Arel::Nodes::OuterJoin.new(subquery, on_condition)
       end
 
       def subselect_alias
@@ -38,7 +41,7 @@ module PgSearch
 
       def relation(primary_key)
         result = @model.unscoped.joins(@name).select(
-          Arel.sql(primary_key).as("id"),
+          primary_key.as("id"),
           *selects
         )
         result = result.group(primary_key) unless singular_association?

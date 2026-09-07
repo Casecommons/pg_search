@@ -29,10 +29,12 @@ module PgSearch
 
     def to_node(expression)
       case expression
-      when Arel::Nodes::Node
+      when Arel::Nodes::Node, Arel::Attributes::Attribute
         expression
+      when String
+        Arel.sql(expression)
       else
-        Arel.sql(expression.to_s)
+        raise TypeError
       end
     end
   end

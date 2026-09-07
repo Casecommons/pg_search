@@ -57,6 +57,15 @@ describe PgSearch::Normalizer do
       end
     end
 
+    it "rejects unsupported inputs instead of turning them into SQL" do
+      config = instance_double(PgSearch::Configuration, ignore: [])
+      normalizer = described_class.new(config)
+
+      [nil, Object.new, 123].each do |input|
+        expect { normalizer.add_normalization(input) }.to raise_error(TypeError)
+      end
+    end
+
     context "when config[:ignore] does not include :accents" do
       it "passes the expression through as an Arel-compatible object" do
         config = instance_double(PgSearch::Configuration, "config", ignore: [])
@@ -77,11 +86,29 @@ describe PgSearch::Normalizer do
       Book.create!(title: "café's? déjà: vu\\path")
       config = instance_double(PgSearch::Configuration, ignore: [:accents])
       normalizer = described_class.new(config)
-      col = PgSearch::Configuration::Column.new(:title, nil, Book)
-      expr = normalizer.add_normalization(col.to_arel)
-      sql = "SELECT (#{expr.to_sql}) FROM #{Book.quoted_table_name} LIMIT 1"
-      result = ActiveRecord::Base.connection.select_value(sql)
-      expect(result).to eq("cafes deja vu\\path")
+      expression = normalizer.add_normalization(Book.arel_table[:title])
+
+      expect(Book.pick(expression)).to eq("cafes deja vu\\path")
+    end
+
+    it "preserves attributes when accents are not ignored" do
+      book = Book.create!(title: "café's? déjà: vu\\path")
+      config = instance_double(PgSearch::Configuration, ignore: [])
+      normalizer = described_class.new(config)
+      expression = normalizer.add_normalization(Book.arel_table[:title])
+
+      expect(Book.pick(expression)).to eq(book.title)
+    end
+
+    it "preserves quoted data rather than interpreting it as SQL" do
+      Book.create!
+      value = Arel::Nodes.build_quoted("café's? déjà: vu\\path")
+      config = instance_double(PgSearch::Configuration, ignore: [])
+      normalizer = described_class.new(config)
+
+      expect(normalizer.add_normalization(value)).to equal(value)
+      expect(Book.pick(normalizer.add_normalization(value)))
+        .to eq("café's? déjà: vu\\path")
     end
   end
 end

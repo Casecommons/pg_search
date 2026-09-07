@@ -130,13 +130,16 @@ describe PgSearch::Configuration::Association do
       it "returns the correct SQL join" do
         expect(association.join("model_id")).to eq(expected_sql)
       end
+    end
 
+    describe "#to_arel" do
       let(:projected_column) do
-        Arel.sql("#{association.subselect_alias}.#{association.columns.first.alias}")
+        Site.arel_table.alias(association.subselect_alias)[
+          association.columns.first.alias
+        ].as("document")
       end
       let(:joined_sites) do
-        primary_key = Site.connection.visitor.compile(Site.arel_table[:id])
-        Site.joins(association.join(primary_key))
+        Site.joins(association.to_arel(Site.arel_table[:id]))
       end
 
       it "ignores NULL inputs without padding the aggregate" do
