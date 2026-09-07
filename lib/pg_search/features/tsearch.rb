@@ -133,8 +133,10 @@ module PgSearch
 
         if options[:tsvector_column]
           Array.wrap(options[:tsvector_column]).each do |tsvector_column|
-            column_name = connection.quote_column_name(tsvector_column)
-            terms << Arel.sql("#{quoted_table_name}.#{column_name}")
+            terms << Arel::Attributes::Attribute.new(
+              model.arel_table,
+              tsvector_column.to_s
+            )
           end
         end
 

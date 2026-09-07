@@ -1112,6 +1112,37 @@ describe "an Active Record model which includes PgSearch" do
       end
     end
 
+    context "with quoted identifiers and a rank attribute alias" do
+      with_model :Article do
+        table primary_key: "ArticleID" do |t|
+          t.text :content
+          t.tsvector "SearchVector"
+          t.integer :importance
+        end
+
+        model do
+          include PgSearch::Model
+
+          alias_attribute :rank, :importance
+          pg_search_scope :search_content,
+            using: {tsearch: {tsvector_column: "SearchVector"}}
+        end
+      end
+
+      it "searches the physical vector and selects the synthetic rank" do
+        article = Article.create!(content: "phooey", importance: 10)
+        Article.update_all(
+          %("SearchVector" = to_tsvector('simple', "content"))
+        )
+
+        result = Article.search_content("phooey").with_pg_search_rank.first
+
+        expect(result).to eq(article)
+        expect(result.pg_search_rank).to be_a(Float)
+        expect(result.pg_search_rank).not_to eq(result.importance)
+      end
+    end
+
     context "when using multiple tsvector columns" do
       with_model :ModelWithTsvector do
         table

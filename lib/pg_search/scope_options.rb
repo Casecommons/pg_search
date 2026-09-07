@@ -40,8 +40,8 @@ module PgSearch
 
       def with_pg_search_highlight
         scope = self
-        scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        scope.select("(#{highlight}) AS pg_search_highlight")
+        scope = scope.select(arel_table[Arel.star]) if scope.select_values.empty?
+        scope.select(tsearch.highlight.as("pg_search_highlight"))
       end
 
       def highlight
@@ -52,9 +52,10 @@ module PgSearch
     module WithPgSearchRank
       def with_pg_search_rank
         scope = self
-        scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        rank_column = Arel.sql("#{pg_search_rank_table_alias}.rank").as("pg_search_rank")
-        scope.select(rank_column)
+        scope = scope.select(arel_table[Arel.star]) if scope.select_values.empty?
+        rank_table = arel_table.alias(pg_search_rank_table_alias)
+        rank_column = Arel::Attributes::Attribute.new(rank_table, "rank")
+        scope.select(rank_column.as("pg_search_rank"))
       end
     end
 
@@ -80,7 +81,7 @@ module PgSearch
 
     private
 
-    delegate :connection, :quoted_table_name, to: :model
+    delegate :connection, to: :model
 
     def subquery
       model
@@ -111,7 +112,11 @@ module PgSearch
     end
 
     def primary_key
-      "#{quoted_table_name}.#{connection.quote_column_name(model.primary_key)}"
+      attribute = Arel::Attributes::Attribute.new(
+        model.arel_table,
+        model.primary_key
+      )
+      connection.visitor.compile(attribute)
     end
 
     def subquery_join
