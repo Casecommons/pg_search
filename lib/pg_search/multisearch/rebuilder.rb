@@ -40,7 +40,7 @@ module PgSearch
 
       def connection = model.connection
 
-      def rebuild_sql = connection.visitor.compile(insert_manager.ast)
+      def rebuild_sql = connection.to_sql(insert_manager.ast)
 
       def insert_manager
         time = @time_source.call

@@ -96,10 +96,10 @@ describe PgSearch::Multisearch::Rebuilder do
 
             described_class.new(Book).rebuild
 
-            doc = PgSearch::Document.find_by!(searchable: book)
-            expect(doc.searchable_type).to eq("Book")
-            expect(doc.searchable_id).to eq(book.id)
-            expect(doc.content).to eq("Dune")
+            document = book.pg_search_document
+            expect(document.searchable_type).to eq("Book")
+            expect(document.searchable_id).to eq(book.id)
+            expect(document.content).to eq("Dune")
           end
 
           it "coalesces NULL column values to empty string" do
@@ -107,8 +107,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             described_class.new(Book).rebuild
 
-            doc = PgSearch::Document.find_by!(searchable: book)
-            expect(doc.content).to eq("")
+            expect(book.pg_search_document.content).to eq("")
           end
 
           it "stamps both timestamps with the precision and offset of one clock call" do
@@ -124,7 +123,7 @@ describe PgSearch::Multisearch::Rebuilder do
             described_class.new(Book, time_source).rebuild
 
             expect(call_count).to eq(1)
-            document = PgSearch::Document.find_by!(searchable: book)
+            document = book.pg_search_document
             expect(document.created_at).to eq(time)
             expect(document.updated_at).to eq(time)
           end
@@ -149,8 +148,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             described_class.new(Book).rebuild
 
-            doc = PgSearch::Document.find_by!(searchable: book)
-            expect(doc.content).to eq("Dune The spice")
+            expect(book.pg_search_document.content).to eq("Dune The spice")
           end
 
           it "coalesces NULL in any column to empty string" do
@@ -158,9 +156,8 @@ describe PgSearch::Multisearch::Rebuilder do
 
             described_class.new(Book).rebuild
 
-            doc = PgSearch::Document.find_by!(searchable: book)
             # Keep the separator when the NULL body becomes an empty string.
-            expect(doc.content).to eq("Dune ")
+            expect(book.pg_search_document.content).to eq("Dune ")
           end
         end
 
@@ -182,8 +179,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             described_class.new(Book).rebuild
 
-            doc = PgSearch::Document.find_by!(searchable: book)
-            expect(doc.content).to eq("CamelValue")
+            expect(book.pg_search_document.content).to eq("CamelValue")
           end
         end
 
@@ -205,8 +201,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
             described_class.new(Book).rebuild
 
-            doc = PgSearch::Document.find_by!(searchable_type: "Book")
-            expect(doc.searchable_id).to eq(book.isbn)
+            expect(book.pg_search_document.searchable_id).to eq(book.isbn)
           end
         end
 
@@ -294,8 +289,8 @@ describe PgSearch::Multisearch::Rebuilder do
 
             described_class.new(Cat).rebuild
 
-            doc = PgSearch::Document.find_by!(searchable_id: cat.id, searchable_type: "Animal")
-            expect(doc.content).to eq("Whiskers")
+            document = PgSearch::Document.find_by!(searchable_id: cat.id, searchable_type: "Animal")
+            expect(document.content).to eq("Whiskers")
           end
         end
       end
@@ -319,7 +314,7 @@ describe PgSearch::Multisearch::Rebuilder do
 
           described_class.new(Book).rebuild
 
-          expect(PgSearch::Document.find_by!(searchable: book)).to be_present
+          expect(book.pg_search_document).to be_present
         end
       end
 
@@ -370,8 +365,8 @@ describe PgSearch::Multisearch::Rebuilder do
 
             described_class.new(Book).rebuild
 
-            expect(PgSearch::Document.find_by(searchable: pub)).to be_present
-            expect(PgSearch::Document.find_by(searchable: draft)).to be_nil
+            expect(pub.pg_search_document).to be_present
+            expect(draft.pg_search_document).to be_nil
           end
         end
 
@@ -395,8 +390,8 @@ describe PgSearch::Multisearch::Rebuilder do
 
             described_class.new(Book).rebuild
 
-            expect(PgSearch::Document.find_by(searchable: live)).to be_present
-            expect(PgSearch::Document.find_by(searchable: archived)).to be_nil
+            expect(live.pg_search_document).to be_present
+            expect(archived.pg_search_document).to be_nil
           end
         end
       end
