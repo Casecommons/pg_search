@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/module/delegation"
 require "active_support/core_ext/hash/keys"
 
 module PgSearch
@@ -9,8 +8,6 @@ module PgSearch
       def self.valid_options
         %i[only sort_only]
       end
-
-      delegate :connection, :quoted_table_name, to: :@model
 
       def initialize(query, options, all_columns, model, normalizer)
         @query = query

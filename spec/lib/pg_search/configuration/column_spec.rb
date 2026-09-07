@@ -3,25 +3,6 @@
 require "spec_helper"
 
 describe PgSearch::Configuration::Column do
-  describe "#full_name" do
-    with_model :Model do
-      table do |t|
-        t.string :name
-        t.json :object
-      end
-    end
-
-    it "returns the fully-qualified table and column name" do
-      column = described_class.new("name", nil, Model)
-      expect(column.full_name).to eq(%(#{Model.quoted_table_name}."name"))
-    end
-
-    it "returns nested json attributes" do
-      column = described_class.new(Arel.sql("object->>'name'"), nil, Model)
-      expect(column.full_name).to eq(%(object->>'name'))
-    end
-  end
-
   describe "#to_arel" do
     with_model :Model do
       table do |t|
@@ -109,28 +90,12 @@ describe PgSearch::Configuration::Column do
       end
     end
 
-    it "keeps full_name physical while normalizing the model attribute" do
+    it "normalizes the aliased model attribute" do
       Book.create!(title: "physical", name: "alias")
       Book.alias_attribute :title, :name
       column = described_class.new(:title, nil, Book)
 
-      expect(Book.pluck(Arel.sql(column.full_name))).to eq ["physical"]
       expect(Book.pluck(column.to_arel)).to eq ["alias"]
-    end
-  end
-
-  describe "#to_sql" do
-    with_model :Model do
-      table do |t|
-        t.string :name
-      end
-    end
-
-    it "uses the model connection's visitor as a String adapter" do
-      column = described_class.new("name", nil, Model)
-
-      expect(column.to_sql).to be_a(String)
-      expect(column.to_sql).to eq(Model.connection.visitor.compile(column.to_arel))
     end
   end
 end

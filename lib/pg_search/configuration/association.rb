@@ -21,11 +21,6 @@ module PgSearch
 
       def arel_table = @model.reflect_on_association(@name).klass.arel_table
 
-      def join(primary_key)
-        node = to_arel(primary_key)
-        @model.connection.unprepared_statement { @model.connection.to_sql(node) }
-      end
-
       def to_arel(primary_key)
         primary_key = Arel.sql(primary_key) if primary_key.is_a?(String)
         subquery = relation(primary_key).arel.as(subselect_alias)

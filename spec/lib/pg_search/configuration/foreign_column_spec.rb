@@ -37,19 +37,10 @@ describe PgSearch::Configuration::ForeignColumn do
     end
   end
 
-  describe "#full_name" do
-    it "returns the fully-qualified associated table and column name" do
-      expect(foreign_column.full_name).to eq(
-        %(#{AssociatedModel.quoted_table_name}."title")
-      )
-    end
-  end
-
   describe "#to_arel" do
     def selected_value(model)
-      primary_key = Model.connection.visitor.compile(Model.arel_table[:id])
       relation = Model
-        .joins(association.join(primary_key))
+        .joins(association.to_arel(Model.arel_table[:id]))
         .where(Model.arel_table[:id].eq(model.id))
         .select(foreign_column.to_arel.as("value"))
       sql = Model.connection.visitor.compile(relation.arel.ast)
@@ -75,15 +66,6 @@ describe PgSearch::Configuration::ForeignColumn do
       model = Model.create!(name: "example", associated_model: nil)
 
       expect(selected_value(model)).to eq("")
-    end
-  end
-
-  describe "#to_sql" do
-    it "uses the model connection's visitor as a String adapter" do
-      expect(foreign_column.to_sql).to be_a(String)
-      expect(foreign_column.to_sql).to eq(
-        Model.connection.visitor.compile(foreign_column.to_arel)
-      )
     end
   end
 end

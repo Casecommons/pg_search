@@ -50,27 +50,6 @@ describe PgSearch::Configuration::Association do
         expect(association.table_name).to eq Avatar.table_name
       end
     end
-
-    describe "#join" do
-      let(:expected_sql) do
-        <<~SQL.squish
-          LEFT OUTER JOIN
-            (SELECT model_id AS id,
-                    #{column_select} AS #{association.columns.first.alias}
-            FROM "#{User.table_name}"
-            INNER JOIN "#{association.table_name}"
-            ON "#{association.table_name}"."user_id" = "#{User.table_name}"."id") #{association.subselect_alias}
-          ON #{association.subselect_alias}."id" = model_id
-        SQL
-      end
-      let(:column_select) do
-        "cast(\"#{association.table_name}\".\"url\" AS text)"
-      end
-
-      it "returns the correct SQL join" do
-        expect(association.join("model_id")).to eq(expected_sql)
-      end
-    end
   end
 
   context "with belongs_to" do
@@ -81,27 +60,6 @@ describe PgSearch::Configuration::Association do
         expect(association.table_name).to eq Site.table_name
       end
     end
-
-    describe "#join" do
-      let(:expected_sql) do
-        <<~SQL.squish
-          LEFT OUTER JOIN
-            (SELECT model_id AS id,
-                    #{column_select} AS #{association.columns.first.alias}
-            FROM "#{User.table_name}"
-            INNER JOIN "#{association.table_name}"
-            ON "#{association.table_name}"."id" = "#{User.table_name}"."site_id") #{association.subselect_alias}
-          ON #{association.subselect_alias}."id" = model_id
-        SQL
-      end
-      let(:column_select) do
-        "cast(\"#{association.table_name}\".\"title\" AS text)"
-      end
-
-      it "returns the correct SQL join" do
-        expect(association.join("model_id")).to eq(expected_sql)
-      end
-    end
   end
 
   context "with has_many" do
@@ -110,25 +68,6 @@ describe PgSearch::Configuration::Association do
     describe "#table_name" do
       it "returns the table name for the associated model" do
         expect(association.table_name).to eq User.table_name
-      end
-    end
-
-    describe "#join" do
-      let(:expected_sql) do
-        <<~SQL.squish
-          LEFT OUTER JOIN
-            (SELECT model_id AS id,
-                    string_agg(cast("#{association.table_name}"."name" AS text), ' ') AS #{association.columns.first.alias}
-            FROM "#{Site.table_name}"
-            INNER JOIN "#{association.table_name}"
-            ON "#{association.table_name}"."site_id" = "#{Site.table_name}"."id"
-            GROUP BY model_id) #{association.subselect_alias}
-          ON #{association.subselect_alias}."id" = model_id
-        SQL
-      end
-
-      it "returns the correct SQL join" do
-        expect(association.join("model_id")).to eq(expected_sql)
       end
     end
 

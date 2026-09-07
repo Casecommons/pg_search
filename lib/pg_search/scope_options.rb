@@ -41,10 +41,6 @@ module PgSearch
         scope = scope.select(arel_table[Arel.star]) if scope.select_values.empty?
         scope.select(tsearch.highlight.as("pg_search_highlight"))
       end
-
-      def highlight
-        tsearch.highlight.to_sql
-      end
     end
 
     module WithPgSearchRank

@@ -175,7 +175,7 @@ describe "a pg_search_scope" do
         end
       end
 
-      it "preserves scoped values through searches and the String join adapter" do
+      it "preserves scoped values through searches" do
         shelf_with_obrien = Shelf.create!(title: "Main Shelf")
         shelf_without_obrien = Shelf.create!(title: "Other Shelf")
 
@@ -193,19 +193,6 @@ describe "a pg_search_scope" do
         results = Shelf.with_obrien_books("Third Policeman")
         expect(results).to include(shelf_with_obrien)
         expect(results).not_to include(shelf_without_obrien)
-
-        association = PgSearch::Configuration::Association.new(
-          Shelf, :obrien_books, :title
-        )
-        primary_key = Shelf.connection.visitor.compile(Shelf.arel_table[:id])
-        join = association.join(primary_key)
-        column = Shelf.arel_table.alias(association.subselect_alias)[
-          association.columns.first.alias
-        ]
-
-        expect(join).to be_a(String)
-        expect(Shelf.joins(join).where(column.not_eq(nil)))
-          .to contain_exactly(shelf_with_obrien)
       end
     end
 

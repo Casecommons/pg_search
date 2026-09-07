@@ -12,10 +12,7 @@ module PgSearch
         @column_name = column_name
         @weight = weight
         @model = model
-        @connection = model.connection
       end
-
-      def full_name = @connection.visitor.compile(source_attribute)
 
       def source_attribute
         return @column_name if @column_name.is_a?(Arel::Nodes::SqlLiteral)
@@ -24,8 +21,6 @@ module PgSearch
       end
 
       def to_arel = coalesce_to_blank_string(cast_to_text(attribute))
-
-      def to_sql = @connection.visitor.compile(to_arel)
 
       private
 
