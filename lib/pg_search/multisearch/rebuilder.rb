@@ -44,13 +44,13 @@ module PgSearch
 
       def insert_manager
         time = @time_source.call
-        quoted_time = Arel.sql(connection.quote(connection.quoted_date(time)))
+        quoted_time = Arel::Nodes.build_quoted(time)
         src = model.arel_table
         doc = PgSearch::Document.arel_table
 
         sel = Arel::SelectManager.new(src)
         sel.project(
-          Arel.sql(connection.quote(model.base_class.name)).as("searchable_type"),
+          Arel::Nodes.build_quoted(model.base_class.name).as("searchable_type"),
           src[model.primary_key].as("searchable_id"),
           content_expression.as("content"),
           quoted_time.as("created_at"),
@@ -73,12 +73,12 @@ module PgSearch
       end
 
       def content_expression
-        exprs = columns.map { |col| Configuration::Column.new(col, nil, model).to_arel }
-        exprs.reduce do |acc, expr|
+        expressions = columns.map { |column| Configuration::Column.new(column, nil, model).to_arel }
+        expressions.inject do |document, expression|
           Arel::Nodes::InfixOperation.new(
             "||",
-            Arel::Nodes::InfixOperation.new("||", acc, Arel.sql("' '")),
-            expr
+            Arel::Nodes::InfixOperation.new("||", document, Arel::Nodes.build_quoted(" ")),
+            expression
           )
         end
       end

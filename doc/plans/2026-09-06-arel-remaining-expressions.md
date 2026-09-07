@@ -22,7 +22,7 @@ data merely to eliminate Ruby interpolation. No new database functions/migration
   expression. Preserve the distinction between a foreign column's original
   association source and its derived search-document alias, non-coalesced
   aggregation, and the existing full_name/to_sql String interfaces.
-- [ ] **Quoted values:** replace hand-quoted data and quote/render/wrap patterns
+- [x] **Quoted values:** replace hand-quoted data and quote/render/wrap patterns
   with quoted-value nodes: separators, empty strings, regex arguments, model
   names, and timestamps. Preserve actual data, escaping, NULL behavior, and the
   shared timestamp. Do not confuse a SQL type token or empty SQL fragment with

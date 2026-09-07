@@ -111,21 +111,22 @@ describe PgSearch::Multisearch::Rebuilder do
             expect(doc.content).to eq("")
           end
 
-          it "stamps both created_at and updated_at from a single time_source call" do
+          it "stamps both timestamps with the precision and offset of one clock call" do
+            time = Time.iso8601("2001-01-01T06:30:00.123456+05:30")
             call_count = 0
             time_source = lambda do
               call_count += 1
-              Time.utc(2001, 1, 1)
+              time
             end
 
-            PgSearch.disable_multisearch { Book.create!(title: "Dune") }
+            book = PgSearch.disable_multisearch { Book.create!(title: "Dune") }
 
             described_class.new(Book, time_source).rebuild
 
             expect(call_count).to eq(1)
-            doc = PgSearch::Document.last
-            expect(doc.created_at).to eq(Time.utc(2001, 1, 1))
-            expect(doc.created_at).to eq(doc.updated_at)
+            document = PgSearch::Document.find_by!(searchable: book)
+            expect(document.created_at).to eq(time)
+            expect(document.updated_at).to eq(time)
           end
         end
 

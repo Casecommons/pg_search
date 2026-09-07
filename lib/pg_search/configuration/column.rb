@@ -40,7 +40,7 @@ module PgSearch
       end
 
       def coalesce_to_blank_string(node)
-        Arel::Nodes::NamedFunction.new("coalesce", [node, Arel.sql("''")])
+        Arel::Nodes::NamedFunction.new("coalesce", [node, Arel::Nodes.build_quoted("")])
       end
 
       def source_table = @model.arel_table

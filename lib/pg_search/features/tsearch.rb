@@ -121,7 +121,7 @@ module PgSearch
       end
 
       def tsquery
-        return Arel.sql("''") if query.blank?
+        return Arel::Nodes.build_quoted("") if query.blank?
 
         query_terms = query.split.compact
         query_terms.map { |term| tsquery_for_term(term) }

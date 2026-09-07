@@ -73,15 +73,15 @@ describe PgSearch::Normalizer do
       table { |t| t.string :title }
     end
 
-    it "strips accents from a real column value when ignoring accents" do
-      Book.create!(title: "caf\u00e9")
+    it "strips accents and disallowed punctuation but preserves backslashes" do
+      Book.create!(title: "café's? déjà: vu\\path")
       config = instance_double(PgSearch::Configuration, ignore: [:accents])
       normalizer = described_class.new(config)
       col = PgSearch::Configuration::Column.new(:title, nil, Book)
       expr = normalizer.add_normalization(col.to_arel)
       sql = "SELECT (#{expr.to_sql}) FROM #{Book.quoted_table_name} LIMIT 1"
       result = ActiveRecord::Base.connection.select_value(sql)
-      expect(result).to eq("cafe")
+      expect(result).to eq("cafes deja vu\\path")
     end
   end
 end

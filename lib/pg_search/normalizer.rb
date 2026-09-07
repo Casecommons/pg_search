@@ -6,7 +6,7 @@ module PgSearch
       @config = config
     end
 
-    DISALLOWED_CHARACTERS = "'[''?\\:]'"
+    DISALLOWED_CHARACTERS = "['?\\:]"
 
     def add_normalization(expression)
       node = to_node(expression)
@@ -16,9 +16,9 @@ module PgSearch
         "regexp_replace",
         [
           Arel::Nodes::NamedFunction.new(PgSearch.unaccent_function, [node]),
-          Arel.sql(DISALLOWED_CHARACTERS),
-          Arel.sql("''"),
-          Arel.sql("'g'")
+          Arel::Nodes.build_quoted(DISALLOWED_CHARACTERS),
+          Arel::Nodes.build_quoted(""),
+          Arel::Nodes.build_quoted("g")
         ]
       )
     end
