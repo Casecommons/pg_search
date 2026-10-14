@@ -6,10 +6,10 @@
 
 ## DESCRIPTION
 
-PgSearch builds named scopes that take advantage of PostgreSQL's full text
+pg_search builds named scopes that take advantage of PostgreSQL's full text
 search.
 
-Read the blog post introducing PgSearch at https://tanzu.vmware.com/content/blog/pg-search-how-i-learned-to-stop-worrying-and-love-postgresql-full-text-search
+Read the blog post introducing pg_search at https://tanzu.vmware.com/content/blog/pg-search-how-i-learned-to-stop-worrying-and-love-postgresql-full-text-search
 
 ## REQUIREMENTS
 
@@ -33,7 +33,7 @@ gem 'pg_search'
 ### Non-Rails projects
 
 In addition to installing and requiring the gem, you may want to include the
-PgSearch rake tasks in your Rakefile. This isn't necessary for Rails projects,
+pg_search rake tasks in your Rakefile. This isn't necessary for Rails projects,
 which gain the Rake tasks via a Railtie.
 
 ```ruby
@@ -42,7 +42,7 @@ load "pg_search/tasks.rb"
 
 ## USAGE
 
-To add PgSearch to an Active Record model, simply include the PgSearch module.
+To add pg_search to an Active Record model, simply include the PgSearch module.
 
 ```ruby
 class Shape < ActiveRecord::Base
@@ -1192,8 +1192,8 @@ shirt_brands[1].pg_search_rank #=> 0.0607927
 
 #### Search rank and chained scopes
 
-Each PgSearch scope generates a named subquery for the search rank. If you
-chain multiple scopes then PgSearch will generate a ranking query for each
+Each pg_search scope generates a named subquery for the search rank. If you
+chain multiple scopes then pg_search will generate a ranking query for each
 scope, so the ranking queries must have unique names. If you need to reference
 the ranking query (e.g. in a GROUP BY clause) you can regenerate the subquery
 name with the `PgScope::Configuration.alias` method by passing the name of the
@@ -1207,7 +1207,7 @@ shirt_brands = ShirtBrand.search_by_name("Penguin")
 
 ## ATTRIBUTIONS
 
-PgSearch would not have been possible without inspiration from texticle (now renamed
+pg_search would not have been possible without inspiration from texticle (now renamed
 [textacular](https://github.com/textacular/textacular)). Thanks to [Aaron
 Patterson](http://tenderlovemaking.com/) for the original version and to Casebook PBC (https://www.casebook.net) for gifting the community with it!
 

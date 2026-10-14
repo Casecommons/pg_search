@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.authors = ["Grant Hutchins"]
   s.email = ["gems@nertzy.com"]
   s.homepage = "https://github.com/Casecommons/pg_search"
-  s.summary = "PgSearch builds Active Record named scopes that take advantage of PostgreSQL's full text search"
-  s.description = "PgSearch builds Active Record named scopes that take advantage of PostgreSQL's full text search"
+  s.summary = "pg_search builds Active Record named scopes that take advantage of PostgreSQL's full text search"
+  s.description = "pg_search builds Active Record named scopes that take advantage of PostgreSQL's full text search"
   s.licenses = ["MIT"]
   s.metadata["rubygems_mfa_required"] = "true"
 
