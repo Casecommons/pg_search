@@ -103,12 +103,8 @@ module PgSearch
       end
     end
 
-    def primary_key
-      Arel::Attributes::Attribute.new(model.arel_table, model.primary_key)
-    end
-
     def subquery_join
-      config.associations.map { |association| association.to_arel(primary_key) }
+      config.associations.map { |association| association.to_arel(*rank_keys.values) }
     end
 
     FEATURE_CLASSES = { # standard:disable Lint/UselessConstantScoping

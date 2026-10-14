@@ -15,7 +15,7 @@ value, and Rails already rejects the polymorphic association for a composite key
 - [x] **Spec fixtures:** simplify the merged composite-key spec to ordinary
   domain models, meaningful columns, conventional associations, and examples
   that describe their behavior.
-- [ ] **Associations from a composite-key model:** join and group the association
+- [x] **Associations from a composite-key model:** join and group the association
   subquery on every primary-key column, covering aggregated and singular
   associations.
 

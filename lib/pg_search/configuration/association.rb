@@ -25,15 +25,15 @@ module PgSearch
       #
       # Arguments
       #
-      # +primary_key+:: An Arel expression or trusted SQL String identifying the
-      #                 model's primary-key column, not a record's key value.
+      # +primary_keys+:: Arel attributes identifying every model primary-key
+      #                  column, not a record key value.
       #
       # Returns a composable outer join to the search subquery.
-      def to_arel(primary_key)
-        primary_key = Arel.sql(primary_key) if primary_key.is_a?(String)
-        subquery = relation(primary_key).arel.as(subselect_alias)
-        on_condition = Arel::Nodes::On.new(subquery[:id].eq(primary_key))
-        Arel::Nodes::OuterJoin.new(subquery, on_condition)
+      def to_arel(*primary_keys)
+        join_keys = primary_keys.each.with_index(1).to_h { |attribute, index| ["id_#{index}", attribute] }
+        subquery = relation(join_keys).arel.as(subselect_alias)
+        on_condition = Arel::Nodes::And.new(join_keys.map { |key_alias, attribute| subquery[key_alias].eq(attribute) })
+        Arel::Nodes::OuterJoin.new(subquery, Arel::Nodes::On.new(on_condition))
       end
 
       def subselect_alias
@@ -42,12 +42,12 @@ module PgSearch
 
       private
 
-      def relation(primary_key)
+      def relation(join_keys)
         result = @model.unscoped.joins(@name).select(
-          primary_key.as("id"),
+          *join_keys.map { |key_alias, attribute| attribute.as(key_alias) },
           *selects
         )
-        result = result.group(primary_key) unless singular_association?
+        result = result.group(*join_keys.values) unless singular_association?
         result
       end
 
