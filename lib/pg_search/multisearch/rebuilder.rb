@@ -3,6 +3,16 @@
 module PgSearch
   module Multisearch
     class Rebuilder
+      # Arguments
+      #
+      # +model+:: Active Record model configured for multisearch.
+      # +time_source+:: Clock returning a timestamp for bulk inserts. Defaults to
+      #                 +Time.method(:now)+ and is called once per bulk rebuild so
+      #                 +created_at+ and +updated_at+ share a timestamp.
+      #
+      # Raises
+      #
+      # ModelNotMultisearchable:: If +model+ is not configured for multisearch.
       def initialize(model, time_source = Time.method(:now))
         raise ModelNotMultisearchable, model unless model.respond_to?(:pg_search_multisearchable_options)
 
@@ -10,6 +20,10 @@ module PgSearch
         @time_source = time_source
       end
 
+      # Populates search documents without first clearing existing documents.
+      # Uses the model's rebuild_pg_search_documents override when available;
+      # otherwise updates records individually for conditions, dynamic content,
+      # or additional attributes, and bulk-inserts for plain column content.
       def rebuild
         if model.respond_to?(:rebuild_pg_search_documents)
           model.rebuild_pg_search_documents
@@ -25,7 +39,8 @@ module PgSearch
       attr_reader :model
 
       def conditional?
-        model.pg_search_multisearchable_options.key?(:if) || model.pg_search_multisearchable_options.key?(:unless)
+        model.pg_search_multisearchable_options.key?(:if) ||
+          model.pg_search_multisearchable_options.key?(:unless)
       end
 
       def dynamic?
@@ -37,76 +52,66 @@ module PgSearch
         model.pg_search_multisearchable_options.key?(:additional_attributes)
       end
 
-      def connection
-        model.connection
+      def connection = model.connection
+
+      def rebuild_sql = connection.to_sql(insert_manager.ast)
+
+      def insert_manager
+        time = @time_source.call
+        quoted_time = Arel::Nodes.build_quoted(time)
+        src = model.arel_table
+        doc = PgSearch::Document.arel_table
+
+        sel = Arel::SelectManager.new(src)
+        sel.project(
+          Arel::Nodes.build_quoted(model.base_class.name).as("searchable_type"),
+          src[model.primary_key].as("searchable_id"),
+          content_expression.as("content"),
+          quoted_time.as("created_at"),
+          quoted_time.as("updated_at")
+        )
+
+        apply_sti_condition(sel, src)
+
+        mgr = Arel::InsertManager.new
+        mgr.into(doc)
+        mgr.columns.concat([
+          doc[:searchable_type],
+          doc[:searchable_id],
+          doc[:content],
+          doc[:created_at],
+          doc[:updated_at]
+        ])
+        mgr.select(sel.ast)
+        mgr
       end
 
-      def primary_key
-        model.primary_key
-      end
-
-      def rebuild_sql_template
-        <<~SQL.squish
-          INSERT INTO :documents_table (searchable_type, searchable_id, content, created_at, updated_at)
-            SELECT :base_model_name AS searchable_type,
-                   :model_table.#{primary_key} AS searchable_id,
-                   (
-                     :content_expressions
-                   ) AS content,
-                   :current_time AS created_at,
-                   :current_time AS updated_at
-            FROM :model_table :sti_clause
-        SQL
-      end
-
-      def rebuild_sql
-        replacements.inject(rebuild_sql_template) do |sql, key|
-          sql.gsub ":#{key}", send(key)
+      def content_expression
+        expressions = columns.map { |column| Configuration::Column.new(column, nil, model).to_arel }
+        expressions.inject do |document, expression|
+          Arel::Nodes::InfixOperation.new(
+            "||",
+            Arel::Nodes::InfixOperation.new("||", document, Arel::Nodes.build_quoted(" ")),
+            expression
+          )
         end
       end
 
-      def sti_clause
-        clause = ""
-        if model.column_names.include? model.inheritance_column
-          clause = "WHERE"
-          clause = "#{clause} #{model.inheritance_column} IS NULL OR" if model.base_class == model
-          clause = "#{clause} #{model.inheritance_column} = #{model_name}"
+      def columns = Array(model.pg_search_multisearchable_options[:against])
+
+      def apply_sti_condition(select_manager, src_table)
+        return unless model.column_names.include?(model.inheritance_column)
+
+        inheritance_col = src_table[model.inheritance_column]
+        type_match = inheritance_col.eq(model.name)
+
+        condition = if model.base_class == model
+          inheritance_col.eq(nil).or(type_match)
+        else
+          type_match
         end
-        clause
-      end
 
-      def replacements
-        %w[content_expressions base_model_name model_name model_table documents_table current_time sti_clause]
-      end
-
-      def content_expressions
-        columns.map do |column|
-          %{coalesce(:model_table.#{connection.quote_column_name(column)}::text, '')}
-        end.join(" || ' ' || ")
-      end
-
-      def columns
-        Array(model.pg_search_multisearchable_options[:against])
-      end
-
-      def model_name
-        connection.quote(model.name)
-      end
-
-      def base_model_name
-        connection.quote(model.base_class.name)
-      end
-
-      def model_table
-        model.quoted_table_name
-      end
-
-      def documents_table
-        PgSearch::Document.quoted_table_name
-      end
-
-      def current_time
-        connection.quote(connection.quoted_date(@time_source.call))
+        select_manager.where(condition)
       end
     end
   end

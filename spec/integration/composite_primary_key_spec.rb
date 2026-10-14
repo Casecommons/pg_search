@@ -13,6 +13,7 @@ describe "composite_primary_key" do
 
       model do
         include PgSearch::Model
+
         self.primary_key = [:first_name, :last_name]
         pg_search_scope :search_hobby, against: :hobby
       end
@@ -36,6 +37,7 @@ describe "composite_primary_key" do
 
       model do
         include PgSearch::Model
+
         has_many :children
         self.primary_key = [:first_name, :last_name]
       end
@@ -49,6 +51,7 @@ describe "composite_primary_key" do
 
       model do
         include PgSearch::Model
+
         belongs_to :parent, foreign_key: [:parent_first_name, :parent_last_name]
 
         pg_search_scope :search_parent_hobby, associated_against: {

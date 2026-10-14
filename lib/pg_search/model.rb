@@ -23,13 +23,14 @@ module PgSearch
 
       def multisearchable(options = {})
         include PgSearch::Multisearchable
+
         class_attribute :pg_search_multisearchable_options
         self.pg_search_multisearchable_options = options
       end
     end
 
-    def method_missing(symbol, *args)
-      case symbol
+    def method_missing(method, *, **)
+      case method
       when :pg_search_rank
         raise PgSearchRankNotSelected unless respond_to?(:pg_search_rank)
 
@@ -43,12 +44,9 @@ module PgSearch
       end
     end
 
-    def respond_to_missing?(symbol, *args)
-      case symbol
-      when :pg_search_rank
-        attributes.key?(:pg_search_rank)
-      when :pg_search_highlight
-        attributes.key?(:pg_search_highlight)
+    def respond_to_missing?(method, *, **)
+      if method.in?(%i[pg_search_rank pg_search_highlight])
+        attributes.key?(method)
       else
         super
       end

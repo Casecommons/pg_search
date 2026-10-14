@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/module/delegation"
 require "active_support/core_ext/hash/keys"
 
 module PgSearch
@@ -9,8 +8,6 @@ module PgSearch
       def self.valid_options
         %i[only sort_only]
       end
-
-      delegate :connection, :quoted_table_name, to: :@model
 
       def initialize(query, options, all_columns, model, normalizer)
         @query = query
@@ -25,7 +22,14 @@ module PgSearch
       attr_reader :query, :options, :all_columns, :model, :normalizer
 
       def document
-        columns.map(&:to_sql).join(" || ' ' || ")
+        space = Arel::Nodes.build_quoted(" ")
+        columns.map(&:to_arel).inject do |memo, col|
+          Arel::Nodes::InfixOperation.new(
+            "||",
+            Arel::Nodes::InfixOperation.new("||", memo, space),
+            col
+          )
+        end
       end
 
       def columns

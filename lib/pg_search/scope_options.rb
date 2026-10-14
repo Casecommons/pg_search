@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/module/delegation"
-
 module PgSearch
   class ScopeOptions
     attr_reader :config, :feature_options, :model
@@ -15,10 +13,12 @@ module PgSearch
     def apply(scope)
       scope = include_table_aliasing_for_rank(scope)
       rank_table_alias = scope.pg_search_rank_table_alias(include_counter: true)
+      rank_subquery = subquery.arel.as(rank_table_alias)
 
       scope
-        .joins(rank_join(rank_table_alias))
-        .order(Arel.sql("#{rank_table_alias}.rank DESC, #{order_within_rank}"))
+        .joins(rank_join(rank_subquery))
+        .order(rank_subquery[:rank].desc)
+        .order(order_within_rank)
         .extend(WithPgSearchRank)
         .extend(WithPgSearchHighlight[feature_for(:tsearch)])
     end
@@ -27,6 +27,7 @@ module PgSearch
       def self.[](tsearch)
         Module.new do
           include WithPgSearchHighlight
+
           define_method(:tsearch) { tsearch }
         end
       end
@@ -37,20 +38,18 @@ module PgSearch
 
       def with_pg_search_highlight
         scope = self
-        scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        scope.select("(#{highlight}) AS pg_search_highlight")
-      end
-
-      def highlight
-        tsearch.highlight.to_sql
+        scope = scope.select(arel_table[Arel.star]) if scope.select_values.empty?
+        scope.select(tsearch.highlight.as("pg_search_highlight"))
       end
     end
 
     module WithPgSearchRank
       def with_pg_search_rank
         scope = self
-        scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        scope.select("#{pg_search_rank_table_alias}.rank AS pg_search_rank")
+        scope = scope.select(arel_table[Arel.star]) if scope.select_values.empty?
+        rank_table = arel_table.alias(pg_search_rank_table_alias)
+        rank_column = Arel::Attributes::Attribute.new(rank_table, "rank")
+        scope.select(rank_column.as("pg_search_rank"))
       end
     end
 
@@ -76,18 +75,11 @@ module PgSearch
 
     private
 
-    delegate :connection, :quoted_table_name, to: :model
-
     def subquery
-      query = model.unscoped
-
-      query = if composite_primary_key?
-        query.select(model.primary_key.map.with_index(1) { |part, index| "#{quoted_column_name(part)} AS pg_search_id_#{index}" })
-      else
-        query.select("#{primary_key} AS pg_search_id")
-      end
-
-      query.select("#{rank} AS rank")
+      model
+        .unscoped
+        .select(*rank_keys.map { |key_alias, attribute| attribute.as(key_alias) })
+        .select(rank.as("rank"))
         .joins(subquery_join)
         .where(conditions)
         .limit(nil)
@@ -100,49 +92,26 @@ module PgSearch
           .reject { |_feature_name, feature_options| feature_options && feature_options[:sort_only] }
           .map { |feature_name, _feature_options| feature_for(feature_name).conditions }
 
-      or_node(expressions)
+      Arel::Nodes::Or.new(expressions)
     end
-
-    # https://github.com/rails/rails/pull/51492
-    # :nocov:
-    # standard:disable Lint/DuplicateMethods
-    or_arity = Arel::Nodes::Or.instance_method(:initialize).arity
-    case or_arity
-    when 1
-      def or_node(expressions)
-        Arel::Nodes::Or.new(expressions)
-      end
-    when 2
-      def or_node(expressions)
-        expressions.inject { |accumulator, expression| Arel::Nodes::Or.new(accumulator, expression) }
-      end
-    else
-      raise "Unsupported arity #{or_arity} for Arel::Nodes::Or#initialize"
-    end
-    # :nocov:
-    # standard:enable Lint/DuplicateMethods
 
     def order_within_rank
-      config.order_within_rank || "#{primary_key} ASC"
+      if config.order_within_rank
+        Arel.sql(config.order_within_rank)
+      else
+        rank_keys.values.map(&:asc)
+      end
     end
 
     def primary_key
-      if composite_primary_key?
-        model.primary_key.map { |part| quoted_column_name(part) }.join(",")
-      else
-        quoted_column_name(model.primary_key)
-      end
+      Arel::Attributes::Attribute.new(model.arel_table, model.primary_key)
     end
 
     def subquery_join
-      if config.associations.any?
-        config.associations.map do |association|
-          association.join(primary_key)
-        end.join(" ")
-      end
+      config.associations.map { |association| association.to_arel(primary_key) }
     end
 
-    FEATURE_CLASSES = {
+    FEATURE_CLASSES = { # standard:disable Lint/UselessConstantScoping
       dmetaphone: Features::DMetaphone,
       tsearch: Features::TSearch,
       trigram: Features::Trigram
@@ -166,36 +135,34 @@ module PgSearch
     end
 
     def rank
-      (config.ranking_sql || ":tsearch").gsub(/:(\w*)/) do
+      return feature_for(:tsearch).rank unless config.ranking_sql
+
+      Arel.sql(config.ranking_sql.gsub(/:(\w*)/) do
         feature_for(Regexp.last_match(1)).rank.to_sql
-      end
+      end)
     end
 
-    def rank_join(rank_table_alias)
-      join_condition = if composite_primary_key?
-        model.primary_key.map.with_index(1) { |part, index| "#{quoted_column_name(part)} = #{rank_table_alias}.pg_search_id_#{index}" }
-          .join(" AND ")
-      else
-        "#{primary_key} = #{rank_table_alias}.pg_search_id"
-      end
-
-      "INNER JOIN (#{subquery.to_sql}) AS #{rank_table_alias} ON #{join_condition}"
+    def rank_join(rank_subquery)
+      model.arel_table
+        .join(rank_subquery)
+        .on(Arel::Nodes::And.new(rank_keys.map { |key_alias, attribute| attribute.eq(rank_subquery[key_alias]) }))
+        .join_sources
     end
 
     def include_table_aliasing_for_rank(scope)
-      return scope if scope.included_modules.include?(PgSearchRankTableAliasing)
+      return scope if scope.include?(PgSearchRankTableAliasing)
 
       scope.all.spawn.tap do |new_scope|
         new_scope.instance_eval { extend PgSearchRankTableAliasing }
       end
     end
 
-    def composite_primary_key?
-      model.primary_key.is_a?(Array)
-    end
+    # Maps each rank-subquery key alias to the model primary-key column it joins.
+    def rank_keys
+      attributes = Array(model.primary_key).map { |column| Arel::Attributes::Attribute.new(model.arel_table, column) }
+      return {"pg_search_id" => attributes.first} unless model.composite_primary_key?
 
-    def quoted_column_name(column)
-      "#{quoted_table_name}.#{connection.quote_column_name(column)}"
+      attributes.each.with_index(1).to_h { |attribute, index| ["pg_search_id_#{index}", attribute] }
     end
   end
 end

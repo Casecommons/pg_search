@@ -23,9 +23,7 @@ module PgSearch
       end
     end
 
-    def columns
-      regular_columns + associated_columns
-    end
+    def columns = regular_columns + associated_columns
 
     def regular_columns
       return [] unless options[:against]
@@ -43,37 +41,21 @@ module PgSearch
       end.flatten
     end
 
-    def associated_columns
-      associations.map(&:columns).flatten
-    end
+    def associated_columns = associations.map(&:columns).flatten
 
-    def query
-      options[:query].to_s
-    end
+    def query = options[:query].to_s
 
-    def ignore
-      Array(options[:ignoring])
-    end
+    def ignore = Array(options[:ignoring])
 
-    def ranking_sql
-      options[:ranked_by]
-    end
+    def ranking_sql = options[:ranked_by]
 
-    def features
-      Array(options[:using])
-    end
+    def features = Array(options[:using])
 
     def feature_options
-      @feature_options ||= {}.tap do |hash|
-        features.map do |feature_name, feature_options|
-          hash[feature_name] = feature_options
-        end
-      end
+      @feature_options ||= features.to_h { |name, opts| [name, opts] }
     end
 
-    def order_within_rank
-      options[:order_within_rank]
-    end
+    def order_within_rank = options[:order_within_rank]
 
     private
 
@@ -83,6 +65,7 @@ module PgSearch
       {using: :tsearch}
     end
 
+    # standard:disable Lint/UselessConstantScoping
     VALID_KEYS = %w[
       against ranked_by ignoring using query associated_against order_within_rank
     ].map(&:to_sym)
@@ -90,6 +73,7 @@ module PgSearch
     VALID_VALUES = {
       ignoring: [:accents]
     }.freeze
+    # standard:enable Lint/UselessConstantScoping
 
     def assert_valid_options(options)
       unless options[:against] || options[:associated_against] || using_tsvector_column?(options[:using])

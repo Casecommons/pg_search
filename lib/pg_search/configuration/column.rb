@@ -12,32 +12,37 @@ module PgSearch
         @column_name = column_name
         @weight = weight
         @model = model
-        @connection = model.connection
       end
 
-      def full_name
+      # Physical source-column attribute, or the supplied trusted SQL literal.
+      # Foreign columns refer to the association table, not the search alias.
+      def source_attribute
         return @column_name if @column_name.is_a?(Arel::Nodes::SqlLiteral)
 
-        "#{table_name}.#{column_name}"
+        Arel::Attributes::Attribute.new(source_table, @name)
       end
 
-      def to_sql
-        "coalesce((#{expression})::text, '')"
-      end
+      # Composable search expression cast to text, with NULL mapped to "".
+      # Foreign columns use their derived search alias rather than the source.
+      def to_arel = coalesce_to_blank_string(cast_to_text(attribute))
 
       private
 
-      def table_name
-        @model.quoted_table_name
+      def attribute
+        return @column_name if @column_name.is_a?(Arel::Nodes::SqlLiteral)
+
+        @model.arel_table[@name]
       end
 
-      def column_name
-        @connection.quote_column_name(@name)
+      def cast_to_text(node)
+        Arel::Nodes::NamedFunction.new("cast", [node.as(Arel.sql("text"))])
       end
 
-      def expression
-        full_name
+      def coalesce_to_blank_string(node)
+        Arel::Nodes::NamedFunction.new("coalesce", [node, Arel::Nodes.build_quoted("")])
       end
+
+      def source_table = @model.arel_table
     end
   end
 end

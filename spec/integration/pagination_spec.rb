@@ -11,6 +11,7 @@ describe "pagination" do
 
       model do
         include PgSearch::Model
+
         pg_search_scope :search_name, against: :name
 
         def self.page(page_number)

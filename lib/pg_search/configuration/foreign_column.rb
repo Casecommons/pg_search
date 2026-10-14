@@ -18,13 +18,11 @@ module PgSearch
 
       private
 
-      def expression
-        "#{@association.subselect_alias}.#{self.alias}"
+      def attribute
+        @model.arel_table.alias(@association.subselect_alias)[self.alias]
       end
 
-      def table_name
-        @connection.quote_table_name(@association.table_name)
-      end
+      def source_table = @association.arel_table
     end
   end
 end

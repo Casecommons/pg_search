@@ -14,6 +14,7 @@ describe "an Active Record model which includes PgSearch" do
 
     model do
       include PgSearch::Model
+
       belongs_to :parent_model
     end
   end
@@ -24,6 +25,7 @@ describe "an Active Record model which includes PgSearch" do
 
     model do
       include PgSearch::Model
+
       has_many :models_with_pg_search
       scope :active, -> { where(active: true) }
     end
@@ -238,6 +240,7 @@ describe "an Active Record model which includes PgSearch" do
 
           model do
             include PgSearch::Model
+
             belongs_to :person
             pg_search_scope :search_city, against: [:city]
           end
@@ -250,6 +253,7 @@ describe "an Active Record model which includes PgSearch" do
 
           model do
             include PgSearch::Model
+
             has_many :houses
             pg_search_scope :named, against: [:name]
             scope :with_house_in_city, lambda { |city|
@@ -1046,6 +1050,7 @@ describe "an Active Record model which includes PgSearch" do
 
         model do
           include PgSearch::Model
+
           has_many :comments
         end
       end
@@ -1083,10 +1088,65 @@ describe "an Active Record model which includes PgSearch" do
       it "finds by a combination of the two" do
         expect(Post.search_by_content_with_tsvector("phooey commentone").map(&:id)).to eq([expected.id])
       end
+
+      it "finds by the tsvector column when ordering by an associated table" do
+        # Reference the physical table name that Active Record would normally
+        # leave unaliased. The old string rank join made AliasTracker think the
+        # name was already used and alias this outer join, breaking the order.
+        # https://github.com/Casecommons/pg_search/issues/206
+        results = Post
+          .joins(:comments)
+          .search_by_content_with_tsvector("phooey")
+          .order(Comment.table_name => {id: :asc})
+
+        expect(results).to eq([expected])
+      end
+
+      it "finds by the tsvector column when ordering by an association alias" do
+        results = Post
+          .joins(:comments)
+          .search_by_content_with_tsvector("phooey")
+          .order(comments: {id: :asc})
+
+        expect(results).to eq([expected])
+      end
+    end
+
+    context "with quoted identifiers and a rank attribute alias" do
+      with_model :Article do
+        table primary_key: "ArticleID" do |t|
+          t.text :content
+          t.tsvector "SearchVector"
+          t.integer :importance
+        end
+
+        model do
+          include PgSearch::Model
+
+          alias_attribute :rank, :importance
+          pg_search_scope :search_content,
+            using: {tsearch: {tsvector_column: "SearchVector"}}
+        end
+      end
+
+      it "searches the physical vector and selects the synthetic rank" do
+        article = Article.create!(content: "phooey", importance: 10)
+        Article.update_all(
+          %("SearchVector" = to_tsvector('simple', "content"))
+        )
+
+        result = Article.search_content("phooey").with_pg_search_rank.first
+
+        expect(result).to eq(article)
+        expect(result.pg_search_rank).to be_a(Float)
+        expect(result.pg_search_rank).not_to eq(result.importance)
+      end
     end
 
     context "when using multiple tsvector columns" do
       with_model :ModelWithTsvector do
+        table
+
         model do
           include PgSearch::Model
 
@@ -1185,7 +1245,7 @@ describe "an Active Record model which includes PgSearch" do
       end
 
       context "when the query includes accents" do
-        let(:term) { "L#{%w[‘ ’ ʻ ʼ].sample}Content" }
+        let(:term) { "L#{%w[‘ ’ ʻ ʼ ʹ ʽ ˈ ＇ ŉ].sample}Content" }
         let(:included) { ModelWithPgSearch.create!(title: "Weird #{term}") }
         let(:results) { ModelWithPgSearch.search_title_without_accents(term) }
 
@@ -1196,6 +1256,23 @@ describe "an Active Record model which includes PgSearch" do
         it "does not create an erroneous tsquery expression" do
           expect(results).to contain_exactly(included)
         end
+      end
+    end
+
+    context "when passed an :order_within_rank expression" do
+      before do
+        ModelWithPgSearch.pg_search_scope :search_content_ordered_by_importance,
+          against: :content,
+          order_within_rank: "importance DESC"
+      end
+
+      it "breaks ties in rank by the custom expression" do
+        # Both records match equally; importance determines order
+        low = ModelWithPgSearch.create!(content: "foo", importance: 1)
+        high = ModelWithPgSearch.create!(content: "foo", importance: 5)
+
+        results = ModelWithPgSearch.search_content_ordered_by_importance("foo")
+        expect(results).to eq([high, low])
       end
     end
 

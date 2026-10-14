@@ -20,6 +20,7 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
+
           belongs_to :another_model, class_name: "AssociatedModel"
 
           pg_search_scope :with_another, associated_against: {another_model: :title}
@@ -57,6 +58,7 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
+
           belongs_to :another_model, class_name: "AssociatedModel"
 
           pg_search_scope :with_associated, against: :title, associated_against: {another_model: :title}
@@ -93,6 +95,7 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
+
           has_many :other_models, class_name: "AssociatedModelWithHasMany", foreign_key: "ModelWithHasMany_id"
 
           pg_search_scope :with_associated, against: [:title], associated_against: {other_models: :title}
@@ -139,6 +142,127 @@ describe "a pg_search_scope" do
 
         expect(results.map(&:title)).to match_array(included.map(&:title))
         expect(results).not_to include(excluded)
+      end
+    end
+
+    context "via a scoped has_many association with a quoted literal condition" do
+      with_model :Book do
+        table do |t|
+          t.string "title"
+          t.string "author"
+          t.belongs_to :shelf
+        end
+
+        model do
+          belongs_to :shelf
+        end
+      end
+
+      with_model :Shelf do
+        table do |t|
+          t.string "title"
+        end
+
+        model do
+          include PgSearch::Model
+
+          has_many :obrien_books,
+            -> { where(author: "O'Brien") },
+            class_name: "Book"
+
+          pg_search_scope :with_obrien_books,
+            associated_against: {obrien_books: :title}
+        end
+      end
+
+      it "preserves scoped values through searches" do
+        shelf_with_obrien = Shelf.create!(title: "Main Shelf")
+        shelf_without_obrien = Shelf.create!(title: "Other Shelf")
+
+        Book.create!(
+          title: "The Third Policeman",
+          author: "O'Brien",
+          shelf: shelf_with_obrien
+        )
+        Book.create!(
+          title: "The Third Policeman",
+          author: "Someone Else",
+          shelf: shelf_without_obrien
+        )
+
+        results = Shelf.with_obrien_books("Third Policeman")
+        expect(results).to include(shelf_with_obrien)
+        expect(results).not_to include(shelf_without_obrien)
+      end
+    end
+
+    context "with a physical source column shadowed by a model alias" do
+      with_model :Book do
+        table do |t|
+          t.string :title
+          t.string :name
+          t.belongs_to :shelf
+        end
+
+        model do
+          belongs_to :shelf
+        end
+      end
+
+      with_model :Shelf do
+        table
+
+        model do
+          include PgSearch::Model
+
+          has_many :books
+
+          pg_search_scope :search, associated_against: {books: :title}
+        end
+      end
+
+      it "searches the physical association source through the derived alias" do
+        shelf = Shelf.create!
+        shelf.books.create!(title: "physical", name: "alias")
+        Book.alias_attribute :title, :name
+
+        expect(Shelf.search("physical")).to eq [shelf]
+        expect(Shelf.search("alias")).to be_empty
+      end
+    end
+
+    context "with a trusted SQL expression as the association source" do
+      with_model :Book do
+        table do |t|
+          t.json :metadata
+          t.belongs_to :shelf
+        end
+
+        model do
+          belongs_to :shelf
+        end
+      end
+
+      with_model :Shelf do
+        table
+
+        model do
+          include PgSearch::Model
+
+          has_many :books
+
+          pg_search_scope :search,
+            associated_against: {books: Arel.sql("metadata->>'title'")}
+        end
+      end
+
+      it "evaluates the expression before aggregating the associated rows" do
+        shelf = Shelf.create!
+        shelf.books.create!(metadata: {title: "Hello"})
+        shelf.books.create!(metadata: {title: "world"})
+
+        expect(Shelf.search("Hello world")).to eq [shelf]
+        expect(Shelf.search("title")).to be_empty
       end
     end
 
@@ -284,6 +408,7 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
+
           belongs_to :another_model, class_name: "AssociatedModel"
 
           pg_search_scope :with_associated, associated_against: {another_model: %i[title author]}
@@ -337,6 +462,7 @@ describe "a pg_search_scope" do
 
         model do
           include PgSearch::Model
+
           belongs_to :another_model, class_name: "AssociatedModel"
 
           pg_search_scope :with_associated, associated_against: {another_model: :number}
@@ -368,6 +494,7 @@ describe "a pg_search_scope" do
         model do
           has_many :children
           include PgSearch::Model
+
           pg_search_scope :search_name, against: :name
         end
       end
@@ -398,6 +525,8 @@ describe "a pg_search_scope" do
 
   context "when merging a pg_search_scope into another model's scope" do
     with_model :ModelWithAssociation do
+      table
+
       model do
         has_many :associated_models
       end
@@ -411,6 +540,7 @@ describe "a pg_search_scope" do
 
       model do
         include PgSearch::Model
+
         belongs_to :model_with_association
 
         pg_search_scope :search_content, against: :content
@@ -444,6 +574,8 @@ describe "a pg_search_scope" do
 
   context "when chained onto a has_many association" do
     with_model :Company do
+      table
+
       model do
         has_many :positions
       end
@@ -457,6 +589,7 @@ describe "a pg_search_scope" do
 
       model do
         include PgSearch::Model
+
         pg_search_scope :search, against: :title, using: %i[tsearch trigram]
       end
     end

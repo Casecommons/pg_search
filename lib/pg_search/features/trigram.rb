@@ -29,43 +29,29 @@ module PgSearch
 
       private
 
-      def word_similarity?
-        options[:word_similarity]
-      end
+      def word_similarity? = options[:word_similarity]
 
       def similarity_function
-        if word_similarity?
-          "word_similarity"
-        else
-          "similarity"
-        end
+        word_similarity? ? "word_similarity" : "similarity"
       end
 
       def infix_operator
-        if word_similarity?
-          "<%"
-        else
-          "%"
-        end
+        word_similarity? ? "<%" : "%"
       end
 
       def similarity
         Arel::Nodes::NamedFunction.new(
           similarity_function,
-          [
-            normalized_query,
-            normalized_document
-          ]
+          [normalized_query, normalized_document]
         )
       end
 
       def normalized_document
-        Arel::Nodes::Grouping.new(Arel.sql(normalize(document)))
+        Arel::Nodes::Grouping.new(normalize(document))
       end
 
       def normalized_query
-        sanitized_query = connection.quote(query)
-        Arel.sql(normalize(sanitized_query))
+        normalize(Arel::Nodes.build_quoted(query))
       end
     end
   end
