@@ -92,6 +92,8 @@ module PgSearch
           .reject { |_feature_name, feature_options| feature_options && feature_options[:sort_only] }
           .map { |feature_name, _feature_options| feature_for(feature_name).conditions }
 
+      return if expressions.empty?
+
       Arel::Nodes::Or.new(expressions)
     end
 

@@ -1429,6 +1429,20 @@ describe "an Active Record model which includes PgSearch" do
         results = ModelWithPgSearch.search_content_ranked_by_dmetaphone("ash hines")
         expect(results).to eq [exact, one_exact_one_close, one_exact]
       end
+
+      it "omits the conditions when all features are sort only" do
+        ModelWithPgSearch.pg_search_scope :search_content_ranked_by_tsearch,
+          against: :content,
+          using: {tsearch: {any_word: true, prefix: true, sort_only: true}},
+          ranked_by: ":tsearch"
+
+        matching = ModelWithPgSearch.create!(content: "ash hines")
+        unrelated = ModelWithPgSearch.create!(content: "unrelated content")
+
+        results = ModelWithPgSearch.search_content_ranked_by_tsearch("ash hines")
+
+        expect(results).to contain_exactly(matching, unrelated)
+      end
     end
   end
 end
