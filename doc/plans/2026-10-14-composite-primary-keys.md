@@ -12,7 +12,7 @@ Single-key SQL is unchanged except for internal aliases that callers cannot
 reference. Multisearch stays single-key: its `searchable_id` column holds one
 value, and Rails already rejects the polymorphic association for a composite key.
 
-- [ ] **Spec fixtures:** simplify the merged composite-key spec to ordinary
+- [x] **Spec fixtures:** simplify the merged composite-key spec to ordinary
   domain models, meaningful columns, conventional associations, and examples
   that describe their behavior.
 - [ ] **Associations from a composite-key model:** join and group the association
