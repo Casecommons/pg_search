@@ -1,5 +1,9 @@
 # pg_search changelog
 
+## Unreleased
+
+* Support composite primary keys in search scopes (yaojie)
+
 ## 2.4.0 - 2026-09-07
 
 * Drop support for Active Record 7.2
