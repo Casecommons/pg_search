@@ -23,7 +23,9 @@ module PgSearch
 
       # Builds an outer join, on every model primary-key column, to the search
       # subquery, retaining association-scope binds.
-      def to_arel = Arel::Nodes::OuterJoin.new(subquery, Arel::Nodes::On.new(on_condition))
+      def to_arel
+        Arel::Nodes::OuterJoin.new(subquery, Arel::Nodes::On.new(on_condition))
+      end
 
       def subselect_alias
         Configuration.alias(table_name, @name, "subselect")
@@ -33,9 +35,13 @@ module PgSearch
 
       def subquery = @subquery ||= relation.arel.as(subselect_alias)
 
-      def on_condition = Arel::Nodes::And.new(primary_keys.map { |attribute| subquery[attribute.name].eq(attribute) })
+      def on_condition
+        Arel::Nodes::And.new(primary_keys.map { |attribute| subquery[attribute.name].eq(attribute) })
+      end
 
-      def primary_keys = Array(@model.primary_key).map { |column| @model.arel_table[column] }
+      def primary_keys
+        Array(@model.primary_key).map { |column| @model.arel_table[column] }
+      end
 
       def relation
         result = @model.unscoped.joins(@name).select(*primary_keys, *selects)

@@ -138,9 +138,13 @@ module PgSearch
       end)
     end
 
-    def rank_join(rank_subquery) = model.arel_table.join(rank_subquery).on(rank_join_condition(rank_subquery)).join_sources
+    def rank_join(rank_subquery)
+      model.arel_table.join(rank_subquery).on(rank_join_condition(rank_subquery)).join_sources
+    end
 
-    def rank_join_condition(rank_subquery) = Arel::Nodes::And.new(rank_keys.map { |key_alias, attribute| attribute.eq(rank_subquery[key_alias]) })
+    def rank_join_condition(rank_subquery)
+      Arel::Nodes::And.new(rank_keys.map { |key_alias, attribute| attribute.eq(rank_subquery[key_alias]) })
+    end
 
     def include_table_aliasing_for_rank(scope)
       return scope if scope.include?(PgSearchRankTableAliasing)
@@ -152,10 +156,18 @@ module PgSearch
 
     # Maps each rank-subquery key alias to the model primary-key column it joins.
     # Hashed aliases keep the keys clear of user SQL and the rank column.
-    def rank_keys = primary_keys.to_h { |attribute| [Configuration.alias(model.table_name, "primary_key", attribute.name), attribute] }
+    def rank_keys
+      primary_keys.to_h do |attribute|
+        [Configuration.alias(model.table_name, "primary_key", attribute.name), attribute]
+      end
+    end
 
-    def rank_key_selects = rank_keys.map { |key_alias, attribute| attribute.as(key_alias) }
+    def rank_key_selects
+      rank_keys.map { |key_alias, attribute| attribute.as(key_alias) }
+    end
 
-    def primary_keys = Array(model.primary_key).map { |column| model.arel_table[column] }
+    def primary_keys
+      Array(model.primary_key).map { |column| model.arel_table[column] }
+    end
   end
 end
