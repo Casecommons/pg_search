@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "active_support/core_ext/enumerable"
+
 module PgSearch
   class ScopeOptions
     attr_reader :config, :feature_options, :model
@@ -157,8 +159,8 @@ module PgSearch
     # Maps each rank-subquery key alias to the model primary-key column it joins.
     # Hashed aliases keep the keys clear of user SQL and the rank column.
     def rank_keys
-      primary_keys.to_h do |attribute|
-        [Configuration.alias(model.table_name, "primary_key", attribute.name), attribute]
+      primary_keys.index_by do |attribute|
+        Configuration.alias(model.table_name, "primary_key", attribute.name)
       end
     end
 
