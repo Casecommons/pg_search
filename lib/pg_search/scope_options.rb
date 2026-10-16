@@ -151,11 +151,8 @@ module PgSearch
     end
 
     # Maps each rank-subquery key alias to the model primary-key column it joins.
-    def rank_keys
-      return {"pg_search_id" => primary_keys.first} unless model.composite_primary_key?
-
-      primary_keys.each.with_index(1).to_h { |attribute, index| ["pg_search_id_#{index}", attribute] }
-    end
+    # Hashed aliases keep the keys clear of user SQL and the rank column.
+    def rank_keys = primary_keys.to_h { |attribute| [Configuration.alias(model.table_name, "primary_key", attribute.name), attribute] }
 
     def rank_key_selects = rank_keys.map { |key_alias, attribute| attribute.as(key_alias) }
 

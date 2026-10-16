@@ -44,6 +44,20 @@ describe "a model with a composite primary key" do
     end
   end
 
+  with_model :Track do
+    table primary_key: [:album_id, :rank] do |t|
+      t.integer :album_id
+      t.integer :rank
+      t.string :title
+    end
+
+    model do
+      include PgSearch::Model
+
+      pg_search_scope :search_title, against: :title
+    end
+  end
+
   let(:author) { Author.create!(name: "Tolkien") }
 
   it "joins the rank on every key column and orders ties by the key" do
@@ -76,5 +90,19 @@ describe "a model with a composite primary key" do
     Book.create!(author:, number: 2).reviews.create!(body: "gripping")
 
     expect(Book.search_reviews("gripping plot")).to eq [reviewed]
+  end
+
+  it "chains the same scope twice" do
+    both = Book.create!(author:, number: 1, title: "Ruby Rails")
+    Book.create!(author:, number: 2, title: "Ruby")
+
+    expect(Book.search_title("Ruby").search_title("Rails")).to eq [both]
+  end
+
+  it "searches a key column named rank" do
+    track = Track.create!(album_id: 1, rank: 1, title: "Ruby")
+    Track.create!(album_id: 1, rank: 2, title: "Python")
+
+    expect(Track.search_title("Ruby").with_pg_search_rank).to eq [track]
   end
 end
