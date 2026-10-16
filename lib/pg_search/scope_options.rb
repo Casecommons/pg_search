@@ -104,7 +104,7 @@ module PgSearch
     end
 
     def subquery_join
-      config.associations.map { |association| association.to_arel(*rank_keys.values) }
+      config.associations.map(&:to_arel)
     end
 
     FEATURE_CLASSES = { # standard:disable Lint/UselessConstantScoping
