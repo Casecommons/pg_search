@@ -78,7 +78,7 @@ module PgSearch
     def subquery
       model
         .unscoped
-        .select(*rank_keys.map { |key_alias, attribute| attribute.as(key_alias) })
+        .select(*rank_key_selects)
         .select(rank.as("rank"))
         .joins(subquery_join)
         .where(conditions)
@@ -138,12 +138,9 @@ module PgSearch
       end)
     end
 
-    def rank_join(rank_subquery)
-      model.arel_table
-        .join(rank_subquery)
-        .on(Arel::Nodes::And.new(rank_keys.map { |key_alias, attribute| attribute.eq(rank_subquery[key_alias]) }))
-        .join_sources
-    end
+    def rank_join(rank_subquery) = model.arel_table.join(rank_subquery).on(rank_join_condition(rank_subquery)).join_sources
+
+    def rank_join_condition(rank_subquery) = Arel::Nodes::And.new(rank_keys.map { |key_alias, attribute| attribute.eq(rank_subquery[key_alias]) })
 
     def include_table_aliasing_for_rank(scope)
       return scope if scope.include?(PgSearchRankTableAliasing)
@@ -155,10 +152,13 @@ module PgSearch
 
     # Maps each rank-subquery key alias to the model primary-key column it joins.
     def rank_keys
-      attributes = Array(model.primary_key).map { |column| Arel::Attributes::Attribute.new(model.arel_table, column) }
-      return {"pg_search_id" => attributes.first} unless model.composite_primary_key?
+      return {"pg_search_id" => primary_keys.first} unless model.composite_primary_key?
 
-      attributes.each.with_index(1).to_h { |attribute, index| ["pg_search_id_#{index}", attribute] }
+      primary_keys.each.with_index(1).to_h { |attribute, index| ["pg_search_id_#{index}", attribute] }
     end
+
+    def rank_key_selects = rank_keys.map { |key_alias, attribute| attribute.as(key_alias) }
+
+    def primary_keys = Array(model.primary_key).map { |column| model.arel_table[column] }
   end
 end
