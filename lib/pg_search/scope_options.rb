@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "active_support/core_ext/enumerable"
+
 module PgSearch
   class ScopeOptions
     attr_reader :config, :feature_options, :model
@@ -78,7 +80,7 @@ module PgSearch
     def subquery
       model
         .unscoped
-        .select(model.arel_table[model.primary_key].as("pg_search_id"))
+        .select(*rank_key_selects)
         .select(rank.as("rank"))
         .joins(subquery_join)
         .where(conditions)
@@ -101,16 +103,12 @@ module PgSearch
       if config.order_within_rank
         Arel.sql(config.order_within_rank)
       else
-        model.arel_table[model.primary_key].asc
+        rank_keys.values.map(&:asc)
       end
     end
 
-    def primary_key
-      Arel::Attributes::Attribute.new(model.arel_table, model.primary_key)
-    end
-
     def subquery_join
-      config.associations.map { |association| association.to_arel(primary_key) }
+      config.associations.map(&:to_arel)
     end
 
     FEATURE_CLASSES = { # standard:disable Lint/UselessConstantScoping
@@ -145,10 +143,11 @@ module PgSearch
     end
 
     def rank_join(rank_subquery)
-      model.arel_table
-        .join(rank_subquery)
-        .on(model.arel_table[model.primary_key].eq(rank_subquery[:pg_search_id]))
-        .join_sources
+      model.arel_table.join(rank_subquery).on(rank_join_condition(rank_subquery)).join_sources
+    end
+
+    def rank_join_condition(rank_subquery)
+      Arel::Nodes::And.new(rank_keys.map { |key_alias, attribute| attribute.eq(rank_subquery[key_alias]) })
     end
 
     def include_table_aliasing_for_rank(scope)
@@ -157,6 +156,22 @@ module PgSearch
       scope.all.spawn.tap do |new_scope|
         new_scope.instance_eval { extend PgSearchRankTableAliasing }
       end
+    end
+
+    # Maps each rank-subquery key alias to the model primary-key column it joins.
+    # Hashed aliases keep the keys clear of user SQL and the rank column.
+    def rank_keys
+      primary_keys.index_by do |attribute|
+        Configuration.alias(model.table_name, "primary_key", attribute.name)
+      end
+    end
+
+    def rank_key_selects
+      rank_keys.map { |key_alias, attribute| attribute.as(key_alias) }
+    end
+
+    def primary_keys
+      Array(model.primary_key).map { |column| model.arel_table[column] }
     end
   end
 end

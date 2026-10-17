@@ -78,7 +78,7 @@ describe PgSearch::Configuration::Association do
         ].as("document")
       end
       let(:joined_sites) do
-        Site.joins(association.to_arel(Site.arel_table[:id]))
+        Site.joins(association.to_arel)
       end
 
       it "ignores NULL inputs without padding the aggregate" do

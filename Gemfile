@@ -12,7 +12,15 @@ if ENV["ACTIVE_RECORD_BRANCH"]
   gem "arel", git: "https://github.com/rails/arel.git" if ENV.fetch("ACTIVE_RECORD_BRANCH", nil) == "master"
 end
 
-gem "activerecord", ENV.fetch("ACTIVE_RECORD_VERSION", nil) if ENV["ACTIVE_RECORD_VERSION"] # standard:disable Bundler/DuplicatedGem
+if ENV["ACTIVE_RECORD_VERSION"]
+  active_record_version = ENV.fetch("ACTIVE_RECORD_VERSION")
+  gem "activerecord", active_record_version # standard:disable Bundler/DuplicatedGem
+
+  # Active Record 8.0.5.1 passes the quirks_mode option that json 3 rejects.
+  # 8-0-stable fixed it in rails/rails@2786de2; drop this pin once an 8.0
+  # release ships it.
+  gem "json", "< 3" if Gem::Requirement.new(active_record_version).satisfied_by?(Gem::Version.new("8.0.5.1"))
+end
 
 gem "benchmark"
 gem "debug"

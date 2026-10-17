@@ -40,7 +40,7 @@ describe PgSearch::Configuration::ForeignColumn do
   describe "#to_arel" do
     def selected_value(model)
       relation = Model
-        .joins(association.to_arel(Model.arel_table[:id]))
+        .joins(association.to_arel)
         .where(Model.arel_table[:id].eq(model.id))
         .select(foreign_column.to_arel.as("value"))
       sql = Model.connection.visitor.compile(relation.arel.ast)
