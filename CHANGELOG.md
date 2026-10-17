@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Fix invalid SQL when every search feature is sort-only (sean0407)
 * Support composite primary keys in search scopes (yaojie)
 
 ## 2.4.0 - 2026-09-07
